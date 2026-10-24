@@ -104,14 +104,10 @@ fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
         let plant =
             !batch && len == 64 && std::thread::current().name() == Some("main") && plant_enabled();
         for sequence in 0..iterations {
-            // The single-message case needs its result before producing
-            // the next value: this is a latency chain, not independent
-            // hashes that an out-of-order CPU could overlap.
-            let seed = if batch {
-                sequence as u64
-            } else {
-                checksum ^ sequence as u64
-            };
+            // Sensitivity control: the next input is independent of the
+            // previous digest. Producer stores and in-place consumer stay
+            // the same; an out-of-order CPU may overlap consecutive hashes.
+            let seed = sequence as u64;
             produce(0, input, black_box(seed));
             // Positive control: only SOLO direct 64 B pays one additional
             // hash every fourth message. The extra output is observed then
