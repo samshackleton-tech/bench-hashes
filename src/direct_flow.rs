@@ -144,6 +144,54 @@ fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
     });
 }
 
+/// The same dependent caller after each existing clocks gap. Allocate and
+/// select the API before the gap. Use the sampler's first interval for the
+/// ENTIRE producer/hash/consumer chain; its second closure is empty and its
+/// time/counts are discarded. There are no intervening clock/counter reads
+/// that could drain the producer's stores before hashing.
+#[cfg(feature = "diag-direct-cold")]
+pub(super) fn after_gap(len: usize, iterations: usize, idle: bool) -> DuoCopy {
+    assert!(len > 0 && len % 64 == 0);
+    SPACES.with_borrow_mut(|spaces| {
+        let space = spaces.entry((len, 1)).or_insert_with(|| Space::new(len, 1));
+        let input = &mut space.input[space.at..space.at + len];
+        let out = &mut space.output[0];
+        let mut checksum = 0u64;
+        let mut sequence = 0u64;
+        GAP_BUFFERS.with_borrow_mut(|(work, _)| {
+            let gap = if idle {
+                clocks::Gap::Idle
+            } else {
+                clocks::Gap::Busy(work)
+            };
+            let started_ns = clocks::load::now_ns();
+            let measured = clocks::measure_after_gaps_prepared(
+                iterations as u64,
+                gap,
+                GAP_NS,
+                input,
+                |room| {
+                    produce(0, room, black_box(checksum ^ sequence));
+                    #[cfg(test)]
+                    observe_call("hash_with");
+                    blake3_servil::hash_with(Mode::Hash, black_box(room), out);
+                    use_in_place(out, &mut checksum);
+                    sequence = sequence.wrapping_add(1);
+                    black_box(checksum);
+                },
+                |_| {},
+            );
+            DuoCopy {
+                elapsed_ns: measured.preparation.wall_ns,
+                counts: measured.preparation.counts,
+                started_ns,
+                cpu_ns: None,
+                energy_nj: None,
+            }
+        })
+    })
+}
+
 fn streaming(len: usize, messages: usize, batch: bool, iterations: usize) {
     assert!(len > 0 && len % 64 == 0);
     let in_flight = if batch {
@@ -235,6 +283,54 @@ mod tests {
             .unwrap()
             .join()
             .unwrap();
+    }
+
+    #[cfg(feature = "diag-direct-cold")]
+    #[test]
+    fn after_gap_uses_the_same_producer_and_final_places() {
+        blake3_servil::initialize();
+        for len in [64, 256, 1024] {
+            for idle in [false, true] {
+                let before = SPACES.with_borrow_mut(|spaces| {
+                    let s = spaces.entry((len, 1)).or_insert_with(|| Space::new(len, 1));
+                    (
+                        s.input[s.at..].as_ptr() as usize,
+                        s.output.as_ptr() as usize,
+                    )
+                });
+                assert_eq!(before.0 % 64, 0);
+                CALLS.with_borrow_mut(Vec::clear);
+                let sample = after_gap(len, 2, idle);
+                assert!(sample.elapsed_ns > 0);
+                assert_eq!(CALLS.with(|calls| calls.borrow().clone()), ["hash_with"; 3]);
+                // One untimed call followed by two timed calls. Recreate
+                // their dependency chain using the upstream implementation.
+                let mut reference = Space::new(len, 1);
+                let input = &mut reference.input[reference.at..reference.at + len];
+                let mut feedback = 0u64;
+                let mut expected = [0u8; 32];
+                for sequence in 0..3 {
+                    produce(0, input, feedback ^ sequence);
+                    expected = *blake3::hash(input).as_bytes();
+                    for word in expected.chunks_exact(8) {
+                        feedback =
+                            feedback.wrapping_add(u64::from_le_bytes(word.try_into().unwrap()));
+                    }
+                }
+                SPACES.with_borrow(|spaces| {
+                    let s = &spaces[&(len, 1)];
+                    assert_eq!(
+                        (
+                            s.input[s.at..].as_ptr() as usize,
+                            s.output.as_ptr() as usize
+                        ),
+                        before
+                    );
+                    assert_eq!(&s.input[s.at..s.at + len], input);
+                    assert_eq!(s.output[0].as_bytes(), &expected);
+                });
+            }
+        }
     }
 
     #[test]

@@ -2664,6 +2664,13 @@ fn use_digest(digests: &[u8]) {
  * outside the timed intervals.
  */
 fn take_sample(algorithm: Algorithm, input: &[u8], point: Point, iterations: usize) -> DuoCopy {
+    #[cfg(feature = "diag-direct-cold")]
+    if algorithm == Algorithm::Blake3ServilSt
+        && point.use_case.after_gap()
+        && point.use_case.call() == UseCase::OneMessage
+    {
+        return direct_flow::after_gap(input.len(), iterations, point.use_case.idle());
+    }
     if point.use_case.after_gap() {
         let idle = point.use_case.idle();
         if point.use_case.call() == UseCase::OneMessage {
@@ -6009,6 +6016,8 @@ fn samples_header(machine: &MachineMetadata, run: &[(String, String)]) -> String
     writeln!(out, "# power: {}", machine.describe_power()).unwrap();
     #[cfg(feature = "diag-direct-flow")]
     writeln!(out, "# experiment: direct production in aligned final input; heap output consumed in place; ST lent and MT continuous cells only").unwrap();
+    #[cfg(feature = "diag-direct-cold")]
+    writeln!(out, "# experiment after-gap: ST OneMessage/IdleOneMessage use aligned direct production, hash_with into kept heap output, and in-place checksum in one contiguous interval; gaps excluded").unwrap();
     #[cfg(feature = "diag-direct-plant")]
     writeln!(out, "# experiment plant: solo direct 64 B hashes once extra every fourth message").unwrap();
     #[cfg(feature = "diag-direct-plant")]
@@ -6238,6 +6247,8 @@ fn generate_text(
     writeln!(output, "  clock: {}", clocks::WALL_CLOCK).unwrap();
     #[cfg(feature = "diag-direct-flow")]
     writeln!(output, "  EXPERIMENT: direct production and in-place digest use (ST lent, MT continuous); not the published workload").unwrap();
+    #[cfg(feature = "diag-direct-cold")]
+    writeln!(output, "  EXPERIMENT: ST after-work/idle one-message cells also use the direct performance API; not convenience hash()").unwrap();
     writeln!(
         output,
         "  load during the run: {}",
@@ -6781,12 +6792,13 @@ mod correctness_tests {
         );
         take_sample(Algorithm::Blake3ServilSt, &input, Point::many("", 1), 3);
         /* One untimed call before each sample's timed ones (clocks: each timed call follows the same call). */
+        let single = if cfg!(feature = "diag-direct-cold") { "hash_with" } else { "hash" };
         assert_eq!(
             CALLS.with(|calls| calls.borrow().clone()),
             [
-                "hash",
-                "hash",
-                "hash",
+                single,
+                single,
+                single,
                 "hash_many",
                 "hash_many",
                 "hash_many",
