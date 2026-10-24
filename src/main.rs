@@ -141,6 +141,8 @@ const TO_CHECK_FOR_REGRESSIONS: Visits = Visits {
 /// Points on the one-message axis, and on each many-messages axis.
 const INPUT_COUNT: usize = 28;
 const BATCH_COUNT: usize = 24;
+/// Points on the axis of batches of 4 KiB messages (FROZEN.md).
+const LONG_BATCH_COUNT: usize = 4;
 /// Points on the continuous axes: message lengths, and messages per batch.
 const CONTINUOUS_MESSAGE_COUNT: usize = 11;
 const CONTINUOUS_BATCH_COUNT: usize = 7;
@@ -149,6 +151,7 @@ const INTERLEAVED_COUNT: usize = 1;
 /// Collections: git's objects, and the files of Nix store paths (FROZEN.md).
 const COLLECTION_COUNT: usize = 2;
 const POINT_COUNT: usize = 2 * (INPUT_COUNT + BATCH_COUNT)
+    + LONG_BATCH_COUNT
     + 2 * CONTINUOUS_MESSAGE_COUNT
     + INTERLEAVED_COUNT
     + 2 * COLLECTION_COUNT
@@ -337,6 +340,9 @@ const MERKLE_COUNT: usize = 5;
 /// Every message in the batches is one BLAKE3 block of 64 bytes, the size
 /// of a Merkle tree's inner node (two 32-byte children).
 const MESSAGE_LEN: usize = 64;
+/// The length of each message in a ManyLongMessages batch: four chunks,
+/// within the 2 to 15 chunks hash_many hashes across messages.
+const LONG_MESSAGE_LEN: usize = 4096;
 
 const BENCH_VERSION: &str = env!("CARGO_PKG_VERSION");
 const GIT_SOURCE: &str = env!("BENCH_GIT_SOURCE");
@@ -458,6 +464,13 @@ const POINTS: [Point; POINT_COUNT] = [
     Point::many("65536", 65536),
     Point::many("131072", 131072),
     Point::many("262144", 262144),
+    // Batches of 4 KiB messages (Zooko, October 24): hash_many's path for
+    // messages of 2 to 15 chunks, across the messages at every step of
+    // their tree, which no other cell reaches.
+    Point::many_long("4", 4),
+    Point::many_long("16", 16),
+    Point::many_long("64", 64),
+    Point::many_long("256", 256),
     Point::one("64 B", 64).idle(),
     Point::one("128 B", 128).idle(),
     Point::one("256 B", 256).idle(),
@@ -605,6 +618,8 @@ enum UseCase {
     OneMessage,
     /// Batches of 64-byte messages.
     ManyMessages,
+    /// Batches of LONG_MESSAGE_LEN-byte messages, after other work.
+    ManyLongMessages,
     /// The same two calls, each after the program idled (the first
     /// two: each after other work; clocks::Gap).
     IdleOneMessage,
@@ -645,9 +660,10 @@ enum UseCase {
 }
 
 impl UseCase {
-    const ALL: [UseCase; 14] = [
+    const ALL: [UseCase; 15] = [
         UseCase::OneMessage,
         UseCase::ManyMessages,
+        UseCase::ManyLongMessages,
         UseCase::IdleOneMessage,
         UseCase::IdleManyMessages,
         UseCase::ContinuousMessages,
@@ -668,7 +684,7 @@ impl UseCase {
     fn after_gap(self) -> bool {
         matches!(
             self.call(),
-            Self::OneMessage | Self::ManyMessages | Self::InterleavedTurn
+            Self::OneMessage | Self::ManyMessages | Self::ManyLongMessages | Self::InterleavedTurn
         )
     }
 
@@ -734,7 +750,10 @@ impl UseCase {
     fn batch(self) -> bool {
         matches!(
             self.call(),
-            Self::ManyMessages | Self::ContinuousBatches | Self::LentBatches
+            Self::ManyMessages
+                | Self::ManyLongMessages
+                | Self::ContinuousBatches
+                | Self::LentBatches
         )
     }
 
@@ -745,6 +764,7 @@ impl UseCase {
             | Self::IdleManyMessages
             | Self::ContinuousBatches
             | Self::LentBatches => MESSAGE_LEN,
+            Self::ManyLongMessages => LONG_MESSAGE_LEN,
             Self::OneMessage
             | Self::IdleOneMessage
             | Self::ContinuousMessages
@@ -782,6 +802,7 @@ impl UseCase {
         match self {
             Self::OneMessage => "A message in one buffer, after other work",
             Self::ManyMessages => "A batch of 64-byte messages, after other work",
+            Self::ManyLongMessages => "A batch of 4 KiB messages, after other work",
             Self::IdleOneMessage => "A message in one buffer, after idling",
             Self::IdleManyMessages => "A batch of 64-byte messages, after idling",
             Self::ContinuousMessages => "Messages one after another, buffers owned",
@@ -818,6 +839,7 @@ impl UseCase {
             Self::Collection | Self::ContinuousCollection => "collection",
             Self::MerkleTree => "leaves",
             Self::ManyMessages
+            | Self::ManyLongMessages
             | Self::IdleManyMessages
             | Self::ContinuousBatches
             | Self::LentBatches => "messages",
@@ -843,6 +865,7 @@ impl UseCase {
             | Self::InterleavedTurn
             | Self::IdleInterleavedTurn => point.bytes as u64 * iterations as u64,
             Self::ManyMessages
+            | Self::ManyLongMessages
             | Self::IdleManyMessages
             | Self::ContinuousBatches
             | Self::LentBatches => point.messages as u64 * iterations as u64,
@@ -885,6 +908,7 @@ impl UseCase {
         match self {
             Self::OneMessage | Self::ManyMessages => "",
             Self::IdleOneMessage | Self::IdleManyMessages => "idle ",
+            Self::ManyLongMessages => "4 KiB batch ",
             Self::ContinuousMessages => "continuous ",
             Self::ContinuousBatches => "continuous batch ",
             Self::LentMessages => "lent ",
@@ -936,6 +960,15 @@ impl Point {
             bytes,
             messages: 1,
             use_case: UseCase::ContinuousMessages,
+        }
+    }
+
+    const fn many_long(label: &'static str, messages: usize) -> Self {
+        Self {
+            label,
+            bytes: messages * LONG_MESSAGE_LEN,
+            messages,
+            use_case: UseCase::ManyLongMessages,
         }
     }
 
@@ -1110,9 +1143,10 @@ impl Algorithm {
     fn takes_part(self, use_case: UseCase) -> bool {
         let use_case = use_case.call();
         match use_case {
-            UseCase::ManyMessages | UseCase::IdleManyMessages | UseCase::LentBatches => {
-                !matches!(self, Self::Blake3Rayon)
-            }
+            UseCase::ManyMessages
+            | UseCase::ManyLongMessages
+            | UseCase::IdleManyMessages
+            | UseCase::LentBatches => !matches!(self, Self::Blake3Rayon),
             UseCase::ContinuousBatches => !matches!(self, Self::Blake3Rayon),
             UseCase::ContinuousMessages => true,
             UseCase::OneMessage
@@ -2651,7 +2685,11 @@ fn take_sample(algorithm: Algorithm, input: &[u8], point: Point, iterations: usi
                 call(input, point.bytes)
             });
         }
-        if point.use_case.call() == UseCase::ManyMessages {
+        if matches!(
+            point.use_case.call(),
+            UseCase::ManyMessages | UseCase::ManyLongMessages
+        ) {
+            let message_len = point.use_case.message_len();
             let hash_many: Option<fn(&[u8], usize, &mut [[u8; 32]])> = match algorithm {
                 Algorithm::Blake3ServilSt => Some(|i, l, o| {
                     blake3_servil::performance::hash_many(
@@ -2679,7 +2717,7 @@ fn take_sample(algorithm: Algorithm, input: &[u8], point: Point, iterations: usi
                     assert_blocks_aligned(input);
                     hash_many(
                         black_box(input),
-                        MESSAGE_LEN,
+                        message_len,
                         &mut digests[..point.messages],
                     );
                     black_box(digests[..point.messages].as_flattened());
@@ -2907,6 +2945,7 @@ fn hash_batch(
         UseCase::OneMessage
         | UseCase::IdleOneMessage
         | UseCase::ManyMessages
+        | UseCase::ManyLongMessages
         | UseCase::IdleManyMessages => hash_in_memory(algorithm, input, point, iterations, consume),
     }
 }
@@ -2970,7 +3009,9 @@ fn hash_messages(
     let input = if batch { input } else { &input[..message_len] };
     match algorithm {
         Algorithm::Blake3 => {
-            if !batch {
+            // The crate's hidden batch function hashes each message as one
+            // chunk: longer messages, as a program would, one call each.
+            if !batch || message_len > blake3::guts::CHUNK_LEN {
                 each_message(
                     input,
                     message_len,
@@ -4200,7 +4241,7 @@ thread_local! {
  * these.
  */
 #[cfg(test)]
-const SERVIL_CALLS: [(Algorithm, UseCase, &str); 28] = [
+const SERVIL_CALLS: [(Algorithm, UseCase, &str); 30] = [
     (Algorithm::Blake3ServilSt, UseCase::InterleavedTurn, "the Hashers of the 256 open messages; one turn a call (up to 64 pieces, 256 KiB), each after other work: performance::update_each, then performance::finalize_each for the messages that ended in it"),
     (Algorithm::Blake3ServilSt, UseCase::IdleInterleavedTurn, "the Hashers of the 256 open messages; one turn a call (up to 64 pieces, 256 KiB), each after idling: performance::update_each, then performance::finalize_each for the messages that ended in it"),
     (Algorithm::Blake3ServilMt, UseCase::InterleavedTurn, "the Hashers of the 256 open messages; one turn a call (up to 64 pieces, 256 KiB), each after other work: performance::update_each_multithreaded, then performance::finalize_each for the messages that ended in it"),
@@ -4229,6 +4270,8 @@ const SERVIL_CALLS: [(Algorithm, UseCase, &str); 28] = [
     (Algorithm::Blake3ServilSt, UseCase::IdleManyMessages, "performance::hash_many(Mode::Hash, blocks, 64, out), the padded batch contract, each call after idling"),
     (Algorithm::Blake3ServilMt, UseCase::IdleOneMessage, "performance::hash_multithreaded(Mode::Hash, blocks, len), each call after idling"),
     (Algorithm::Blake3ServilMt, UseCase::IdleManyMessages, "performance::hash_many_multithreaded(Mode::Hash, blocks, 64, out), the padded batch contract, each call after idling"),
+    (Algorithm::Blake3ServilSt, UseCase::ManyLongMessages, "performance::hash_many(Mode::Hash, blocks, 4096, out), the padded batch contract, each call after other work"),
+    (Algorithm::Blake3ServilMt, UseCase::ManyLongMessages, "performance::hash_many_multithreaded(Mode::Hash, blocks, 4096, out), the padded batch contract, each call after other work"),
 ];
 
 /// The frozen contract as text, from the code's own tables: FROZEN.md's
@@ -5004,6 +5047,7 @@ fn continuous_min_inputs(input: &[u8], point: Point) -> usize {
         UseCase::OneMessage
         | UseCase::IdleOneMessage
         | UseCase::ManyMessages
+        | UseCase::ManyLongMessages
         | UseCase::IdleManyMessages
         | UseCase::LentMessages
         | UseCase::Interleaved
@@ -6835,7 +6879,11 @@ mod correctness_tests {
             UseCase::ManyMessages.points(),
             INPUT_COUNT..INPUT_COUNT + BATCH_COUNT
         );
-        let idle = INPUT_COUNT + BATCH_COUNT;
+        assert_eq!(
+            UseCase::ManyLongMessages.points(),
+            INPUT_COUNT + BATCH_COUNT..INPUT_COUNT + BATCH_COUNT + LONG_BATCH_COUNT
+        );
+        let idle = INPUT_COUNT + BATCH_COUNT + LONG_BATCH_COUNT;
         for use_case in [UseCase::IdleOneMessage, UseCase::IdleManyMessages] {
             let (twin, mine) = (use_case.call().points(), use_case.points());
             assert_eq!(
@@ -6851,7 +6899,7 @@ mod correctness_tests {
                 );
             }
         }
-        let continuous = 2 * idle;
+        let continuous = 2 * idle - LONG_BATCH_COUNT;
         assert_eq!(
             UseCase::ContinuousMessages.points(),
             continuous..continuous + CONTINUOUS_MESSAGE_COUNT

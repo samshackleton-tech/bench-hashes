@@ -86,6 +86,20 @@ the notes) may still change, to say it better.
   Reliance stays as METHODOLOGY states it: fresh controls at these
   budgets, with independent layouts and intermittent slow modes, govern
   it, and the general-reliance NO-GO stays in force until they pass.
+- **A batch of 4 KiB messages** (Zooko, October 24, for 0.18.0): a use
+  case of its own, ManyLongMessages, batches of 4, 16, 64 and 256
+  messages of 4 KiB each, after other work, servil st's `hash_many` and
+  servil mt's `hash_many_multithreaded` with 4096 for the length, BLAKE3
+  official and the rest message by message (official's hidden batch
+  function hashes each message as one chunk, so a program with longer
+  messages calls `blake3::hash` on each). It is the one cell on
+  the path `hash_many` takes for messages of 2 to 15 chunks, across the
+  messages at every step of their tree (`hash_across`), which measured
+  0.35-0.52 times the time per message when written (the fork's
+  2478d66) and which no cell reached before, so no check could guard
+  it (the data branch, `2026-10-24/shortcuts`). On the map it is a row
+  of its own, a batch of longer messages, in the after-other-work
+  column.
 - **One message of 1536 B** (Zooko, October 23, for 0.17.0; Sam
   Shackleton's finding on bench #63): a point between 1 KiB and 2 KiB in
   OneMessage and IdleOneMessage, one whole chunk and half of another, the
@@ -650,6 +664,7 @@ use, across machines?".
 ```frozen
 use case OneMessage: 64 B, 128 B, 256 B, 512 B, 1 KiB, 1536 B, 2 KiB, 2304 B, 3 KiB, 3839 B, 4 KiB, 4470 B, 7935 B, 8 KiB, 16 KiB, 32 KiB, 64 KiB, 128 KiB, 256 KiB, 512 KiB, 1 MiB, 2 MiB, 3 MiB, 4 MiB, 8 MiB, 32 MiB, 64 MiB, 128 MiB
 use case ManyMessages: 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144
+use case ManyLongMessages: 4, 16, 64, 256
 use case IdleOneMessage: 64 B, 128 B, 256 B, 512 B, 1 KiB, 1536 B, 2 KiB, 2304 B, 3 KiB, 3839 B, 4 KiB, 4470 B, 7935 B, 8 KiB, 16 KiB, 32 KiB, 64 KiB, 128 KiB, 256 KiB, 512 KiB, 1 MiB, 2 MiB, 3 MiB, 4 MiB, 8 MiB, 32 MiB, 64 MiB, 128 MiB
 use case IdleManyMessages: 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768, 65536, 131072, 262144
 use case ContinuousMessages: 64 B, 256 B, 1 KiB, 4 KiB, 16 KiB, 64 KiB, 256 KiB, 1 MiB, 4 MiB, 16 MiB, 64 MiB
@@ -692,6 +707,8 @@ blake3-servil-st IdleOneMessage: convenience::hash(input), each call after idlin
 blake3-servil-st IdleManyMessages: performance::hash_many(Mode::Hash, blocks, 64, out), the padded batch contract, each call after idling
 blake3-servil-mt IdleOneMessage: performance::hash_multithreaded(Mode::Hash, blocks, len), each call after idling
 blake3-servil-mt IdleManyMessages: performance::hash_many_multithreaded(Mode::Hash, blocks, 64, out), the padded batch contract, each call after idling
+blake3-servil-st ManyLongMessages: performance::hash_many(Mode::Hash, blocks, 4096, out), the padded batch contract, each call after other work
+blake3-servil-mt ManyLongMessages: performance::hash_many_multithreaded(Mode::Hash, blocks, 4096, out), the padded batch contract, each call after other work
 overview cell: solo OneMessage 64 B, blake3-servil-st (64 B)
 overview cell: solo OneMessage 1 KiB, blake3-servil-st (1 KiB)
 overview cell: solo OneMessage 1 MiB, blake3-servil-st (1 MiB, one thread)
