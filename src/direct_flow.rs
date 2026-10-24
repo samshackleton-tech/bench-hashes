@@ -46,6 +46,9 @@ fn produce(at: usize, room: &mut [u8], sequence: u64) {
     assert_eq!(at % 8, 0);
     assert_eq!(room.len() % 8, 0);
     assert_eq!(room.as_ptr() as usize % 64, 0);
+    #[cfg(feature = "diag-direct-fill")]
+    room.fill(sequence as u8);
+    #[cfg(not(feature = "diag-direct-fill"))]
     for (i, word) in room.chunks_exact_mut(8).enumerate() {
         let value = sequence
             .wrapping_add((at / 8 + i) as u64)
@@ -82,6 +85,8 @@ fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
             .or_insert_with(|| Space::new(bytes, messages));
         let input = &mut space.input[space.at..space.at + bytes];
         let mut checksum = 0;
+        #[cfg(feature = "diag-direct-plant")]
+        let plant = !batch && len == 64 && std::thread::current().name() == Some("main");
         for sequence in 0..iterations {
             // The single-message case needs its result before producing
             // the next value: this is a latency chain, not independent
@@ -92,6 +97,16 @@ fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
                 checksum ^ sequence as u64
             };
             produce(0, input, black_box(seed));
+            // Positive control: only SOLO direct 64 B pays one additional
+            // hash every fourth message. The extra output is observed then
+            // overwritten by the normal call: the workload's digests agree.
+            #[cfg(feature = "diag-direct-plant")]
+            if plant && sequence % 4 == 0 {
+                blake3_servil::hash_with(Mode::Hash, black_box(input), &mut space.output[0]);
+                black_box(space.output[0].as_bytes());
+                #[cfg(test)]
+                PLANT_CALLS.with(|n| n.set(n.get() + 1));
+            }
             if batch {
                 // Sound: Hash is repr(transparent) over [u8; 32]; this is
                 // the same heap allocation, viewed in hash_many's type.
@@ -170,9 +185,41 @@ pub(super) fn run(algorithm: Algorithm, point: Point, iterations: usize) -> bool
     true
 }
 
+#[cfg(all(test, feature = "diag-direct-plant"))]
+thread_local! {
+    static PLANT_CALLS: std::cell::Cell<usize> = const { std::cell::Cell::new(0) };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(feature = "diag-direct-plant")]
+    #[test]
+    fn plant_is_one_hash_in_four_in_only_the_solo_64_byte_cell() {
+        blake3_servil::initialize();
+        std::thread::Builder::new()
+            .name("main".into())
+            .spawn(|| {
+                synchronous(64, 1, false, 16);
+                PLANT_CALLS.with(|n| assert_eq!(n.get(), 4));
+                synchronous(256, 1, false, 16);
+                synchronous(64, 16, true, 16);
+                PLANT_CALLS.with(|n| assert_eq!(n.get(), 4));
+            })
+            .unwrap()
+            .join()
+            .unwrap();
+        std::thread::Builder::new()
+            .name("duo-copy-0".into())
+            .spawn(|| {
+                synchronous(64, 1, false, 16);
+                PLANT_CALLS.with(|n| assert_eq!(n.get(), 0));
+            })
+            .unwrap()
+            .join()
+            .unwrap();
+    }
 
     #[test]
     fn direct_input_and_output_have_the_expected_bytes_and_stable_places() {
@@ -185,9 +232,13 @@ mod tests {
             for sequence in 0..3 {
                 produce(0, input, sequence);
                 for (i, word) in input.chunks_exact(8).enumerate() {
-                    let expected = sequence
-                        .wrapping_add(i as u64)
-                        .wrapping_mul(0x9e3779b97f4a7c15);
+                    let expected = if cfg!(feature = "diag-direct-fill") {
+                        u64::from_le_bytes([sequence as u8; 8])
+                    } else {
+                        sequence
+                            .wrapping_add(i as u64)
+                            .wrapping_mul(0x9e3779b97f4a7c15)
+                    };
                     assert_eq!(word, expected.to_le_bytes());
                 }
                 let out = unsafe {
