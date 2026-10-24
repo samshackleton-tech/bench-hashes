@@ -4471,18 +4471,50 @@ fn each_message_into_kept(
     iterations: usize,
     mut consume: impl FnMut(&[u8]),
 ) {
-    let mut kept = Box::new(blake3_servil::Hash::from([0; 32]));
-    for _ in 0..iterations {
-        if message_len == input.len() {
-            blake3_servil::hash_with(blake3_servil::Mode::Hash, black_box(input), &mut kept);
-            consume(kept.as_bytes());
-        } else {
-            for message in black_box(input).chunks_exact(message_len) {
-                blake3_servil::hash_with(blake3_servil::Mode::Hash, message, &mut kept);
+    // hash_lent enters this helper with iterations=1 for every message.
+    // Keep the allocation across helper calls, not only its inner loop.
+    thread_local! {
+        static KEPT_HASH: std::cell::RefCell<Box<blake3_servil::Hash>> = std::cell::RefCell::new({
+            #[cfg(test)]
+            observe_call("allocate_kept_hash");
+            Box::new(blake3_servil::Hash::from([0; 32]))
+        });
+    }
+    KEPT_HASH.with_borrow_mut(|kept| {
+        for _ in 0..iterations {
+            if message_len == input.len() {
+                blake3_servil::hash_with(blake3_servil::Mode::Hash, black_box(input), kept);
                 consume(kept.as_bytes());
+            } else {
+                for message in black_box(input).chunks_exact(message_len) {
+                    blake3_servil::hash_with(blake3_servil::Mode::Hash, message, kept);
+                    consume(kept.as_bytes());
+                }
             }
         }
-    }
+    });
+}
+
+#[test]
+fn output_place_is_kept_across_single_message_calls() {
+    blake3_servil::initialize();
+    // A fresh thread exercises allocation as well as reuse, independently
+    // of other harness tests and without changing their counters.
+    std::thread::spawn(|| {
+        let input = [7u8; 128];
+        let mut seen = 0;
+        for _ in 0..3 {
+            each_message_into_kept(&input[..64], 64, 1, |_| seen += 1);
+        }
+        each_message_into_kept(&input, 64, 2, |_| seen += 1);
+        assert_eq!(seen, 7, "every digest is consumed");
+        CALLS.with(|calls| {
+            let calls = calls.borrow();
+            assert_eq!(calls.iter().filter(|&&c| c == "allocate_kept_hash").count(), 1);
+        });
+    })
+    .join()
+    .unwrap();
 }
 
 /*
