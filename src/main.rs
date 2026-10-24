@@ -3881,24 +3881,18 @@ fn hash_lent(
         },
         ..point
     };
-    let spare = if point.use_case.batch() {
-        BATCH_SPARE
-    } else {
-        0
-    };
-    let mut buffers = take_buffers(1, input.len() + spare);
+    // Focused contract experiment: lent single messages call the output-
+    // parameter performance API as well. Give every contender in this
+    // cell the same aligned input. Convenience OneMessage is unchanged.
+    let mut buffers = take_buffers(1, input.len() + BATCH_SPARE);
     for _ in 0..iterations {
         let buffer = &mut buffers[0];
-        let at = if point.use_case.batch() {
-            batch_start(buffer)
-        } else {
-            buffer.clear();
-            0
-        };
+        let at = batch_start(buffer);
         buffer.extend_from_slice(black_box(input));
+        assert_batch_aligned(&buffer[at..]);
         hash_in_memory(algorithm, &buffer[at..], in_memory, 1, &mut consume);
     }
-    keep_buffers(1, input.len() + spare, buffers);
+    keep_buffers(1, input.len() + BATCH_SPARE, buffers);
 }
 
 /*
@@ -4493,6 +4487,22 @@ fn each_message_into_kept(
             }
         }
     });
+}
+
+#[test]
+fn performance_lent_messages_align_without_changing_the_source() {
+    blake3_servil::initialize();
+    let room = make_input(1024 + 128);
+    let off = room.as_ptr().align_offset(64) + 1;
+    let source = &room[off..][..1024];
+    assert_eq!(source.as_ptr() as usize % 64, 1);
+    for len in [0, 1, 63, 64, 65, 256, 1024] {
+        let mut consumed = 0;
+        // hash_lent's alignment assertion checks the actual slice handed
+        // onward, including repeated uses of its kept buffer.
+        hash_lent(Algorithm::Blake3ServilSt, &source[..len], Point::lent("test", len), 3, |_| consumed += 1);
+        assert_eq!(consumed, 3);
+    }
 }
 
 #[test]

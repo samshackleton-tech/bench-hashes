@@ -25,6 +25,15 @@ release, so results of different benchmarks are never read as alike. The
 documents that explain the benchmark (README, METHODOLOGY, CONTRIBUTING,
 the notes) may still change, to say it better.
 
+**Local contract experiment (Sam, October 24):** this branch additionally
+aligns the kept buffers of `LentMessages` for every contender, using the
+batch buffer mechanism. Servil ST writes into a thread-local kept heap
+output through `hash_with`; the cold convenience `OneMessage` calls remain
+unchanged. This is a focused test of that performance API, not the complete
+implementation of alignment for all performance-oriented APIs. It corrects
+the earlier batches-only interpretation recorded below; Devon is extending
+the broader contract separately. Results from this branch are experimental.
+
 **Changes for the next release** (Zooko, October 16, 2026):
 - **Batches start at a 64-byte boundary** (Zooko, October 24, deciding on
   BLAKE3 #141): the fork's padded batch contract (`hash_many*`,
