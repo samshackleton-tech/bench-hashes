@@ -76,6 +76,21 @@ fn use_in_place(place: &Hash, checksum: &mut u64) {
     }
 }
 
+/// The control's code is present on both sides. Equal-length runtime
+/// values 0/1 switch only the additional hash, avoiding unrelated codegen
+/// and lazy thread-initialization differences between control and plant.
+#[cfg(feature = "diag-direct-plant")]
+pub(super) fn plant_enabled() -> bool {
+    static ENABLED: std::sync::OnceLock<bool> = std::sync::OnceLock::new();
+    *ENABLED.get_or_init(
+        || match std::env::var("DIAG_DIRECT_PLANT_ACTIVE").as_deref() {
+            Ok("0") => false,
+            Ok("1") => true,
+            _ => panic!("plant-capable diagnostic build requires DIAG_DIRECT_PLANT_ACTIVE=0 or 1"),
+        },
+    )
+}
+
 fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
     assert!(len > 0 && len % 64 == 0);
     SPACES.with_borrow_mut(|spaces| {
@@ -86,7 +101,8 @@ fn synchronous(len: usize, messages: usize, batch: bool, iterations: usize) {
         let input = &mut space.input[space.at..space.at + bytes];
         let mut checksum = 0;
         #[cfg(feature = "diag-direct-plant")]
-        let plant = !batch && len == 64 && std::thread::current().name() == Some("main");
+        let plant =
+            !batch && len == 64 && std::thread::current().name() == Some("main") && plant_enabled();
         for sequence in 0..iterations {
             // The single-message case needs its result before producing
             // the next value: this is a latency chain, not independent

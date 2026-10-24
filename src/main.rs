@@ -6011,6 +6011,8 @@ fn samples_header(machine: &MachineMetadata, run: &[(String, String)]) -> String
     writeln!(out, "# experiment: direct production in aligned final input; heap output consumed in place; ST lent and MT continuous cells only").unwrap();
     #[cfg(feature = "diag-direct-plant")]
     writeln!(out, "# experiment plant: solo direct 64 B hashes once extra every fourth message").unwrap();
+    #[cfg(feature = "diag-direct-plant")]
+    writeln!(out, "# experiment plant active: {}", direct_flow::plant_enabled()).unwrap();
     #[cfg(feature = "diag-direct-flow")]
     writeln!(out, "# experiment requested kernel: {}", if option_env!("BLAKE3_DIAGNOSTIC_GPR").is_some() { "GPR opt-in" } else { "SIMD default" }).unwrap();
     #[cfg(feature = "diag-direct-flow")]
