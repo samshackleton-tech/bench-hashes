@@ -6012,6 +6012,8 @@ fn samples_header(machine: &MachineMetadata, run: &[(String, String)]) -> String
     #[cfg(feature = "diag-direct-plant")]
     writeln!(out, "# experiment plant: solo direct 64 B hashes once extra every fourth message").unwrap();
     #[cfg(feature = "diag-direct-flow")]
+    writeln!(out, "# experiment requested kernel: {}", if option_env!("BLAKE3_DIAGNOSTIC_GPR").is_some() { "GPR opt-in" } else { "SIMD default" }).unwrap();
+    #[cfg(feature = "diag-direct-flow")]
     writeln!(out, "# experiment producer: {}", if cfg!(feature = "diag-direct-fill") { "direct byte fill" } else { "generated u64 words" }).unwrap();
     if let Some(allocator) = diag_alloc::DESCRIPTION {
         writeln!(out, "# global allocator: {allocator}").unwrap();
