@@ -39,7 +39,7 @@ The contenders:
 
 The run had 15 rounds, warm and cold. The files were made by an earlier run. Nothing else of mine ran on the server.
 
-**Load: quiet, 0.00 CPUs on average, 0.31 in the busiest window.** The run's clocks are the bench's pin 7f9f1f7 plus [johnservil/BLAKE3#142](https://github.com/johnservil/BLAKE3/pull/142) (a240274; its later commits change tests only). That change makes the load windows count other programs from their own CPU time on Linux.
+**Load: quiet, 0.00 CPUs on average, 0.31 in the busiest window.** The run's clocks are the bench's pin 7f9f1f7 plus [johnservil/BLAKE3#142](https://github.com/johnservil/BLAKE3/pull/142) (a240274; its later commits change tests, plus a refactor of the reader into functions that count the same processes). That change makes the load windows count other programs from their own CPU time on Linux.
 
 With the pinned clocks unchanged, the same run read busy in 16 of 403 windows, about 1 CPU for 1 s each, with no other program running. Every window I checked overlapped the official b3sum's "1000 x 16 KiB, a process each" cell, and the time was the kernel's work on behalf of that contender's own processes, charged to no process (#142 has the breakdown). Timings are unaffected: the change only labels windows.
 
