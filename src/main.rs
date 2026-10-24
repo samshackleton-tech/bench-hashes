@@ -2605,6 +2605,10 @@ fn make_input_seeded(size: usize, seed: u64) -> Vec<u8> {
 }
 
 fn run_batch(algorithm: Algorithm, input: &[u8], point: Point, iterations: usize) {
+    #[cfg(feature = "diag-direct-flow")]
+    if direct_flow::run(algorithm, point, iterations) {
+        return;
+    }
     hash_batch(algorithm, input, point, iterations, use_digest);
 }
 
@@ -6003,6 +6007,8 @@ fn samples_header(machine: &MachineMetadata, run: &[(String, String)]) -> String
         writeln!(out, "# {key}: {value}").unwrap();
     }
     writeln!(out, "# power: {}", machine.describe_power()).unwrap();
+    #[cfg(feature = "diag-direct-flow")]
+    writeln!(out, "# experiment: direct production in aligned final input; heap output consumed in place; ST lent and MT continuous cells only").unwrap();
     if let Some(allocator) = diag_alloc::DESCRIPTION {
         writeln!(out, "# global allocator: {allocator}").unwrap();
     }
@@ -6222,6 +6228,8 @@ fn generate_text(
         writeln!(output, "  global allocator: {allocator}").unwrap();
     }
     writeln!(output, "  clock: {}", clocks::WALL_CLOCK).unwrap();
+    #[cfg(feature = "diag-direct-flow")]
+    writeln!(output, "  EXPERIMENT: direct production and in-place digest use (ST lent, MT continuous); not the published workload").unwrap();
     writeln!(
         output,
         "  load during the run: {}",
@@ -6500,6 +6508,8 @@ fn xml_escape(input: &str) -> String {
 mod b3sum;
 mod chart;
 mod check;
+#[cfg(feature = "diag-direct-flow")]
+mod direct_flow;
 mod diag_alloc;
 #[cfg(test)]
 mod harness_tests;
