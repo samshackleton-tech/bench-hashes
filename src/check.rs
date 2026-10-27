@@ -888,7 +888,7 @@ fn coverage(
 ) -> BTreeMap<(String, String), BTreeMap<String, BTreeSet<usize>>> {
     let (bench, new, new_exe) = (side.bench, side.commit, side.exe);
     let bench_source = {
-        let mut h = blake3_servil::performance::Hasher::new();
+        let mut h = blake3_servil::performance::Hasher::new(blake3_servil::Mode::Plain);
         for f in walk(&bench.join("src")) {
             h.update(&std::fs::read(&f).unwrap());
         }
