@@ -1,0 +1,300 @@
+Hash speed on Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz (linux7.0.0-38-generic, 112 CPUs), 2026-11-02 08:23:38 UTC
+Full run: 96 rounds. Each cell is the mean time per unit (total time over total work), lower is better.
+
+In “A message in one buffer, after other work”, “A batch of 64-byte messages, after other work”, “A batch of 4 KiB messages, after other work”, and “Many messages at once, a turn of their pieces after other work”, the program hashes, runs other code and reads 128 MiB of memory (at least 1 ms), and hashes again, as a program hashes between its other tasks; the second call, with the write of its input, is timed.
+In “A message in one buffer, after idling”, “A batch of 64-byte messages, after idling”, and “Many messages at once, a turn of their pieces after idling”, the program hashes, sleeps 1 ms, and hashes again, as a server handles a request, waits, and handles the next; the second call, with the write of its input, is timed.
+In “Messages one after another, buffers owned”, “Batches one after another, buffers owned”, “Messages one after another, buffers lent”, “Many messages at once, each arriving in pieces, buffers lent”, “A collection's messages, each hashed once, in memory”, “Batches one after another, buffers lent”, “A collection's messages one after another, each read into a buffer, then hashed”, and “A Merkle tree over leaves just written into place, every layer kept”, the program hashes one input after another, as fast as it can, alone and with a second program doing the same at once.
+
+SOLO: one copy of each contender, on one thread.
+
+  A message in one buffer, after other work (ns/B)
+  size        B3 servil mt
+  64 B             22.486 
+  128 B            11.128 
+  256 B             5.785 
+  512 B             4.415 
+  1 KiB             3.221 
+  1536 B            4.854 
+  2 KiB             4.354 
+  2304 B            4.396 
+  3 KiB             5.175 
+  3839 B            4.864 
+  4 KiB             2.315 
+  4470 B            2.565 
+  7935 B            3.480 
+  8 KiB             1.842 
+  16 KiB            1.326 
+  32 KiB            1.248 
+  64 KiB            1.016 
+  128 KiB           0.662 
+  256 KiB           0.475 
+  512 KiB           0.491 
+  1 MiB             0.337 
+  2 MiB             0.259 
+  3 MiB             0.223 
+  4 MiB             0.207 
+  8 MiB             0.178 
+  32 MiB            0.120 
+  64 MiB            0.117 
+  128 MiB           0.117 
+
+  A batch of 64-byte messages, after other work (ns/msg)
+  messages    B3 servil mt
+  1              1361.000 
+  2              1008.792 
+  3               605.389 
+  4               392.302 
+  6               307.653 
+  8               197.375 
+  12              179.135 
+  16              127.714 
+  24              137.264 
+  32              108.036 
+  48               93.984 
+  64               89.543 
+  128              81.089 
+  256              77.341 
+  512              76.878 
+  1024             66.046 
+  2048             41.953 
+  4096             30.739 
+  8192             27.417 
+  16384            20.606 
+  32768            15.137 
+  65536            12.291 
+  131072           10.986 
+  262144           11.462 
+
+  A batch of 4 KiB messages, after other work (ns/msg)
+  messages    B3 servil mt
+  4              8267.396 
+  16             4904.948 
+  64             1950.151 
+  256            1442.615 
+
+  A message in one buffer, after idling (ns/B)
+  size        B3 servil mt
+  64 B             12.883 
+  128 B             6.265 
+  256 B             5.213 
+  512 B             4.572 
+  1 KiB             3.161 
+  1536 B            7.356 
+  2 KiB             7.951 
+  2304 B            8.033 
+  3 KiB             8.047 
+  3839 B            8.302 
+  4 KiB             4.456 
+  4470 B            3.571 
+  7935 B            3.791 
+  8 KiB             2.785 
+  16 KiB            1.979 
+  32 KiB            1.533 
+  64 KiB            1.105 
+  128 KiB           0.712 
+  256 KiB           0.520 
+  512 KiB           0.251 
+  1 MiB             0.235 
+  2 MiB             0.175 
+  3 MiB             0.155 
+  4 MiB             0.145 
+  8 MiB             0.129 
+  32 MiB            0.113 
+  64 MiB            0.121 
+  128 MiB           0.123 
+
+  A batch of 64-byte messages, after idling (ns/msg)
+  messages    B3 servil mt
+  1               697.333 
+  2               751.229 
+  3               551.417 
+  4               406.594 
+  6               396.014 
+  8               288.396 
+  12              296.104 
+  16              175.599 
+  24              176.434 
+  32              147.057 
+  48              175.955 
+  64              144.474 
+  128             157.381 
+  256             120.382 
+  512              99.502 
+  1024             77.453 
+  2048             44.178 
+  4096             32.234 
+  8192             13.180 
+  16384            11.562 
+  32768            10.297 
+  65536             9.330 
+  131072            8.418 
+  262144            9.196 
+
+  Messages one after another, buffers owned (ns/B)
+  size        B3 servil mt
+  64 B              0.777 
+  128 B             0.399 
+  256 B             0.222 
+  512 B             0.184 
+  1 KiB             0.140 
+  4 KiB            0.0995 
+  16 KiB           0.0926 
+  64 KiB           0.0784 
+  256 KiB          0.0764 
+  1 MiB            0.0824 
+  4 MiB            0.0898 
+  16 MiB           0.0995 
+  64 MiB            0.121 
+
+  Batches one after another, buffers owned (ns/msg)
+  messages    B3 servil mt
+  16                8.816 
+  64                8.217 
+  256               7.944 
+  1024              8.034 
+  4096              7.926 
+  16384             7.822 
+  65536             7.858 
+
+  Messages one after another, buffers lent (ns/B)
+  size        B3 servil mt
+  64 B              1.662 
+  128 B             1.521 
+  256 B             1.448 
+  512 B             1.443 
+  1 KiB             1.408 
+  4 KiB             0.436 
+  16 KiB            0.270 
+  64 KiB            0.277 
+  256 KiB           0.273 
+  1 MiB             0.122 
+  4 MiB             0.106 
+  16 MiB            0.168 
+  64 MiB            0.116 
+
+  Many messages at once, each arriving in pieces, buffers lent (ns/B)
+  messages open    B3 servil mt
+  256               0.400 
+
+  A collection's messages, each hashed once, in memory (ns/B)
+  collection    B3 servil mt
+  git objects         0.0115 
+  Nix files         0.0265 
+
+  Batches one after another, buffers lent (ns/msg)
+  messages    B3 servil mt
+  16               21.925 
+  64               18.006 
+  256              17.911 
+  1024             19.342 
+  4096             19.360 
+  16384            11.209 
+  65536            10.420 
+
+  A collection's messages one after another, each read into a buffer, then hashed (ns/B)
+  collection    B3 servil mt
+  git objects          0.123 
+  Nix files          0.115 
+
+  A Merkle tree over leaves just written into place, every layer kept (ns/B)
+  leaves      B3 servil mt
+  1024              0.348 
+  4096              0.230 
+  16384             0.205 
+  65536             0.194 
+  262144            0.152 
+
+  Many messages at once, a turn of their pieces after other work (ns/B)
+  messages open    B3 servil mt
+  256               1.004 
+
+  Many messages at once, a turn of their pieces after idling (ns/B)
+  messages open    B3 servil mt
+  256               0.779 
+
+SHARED: two copies of the contender at once, each hashing its own input on its own thread, inputs one after another; the time of each copy.
+
+  Messages one after another, buffers owned (ns/B)
+  size        B3 servil mt
+  64 B              0.875 
+  128 B             0.480 
+  256 B             0.265 
+  512 B             0.184 
+  1 KiB             0.158 
+  4 KiB             0.110 
+  16 KiB            0.110 
+  64 KiB           0.0848 
+  256 KiB          0.0834 
+  1 MiB            0.0890 
+  4 MiB            0.0990 
+  16 MiB            0.104 
+  64 MiB            0.135 
+
+  Batches one after another, buffers owned (ns/msg)
+  messages    B3 servil mt
+  16                9.700 
+  64                8.890 
+  256               8.406 
+  1024              8.390 
+  4096              8.342 
+  16384             8.408 
+  65536             8.204 
+
+  Messages one after another, buffers lent (ns/B)
+  size        B3 servil mt
+  64 B              1.638 
+  128 B             1.520 
+  256 B             1.441 
+  512 B             1.424 
+  1 KiB             1.408 
+  4 KiB             0.435 
+  16 KiB            0.269 
+  64 KiB            0.277 
+  256 KiB           0.273 
+  1 MiB             0.143 
+  4 MiB             0.115 
+  16 MiB            0.161 
+  64 MiB            0.137 
+
+  Many messages at once, each arriving in pieces, buffers lent (ns/B)
+  messages open    B3 servil mt
+  256               0.385 
+
+  A collection's messages, each hashed once, in memory (ns/B)
+  collection    B3 servil mt
+  git objects         0.0171 
+  Nix files         0.0257 
+
+  Batches one after another, buffers lent (ns/msg)
+  messages    B3 servil mt
+  16               21.382 
+  64               18.066 
+  256              17.874 
+  1024             19.431 
+  4096             19.362 
+  16384            12.549 
+  65536            10.053 
+
+  A collection's messages one after another, each read into a buffer, then hashed (ns/B)
+  collection    B3 servil mt
+  git objects          0.149 
+  Nix files          0.144 
+
+  A Merkle tree over leaves just written into place, every layer kept (ns/B)
+  leaves      B3 servil mt
+  1024              0.347 
+  4096              0.247 
+  16384             0.197 
+  65536             0.223 
+  262144            0.181 
+
+PROVENANCE
+  bench-hashes 0.19.6+71c71159217a2a627fb06f270bb39890b76138f3, https://github.com/johnservil/bench-hashes, commit 744eea5f0bce93760ce4245a04bc7278989e0301 (clean)
+  contenders: --contenders blake3-servil-mt
+  BLAKE3 servil mt: blake3-servil 0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (local checkout); source https://github.com/johnservil/BLAKE3; branch HEAD; commit fcd9922f2a2be1340235a5f91e8ef7ce5e1ef0ce; clean; multithreaded; performance::hash_multithreaded for one message, performance::hash_many_multithreaded for a batch, performance::Hasher::update_multithreaded per piece for many messages at once; for continuous loads its stream: Stream::submit_with for messages, Stream::submit_batch_with for batches, each digest into a place the program keeps: the fork chooses when to wake its worker threads
+  CPU: model name: Intel(R) Xeon(R) Gold 6330 CPU @ 2.00GHz · microcode: 0xd000421 · flags: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect wbnoinvd dtherm arat pln pts vnmi avx512vbmi umip pku ospke avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg avx512_vpopcntdq la57 rdpid fsrm md_clear pconfig flush_l1d arch_capabilities · machine: SYS-220BT-HNTR
+  rustc 1.99.1 (58cf8f9c3 2026-10-13); target x86_64-unknown-linux-gnu; features fxsr,sse,sse2
+  clock: std::time::Instant → CLOCK_MONOTONIC (stops during suspend, NTP slew only)
+  clocks: clocks 0.1.0; source https://github.com/johnservil/BLAKE3; commit ac9e6b7dbe400e77d61933373604a623e8b4a813; clean
+  load during the run: quiet: other programs kept 0.00 CPUs busy on average, 0.00 in the busiest window
+  power: mains power, no battery, CPU frequency governor performance
