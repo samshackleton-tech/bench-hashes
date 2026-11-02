@@ -10,4 +10,8 @@ probe/l3-pool 9c25ed9e. Every run through pinned-run (manifest.json: inputs by h
   A first attempt failed: the variants' origin was a local path, and bench-hashes' map step
   panicked after measuring (bench-hashes #111). The runs here set origin to the repository.
 
-The .err files (progress bars) and build logs are left out.
+- `i196-tests*` (`tests.sh`, `tests2.sh`, `tests3.sh`): the probe's test suite on both machines; on the
+  EPYC, against servil, and with the whole run on CPU 0 or CPU 12: a caller in a domain with no
+  worker panics (forked_child) or hangs (stream_collect_one_worker).
+
+The full runs' .err files (progress bars) and the build logs are left out.
