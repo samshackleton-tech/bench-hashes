@@ -10,6 +10,8 @@ SHA-256, which matches the script here). All are VERIFIED.
   themselves change the call.
 - **Run 2**, `run2-idle.sh` (`2fd09794`): the read placed before or after the timed calls, or not at
   all, with each idle condition run without reads.
+- **`avx2cold.sh`**: the fork with AVX-512 detection left out (AVX2 kernels) against the tag, N x 64 B
+  after the pause: AVX2 is slower in every case, cold or warm.
 - **Run 4**, `run4-idle4.sh`: after the pause, 0-500 us of scalar, AVX2 (ymm) or AVX-512 (zmm)
   work before the timed calls: the second warm-up is AVX-512's.
 - **Run 3**, `run3-idle3.sh` (`e4bf3b36`): spins of 0-2000 us after waking, with C1E on and off, and
