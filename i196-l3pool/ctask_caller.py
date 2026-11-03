@@ -1,6 +1,7 @@
 """i196-ctask2/3: the caller's side of the bench's servil mt ContinuousMessages 64 KiB samples, per variant."""
 import sys, glob, gzip, os, statistics as st, collections, bisect
-O = sys.argv[1]; TPN = 3.2
+O = sys.argv[1]; TPN = float(sys.argv[2]) if len(sys.argv) > 2 else 3.2
+SIZES = {int(x) for x in sys.argv[3].split(',')} if len(sys.argv) > 3 else {142, 146}
 variants = sorted({os.path.basename(f).split('-')[1] for f in glob.glob(O + '/log-*.gz')})
 for v in variants:
     R = collections.defaultdict(list)
@@ -18,7 +19,7 @@ for v in variants:
                 if k in (3, 5, 6, 4) and begin is not None: cur.append((a, k)); continue
                 if k == 2 and begin is not None:
                     i, j = bisect.bisect_left(starts, begin), bisect.bisect_left(starts, a)
-                    if j - i in (142, 146):
+                    if j - i in SIZES:
                         fill = []; hand = []
                         for q in range(0, len(cur) - 3, 4):
                             (a3, k3), (a5, k5), (a6, k6), (a4, k4) = cur[q:q + 4]
