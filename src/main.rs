@@ -3577,7 +3577,56 @@ fn take_sample(algorithm: Algorithm, input: &[u8], point: Point, iterations: usi
 /// stay outside the API's interval, as does dispatch selection. An input
 /// `in_blocks` is written from a 64-byte boundary of the producer's buffer,
 /// whole blocks behind it (BLOCK_SPARE).
+/// Probe for #69 (not for merging): with BENCH_PIN_SOLO_CPU=N, the main
+/// thread takes each sample after a gap pinned to CPU N, its own mask
+/// restored after (pinning the thread for the run would hand the pool's
+/// workers, started later, that one CPU). Returns the mask to restore.
+fn pin_solo() -> Option<[u64; 16]> {
+    #[cfg(target_os = "linux")]
+    {
+        let cpu: usize = std::env::var("BENCH_PIN_SOLO_CPU").ok()?.parse().ok()?;
+        if std::thread::current().name() != Some("main") {
+            return None;
+        }
+        let mut old = [0u64; 16];
+        // Sound: a cpu_set_t of 1024 bits, the calling thread (pid 0).
+        assert_eq!(unsafe { sched_getaffinity(0, 128, old.as_mut_ptr()) }, 0, "sched_getaffinity");
+        pin_to_cpu(cpu);
+        return Some(old);
+    }
+    #[allow(unreachable_code)]
+    None
+}
+
+#[cfg(target_os = "linux")]
+unsafe extern "C" {
+    fn sched_getaffinity(pid: i32, size: usize, set: *mut u64) -> i32;
+    fn sched_setaffinity(pid: i32, size: usize, set: *const u64) -> i32;
+}
+
+fn unpin_solo(old: Option<[u64; 16]>) {
+    #[cfg(target_os = "linux")]
+    if let Some(old) = old {
+        // Sound: as pin_solo.
+        assert_eq!(unsafe { sched_setaffinity(0, 128, old.as_ptr()) }, 0, "restore the mask");
+    }
+    let _ = old;
+}
+
 fn take_prepared_sample(
+    input: &[u8],
+    in_blocks: bool,
+    iterations: usize,
+    idle: bool,
+    call: impl FnMut(&[u8]),
+) -> DuoCopy {
+    let pinned = pin_solo();
+    let sample = take_prepared_sample_here(input, in_blocks, iterations, idle, call);
+    unpin_solo(pinned);
+    sample
+}
+
+fn take_prepared_sample_here(
     input: &[u8],
     in_blocks: bool,
     iterations: usize,
