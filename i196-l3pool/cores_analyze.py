@@ -13,7 +13,7 @@ for size in (16384, 65536, 262144):
 pin = collections.defaultdict(list)
 for f in glob.glob(O + '/*-*-*-*.txt'):
     n = os.path.basename(f)[:-4]
-    m = re.match(r'^(base|r|cores|corepin|split)-(\d+)-([\d,]+)-(\d)$', n)
+    m = re.match(r'^(base|r|cores|corepin|split|splitwake)-(\d+)-([\d,]+)-(\d)$', n)
     if not m: continue
     tot = sum(float(l.split()[2]) for l in open(f) if l.startswith('cpu'))
     pin[(m.group(1), int(m.group(2)), m.group(3))].append(tot)
