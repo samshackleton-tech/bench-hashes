@@ -24,3 +24,7 @@
 
 ![6-corepin.png](6-corepin.png)
 
+## 7-splitwake.png
+
+![7-splitwake.png](7-splitwake.png)
+
