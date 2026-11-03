@@ -12,3 +12,7 @@ oddeven.sh, hash-pinned, VERIFIED. times.txt: phase round cpu kind n ns-a-call c
 - `context3.sh` (b069-context3): groups of three, but both enabled at once: multiplexed, discard its counts.
 - `context4.sh` (b069-context4): each group enabled only for its own pass: no sample multiplexed.
 - `context5.sh` (b069-context5): plus group C, where L2's fills came from (`l2_fill_rsp_src`).
+
+## The record itself
+
+`record_parity.py` reads 0.20.0's EPYC record (`benchmark-results/AMDEPYC925524CoreProcessor.linux70038generic/bench-hashes.samples.tsv` on `release-0.20`): odd/even and the spread core parity explains, per solo gap cell.
