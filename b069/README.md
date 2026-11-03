@@ -16,3 +16,7 @@ oddeven.sh, hash-pinned, VERIFIED. times.txt: phase round cpu kind n ns-a-call c
 ## The record itself
 
 `record_parity.py` reads 0.20.0's EPYC record (`benchmark-results/AMDEPYC925524CoreProcessor.linux70038generic/bench-hashes.samples.tsv` on `release-0.20`): odd/even and the spread core parity explains, per solo gap cell.
+
+## Option (a) measured: pinning the measuring thread
+
+`pin.sh` (run b069-pin): bench-hashes `next` with probe/sam-pin-solo (BENCH_PIN_SOLO_CPU pins the main thread around each sample after a gap), unpinned against pinned to CPU 0 and CPU 1, 4 fresh runs each, interleaved. `pin-summary.txt`: per cell, medians, within-run IQR/median and between-run range/mean.
