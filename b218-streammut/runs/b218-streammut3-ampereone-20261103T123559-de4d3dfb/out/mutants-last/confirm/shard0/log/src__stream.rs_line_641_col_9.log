@@ -1,0 +1,305 @@
+
+*** src/stream.rs:641:9: replace Stream<'env, D>::help with ()
+
+*** mutation diff:
+--- src/stream.rs
++++ replace Stream<'env, D>::help with ()
+@@ -633,19 +633,17 @@
+         while self.delivered < self.next {
+             self.help();
+         }
+     }
+ 
+     /// Hand back what is done; with nothing done, hash a waiting task or
+     /// pause.
+     fn help(&mut self) {
+-        if self.deliver() == 0 && !self.s.run_waiting() {
+-            core::hint::spin_loop();
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// A new entry of `len` bytes, waiting for room when every entry is in
+     /// flight.
+     #[inline(always)]
+     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {
+         if self.next - self.delivered == ENTRIES {
+             self.wait_for_room();
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-g8g_0ujk)
+warning: method `run_waiting` is never used
+   --> src/stream.rs:275:8
+    |
+243 | impl Storage {
+    | ------------ method in this implementation
+...
+275 |     fn run_waiting(&self) -> bool {
+    |        ^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 7.81s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: method `run_waiting` is never used
+   --> src/stream.rs:275:8
+    |
+243 | impl Storage {
+    | ------------ method in this implementation
+...
+275 |     fn run_waiting(&self) -> bool {
+    |        ^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID ade4df62-51de-4e9d-b03a-202af94f4f6c with nextest profile: mutants
+    Starting 134 tests across 15 binaries
+       START [         ] (  1/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.096s] (  1/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  2/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.107s] (  2/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] (  3/134) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.119s] (  3/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  4/134) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.132s] (  4/134) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  5/134) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.054s] (  5/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  6/134) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.057s] (  6/134) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  7/134) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.060s] (  7/134) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  8/134) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.067s] (  8/134) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] (  9/134) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.063s] (  9/134) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 10/134) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each --nocapture
+        PASS [   0.064s] ( 10/134) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 11/134) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.058s] ( 11/134) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 12/134) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.063s] ( 12/134) blake3-servil each::test::test_update_each
+       START [         ] ( 13/134) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.068s] ( 13/134) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 14/134) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.070s] ( 14/134) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 15/134) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.050s] ( 15/134) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+       START [         ] ( 16/134) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.075s] ( 16/134) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+       START [         ] ( 17/134) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.048s] ( 17/134) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+       START [         ] ( 18/134) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+        PASS [   0.052s] ( 18/134) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+       START [         ] ( 19/134) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_update_stages_to_the_message_boundary_from_an_offset --nocapture
+        PASS [   0.065s] ( 19/134) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+       START [         ] ( 20/134) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_a_finished_threads_source_is_the_next_threads --nocapture
+        PASS [   0.079s] ( 20/134) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+       START [         ] ( 21/134) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_find_reaches_every_registered_source --nocapture
+        PASS [   0.055s] ( 21/134) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+       START [         ] ( 22/134) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_unregister_gives_the_slot_back --nocapture
+        PASS [   0.070s] ( 22/134) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+       START [         ] ( 23/134) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_unregister_leaves_the_other_sources_registered --nocapture
+        PASS [   0.057s] ( 23/134) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+       START [         ] ( 24/134) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind --nocapture
+        PASS [   0.058s] ( 24/134) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+       START [         ] ( 25/134) blake3-servil lanes::test::equal_members_match_the_reference
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::equal_members_match_the_reference --nocapture
+        PASS [   0.047s] ( 25/134) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+       START [         ] ( 26/134) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_caller_gives_its_place_back --nocapture
+        PASS [   0.053s] ( 26/134) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+       START [         ] ( 27/134) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own --nocapture
+        PASS [   0.058s] ( 27/134) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+       START [         ] ( 28/134) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_parked_caller_is_woken_by_the_last_piece --nocapture
+        PASS [   0.054s] ( 28/134) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+       START [         ] ( 29/134) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_concurrent_batch_callers_agree --nocapture
+        PASS [   0.094s] ( 29/134) blake3-servil lanes::test::equal_members_match_the_reference
+       START [         ] ( 30/134) blake3-servil lanes::test::test_concurrent_callers_agree
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_concurrent_callers_agree --nocapture
+        PASS [   0.064s] ( 30/134) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+       START [         ] ( 31/134) blake3-servil lanes::test::test_cut_items_exactly
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_items_exactly --nocapture
+        PASS [   0.187s] ( 31/134) blake3-servil lanes::test::test_cut_items_exactly
+       START [         ] ( 32/134) blake3-servil lanes::test::test_cut_messages_exactly
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_messages_exactly --nocapture
+        PASS [   0.609s] ( 32/134) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+       START [         ] ( 33/134) blake3-servil lanes::test::test_cut_messages_shapes
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_messages_shapes --nocapture
+        PASS [   0.371s] ( 33/134) blake3-servil lanes::test::test_cut_messages_exactly
+       START [         ] ( 34/134) blake3-servil lanes::test::test_cut_with_prefix_exactly
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_with_prefix_exactly --nocapture
+        PASS [   0.322s] ( 34/134) blake3-servil lanes::test::test_cut_messages_shapes
+       START [         ] ( 35/134) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_with_prefix_shapes_and_hashes --nocapture
+        PASS [   1.429s] ( 35/134) blake3-servil each::test::test_hash_each_multithreaded
+       START [         ] ( 36/134) blake3-servil lanes::test::test_hash_many_pool_agrees
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_hash_many_pool_agrees --nocapture
+        PASS [   0.402s] ( 36/134) blake3-servil lanes::test::test_cut_with_prefix_exactly
+       START [         ] ( 37/134) blake3-servil lanes::test::test_hash_matches_serial
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_hash_matches_serial --nocapture
+        PASS [   1.027s] ( 37/134) blake3-servil lanes::test::test_concurrent_callers_agree
+       START [         ] ( 38/134) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_idle_workers_park_while_a_stream_is_open --nocapture
+        PASS [   0.136s] ( 38/134) blake3-servil lanes::test::test_hash_many_pool_agrees
+       START [         ] ( 39/134) blake3-servil lanes::test::test_next_piece_len
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_next_piece_len --nocapture
+        PASS [   0.067s] ( 39/134) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+       START [         ] ( 40/134) blake3-servil lanes::test::test_one_member_runs_alone
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_one_member_runs_alone --nocapture
+        PASS [   0.171s] ( 40/134) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+       START [         ] ( 41/134) blake3-servil lanes::test::test_simd_merge_matches_recursive
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_simd_merge_matches_recursive --nocapture
+        PASS [   0.121s] ( 41/134) blake3-servil lanes::test::test_hash_matches_serial
+       START [         ] ( 42/134) blake3-servil lanes::test::test_sme2_prefix_exactly
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_sme2_prefix_exactly --nocapture
+        PASS [   0.048s] ( 42/134) blake3-servil lanes::test::test_next_piece_len
+       START [         ] ( 43/134) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_spin_ends_after_spin_or_with_no_stream_open --nocapture
+        PASS [   0.056s] ( 43/134) blake3-servil lanes::test::test_simd_merge_matches_recursive
+       START [         ] ( 44/134) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_the_pool_begins_at_min_split_len --nocapture
+        PASS [   0.075s] ( 44/134) blake3-servil lanes::test::test_one_member_runs_alone
+       START [         ] ( 45/134) blake3-servil lanes::test::test_tree_thread_budget
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_tree_thread_budget --nocapture
+        PASS [   0.055s] ( 45/134) blake3-servil lanes::test::test_sme2_prefix_exactly
+       START [         ] ( 46/134) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_update_multithreaded_matches_hash --nocapture
+        PASS [   0.060s] ( 46/134) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+       START [         ] ( 47/134) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_a_short_input_is_refused_before_the_kernels --nocapture
+        PASS [   0.061s] ( 47/134) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+       START [         ] ( 48/134) blake3-servil many::test::test_hash_blocks_without_plans
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_blocks_without_plans --nocapture
+        PASS [   0.056s] ( 48/134) blake3-servil lanes::test::test_tree_thread_budget
+       START [         ] ( 49/134) blake3-servil many::test::test_hash_many_modes_every_platform
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_modes_every_platform --nocapture
+        PASS [   0.053s] ( 49/134) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+       START [         ] ( 50/134) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_needs_the_input_it_names --nocapture
+        PASS [   0.051s] ( 50/134) blake3-servil many::test::test_hash_blocks_without_plans
+       START [         ] ( 51/134) blake3-servil many::test::test_hash_many_whole_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_whole_blocks --nocapture
+        PASS [   0.045s] ( 51/134) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+       START [         ] ( 52/134) blake3-servil many::test::test_small_batches_after_a_pause
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_small_batches_after_a_pause --nocapture
+        PASS [   0.077s] ( 52/134) blake3-servil many::test::test_hash_many_whole_blocks
+       START [         ] ( 53/134) blake3-servil neon_hybrid::test::test_kernel_code_ranges
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact neon_hybrid::test::test_kernel_code_ranges --nocapture
+        PASS [   0.141s] ( 53/134) blake3-servil many::test::test_hash_many_modes_every_platform
+       START [         ] ( 54/134) blake3-servil neon_hybrid::test::test_xof_many_groups
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact neon_hybrid::test::test_xof_many_groups --nocapture
+        PASS [   0.044s] ( 54/134) blake3-servil neon_hybrid::test::test_kernel_code_ranges
+       START [         ] ( 55/134) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest --nocapture
+        PASS [   0.043s] ( 55/134) blake3-servil neon_hybrid::test::test_xof_many_groups
+       START [         ] ( 56/134) blake3-servil self_test::stops::test_a_failing_self_test_stops_the_process
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact self_test::stops::test_a_failing_self_test_stops_the_process --nocapture
+        PASS [   0.045s] ( 56/134) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+       START [         ] ( 57/134) blake3-servil self_test::test::self_test_matches_official_blake3
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact self_test::test::self_test_matches_official_blake3 --nocapture
+        PASS [   0.047s] ( 57/134) blake3-servil self_test::stops::test_a_failing_self_test_stops_the_process
+       START [         ] ( 58/134) blake3-servil self_test::test::test_a_waiting_thread_takes_the_verdict
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact self_test::test::test_a_waiting_thread_takes_the_verdict --nocapture
+        PASS [   0.168s] ( 58/134) blake3-servil many::test::test_small_batches_after_a_pause
+       START [         ] ( 59/134) blake3-servil self_test::test::test_self_test_run_checks_every_case
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact self_test::test::test_self_test_run_checks_every_case --nocapture
+        PASS [   0.048s] ( 59/134) blake3-servil self_test::test::self_test_matches_official_blake3
+       START [         ] ( 60/134) blake3-servil self_test::test::test_self_test_runs_every_kernel
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact self_test::test::test_self_test_runs_every_kernel --nocapture
+        PASS [   0.048s] ( 60/134) blake3-servil self_test::test::test_a_waiting_thread_takes_the_verdict
+       START [         ] ( 61/134) blake3-servil stream::test::test_a_batch_is_cut_into_task_sized_parts
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact stream::test::test_a_batch_is_cut_into_task_sized_parts --nocapture
+        PASS [   0.050s] ( 61/134) blake3-servil self_test::test::test_self_test_run_checks_every_case
+       START [         ] ( 62/134) blake3-servil stream::test::test_a_finished_stream_gives_back_its_slot_and_storage
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact stream::test::test_a_finished_stream_gives_back_its_slot_and_storage --nocapture
+        PASS [   0.058s] ( 62/134) blake3-servil self_test::test::test_self_test_runs_every_kernel
+       START [         ] ( 63/134) blake3-servil stream::test::test_a_panic_in_a_stream_ends_the_process
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact stream::test::test_a_panic_in_a_stream_ends_the_process --nocapture
+        PASS [   0.940s] ( 63/134) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+       START [         ] ( 64/134) blake3-servil stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait --nocapture
+ TERMINATING [> 30.000s] (───────) blake3-servil stream::test::test_a_batch_is_cut_into_task_sized_parts
+     TIMEOUT [  30.004s] ( 64/134) blake3-servil stream::test::test_a_batch_is_cut_into_task_sized_parts
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+  Cancelling due to test failure: 3 tests still running
+ TERMINATING [> 30.000s] (───────) blake3-servil stream::test::test_a_finished_stream_gives_back_its_slot_and_storage
+     TIMEOUT [  30.003s] ( 65/134) blake3-servil stream::test::test_a_finished_stream_gives_back_its_slot_and_storage
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+ TERMINATING [> 30.000s] (───────) blake3-servil stream::test::test_a_panic_in_a_stream_ends_the_process
+     TIMEOUT [  30.003s] ( 66/134) blake3-servil stream::test::test_a_panic_in_a_stream_ends_the_process
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+ TERMINATING [> 30.000s] (───────) blake3-servil stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait
+     TIMEOUT [  30.003s] ( 67/134) blake3-servil stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+────────────
+     Summary [  32.754s] 67/134 tests run: 63 passed, 4 timed out, 0 skipped
+warning: 67/134 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

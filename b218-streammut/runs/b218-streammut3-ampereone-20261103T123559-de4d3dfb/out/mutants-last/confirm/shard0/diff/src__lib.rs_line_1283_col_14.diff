@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace -= with += in prefetch_update_kernels
+@@ -1275,17 +1275,17 @@
+                 neon_hybrid::prefetch_parent_code(16);
+             }
+             counter += chunks as u64;
+             left -= subtree;
+             continue;
+         }
+         neon_hybrid::prefetch_tree_code(chunks.min(16), 0);
+         counter += chunks as u64;
+-        left -= subtree;
++        left += /* ~ changed by cargo-mutants ~ */ subtree;
+     }
+     let _ = platform;
+ }
+ 
+ /// The smallest input the SME2 kernels take part in: one group of sixteen
+ /// chunks. Below it the SME2 platform runs the NEON hybrids.
+ pub(crate) const SME2_SIZED_LEN: usize = 16 * CHUNK_LEN;
+ 

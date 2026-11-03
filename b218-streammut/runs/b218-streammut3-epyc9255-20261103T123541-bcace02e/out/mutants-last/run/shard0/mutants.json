@@ -1,0 +1,1115 @@
+[
+  {
+    "diff": "--- src/stream.rs\n+++ replace << with >>\n@@ -39,17 +39,17 @@\n /// this long (a task's subtree).\n pub(crate) const PIECE: usize = TASK_LEN;\n \n /// The bytes a stream keeps for messages and batches written in place:\n /// 2 MiB. With the digests in the program's places, 4 MiB made two\n /// programs streaming 4 MiB batches 18% slower (the ring, the places, and\n /// the programs' own buffers past the L3, i7-12700K); 2 MiB is level there\n /// and 2-4 points less fast than 4 MiB on some other cells.\n-const RING_BYTES: usize = 2 << 20;\n+const RING_BYTES: usize = 2 >> /* ~ changed by cargo-mutants ~ */ 20;\n \n /// The most entries (messages and pieces) in flight in one stream (1024:\n /// 4 KiB to 16 KiB messages 8-9% faster than at 8192, i7-12700K; 256 lost\n /// 26-130% at 64 and 256 B).\n const ENTRIES: usize = 1024;\n \n /// One message, one piece of a long one, or one part of a batch, from its\n /// submission to its delivery: what the program's thread keeps of it. Its\n",
+    "file": "src/stream.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:47:29: replace << with >>",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 47
+      },
+      "start": {
+        "column": 29,
+        "line": 47
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace stream -> T with Default::default()\n@@ -159,24 +159,17 @@\n ///         s.submit(core::slice::from_ref(message), 64, digest);\n ///     }\n ///     s.finish();\n /// });\n /// assert_eq!(handed_back, 1000);\n /// assert_eq!(digests[7], blake3_servil::convenience::hash(&messages[7].0));\n /// ```\n pub fn stream<'env, D: FnMut(&'env mut [Hash]), T>(mode: Mode, done: D, body: impl for<'s> FnOnce(&'s mut Stream<'env, D>) -> T) -> T {\n-    let mut stream = Stream::open(mode, done);\n-    // Dropped first if anything below unwinds: the process ends there, while\n-    // the threads may still read the messages and write the places.\n-    let unwinding = crate::lanes::AbortOnUnwind;\n-    let result = body(&mut stream);\n-    assert_eq!(stream.delivered, stream.next, \"a stream's body calls finish last\");\n-    core::mem::forget(unwinding);\n-    result\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {\n     /// A stream outside [`stream`]'s scope, for the C API (`capi/`): the\n     /// same contract, with the program holding the stream and ending it\n     /// (`finish`, then drop). Dropping a stream waits for its tasks. Rust\n     /// programs call [`stream`], whose scope holds the contract for them.\n     #[doc(hidden)]\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "stream",
+      "return_type": "-> T",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 175
+        },
+        "start": {
+          "column": 1,
+          "line": 97
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:167:5: replace stream -> T with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 174
+      },
+      "start": {
+        "column": 5,
+        "line": 167
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::open -> Self with Default::default()\n@@ -176,40 +176,17 @@\n \n impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {\n     /// A stream outside [`stream`]'s scope, for the C API (`capi/`): the\n     /// same contract, with the program holding the stream and ending it\n     /// (`finish`, then drop). Dropping a stream waits for its tasks. Rust\n     /// programs call [`stream`], whose scope holds the contract for them.\n     #[doc(hidden)]\n     pub fn open(mode: Mode, done: D) -> Self {\n-        crate::lanes::require();\n-        let (key, flags) = mode.key_and_flags();\n-        let s = Storage::take();\n-        // A slot, where some thread beside this one can take tasks (with one\n-        // CPU none can: then every task is hashed here as it is handed over,\n-        // as when every slot is taken).\n-        let slot = if crate::lanes::splits() { s.source.register() } else { None };\n-        crate::lanes::sources::opened();\n-        Stream {\n-            key,\n-            flags,\n-            s,\n-            slot,\n-            done,\n-            open_first: 0,\n-            next: 0,\n-            delivered: 0,\n-            head: 0,\n-            tail: 0,\n-            open: None,\n-            stack: arrayvec::ArrayVec::new(),\n-            pieces: 0,\n-            env: PhantomData,\n-        }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// A stream's entries, and room for their tasks in the pool's list: kept\n /// for the thread's next stream (a stream of one message up to 4 KiB\n /// after a 1 ms pause: 55 us with 248 KiB allocated and faulted in each\n /// time, 4-5 us with the spare; one stream kept open, 2.6-4 us. i7-12700K).\n struct Storage {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::open",
+      "return_type": "-> Self",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 208
+        },
+        "start": {
+          "column": 5,
+          "line": 178
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:184:9: replace Stream<'env, D>::open -> Self with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 207
+      },
+      "start": {
+        "column": 9,
+        "line": 184
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::take -> &'static mut Storage with Box::leak(Box::new(Default::default()))\n@@ -238,20 +238,17 @@\n \n // Sound: a storage in the free list is no stream's; the one that takes it\n // owns it alone.\n unsafe impl Send for FreeStorage {}\n \n impl Storage {\n     /// A storage from the free list, or a new one (kept for good).\n     fn take() -> &'static mut Storage {\n-        match FREE.lock().unwrap().pop() {\n-            Some(FreeStorage(s)) => s,\n-            None => Box::leak(Box::new(Storage::new())),\n-        }\n+        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     fn new() -> Storage {\n         Storage {\n             source: Box::leak(Box::new(crate::lanes::sources::Source::new(ENTRIES))),\n             entries: std::vec![Entry { len: 0, kind: Kind::Abandoned, first: 0, ring_end: 0 }; ENTRIES].into_boxed_slice(),\n             ring: {\n                 // Zeroed, untouched pages (only the bytes used are faulted\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::take",
+      "return_type": "-> &'static mut Storage",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 250
+        },
+        "start": {
+          "column": 5,
+          "line": 244
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:246:9: replace Storage::take -> &'static mut Storage with Box::leak(Box::new(Default::default()))",
+    "package": "blake3-servil",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 249
+      },
+      "start": {
+        "column": 9,
+        "line": 246
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::run_waiting -> bool with true\n@@ -268,23 +268,17 @@\n             lefts: (0..ENTRIES).map(|_| OwnLine(AtomicUsize::new(0))).collect(),\n         }\n     }\n \n     /// Hash one of the stream's tasks no thread has taken: whether there\n     /// was one. A waiting caller's own help, the one way a lone task runs\n     /// while every worker is parked (only collect wakes one for it).\n     fn run_waiting(&self) -> bool {\n-        match self.source.take_task() {\n-            Some(task) => {\n-                crate::lanes::run_task(task);\n-                true\n-            }\n-            None => false,\n-        }\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The ring's byte at `at`.\n     fn ring_at(&self, at: usize) -> *mut u8 {\n         debug_assert!(at <= RING_BYTES);\n         // Sound: `at` is in the ring.\n         unsafe { self.ring.add(at) }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::run_waiting",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 283
+        },
+        "start": {
+          "column": 5,
+          "line": 272
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:276:9: replace Storage::run_waiting -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 282
+      },
+      "start": {
+        "column": 9,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::run_waiting -> bool with false\n@@ -268,23 +268,17 @@\n             lefts: (0..ENTRIES).map(|_| OwnLine(AtomicUsize::new(0))).collect(),\n         }\n     }\n \n     /// Hash one of the stream's tasks no thread has taken: whether there\n     /// was one. A waiting caller's own help, the one way a lone task runs\n     /// while every worker is parked (only collect wakes one for it).\n     fn run_waiting(&self) -> bool {\n-        match self.source.take_task() {\n-            Some(task) => {\n-                crate::lanes::run_task(task);\n-                true\n-            }\n-            None => false,\n-        }\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The ring's byte at `at`.\n     fn ring_at(&self, at: usize) -> *mut u8 {\n         debug_assert!(at <= RING_BYTES);\n         // Sound: `at` is in the ring.\n         unsafe { self.ring.add(at) }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::run_waiting",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 283
+        },
+        "start": {
+          "column": 5,
+          "line": 272
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:276:9: replace Storage::run_waiting -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 282
+      },
+      "start": {
+        "column": 9,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::ring_at -> *mut u8 with Default::default()\n@@ -279,19 +279,17 @@\n                 true\n             }\n             None => false,\n         }\n     }\n \n     /// The ring's byte at `at`.\n     fn ring_at(&self, at: usize) -> *mut u8 {\n-        debug_assert!(at <= RING_BYTES);\n-        // Sound: `at` is in the ring.\n-        unsafe { self.ring.add(at) }\n+        Default::default() /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::ring_at",
+      "return_type": "-> *mut u8",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 290
+        },
+        "start": {
+          "column": 5,
+          "line": 285
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:287:9: replace Storage::ring_at -> *mut u8 with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 289
+      },
+      "start": {
+        "column": 9,
+        "line": 287
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace fill_all with ()\n@@ -291,24 +291,17 @@\n }\n \n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n-    let mut done = 0;\n-    while done < room.len() {\n-        let left = room.len() - done;\n-        let n = fill(at + done, &mut room[done..]);\n-        assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n-        assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n-        done += n;\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n     if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:299:5: replace fill_all with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 306
+      },
+      "start": {
+        "column": 5,
+        "line": 299
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with == in fill_all\n@@ -292,17 +292,17 @@\n \n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n-    while done < room.len() {\n+    while done == /* ~ changed by cargo-mutants ~ */ room.len() {\n         let left = room.len() - done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:300:16: replace < with == in fill_all",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 300
+      },
+      "start": {
+        "column": 16,
+        "line": 300
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with > in fill_all\n@@ -292,17 +292,17 @@\n \n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n-    while done < room.len() {\n+    while done > /* ~ changed by cargo-mutants ~ */ room.len() {\n         let left = room.len() - done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:300:16: replace < with > in fill_all",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 300
+      },
+      "start": {
+        "column": 16,
+        "line": 300
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with <= in fill_all\n@@ -292,17 +292,17 @@\n \n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n-    while done < room.len() {\n+    while done <= /* ~ changed by cargo-mutants ~ */ room.len() {\n         let left = room.len() - done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:300:16: replace < with <= in fill_all",
+    "package": "blake3-servil",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 300
+      },
+      "start": {
+        "column": 16,
+        "line": 300
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in fill_all\n@@ -293,17 +293,17 @@\n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n-        let left = room.len() - done;\n+        let left = room.len() + /* ~ changed by cargo-mutants ~ */ done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:301:31: replace - with + in fill_all",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 301
+      },
+      "start": {
+        "column": 31,
+        "line": 301
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in fill_all\n@@ -293,17 +293,17 @@\n /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n-        let left = room.len() - done;\n+        let left = room.len() / /* ~ changed by cargo-mutants ~ */ done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:301:31: replace - with / in fill_all",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 301
+      },
+      "start": {
+        "column": 31,
+        "line": 301
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in fill_all\n@@ -294,17 +294,17 @@\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n         let left = room.len() - done;\n-        let n = fill(at + done, &mut room[done..]);\n+        let n = fill(at - /* ~ changed by cargo-mutants ~ */ done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:302:25: replace + with - in fill_all",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 302
+      },
+      "start": {
+        "column": 25,
+        "line": 302
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with * in fill_all\n@@ -294,17 +294,17 @@\n /// each call writes at the start of what is left, the bytes from `at` on,\n /// and returns how many it wrote. A short write (a plain read's) would\n /// otherwise leave bytes an earlier message left, hashed into a wrong\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n         let left = room.len() - done;\n-        let n = fill(at + done, &mut room[done..]);\n+        let n = fill(at * /* ~ changed by cargo-mutants ~ */ done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:302:25: replace + with * in fill_all",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 302
+      },
+      "start": {
+        "column": 25,
+        "line": 302
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in fill_all\n@@ -297,17 +297,17 @@\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n         let left = room.len() - done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n-        done += n;\n+        done -= /* ~ changed by cargo-mutants ~ */ n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n     if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:305:14: replace += with -= in fill_all",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 305
+      },
+      "start": {
+        "column": 14,
+        "line": 305
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in fill_all\n@@ -297,17 +297,17 @@\n /// digest with no error (BLAKE3 #204).\n fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {\n     let mut done = 0;\n     while done < room.len() {\n         let left = room.len() - done;\n         let n = fill(at + done, &mut room[done..]);\n         assert!(n != 0, \"fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length\", room.len());\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n-        done += n;\n+        done *= /* ~ changed by cargo-mutants ~ */ n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n     if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "fill_all",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 307
+        },
+        "start": {
+          "column": 1,
+          "line": 293
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:305:14: replace += with *= in fill_all",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 305
+      },
+      "start": {
+        "column": 14,
+        "line": 305
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace part_kind -> Kind with Default::default()\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:312:5: replace part_kind -> Kind with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 138,
+        "line": 312
+      },
+      "start": {
+        "column": 5,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces != /* ~ changed by cargo-mutants ~ */ 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:15: replace == with != in part_kind",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 312
+      },
+      "start": {
+        "column": 15,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with % in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE % /* ~ changed by cargo-mutants ~ */ CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:87: replace / with % in part_kind",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 88,
+        "line": 312
+      },
+      "start": {
+        "column": 87,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with * in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:87: replace / with * in part_kind",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 88,
+        "line": 312
+      },
+      "start": {
+        "column": 87,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i + /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:79: replace * with + in part_kind",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 80,
+        "line": 312
+      },
+      "start": {
+        "column": 79,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i / /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:79: replace * with / in part_kind",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 80,
+        "line": 312
+      },
+      "start": {
+        "column": 79,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 != /* ~ changed by cargo-mutants ~ */ pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:120: replace == with != in part_kind",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 122,
+        "line": 312
+      },
+      "start": {
+        "column": 120,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i - /* ~ changed by cargo-mutants ~ */ 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:116: replace + with - in part_kind",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 117,
+        "line": 312
+      },
+      "start": {
+        "column": 116,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with * in part_kind\n@@ -304,17 +304,17 @@\n         assert!(n <= left, \"fill says it wrote {n} bytes into a room of {left}\");\n         done += n;\n     }\n }\n \n /// Part `i` of a message in `pieces` parts, its digest at `out`: the\n /// message whole, or a piece.\n fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {\n-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }\n+    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i * /* ~ changed by cargo-mutants ~ */ 1 == pieces, out } }\n }\n \n /// The messages of one [`stream`] call, and the places for their digests,\n /// borrowed for its scope; `D` is the stream's handler.\n pub struct Stream<'env, D> {\n     key: CVWords,\n     flags: u8,\n     /// Its own until the stream ends (then the thread's spare).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "part_kind",
+      "return_type": "-> Kind",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 313
+        },
+        "start": {
+          "column": 1,
+          "line": 309
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:312:116: replace + with * in part_kind",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 117,
+        "line": 312
+      },
+      "start": {
+        "column": 116,
+        "line": 312
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with -\n@@ -331,17 +331,17 @@\n     /// Ring bytes reserved, and freed (each counts on; the ring holds\n     /// head - tail).\n     head: usize,\n     tail: usize,\n     /// Short messages gathered, not yet handed to the pool.\n     open: Option<Task>,\n     /// A long message being handed back: its pieces' chaining values so\n     /// far (merged as the Hasher's stack merges), and how many.\n-    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH + 1 }>,\n+    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH - /* ~ changed by cargo-mutants ~ */ 1 }>,\n     pieces: u64,\n     /// Invariant in 'env, as std::thread::Scope is: the messages' and the\n     /// places' lifetime.\n     env: PhantomData<&'env mut &'env ()>,\n }\n \n // Sound: the entries are reached by the program's thread through `&mut\n // self`, and by the pool's threads only for entries in tasks in flight,\n",
+    "file": "src/stream.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:339:59: replace + with -",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 339
+      },
+      "start": {
+        "column": 59,
+        "line": 339
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with *\n@@ -331,17 +331,17 @@\n     /// Ring bytes reserved, and freed (each counts on; the ring holds\n     /// head - tail).\n     head: usize,\n     tail: usize,\n     /// Short messages gathered, not yet handed to the pool.\n     open: Option<Task>,\n     /// A long message being handed back: its pieces' chaining values so\n     /// far (merged as the Hasher's stack merges), and how many.\n-    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH + 1 }>,\n+    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH * /* ~ changed by cargo-mutants ~ */ 1 }>,\n     pieces: u64,\n     /// Invariant in 'env, as std::thread::Scope is: the messages' and the\n     /// places' lifetime.\n     env: PhantomData<&'env mut &'env ()>,\n }\n \n // Sound: the entries are reached by the program's thread through `&mut\n // self`, and by the pool's threads only for entries in tasks in flight,\n",
+    "file": "src/stream.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:339:59: replace + with *",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 339
+      },
+      "start": {
+        "column": 59,
+        "line": 339
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit with ()\n@@ -352,24 +352,17 @@\n unsafe impl<D: Send> Send for Stream<'_, D> {}\n \n impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {\n     /// Hash the message of `len` bytes that starts `message`, where it is,\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n-        let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n-        let out: *mut Hash = out;\n-        let pieces = message.len().div_ceil(PIECE).max(1);\n-        for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n-            let at = self.head;\n-            self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n     /// start of `room` and returns how many it wrote, as `Read::read`\n     /// does: the stream calls it again for the rest until the piece is\n     /// full, so `|_, room| file.read(room).unwrap()` reads a file or socket\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:360:9: replace Stream<'env, D>::submit with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 367
+      },
+      "start": {
+        "column": 9,
+        "line": 360
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i + /* ~ changed by cargo-mutants ~ */ PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:35: replace * with + in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 364
+      },
+      "start": {
+        "column": 35,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i / /* ~ changed by cargo-mutants ~ */ PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:35: replace * with / in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 364
+      },
+      "start": {
+        "column": 35,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i * PIECE..][..(message.len() + /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:63: replace - with + in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 364
+      },
+      "start": {
+        "column": 63,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i * PIECE..][..(message.len() / /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:63: replace - with / in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 364
+      },
+      "start": {
+        "column": 63,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i * PIECE..][..(message.len() - i + /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:67: replace * with + in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 68,
+        "line": 364
+      },
+      "start": {
+        "column": 67,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit\n@@ -356,17 +356,17 @@\n     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned\n     /// message, as [`hash`](crate::performance::hash) takes one (the bytes\n     /// past its end ignored).\n     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {\n         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];\n         let out: *mut Hash = out;\n         let pieces = message.len().div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];\n+            let part = &message[i * PIECE..][..(message.len() - i / /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE)];\n             let at = self.head;\n             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);\n         }\n     }\n \n     /// Hash a message of `len` bytes that `fill` writes in place, into the\n     /// stream's own bytes, in pieces of up to 64 KiB, its digest into\n     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 368
+        },
+        "start": {
+          "column": 5,
+          "line": 355
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:364:67: replace * with / in Stream<'env, D>::submit",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 68,
+        "line": 364
+      },
+      "start": {
+        "column": 67,
+        "line": 364
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit_with with ()\n@@ -378,28 +378,17 @@\n     /// piece's first `room` starts on a 64-byte boundary, and its bytes on\n     /// entry are unspecified: the rooms are the process's, reused across\n     /// streams, so a room may hold bytes an earlier message left (a program\n     /// that must keep one caller's secrets from another reads none of\n     /// `room` before writing it). The stream reuses the bytes once `out`\n     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`\n     /// waits for room as `submit` does.\n     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {\n-        let out: *mut Hash = out;\n-        let pieces = len.div_ceil(PIECE).max(1);\n-        for i in 0..pieces {\n-            let part_len = (len - i * PIECE).min(PIECE);\n-            let at = self.reserve(part_len);\n-            // Sound: [at, at + part_len) is reserved and free (no entry in\n-            // flight holds it), and `&mut self` keeps every other writer out.\n-            let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n-            fill_all(&mut fill, i * PIECE, room);\n-            let end = self.head;\n-            self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash the message `reader` yields, to its end, read straight into the\n     /// stream's own bytes in pieces of up to 64 KiB (a file or socket read\n     /// into the stream, overlapping the hashing of earlier pieces), its\n     /// digest into `out`: the message's length on success. On a read error\n     /// (other than an interruption, which reads again) the error returns,\n     /// `out` gets no digest and is not handed back, and the stream goes on\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:386:9: replace Stream<'env, D>::submit_with with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 397
+      },
+      "start": {
+        "column": 9,
+        "line": 386
+      }
+    }
+  }
+]

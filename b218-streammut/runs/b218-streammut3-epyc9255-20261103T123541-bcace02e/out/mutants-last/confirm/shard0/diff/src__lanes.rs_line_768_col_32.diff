@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace && with || in Pool::serve
+@@ -760,17 +760,17 @@
+     /// Worker `me`'s loop: the sources' tasks and pieces; spinning a while
+     /// when a stream is open (more is coming), else parked, whenever it
+     /// finds nothing.
+     fn serve(&self, me: usize) -> ! {
+         loop {
+             if sources::run_one() {
+                 continue;
+             }
+-            if sources::open() && spin_for_work() {
++            if sources::open() || /* ~ changed by cargo-mutants ~ */ spin_for_work() {
+                 continue;
+             }
+             // Park unless work shows (crate::park's handshake); woken, pay
+             // the wakes owed before working.
+             if self.park.park_unless(me, || sources::visible(false)) {
+                 self.park.pay_owed();
+             }
+         }

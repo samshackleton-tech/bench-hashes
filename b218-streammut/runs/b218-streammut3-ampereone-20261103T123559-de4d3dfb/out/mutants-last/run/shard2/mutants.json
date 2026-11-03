@@ -1,0 +1,1154 @@
+[
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 1, 1, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (0, 1, 1, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 1, 1, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(0, 1, 1, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 0, 0, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (1, 0, 0, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 0, 0, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(1, 0, 0, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 0, 1, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (1, 0, 1, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 0, 1, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(1, 0, 1, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 1, 0, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (1, 1, 0, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 1, 0, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(1, 1, 0, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 1, 1, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (1, 1, 1, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 1, 1, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(1, 1, 1, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with == in Stream<'env, D>::read_piece\n@@ -461,17 +461,17 @@\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n         let end = self.head;\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n-        while n < PIECE {\n+        while n == /* ~ changed by cargo-mutants ~ */ PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:469:17: replace < with == in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 469
+      },
+      "start": {
+        "column": 17,
+        "line": 469
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with > in Stream<'env, D>::read_piece\n@@ -461,17 +461,17 @@\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n         let end = self.head;\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n-        while n < PIECE {\n+        while n > /* ~ changed by cargo-mutants ~ */ PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:469:17: replace < with > in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 469
+      },
+      "start": {
+        "column": 17,
+        "line": 469
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with <= in Stream<'env, D>::read_piece\n@@ -461,17 +461,17 @@\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n         let end = self.head;\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n-        while n < PIECE {\n+        while n <= /* ~ changed by cargo-mutants ~ */ PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:469:17: replace < with <= in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 469
+      },
+      "start": {
+        "column": 17,
+        "line": 469
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::Interrupted with true in Stream<'env, D>::read_piece\n@@ -465,17 +465,17 @@\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n         while n < PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n+                Err(e) if true /* ~ changed by cargo-mutants ~ */ => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/stream.rs:473:27: replace match guard e.kind() == std::io::ErrorKind::Interrupted with true in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 70,
+        "line": 473
+      },
+      "start": {
+        "column": 27,
+        "line": 473
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace match guard e.kind() == std::io::ErrorKind::Interrupted with false in Stream<'env, D>::read_piece\n@@ -465,17 +465,17 @@\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n         while n < PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n+                Err(e) if false /* ~ changed by cargo-mutants ~ */ => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/stream.rs:473:27: replace match guard e.kind() == std::io::ErrorKind::Interrupted with false in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 70,
+        "line": 473
+      },
+      "start": {
+        "column": 27,
+        "line": 473
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in Stream<'env, D>::read_piece\n@@ -464,17 +464,17 @@\n         let end = self.head;\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n         while n < PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n-                Ok(k) => n += k,\n+                Ok(k) => n -= /* ~ changed by cargo-mutants ~ */ k,\n                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:472:28: replace += with -= in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 472
+      },
+      "start": {
+        "column": 28,
+        "line": 472
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in Stream<'env, D>::read_piece\n@@ -464,17 +464,17 @@\n         let end = self.head;\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n         while n < PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n-                Ok(k) => n += k,\n+                Ok(k) => n *= /* ~ changed by cargo-mutants ~ */ k,\n                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:472:28: replace += with *= in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 472
+      },
+      "start": {
+        "column": 28,
+        "line": 472
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::read_piece\n@@ -465,17 +465,17 @@\n         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n         // keeps every other writer out.\n         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n         let mut n = 0;\n         while n < PIECE {\n             match reader.read(&mut room[n..]) {\n                 Ok(0) => break,\n                 Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n+                Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ std::io::ErrorKind::Interrupted => {}\n                 Err(e) => return (at, end, n, Err(e)),\n             }\n         }\n         (at, end, n, Ok(()))\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:473:36: replace == with != in Stream<'env, D>::read_piece",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 473
+      },
+      "start": {
+        "column": 36,
+        "line": 473
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit_batch with ()\n@@ -478,33 +478,17 @@\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n-        let message_len = batch.message_len();\n-        let batch = crate::performance::Block::bytes(batch.blocks());\n-        let slot = crate::many::slot_len(message_len);\n-        assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n-        crate::many::assert_slots(batch, message_len, out.len());\n-        let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n-        let parts = out.len().div_ceil(per_part).max(1);\n-        for p in 0..parts {\n-            let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n-            let at = self.head;\n-            let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n-            // Sound: `first` is within the batch and its space (count may be 0).\n-            let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n-            self.add_part(input, count * slot, kind, at, output as *mut u8);\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at\n     /// the start of `room` and returns how many it wrote, as in\n     /// [`submit_with`](Stream::submit_with), the stream calling it until a\n     /// part of up to 64 KiB is full, each message at the start of its slot\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:486:9: replace Stream<'env, D>::submit_batch with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 502
+      },
+      "start": {
+        "column": 9,
+        "line": 486
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with % in Stream<'env, D>::submit_batch\n@@ -484,17 +484,17 @@\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n         let message_len = batch.message_len();\n         let batch = crate::performance::Block::bytes(batch.blocks());\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n+        let per_part = (TASK_LEN % /* ~ changed by cargo-mutants ~ */ slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:492:34: replace / with % in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 492
+      },
+      "start": {
+        "column": 34,
+        "line": 492
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with * in Stream<'env, D>::submit_batch\n@@ -484,17 +484,17 @@\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n         let message_len = batch.message_len();\n         let batch = crate::performance::Block::bytes(batch.blocks());\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n+        let per_part = (TASK_LEN * /* ~ changed by cargo-mutants ~ */ slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:492:34: replace / with * in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 492
+      },
+      "start": {
+        "column": 34,
+        "line": 492
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_batch\n@@ -487,17 +487,17 @@\n         let batch = crate::performance::Block::bytes(batch.blocks());\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n-            let first = p * per_part;\n+            let first = p + /* ~ changed by cargo-mutants ~ */ per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:495:27: replace * with + in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 495
+      },
+      "start": {
+        "column": 27,
+        "line": 495
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_batch\n@@ -487,17 +487,17 @@\n         let batch = crate::performance::Block::bytes(batch.blocks());\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n-            let first = p * per_part;\n+            let first = p / /* ~ changed by cargo-mutants ~ */ per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:495:27: replace * with / in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 495
+      },
+      "start": {
+        "column": 27,
+        "line": 495
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::submit_batch\n@@ -488,17 +488,17 @@\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n+            let count = (out.len() + /* ~ changed by cargo-mutants ~ */ first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:496:36: replace - with + in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 496
+      },
+      "start": {
+        "column": 36,
+        "line": 496
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in Stream<'env, D>::submit_batch\n@@ -488,17 +488,17 @@\n         let slot = crate::many::slot_len(message_len);\n         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), \"a batch's digest space holds one digest per message\");\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n+            let count = (out.len() / /* ~ changed by cargo-mutants ~ */ first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:496:36: replace - with / in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 496
+      },
+      "start": {
+        "column": 36,
+        "line": 496
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::submit_batch\n@@ -490,17 +490,17 @@\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n-            let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n+            let kind = Kind::Batch { message_len, whole: (p + 1 != /* ~ changed by cargo-mutants ~ */ parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:498:65: replace == with != in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 67,
+        "line": 498
+      },
+      "start": {
+        "column": 65,
+        "line": 498
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in Stream<'env, D>::submit_batch\n@@ -490,17 +490,17 @@\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n-            let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n+            let kind = Kind::Batch { message_len, whole: (p - /* ~ changed by cargo-mutants ~ */ 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:498:61: replace + with - in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 498
+      },
+      "start": {
+        "column": 61,
+        "line": 498
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with * in Stream<'env, D>::submit_batch\n@@ -490,17 +490,17 @@\n         crate::many::assert_slots(batch, message_len, out.len());\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n-            let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n+            let kind = Kind::Batch { message_len, whole: (p * /* ~ changed by cargo-mutants ~ */ 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:498:61: replace + with * in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 498
+      },
+      "start": {
+        "column": 61,
+        "line": 498
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_batch\n@@ -492,17 +492,17 @@\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n-            let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n+            let (input, output) = unsafe { (batch.as_ptr().add(first + /* ~ changed by cargo-mutants ~ */ slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at\n     /// the start of `room` and returns how many it wrote, as in\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:500:70: replace * with + in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 500
+      },
+      "start": {
+        "column": 70,
+        "line": 500
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_batch\n@@ -492,17 +492,17 @@\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n-            let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n+            let (input, output) = unsafe { (batch.as_ptr().add(first / /* ~ changed by cargo-mutants ~ */ slot), whole.0.add(first)) };\n             self.add_part(input, count * slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at\n     /// the start of `room` and returns how many it wrote, as in\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:500:70: replace * with / in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 71,
+        "line": 500
+      },
+      "start": {
+        "column": 70,
+        "line": 500
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_batch\n@@ -493,17 +493,17 @@\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n-            self.add_part(input, count * slot, kind, at, output as *mut u8);\n+            self.add_part(input, count + /* ~ changed by cargo-mutants ~ */ slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at\n     /// the start of `room` and returns how many it wrote, as in\n     /// [`submit_with`](Stream::submit_with), the stream calling it until a\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:501:40: replace * with + in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 501
+      },
+      "start": {
+        "column": 40,
+        "line": 501
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_batch\n@@ -493,17 +493,17 @@\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.head;\n             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n             // Sound: `first` is within the batch and its space (count may be 0).\n             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };\n-            self.add_part(input, count * slot, kind, at, output as *mut u8);\n+            self.add_part(input, count / /* ~ changed by cargo-mutants ~ */ slot, kind, at, output as *mut u8);\n         }\n     }\n \n     /// Hash a batch of `out.len()` messages of `message_len` bytes that\n     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)\n     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at\n     /// the start of `room` and returns how many it wrote, as in\n     /// [`submit_with`](Stream::submit_with), the stream calling it until a\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 503
+        },
+        "start": {
+          "column": 5,
+          "line": 480
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:501:40: replace * with / in Stream<'env, D>::submit_batch",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 41,
+        "line": 501
+      },
+      "start": {
+        "column": 40,
+        "line": 501
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit_batch_with with ()\n@@ -508,41 +508,17 @@\n     /// the start of `room` and returns how many it wrote, as in\n     /// [`submit_with`](Stream::submit_with), the stream calling it until a\n     /// part of up to 64 KiB is full, each message at the start of its slot\n     /// of whole blocks. The bytes past each message are the\n     /// stream's: whatever `fill` leaves there, the stream zeroes them before\n     /// hashing, so a room reused for shorter messages hashes right. As\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n-        let slot = crate::many::slot_len(message_len);\n-        let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n-        let parts = out.len().div_ceil(per_part).max(1);\n-        for p in 0..parts {\n-            let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n-            let at = self.reserve(count * slot);\n-            // Sound: as in submit_with.\n-            let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n-            fill_all(&mut fill, first * slot, room);\n-            // The bytes past each message, zero (none when the length is a\n-            // multiple of 64): a reused room holds an earlier batch's bytes.\n-            if message_len % 64 != 0 || message_len == 0 {\n-                for message in room.chunks_exact_mut(slot) {\n-                    message[message_len..].fill(0);\n-                    crate::counted(crate::Counted::BatchZeroed);\n-                }\n-            }\n-            let end = self.head;\n-            let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };\n-            // Sound: `first` is within the batch's space.\n-            let output = unsafe { whole.0.add(first) };\n-            self.add_part(room.as_ptr(), room.len(), kind, end, output as *mut u8);\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// An entry of `kind`, `len` bytes at `input`, its digests at `out`,\n     /// its ring bytes reserved up to `ring_end`: a whole message, or a\n     /// batch's part, joins the open task (of its kind: one of another kind\n     /// is handed over first); a piece of a long message is a task of its\n     /// own, a whole subtree at its offset; an empty batch's one part is no\n     /// task (done as it is added).\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:516:9: replace Stream<'env, D>::submit_batch_with with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 540
+      },
+      "start": {
+        "column": 9,
+        "line": 516
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with % in Stream<'env, D>::submit_batch_with\n@@ -510,17 +510,17 @@\n     /// part of up to 64 KiB is full, each message at the start of its slot\n     /// of whole blocks. The bytes past each message are the\n     /// stream's: whatever `fill` leaves there, the stream zeroes them before\n     /// hashing, so a room reused for shorter messages hashes right. As\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n+        let per_part = (TASK_LEN % /* ~ changed by cargo-mutants ~ */ slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:518:34: replace / with % in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 518
+      },
+      "start": {
+        "column": 34,
+        "line": 518
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with * in Stream<'env, D>::submit_batch_with\n@@ -510,17 +510,17 @@\n     /// part of up to 64 KiB is full, each message at the start of its slot\n     /// of whole blocks. The bytes past each message are the\n     /// stream's: whatever `fill` leaves there, the stream zeroes them before\n     /// hashing, so a room reused for shorter messages hashes right. As\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n-        let per_part = (TASK_LEN / slot).max(1);\n+        let per_part = (TASK_LEN * /* ~ changed by cargo-mutants ~ */ slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:518:34: replace / with * in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 518
+      },
+      "start": {
+        "column": 34,
+        "line": 518
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_batch_with\n@@ -513,17 +513,17 @@\n     /// hashing, so a room reused for shorter messages hashes right. As\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n-            let first = p * per_part;\n+            let first = p + /* ~ changed by cargo-mutants ~ */ per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:521:27: replace * with + in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 521
+      },
+      "start": {
+        "column": 27,
+        "line": 521
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_batch_with\n@@ -513,17 +513,17 @@\n     /// hashing, so a room reused for shorter messages hashes right. As\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n-            let first = p * per_part;\n+            let first = p / /* ~ changed by cargo-mutants ~ */ per_part;\n             let count = (out.len() - first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:521:27: replace * with / in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 521
+      },
+      "start": {
+        "column": 27,
+        "line": 521
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::submit_batch_with\n@@ -514,17 +514,17 @@\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n+            let count = (out.len() + /* ~ changed by cargo-mutants ~ */ first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n                 for message in room.chunks_exact_mut(slot) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:522:36: replace - with + in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 522
+      },
+      "start": {
+        "column": 36,
+        "line": 522
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in Stream<'env, D>::submit_batch_with\n@@ -514,17 +514,17 @@\n     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n-            let count = (out.len() - first).min(per_part);\n+            let count = (out.len() / /* ~ changed by cargo-mutants ~ */ first).min(per_part);\n             let at = self.reserve(count * slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n                 for message in room.chunks_exact_mut(slot) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:522:36: replace - with / in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 522
+      },
+      "start": {
+        "column": 36,
+        "line": 522
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_batch_with\n@@ -515,17 +515,17 @@\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n-            let at = self.reserve(count * slot);\n+            let at = self.reserve(count + /* ~ changed by cargo-mutants ~ */ slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n                 for message in room.chunks_exact_mut(slot) {\n                     message[message_len..].fill(0);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:523:41: replace * with + in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 523
+      },
+      "start": {
+        "column": 41,
+        "line": 523
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_batch_with\n@@ -515,17 +515,17 @@\n     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {\n         let slot = crate::many::slot_len(message_len);\n         let whole = (out.as_mut_ptr(), out.len());\n         let per_part = (TASK_LEN / slot).max(1);\n         let parts = out.len().div_ceil(per_part).max(1);\n         for p in 0..parts {\n             let first = p * per_part;\n             let count = (out.len() - first).min(per_part);\n-            let at = self.reserve(count * slot);\n+            let at = self.reserve(count / /* ~ changed by cargo-mutants ~ */ slot);\n             // Sound: as in submit_with.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };\n             fill_all(&mut fill, first * slot, room);\n             // The bytes past each message, zero (none when the length is a\n             // multiple of 64): a reused room holds an earlier batch's bytes.\n             if message_len % 64 != 0 || message_len == 0 {\n                 for message in room.chunks_exact_mut(slot) {\n                     message[message_len..].fill(0);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_batch_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 541
+        },
+        "start": {
+          "column": 5,
+          "line": 505
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:523:41: replace * with / in Stream<'env, D>::submit_batch_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 523
+      },
+      "start": {
+        "column": 41,
+        "line": 523
+      }
+    }
+  }
+]

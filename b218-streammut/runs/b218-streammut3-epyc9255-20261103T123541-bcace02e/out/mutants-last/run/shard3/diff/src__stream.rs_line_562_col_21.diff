@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ delete field flags from struct Task expression in Stream<'env, D>::add_part
+@@ -554,17 +554,17 @@
+             Kind::Batch { .. } if len == 0 => return,
+             Kind::Batch { message_len, .. } => Some(message_len),
+             Kind::Piece { counter, .. } => {
+                 self.s.lefts[entry].store(1, Ordering::Relaxed);
+                 // Sound: the bytes stay in place until the entry is handed back.
+                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };
+                 let task = Task {
+                     key: self.key,
+-                    flags: self.flags,
++                     /* ~ changed by cargo-mutants ~ */
+                     out: self.s.pieces_out[entry].0.0.get() as *mut u8,
+                     left: &*self.s.lefts[entry],
+                     ..Task::of(bytes, counter)
+                 };
+                 self.hand_over(task);
+                 return;
+             }
+         };

@@ -1,0 +1,84 @@
+
+*** src/stream.rs:184:9: replace Stream<'env, D>::open -> Self with Default::default()
+
+*** mutation diff:
+--- src/stream.rs
++++ replace Stream<'env, D>::open -> Self with Default::default()
+@@ -176,40 +176,17 @@
+ 
+ impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {
+     /// A stream outside [`stream`]'s scope, for the C API (`capi/`): the
+     /// same contract, with the program holding the stream and ending it
+     /// (`finish`, then drop). Dropping a stream waits for its tasks. Rust
+     /// programs call [`stream`], whose scope holds the contract for them.
+     #[doc(hidden)]
+     pub fn open(mode: Mode, done: D) -> Self {
+-        crate::lanes::require();
+-        let (key, flags) = mode.key_and_flags();
+-        let s = Storage::take();
+-        // A slot, where some thread beside this one can take tasks (with one
+-        // CPU none can: then every task is hashed here as it is handed over,
+-        // as when every slot is taken).
+-        let slot = if crate::lanes::splits() { s.source.register() } else { None };
+-        crate::lanes::sources::opened();
+-        Stream {
+-            key,
+-            flags,
+-            s,
+-            slot,
+-            done,
+-            open_first: 0,
+-            next: 0,
+-            delivered: 0,
+-            head: 0,
+-            tail: 0,
+-            open: None,
+-            stack: arrayvec::ArrayVec::new(),
+-            pieces: 0,
+-            env: PhantomData,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// A stream's entries, and room for their tasks in the pool's list: kept
+ /// for the thread's next stream (a stream of one message up to 4 KiB
+ /// after a 1 ms pause: 55 us with 248 KiB allocated and faulted in each
+ /// time, 4-5 us with the spare; one stream kept open, 2.6-4 us. i7-12700K).
+ struct Storage {
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-0ghbmk07)
+error[E0277]: the trait bound `Stream<'env, D>: Default` is not satisfied
+   --> src/stream.rs:184:9
+    |
+184 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Stream<'env, D>`
+   --> src/stream.rs:294:1
+    |
+294 | pub struct Stream<'env, D> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `stream::Stream<'env, D>: Default` is not satisfied
+   --> src/stream.rs:184:9
+    |
+184 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `stream::Stream<'env, D>`
+   --> src/stream.rs:294:1
+    |
+294 | pub struct Stream<'env, D> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run '--message-format=json-render-diagnostics' '--package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861' '--features=serde,zeroize' '--profile=mutants'` exited with code 101
+
+*** result: Failure(101)

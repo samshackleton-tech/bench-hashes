@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with *= in Stream<'env, D>::read_piece
+@@ -464,17 +464,17 @@
+         let end = self.head;
+         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`
+         // keeps every other writer out.
+         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };
+         let mut n = 0;
+         while n < PIECE {
+             match reader.read(&mut room[n..]) {
+                 Ok(0) => break,
+-                Ok(k) => n += k,
++                Ok(k) => n *= /* ~ changed by cargo-mutants ~ */ k,
+                 Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}
+                 Err(e) => return (at, end, n, Err(e)),
+             }
+         }
+         (at, end, n, Ok(()))
+     }
+ 
+     /// Hash a [`Batch`](crate::performance::Batch) where it is, as

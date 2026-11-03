@@ -1,0 +1,25 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::publish with ()
+@@ -664,21 +664,17 @@
+         self.publish();
+         while self.next - self.delivered == ENTRIES {
+             self.help();
+         }
+     }
+ 
+     /// Hand the open task to the pool.
+     fn publish(&mut self) {
+-        if let Some(task) = self.open.take() {
+-            // Before the push, whose lock orders it before the threads' reads.
+-            self.s.lefts[self.open_first].store(task.members, Ordering::Relaxed);
+-            self.hand_over(task);
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Give `task` to the workers through the stream's source; with no
+     /// slot, hash it on this thread now.
+     fn hand_over(&mut self, task: Task) {
+         match self.slot {
+             Some(_) => self.s.source.publish(task),
+             None => crate::lanes::run_task(task),

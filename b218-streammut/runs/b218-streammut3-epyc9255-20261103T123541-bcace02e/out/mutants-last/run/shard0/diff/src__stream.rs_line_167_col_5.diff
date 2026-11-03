@@ -1,0 +1,28 @@
+--- src/stream.rs
++++ replace stream -> T with Default::default()
+@@ -159,24 +159,17 @@
+ ///         s.submit(core::slice::from_ref(message), 64, digest);
+ ///     }
+ ///     s.finish();
+ /// });
+ /// assert_eq!(handed_back, 1000);
+ /// assert_eq!(digests[7], blake3_servil::convenience::hash(&messages[7].0));
+ /// ```
+ pub fn stream<'env, D: FnMut(&'env mut [Hash]), T>(mode: Mode, done: D, body: impl for<'s> FnOnce(&'s mut Stream<'env, D>) -> T) -> T {
+-    let mut stream = Stream::open(mode, done);
+-    // Dropped first if anything below unwinds: the process ends there, while
+-    // the threads may still read the messages and write the places.
+-    let unwinding = crate::lanes::AbortOnUnwind;
+-    let result = body(&mut stream);
+-    assert_eq!(stream.delivered, stream.next, "a stream's body calls finish last");
+-    core::mem::forget(unwinding);
+-    result
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {
+     /// A stream outside [`stream`]'s scope, for the C API (`capi/`): the
+     /// same contract, with the program holding the stream and ending it
+     /// (`finish`, then drop). Dropping a stream waits for its tasks. Rust
+     /// programs call [`stream`], whose scope holds the contract for them.
+     #[doc(hidden)]

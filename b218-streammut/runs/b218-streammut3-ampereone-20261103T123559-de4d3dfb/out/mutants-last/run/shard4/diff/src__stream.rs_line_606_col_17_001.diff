@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace > with < in Stream<'env, D>::reserve
+@@ -598,17 +598,17 @@
+         let slot = len.div_ceil(64) * 64;
+         let mut at = self.head % RING_BYTES;
+         // A slot that would cross the end starts the next lap instead.
+         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };
+         while RING_BYTES - (self.head - self.tail) < skip + slot {
+             self.publish();
+             self.help();
+         }
+-        if skip > 0 {
++        if skip < /* ~ changed by cargo-mutants ~ */ 0 {
+             at = 0;
+         }
+         self.head += skip + slot;
+         at
+     }
+ 
+     /// Hand back every place whose digests are done, in order, without
+     /// waiting; and hand the open task to the pool, so what it holds

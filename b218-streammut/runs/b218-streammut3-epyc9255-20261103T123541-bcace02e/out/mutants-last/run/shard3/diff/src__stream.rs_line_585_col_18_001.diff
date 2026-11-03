@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with *= in Stream<'env, D>::add_part
+@@ -577,17 +577,17 @@
+         // as the task is handed over).
+         if open.members == 0 {
+             self.open_first = entry;
+             open.left = &*self.s.lefts[entry];
+         }
+         self.s.entries[entry].first = self.open_first;
+         open.member[open.members] = Member { input, len, out };
+         open.members += 1;
+-        open.len += len;
++        open.len *= /* ~ changed by cargo-mutants ~ */ len;
+         // Messages longer than a block hash one at a time: a task of them
+         // stops at a quarter of a task's bytes, to spread over more threads
+         // (spread over more threads); batches fill a task's bytes.
+         if open.members == MEMBERS || open.len >= if batch.is_some() { TASK_LEN } else { TASK_LEN / 4 } {
+             self.publish();
+         }
+     }
+ 

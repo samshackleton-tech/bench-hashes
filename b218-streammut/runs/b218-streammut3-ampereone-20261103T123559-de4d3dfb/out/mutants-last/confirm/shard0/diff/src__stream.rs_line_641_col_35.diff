@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ delete ! in Stream<'env, D>::help
+@@ -633,17 +633,17 @@
+         while self.delivered < self.next {
+             self.help();
+         }
+     }
+ 
+     /// Hand back what is done; with nothing done, hash a waiting task or
+     /// pause.
+     fn help(&mut self) {
+-        if self.deliver() == 0 && !self.s.run_waiting() {
++        if self.deliver() == 0 &&  /* ~ changed by cargo-mutants ~ */self.s.run_waiting() {
+             core::hint::spin_loop();
+         }
+     }
+ 
+     /// A new entry of `len` bytes, waiting for room when every entry is in
+     /// flight.
+     #[inline(always)]
+     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {

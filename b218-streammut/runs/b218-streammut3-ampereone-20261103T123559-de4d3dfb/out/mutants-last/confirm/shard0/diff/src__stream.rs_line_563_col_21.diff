@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ delete field out from struct Task expression in Stream<'env, D>::add_part
+@@ -555,17 +555,17 @@
+             Kind::Batch { message_len, .. } => Some(message_len),
+             Kind::Piece { counter, .. } => {
+                 self.s.lefts[entry].store(1, Ordering::Relaxed);
+                 // Sound: the bytes stay in place until the entry is handed back.
+                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };
+                 let task = Task {
+                     key: self.key,
+                     flags: self.flags,
+-                    out: self.s.pieces_out[entry].0.0.get() as *mut u8,
++                     /* ~ changed by cargo-mutants ~ */
+                     left: &*self.s.lefts[entry],
+                     ..Task::of(bytes, counter)
+                 };
+                 self.hand_over(task);
+                 return;
+             }
+         };
+         if self.open.as_ref().is_some_and(|open| open.batch != batch) {

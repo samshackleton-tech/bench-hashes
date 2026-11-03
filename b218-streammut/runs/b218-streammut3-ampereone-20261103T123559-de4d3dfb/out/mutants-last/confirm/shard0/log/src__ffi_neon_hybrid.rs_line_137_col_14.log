@@ -1,0 +1,100 @@
+
+*** src/ffi_neon_hybrid.rs:137:14: replace += with *= in xof_many
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace += with *= in xof_many
+@@ -129,17 +129,17 @@
+     while out.len() - done >= 4 * BLOCK_LEN {
+         let (kernel, blocks): (Kernel, usize) =
+             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };
+         crate::ran_kernel(kernel as *const ());
+         // Sound: every table entry points at the 64-byte block; the kernel
+         // writes 64 bytes a block within `out[done..]`.
+         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };
+         counter = counter.wrapping_add(blocks as u64);
+-        done += blocks * BLOCK_LEN;
++        done *= /* ~ changed by cargo-mutants ~ */ blocks * BLOCK_LEN;
+     }
+     done
+ }
+ 
+ /// One block of extended output, block `counter`, on the integer units
+ /// (x1). The four-lane x4 costs about two compressions on the M4's cores
+ /// and the VM's: one block of output through it took 2.1 times the
+ /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-g8g_0ujk)
+    Finished `mutants` profile [optimized] target(s) in 4.44s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.04s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID ced4c375-e4e7-40a3-8533-f5b1a2b80156 with nextest profile: mutants
+    Starting 134 tests across 15 binaries
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.099s] (  1/134) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.117s] (  2/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  3/134) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.048s] (  3/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  4/134) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.045s] (  4/134) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  5/134) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_matches_hash_with --nocapture
+ TERMINATING [> 30.000s] (───────) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+ TERMINATING [> 30.000s] (───────) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+     TIMEOUT [  30.003s] (  5/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+  Cancelling due to test failure: 3 tests still running
+     TIMEOUT [  30.004s] (  6/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+ TERMINATING [> 30.000s] (───────) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+     TIMEOUT [  30.006s] (  7/134) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+ TERMINATING [> 30.000s] (───────) blake3-servil each::test::test_hash_each_matches_hash_with
+     TIMEOUT [  30.003s] (  8/134) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+────────────
+     Summary [  30.196s] 8/134 tests run: 4 passed, 4 timed out, 0 skipped
+warning: 126/134 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

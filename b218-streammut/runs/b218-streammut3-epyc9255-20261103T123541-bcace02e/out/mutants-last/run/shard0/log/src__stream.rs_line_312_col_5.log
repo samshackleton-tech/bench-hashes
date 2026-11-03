@@ -1,0 +1,49 @@
+
+*** src/stream.rs:312:5: replace part_kind -> Kind with Default::default()
+
+*** mutation diff:
+--- src/stream.rs
++++ replace part_kind -> Kind with Default::default()
+@@ -304,17 +304,17 @@
+         assert!(n <= left, "fill says it wrote {n} bytes into a room of {left}");
+         done += n;
+     }
+ }
+ 
+ /// Part `i` of a message in `pieces` parts, its digest at `out`: the
+ /// message whole, or a piece.
+ fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {
+-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The messages of one [`stream`] call, and the places for their digests,
+ /// borrowed for its scope; `D` is the stream's handler.
+ pub struct Stream<'env, D> {
+     key: CVWords,
+     flags: u8,
+     /// Its own until the stream ends (then the thread's spare).
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-uvlikdup)
+error[E0277]: the trait bound `Kind: Default` is not satisfied
+   --> src/stream.rs:312:5
+    |
+312 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Kind`
+    |
+help: consider annotating `Kind` with `#[derive(Default)]`
+    |
+ 74 + #[derive(Default)]
+ 75 | enum Kind {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,23 @@
+--- src/stream.rs
++++ replace Storage::ring_at -> *mut u8 with Default::default()
+@@ -279,19 +279,17 @@
+                 true
+             }
+             None => false,
+         }
+     }
+ 
+     /// The ring's byte at `at`.
+     fn ring_at(&self, at: usize) -> *mut u8 {
+-        debug_assert!(at <= RING_BYTES);
+-        // Sound: `at` is in the ring.
+-        unsafe { self.ring.add(at) }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:
+ /// each call writes at the start of what is left, the bytes from `at` on,
+ /// and returns how many it wrote. A short write (a plain read's) would
+ /// otherwise leave bytes an earlier message left, hashed into a wrong
+ /// digest with no error (BLAKE3 #204).

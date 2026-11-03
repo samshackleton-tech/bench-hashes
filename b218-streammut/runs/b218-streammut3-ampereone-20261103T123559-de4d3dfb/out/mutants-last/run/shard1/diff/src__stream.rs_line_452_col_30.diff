@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with + in Stream<'env, D>::submit_reader
+@@ -444,17 +444,17 @@
+                 }
+                 Some(_) => false,
+             };
+             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };
+             // [at, at + n): this piece's reserved room, written.
+             let input = self.s.ring_at(at);
+             self.add_part(input, n, kind, end, out as *mut u8);
+             if last {
+-                return Ok((i * PIECE + n) as u64);
++                return Ok((i + /* ~ changed by cargo-mutants ~ */ PIECE + n) as u64);
+             }
+             (at, end, n, read) = ahead.unwrap();
+             i += 1;
+         }
+     }
+ 
+     /// A piece's room (PIECE bytes, reserved), read into from `reader` until
+     /// it is full, the reader ends, or a read fails: its offset, the ring's

@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace - with + in Stream<'env, D>::submit_with
+@@ -381,17 +381,17 @@
+     /// that must keep one caller's secrets from another reads none of
+     /// `room` before writing it). The stream reuses the bytes once `out`
+     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`
+     /// waits for room as `submit` does.
+     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {
+         let out: *mut Hash = out;
+         let pieces = len.div_ceil(PIECE).max(1);
+         for i in 0..pieces {
+-            let part_len = (len - i * PIECE).min(PIECE);
++            let part_len = (len + /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE);
+             let at = self.reserve(part_len);
+             // Sound: [at, at + part_len) is reserved and free (no entry in
+             // flight holds it), and `&mut self` keeps every other writer out.
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };
+             fill_all(&mut fill, i * PIECE, room);
+             let end = self.head;
+             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);
+         }

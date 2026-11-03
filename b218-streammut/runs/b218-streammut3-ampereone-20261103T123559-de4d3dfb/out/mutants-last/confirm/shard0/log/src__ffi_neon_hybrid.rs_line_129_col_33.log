@@ -1,0 +1,87 @@
+
+*** src/ffi_neon_hybrid.rs:129:33: replace * with / in xof_many
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace * with / in xof_many
+@@ -121,17 +121,17 @@
+ /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and
+ /// `block_len`, both halves of the state), eight blocks a call where they
+ /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every
+ /// AArch64 CPU runs them (quads, which need no SHA-3).
+ pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+     let table = [block.as_ptr(); 8];
+     let packed = flags as u64 | (block_len as u64) << 24;
+     let mut done = 0;
+-    while out.len() - done >= 4 * BLOCK_LEN {
++    while out.len() - done >= 4 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {
+         let (kernel, blocks): (Kernel, usize) =
+             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };
+         crate::ran_kernel(kernel as *const ());
+         // Sound: every table entry points at the 64-byte block; the kernel
+         // writes 64 bytes a block within `out[done..]`.
+         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };
+         counter = counter.wrapping_add(blocks as u64);
+         done += blocks * BLOCK_LEN;
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-g8g_0ujk)
+    Finished `mutants` profile [optimized] target(s) in 4.63s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 298a76b7-e6d9-4db0-b79a-e977b53c284f with nextest profile: mutants
+    Starting 134 tests across 15 binaries
+       START [         ] (  1/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.079s] (  1/134) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/tools/mutants/test-runner /root/pinned-runs/b218-streammut3-ampereone-20261103T123559-de4d3dfb/fork/target/mutants/mutants-g8g_0ujk/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+     SIGABRT [   0.093s] (  2/134) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero' (1644903) panicked at src/ffi_neon_hybrid.rs:135:77:
+    range start index 512 out of range for slice of length 256
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: 3 tests still running
+     SIGABRT [   0.107s] (  3/134) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks' (1644911) panicked at src/ffi_neon_hybrid.rs:135:77:
+    range start index 512 out of range for slice of length 256
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+        PASS [   0.120s] (  4/134) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+        PASS [   0.053s] (  5/134) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+────────────
+     Summary [   0.133s] 5/134 tests run: 3 passed, 2 failed, 0 skipped
+warning: 129/134 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

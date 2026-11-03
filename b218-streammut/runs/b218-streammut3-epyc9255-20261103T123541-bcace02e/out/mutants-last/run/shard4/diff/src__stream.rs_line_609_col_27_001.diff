@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace + with * in Stream<'env, D>::reserve
+@@ -601,17 +601,17 @@
+         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };
+         while RING_BYTES - (self.head - self.tail) < skip + slot {
+             self.publish();
+             self.help();
+         }
+         if skip > 0 {
+             at = 0;
+         }
+-        self.head += skip + slot;
++        self.head += skip * /* ~ changed by cargo-mutants ~ */ slot;
+         at
+     }
+ 
+     /// Hand back every place whose digests are done, in order, without
+     /// waiting; and hand the open task to the pool, so what it holds
+     /// starts hashing.
+     pub fn collect(&mut self) {
+         self.publish();

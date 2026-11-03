@@ -1,0 +1,2408 @@
+[
+  {
+    "diff": "--- src/lib.rs\n+++ replace __all_workers_parked -> bool with false\n@@ -1032,17 +1032,17 @@\n \n /// Whether every worker of the multithreaded calls' pool is parked (false\n /// before [`initialize_multithreaded`]). Undocumented and unstable, for\n /// tests only: a test that needs the pool idle waits for this, not for a\n /// sleep that a loaded machine could outlast.\n #[cfg(feature = \"std\")]\n #[doc(hidden)]\n pub fn __all_workers_parked() -> bool {\n-    lanes::all_workers_parked()\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// An alias to distinguish [`context_key`](performance::context_key) outputs from other keys.\n pub type ContextKey = [u8; KEY_LEN];\n \n /// The most bytes a subtree starting at byte `input_offset` of a message\n /// can hold: `None` at offset zero (the whole message), else the largest\n /// power-of-two multiple of a chunk the offset is aligned to. Requires a\n",
+    "file": "src/lib.rs",
+    "function": {
+      "function_name": "__all_workers_parked",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1041
+        },
+        "start": {
+          "column": 1,
+          "line": 1033
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lib.rs:1040:5: replace __all_workers_parked -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 1040
+      },
+      "start": {
+        "column": 5,
+        "line": 1040
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace += with *= in cut_items\n@@ -280,17 +280,17 @@\n fn cut_items(items: &[&[u8]], threads: usize) -> Vec<Piece> {\n     let mut remaining: usize = items.iter().map(|i| i.len()).sum();\n     let mut pieces = Vec::with_capacity(64);\n     let mut start = 0;\n     while start < items.len() {\n         let want = next_piece_len(remaining, threads);\n         let (mut end, mut bytes) = (start, 0);\n         while end < items.len() && (bytes < want || end == start) {\n-            bytes += items[end].len();\n+            bytes *= /* ~ changed by cargo-mutants ~ */ items[end].len();\n             end += 1;\n         }\n         remaining -= bytes;\n         pieces.push(Piece { offset: start, len: end - start });\n         start = end;\n     }\n     pieces\n }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "cut_items",
+      "return_type": "-> Vec<Piece>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 296
+        },
+        "start": {
+          "column": 1,
+          "line": 276
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:288:19: replace += with *= in cut_items",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 288
+      },
+      "start": {
+        "column": 19,
+        "line": 288
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace += with *= in cut_items\n@@ -281,17 +281,17 @@\n     let mut remaining: usize = items.iter().map(|i| i.len()).sum();\n     let mut pieces = Vec::with_capacity(64);\n     let mut start = 0;\n     while start < items.len() {\n         let want = next_piece_len(remaining, threads);\n         let (mut end, mut bytes) = (start, 0);\n         while end < items.len() && (bytes < want || end == start) {\n             bytes += items[end].len();\n-            end += 1;\n+            end *= /* ~ changed by cargo-mutants ~ */ 1;\n         }\n         remaining -= bytes;\n         pieces.push(Piece { offset: start, len: end - start });\n         start = end;\n     }\n     pieces\n }\n \n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "cut_items",
+      "return_type": "-> Vec<Piece>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 296
+        },
+        "start": {
+          "column": 1,
+          "line": 276
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:289:17: replace += with *= in cut_items",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 289
+      },
+      "start": {
+        "column": 17,
+        "line": 289
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace splits -> bool with true\n@@ -629,17 +629,17 @@\n #[inline]\n pub(crate) fn require() {\n     pool();\n }\n \n /// Whether a call may leave the calling thread: the process has more\n /// than one CPU. Requires the pool (`require`).\n pub(crate) fn splits() -> bool {\n-    pool().threads > 1\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// The pool, once [`initialize`] has created it.\n static POOL: OnceLock<Pool> = OnceLock::new();\n \n /// Set in a child forked after the pool started its threads (the fork\n /// handler, `pthread_atfork`'s child): the child has none of them.\n static FORKED: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "splits",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 638
+        },
+        "start": {
+          "column": 1,
+          "line": 634
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:637:5: replace splits -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 637
+      },
+      "start": {
+        "column": 5,
+        "line": 637
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace > with >= in splits\n@@ -629,17 +629,17 @@\n #[inline]\n pub(crate) fn require() {\n     pool();\n }\n \n /// Whether a call may leave the calling thread: the process has more\n /// than one CPU. Requires the pool (`require`).\n pub(crate) fn splits() -> bool {\n-    pool().threads > 1\n+    pool().threads >= /* ~ changed by cargo-mutants ~ */ 1\n }\n \n /// The pool, once [`initialize`] has created it.\n static POOL: OnceLock<Pool> = OnceLock::new();\n \n /// Set in a child forked after the pool started its threads (the fork\n /// handler, `pthread_atfork`'s child): the child has none of them.\n static FORKED: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "splits",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 638
+        },
+        "start": {
+          "column": 1,
+          "line": 634
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:637:20: replace > with >= in splits",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 637
+      },
+      "start": {
+        "column": 20,
+        "line": 637
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace all_workers_parked -> bool with false\n@@ -657,17 +657,17 @@\n         \"blake3-servil: this process was forked after initialize_multithreaded started its threads, and a forked child has none: \\\n          initialize the pool in the process that hashes, after any fork (single-threaded calls work anywhere)\"\n     )\n }\n \n /// Whether every worker is parked: false before the pool exists\n /// ([`crate::__all_workers_parked`], for tests).\n pub(crate) fn all_workers_parked() -> bool {\n-    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads - 1)\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// The pool. The caller must have called\n /// [`crate::initialize_multithreaded`] before; a call before it panics. The\n /// check is the load of the pool, which every call makes anyway.\n #[inline]\n fn pool() -> &'static Pool {\n     match POOL.get() {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "all_workers_parked",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 666
+        },
+        "start": {
+          "column": 1,
+          "line": 662
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:665:5: replace all_workers_parked -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 80,
+        "line": 665
+      },
+      "start": {
+        "column": 5,
+        "line": 665
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace == with != in all_workers_parked\n@@ -657,17 +657,17 @@\n         \"blake3-servil: this process was forked after initialize_multithreaded started its threads, and a forked child has none: \\\n          initialize the pool in the process that hashes, after any fork (single-threaded calls work anywhere)\"\n     )\n }\n \n /// Whether every worker is parked: false before the pool exists\n /// ([`crate::__all_workers_parked`], for tests).\n pub(crate) fn all_workers_parked() -> bool {\n-    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads - 1)\n+    POOL.get().is_some_and(|pool| pool.park.parked_count() != /* ~ changed by cargo-mutants ~ */ pool.threads - 1)\n }\n \n /// The pool. The caller must have called\n /// [`crate::initialize_multithreaded`] before; a call before it panics. The\n /// check is the load of the pool, which every call makes anyway.\n #[inline]\n fn pool() -> &'static Pool {\n     match POOL.get() {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "all_workers_parked",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 666
+        },
+        "start": {
+          "column": 1,
+          "line": 662
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:665:60: replace == with != in all_workers_parked",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 665
+      },
+      "start": {
+        "column": 60,
+        "line": 665
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace - with + in all_workers_parked\n@@ -657,17 +657,17 @@\n         \"blake3-servil: this process was forked after initialize_multithreaded started its threads, and a forked child has none: \\\n          initialize the pool in the process that hashes, after any fork (single-threaded calls work anywhere)\"\n     )\n }\n \n /// Whether every worker is parked: false before the pool exists\n /// ([`crate::__all_workers_parked`], for tests).\n pub(crate) fn all_workers_parked() -> bool {\n-    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads - 1)\n+    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads + /* ~ changed by cargo-mutants ~ */ 1)\n }\n \n /// The pool. The caller must have called\n /// [`crate::initialize_multithreaded`] before; a call before it panics. The\n /// check is the load of the pool, which every call makes anyway.\n #[inline]\n fn pool() -> &'static Pool {\n     match POOL.get() {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "all_workers_parked",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 666
+        },
+        "start": {
+          "column": 1,
+          "line": 662
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:665:76: replace - with + in all_workers_parked",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 665
+      },
+      "start": {
+        "column": 76,
+        "line": 665
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace - with / in all_workers_parked\n@@ -657,17 +657,17 @@\n         \"blake3-servil: this process was forked after initialize_multithreaded started its threads, and a forked child has none: \\\n          initialize the pool in the process that hashes, after any fork (single-threaded calls work anywhere)\"\n     )\n }\n \n /// Whether every worker is parked: false before the pool exists\n /// ([`crate::__all_workers_parked`], for tests).\n pub(crate) fn all_workers_parked() -> bool {\n-    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads - 1)\n+    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.threads / /* ~ changed by cargo-mutants ~ */ 1)\n }\n \n /// The pool. The caller must have called\n /// [`crate::initialize_multithreaded`] before; a call before it panics. The\n /// check is the load of the pool, which every call makes anyway.\n #[inline]\n fn pool() -> &'static Pool {\n     match POOL.get() {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "all_workers_parked",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 666
+        },
+        "start": {
+          "column": 1,
+          "line": 662
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:665:76: replace - with / in all_workers_parked",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 77,
+        "line": 665
+      },
+      "start": {
+        "column": 76,
+        "line": 665
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace && with || in Pool::serve\n@@ -760,17 +760,17 @@\n     /// Worker `me`'s loop: the sources' tasks and pieces; spinning a while\n     /// when a stream is open (more is coming), else parked, whenever it\n     /// finds nothing.\n     fn serve(&self, me: usize) -> ! {\n         loop {\n             if sources::run_one() {\n                 continue;\n             }\n-            if sources::open() && spin_for_work() {\n+            if sources::open() || /* ~ changed by cargo-mutants ~ */ spin_for_work() {\n                 continue;\n             }\n             // Park unless work shows (crate::park's handshake); woken, pay\n             // the wakes owed before working.\n             if self.park.park_unless(me, || sources::visible(false)) {\n                 self.park.pay_owed();\n             }\n         }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Pool::serve",
+      "return_type": "-> !",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 777
+        },
+        "start": {
+          "column": 5,
+          "line": 760
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:768:32: replace && with || in Pool::serve",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 768
+      },
+      "start": {
+        "column": 32,
+        "line": 768
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace spin_for_work -> bool with true\n@@ -781,28 +781,17 @@\n /// open (more is coming) before it parks: 5 us. i7-12700K, against the\n /// stream on the earlier pool: none cost small messages 9-12% (a park and\n /// a wake at every gap); 20 us cost 22% more CPU time a run for no speed;\n /// a cap on how many workers spin did not help.\n const SPIN: std::time::Duration = std::time::Duration::from_micros(5);\n \n /// Look for work for up to SPIN: whether some appeared.\n fn spin_for_work() -> bool {\n-    let started = std::time::Instant::now();\n-    loop {\n-        for _ in 0..16 {\n-            if sources::visible(false) {\n-                return true;\n-            }\n-            core::hint::spin_loop();\n-        }\n-        if spin_ends(started.elapsed(), sources::open) {\n-            return false;\n-        }\n-    }\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// Whether a worker's look for work ends, `elapsed` into it: once SPIN has\n /// passed, or when no stream is open (asked only before SPIN, as the\n /// look's own code would). Its own function so a test holds it\n /// whatever the machine's load (#202: with `>=` turned to `<`, a worker\n /// preempted past SPIN before its first look spun while the stream stayed\n /// open, and the mutant timed out only under load).\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "spin_for_work",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 801
+        },
+        "start": {
+          "column": 1,
+          "line": 787
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:789:5: replace spin_for_work -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 800
+      },
+      "start": {
+        "column": 5,
+        "line": 789
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::publish with ()\n@@ -889,30 +889,17 @@\n             ACTIVE.fetch_and(!(1 << slot), Ordering::SeqCst);\n             REGISTERED[slot].store(core::ptr::null_mut(), Ordering::SeqCst);\n         }\n \n         /// A stream's task to the workers: one write, one Release store;\n         /// then the SME2 thread first, and with two or more waiting and a\n         /// worker parked, a worker.\n         pub(crate) fn publish(&self, task: Task) {\n-            let p = self.finish.published.load(Ordering::Relaxed);\n-            debug_assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n-            // Sound: slot p % len is free (its last task was taken), and\n-            // only this stream writes it.\n-            unsafe { (*self.ring[p % self.ring.len()].get()).write(task) };\n-            self.finish.published.store(p + 1, Ordering::Release);\n-            core::sync::atomic::fence(Ordering::SeqCst);\n-            let pool = pool();\n-            if pool.sme2 {\n-                wake_sme2();\n-            }\n-            if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {\n-                pool.park.wake_one();\n-            }\n+            () /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Make `job` the caller's current job, its pieces `0..own` the\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 911
+        },
+        "start": {
+          "column": 9,
+          "line": 893
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:897:13: replace sources::Source::publish with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 910
+      },
+      "start": {
+        "column": 13,
+        "line": 897
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::publish\n@@ -894,17 +894,17 @@\n         /// then the SME2 thread first, and with two or more waiting and a\n         /// worker parked, a worker.\n         pub(crate) fn publish(&self, task: Task) {\n             let p = self.finish.published.load(Ordering::Relaxed);\n             debug_assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n             // Sound: slot p % len is free (its last task was taken), and\n             // only this stream writes it.\n             unsafe { (*self.ring[p % self.ring.len()].get()).write(task) };\n-            self.finish.published.store(p + 1, Ordering::Release);\n+            self.finish.published.store(p * /* ~ changed by cargo-mutants ~ */ 1, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             let pool = pool();\n             if pool.sme2 {\n                 wake_sme2();\n             }\n             if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {\n                 pool.park.wake_one();\n             }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 911
+        },
+        "start": {
+          "column": 9,
+          "line": 893
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:902:43: replace + with * in sources::Source::publish",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 902
+      },
+      "start": {
+        "column": 43,
+        "line": 902
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::publish\n@@ -900,17 +900,17 @@\n             // only this stream writes it.\n             unsafe { (*self.ring[p % self.ring.len()].get()).write(task) };\n             self.finish.published.store(p + 1, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             let pool = pool();\n             if pool.sme2 {\n                 wake_sme2();\n             }\n-            if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {\n+            if p * /* ~ changed by cargo-mutants ~ */ 1 - self.claimed.load(Ordering::Relaxed) >= 2 {\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Make `job` the caller's current job, its pieces `0..own` the\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 911
+        },
+        "start": {
+          "column": 9,
+          "line": 893
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:908:18: replace + with * in sources::Source::publish",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 908
+      },
+      "start": {
+        "column": 18,
+        "line": 908
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::publish_job -> usize with 1\n@@ -908,26 +908,17 @@\n             if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Make `job` the caller's current job, its pieces `0..own` the\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n-            let base = self.finish.published.load(Ordering::Relaxed);\n-            debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n-            self.job.store(job, Ordering::Relaxed);\n-            self.base.store(base, Ordering::Relaxed);\n-            // No worker can claim a number yet (claimed == published), so\n-            // this store alone moves `claimed` past the caller's own pieces.\n-            self.claimed.store(base + own, Ordering::Relaxed);\n-            self.finish.published.store(base + pieces, Ordering::Release);\n-            core::sync::atomic::fence(Ordering::SeqCst);\n-            base + pieces\n+            1 /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n                 let p = self.finish.published.load(Ordering::Acquire);\n                 if c >= p {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:916:13: replace sources::Source::publish_job -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 925
+      },
+      "start": {
+        "column": 13,
+        "line": 916
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::publish_job\n@@ -914,17 +914,17 @@\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n-            self.claimed.store(base + own, Ordering::Relaxed);\n+            self.claimed.store(base - /* ~ changed by cargo-mutants ~ */ own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:922:37: replace + with - in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 922
+      },
+      "start": {
+        "column": 37,
+        "line": 922
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::publish_job\n@@ -914,17 +914,17 @@\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n-            self.claimed.store(base + own, Ordering::Relaxed);\n+            self.claimed.store(base * /* ~ changed by cargo-mutants ~ */ own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:922:37: replace + with * in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 922
+      },
+      "start": {
+        "column": 37,
+        "line": 922
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::publish_job\n@@ -915,17 +915,17 @@\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n             self.claimed.store(base + own, Ordering::Relaxed);\n-            self.finish.published.store(base + pieces, Ordering::Release);\n+            self.finish.published.store(base - /* ~ changed by cargo-mutants ~ */ pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:923:46: replace + with - in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 923
+      },
+      "start": {
+        "column": 46,
+        "line": 923
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::publish_job\n@@ -915,17 +915,17 @@\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n             self.claimed.store(base + own, Ordering::Relaxed);\n-            self.finish.published.store(base + pieces, Ordering::Release);\n+            self.finish.published.store(base * /* ~ changed by cargo-mutants ~ */ pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:923:46: replace + with * in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 923
+      },
+      "start": {
+        "column": 46,
+        "line": 923
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::publish_job\n@@ -917,17 +917,17 @@\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n-            base + pieces\n+            base - /* ~ changed by cargo-mutants ~ */ pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n                 let p = self.finish.published.load(Ordering::Acquire);\n                 if c >= p {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:925:18: replace + with - in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 925
+      },
+      "start": {
+        "column": 18,
+        "line": 925
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::publish_job\n@@ -917,17 +917,17 @@\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n             self.base.store(base, Ordering::Relaxed);\n             // No worker can claim a number yet (claimed == published), so\n             // this store alone moves `claimed` past the caller's own pieces.\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n-            base + pieces\n+            base * /* ~ changed by cargo-mutants ~ */ pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n                 let p = self.finish.published.load(Ordering::Acquire);\n                 if c >= p {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::publish_job",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 926
+        },
+        "start": {
+          "column": 9,
+          "line": 913
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:925:18: replace + with * in sources::Source::publish_job",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 925
+      },
+      "start": {
+        "column": 18,
+        "line": 925
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take -> Option<Item> with None\n@@ -922,37 +922,17 @@\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n-            let mut c = self.claimed.load(Ordering::Acquire);\n-            loop {\n-                let p = self.finish.published.load(Ordering::Acquire);\n-                if c >= p {\n-                    return None;\n-                }\n-                // A job's pieces go in runs, consecutive, sized to the work\n-                // left (guided self-scheduling): each worker reads its input\n-                // front to back, so a mapped file from storage meets the\n-                // kernel's readahead stream by stream (official's I/O\n-                // pattern), and runs shrink to one piece near the end for\n-                // balance. A stream's tasks go one at a time.\n-                let n = if self.ring.is_empty() { ((p - c) / (2 * pool().threads)).max(1) } else { 1 };\n-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n-                    Ok(_) if self.ring.is_empty() => return Some(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)),\n-                    // Sound: this thread alone took slot c, written before\n-                    // `published` passed it.\n-                    Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),\n-                    Err(now) => c = now,\n-                }\n-            }\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// A stream's next task, if any (this source is a stream's).\n         pub(crate) fn take_task(&self) -> Option<Task> {\n             match self.take() {\n                 Some(Item::Task(task)) => Some(task),\n                 Some(Item::Pieces(..)) => unreachable!(\"a stream's source carries tasks\"),\n                 None => None,\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 951
+        },
+        "start": {
+          "column": 9,
+          "line": 928
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:930:13: replace sources::Source::take -> Option<Item> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 950
+      },
+      "start": {
+        "column": 13,
+        "line": 930
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take\n@@ -935,17 +935,17 @@\n                 }\n                 // A job's pieces go in runs, consecutive, sized to the work\n                 // left (guided self-scheduling): each worker reads its input\n                 // front to back, so a mapped file from storage meets the\n                 // kernel's readahead stream by stream (official's I/O\n                 // pattern), and runs shrink to one piece near the end for\n                 // balance. A stream's tasks go one at a time.\n                 let n = if self.ring.is_empty() { ((p - c) / (2 * pool().threads)).max(1) } else { 1 };\n-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n+                match self.claimed.compare_exchange_weak(c, c - /* ~ changed by cargo-mutants ~ */ n, Ordering::AcqRel, Ordering::Acquire) {\n                     Ok(_) if self.ring.is_empty() => return Some(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)),\n                     // Sound: this thread alone took slot c, written before\n                     // `published` passed it.\n                     Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),\n                     Err(now) => c = now,\n                 }\n             }\n         }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 951
+        },
+        "start": {
+          "column": 9,
+          "line": 928
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:943:63: replace + with - in sources::Source::take",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 943
+      },
+      "start": {
+        "column": 63,
+        "line": 943
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take\n@@ -935,17 +935,17 @@\n                 }\n                 // A job's pieces go in runs, consecutive, sized to the work\n                 // left (guided self-scheduling): each worker reads its input\n                 // front to back, so a mapped file from storage meets the\n                 // kernel's readahead stream by stream (official's I/O\n                 // pattern), and runs shrink to one piece near the end for\n                 // balance. A stream's tasks go one at a time.\n                 let n = if self.ring.is_empty() { ((p - c) / (2 * pool().threads)).max(1) } else { 1 };\n-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n+                match self.claimed.compare_exchange_weak(c, c * /* ~ changed by cargo-mutants ~ */ n, Ordering::AcqRel, Ordering::Acquire) {\n                     Ok(_) if self.ring.is_empty() => return Some(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)),\n                     // Sound: this thread alone took slot c, written before\n                     // `published` passed it.\n                     Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),\n                     Err(now) => c = now,\n                 }\n             }\n         }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 951
+        },
+        "start": {
+          "column": 9,
+          "line": 928
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:943:63: replace + with * in sources::Source::take",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 64,
+        "line": 943
+      },
+      "start": {
+        "column": 63,
+        "line": 943
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_task -> Option<Task> with None\n@@ -947,21 +947,17 @@\n                     Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),\n                     Err(now) => c = now,\n                 }\n             }\n         }\n \n         /// A stream's next task, if any (this source is a stream's).\n         pub(crate) fn take_task(&self) -> Option<Task> {\n-            match self.take() {\n-                Some(Item::Task(task)) => Some(task),\n-                Some(Item::Pieces(..)) => unreachable!(\"a stream's source carries tasks\"),\n-                None => None,\n-            }\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         fn waiting(&self) -> usize {\n             self.finish.published.load(Ordering::Acquire).saturating_sub(self.claimed.load(Ordering::Acquire))\n         }\n \n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_task",
+      "return_type": "-> Option<Task>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 960
+        },
+        "start": {
+          "column": 9,
+          "line": 953
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:955:13: replace sources::Source::take_task -> Option<Task> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 959
+      },
+      "start": {
+        "column": 13,
+        "line": 955
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::wake_for_waiting with ()\n@@ -965,20 +965,17 @@\n \n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n         /// waiting, expecting the caller to take a lone one, and a caller\n         /// that only collects never does (it waited forever, the workers\n         /// asleep: the C API's stream test on an i7-12700K and on GitHub's\n         /// 4-CPU runners; Devon Jonte, #99).\n         pub(crate) fn wake_for_waiting(&self) {\n-            let pool = pool();\n-            if self.waiting() > 0 {\n-                pool.park.wake_one();\n-            }\n+            () /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Count `n` of the caller's job's pieces finished (their outputs\n         /// written before); the last one wakes a caller parked for it.\n         pub(crate) fn finished(&self, n: usize) {\n             self.finish.finished(n);\n         }\n \n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::wake_for_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 977
+        },
+        "start": {
+          "column": 9,
+          "line": 966
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:973:13: replace sources::Source::wake_for_waiting with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 976
+      },
+      "start": {
+        "column": 13,
+        "line": 973
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace > with == in sources::Source::wake_for_waiting\n@@ -966,17 +966,17 @@\n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n         /// waiting, expecting the caller to take a lone one, and a caller\n         /// that only collects never does (it waited forever, the workers\n         /// asleep: the C API's stream test on an i7-12700K and on GitHub's\n         /// 4-CPU runners; Devon Jonte, #99).\n         pub(crate) fn wake_for_waiting(&self) {\n             let pool = pool();\n-            if self.waiting() > 0 {\n+            if self.waiting() == /* ~ changed by cargo-mutants ~ */ 0 {\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Count `n` of the caller's job's pieces finished (their outputs\n         /// written before); the last one wakes a caller parked for it.\n         pub(crate) fn finished(&self, n: usize) {\n             self.finish.finished(n);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::wake_for_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 977
+        },
+        "start": {
+          "column": 9,
+          "line": 966
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:974:31: replace > with == in sources::Source::wake_for_waiting",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 974
+      },
+      "start": {
+        "column": 31,
+        "line": 974
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace > with < in sources::Source::wake_for_waiting\n@@ -966,17 +966,17 @@\n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n         /// waiting, expecting the caller to take a lone one, and a caller\n         /// that only collects never does (it waited forever, the workers\n         /// asleep: the C API's stream test on an i7-12700K and on GitHub's\n         /// 4-CPU runners; Devon Jonte, #99).\n         pub(crate) fn wake_for_waiting(&self) {\n             let pool = pool();\n-            if self.waiting() > 0 {\n+            if self.waiting() < /* ~ changed by cargo-mutants ~ */ 0 {\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Count `n` of the caller's job's pieces finished (their outputs\n         /// written before); the last one wakes a caller parked for it.\n         pub(crate) fn finished(&self, n: usize) {\n             self.finish.finished(n);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::wake_for_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 977
+        },
+        "start": {
+          "column": 9,
+          "line": 966
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:974:31: replace > with < in sources::Source::wake_for_waiting",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 974
+      },
+      "start": {
+        "column": 31,
+        "line": 974
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::finished with ()\n@@ -974,17 +974,17 @@\n             if self.waiting() > 0 {\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Count `n` of the caller's job's pieces finished (their outputs\n         /// written before); the last one wakes a caller parked for it.\n         pub(crate) fn finished(&self, n: usize) {\n-            self.finish.finished(n);\n+            () /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Wait until `finished` reaches `target`: polling for\n         /// SPIN_BEFORE_SLEEP, then parked until the worker finishing the\n         /// last piece unparks this thread.\n         pub(crate) fn wait(&self, target: usize) {\n             let started = std::time::Instant::now();\n             let mut yielded = started;\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 983
+        },
+        "start": {
+          "column": 9,
+          "line": 979
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:982:13: replace sources::Source::finished with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 982
+      },
+      "start": {
+        "column": 13,
+        "line": 982
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace &= with |= in sources::find\n@@ -1035,17 +1035,17 @@\n         OPEN.load(Ordering::Relaxed) > 0\n     }\n \n     /// The first registered source for which `f` says yes.\n     fn find(mut f: impl FnMut(&'static Source) -> bool) -> bool {\n         let mut active = ACTIVE.load(Ordering::SeqCst);\n         while active != 0 {\n             let slot = active.trailing_zeros() as usize;\n-            active &= active - 1;\n+            active |= /* ~ changed by cargo-mutants ~ */ active - 1;\n             let ptr = REGISTERED[slot].load(Ordering::Acquire);\n             // Sound: sources are never freed (they are recycled).\n             if !ptr.is_null() && f(unsafe { &*ptr }) {\n                 return true;\n             }\n         }\n         false\n     }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::find",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1051
+        },
+        "start": {
+          "column": 5,
+          "line": 1038
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1043:20: replace &= with |= in sources::find",
+    "package": "blake3-servil",
+    "replacement": "|=",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 1043
+      },
+      "start": {
+        "column": 20,
+        "line": 1043
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace - with / in sources::find\n@@ -1035,17 +1035,17 @@\n         OPEN.load(Ordering::Relaxed) > 0\n     }\n \n     /// The first registered source for which `f` says yes.\n     fn find(mut f: impl FnMut(&'static Source) -> bool) -> bool {\n         let mut active = ACTIVE.load(Ordering::SeqCst);\n         while active != 0 {\n             let slot = active.trailing_zeros() as usize;\n-            active &= active - 1;\n+            active &= active / /* ~ changed by cargo-mutants ~ */ 1;\n             let ptr = REGISTERED[slot].load(Ordering::Acquire);\n             // Sound: sources are never freed (they are recycled).\n             if !ptr.is_null() && f(unsafe { &*ptr }) {\n                 return true;\n             }\n         }\n         false\n     }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::find",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1051
+        },
+        "start": {
+          "column": 5,
+          "line": 1038
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1043:30: replace - with / in sources::find",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 1043
+      },
+      "start": {
+        "column": 30,
+        "line": 1043
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::run_one -> bool with true\n@@ -1049,34 +1049,17 @@\n         }\n         false\n     }\n \n     /// Run one item from any source: whether there was one. When two or\n     /// more wait and a worker is parked, this one wakes the next first\n     /// (the chain).\n     pub(crate) fn run_one() -> bool {\n-        find(|source| {\n-            let Some(item) = source.take() else { return false };\n-            if source.waiting() >= 2 {\n-                pool().park.wake_one();\n-            }\n-            match item {\n-                Item::Task(task) => task.run(pool_platform()),\n-                Item::Pieces(job, index, n) => {\n-                    // Sound: the job lives until its pieces are finished,\n-                    // these among them; this thread alone took them.\n-                    for i in index..index + n {\n-                        unsafe { (*job).hash_piece(i, pool_platform()) };\n-                    }\n-                    source.finished(n);\n-                }\n-            }\n-            true\n-        })\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A task from any stream (the SME2 thread takes these alone).\n     pub(crate) fn take_stream_task() -> Option<Task> {\n         let mut found = None;\n         find(|source| {\n             found = if source.ring.is_empty() { None } else { source.take_task() };\n             found.is_some()\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::run_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1075
+        },
+        "start": {
+          "column": 5,
+          "line": 1053
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1057:9: replace sources::run_one -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 11,
+        "line": 1074
+      },
+      "start": {
+        "column": 9,
+        "line": 1057
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field key from struct Task expression in Task::members\n@@ -1232,17 +1232,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task {  /* ~ changed by cargo-mutants ~ */ flags, batch, ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if self.members > 0 {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1241
+        },
+        "start": {
+          "column": 5,
+          "line": 1237
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1240:16: delete field key from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1240
+      },
+      "start": {
+        "column": 16,
+        "line": 1240
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field flags from struct Task expression in Task::members\n@@ -1232,17 +1232,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task { key: *key,  /* ~ changed by cargo-mutants ~ */ batch, ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if self.members > 0 {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1241
+        },
+        "start": {
+          "column": 5,
+          "line": 1237
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1240:27: delete field flags from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 1240
+      },
+      "start": {
+        "column": 27,
+        "line": 1240
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field batch from struct Task expression in Task::members\n@@ -1232,17 +1232,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task { key: *key, flags,  /* ~ changed by cargo-mutants ~ */ ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if self.members > 0 {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1241
+        },
+        "start": {
+          "column": 5,
+          "line": 1237
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1240:34: delete field batch from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 1240
+      },
+      "start": {
+        "column": 34,
+        "line": 1240
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace > with >= in Task::run\n@@ -1240,17 +1240,17 @@\n         Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n-        if self.members > 0 {\n+        if self.members >= /* ~ changed by cargo-mutants ~ */ 0 {\n             self.run_members(platform);\n             // Sound: the stream keeps `left` in place until it is zero.\n             unsafe { &*self.left }.fetch_sub(self.members, Ordering::Release);\n             return;\n         }\n         // A task without members is a piece of a long message: a stream's\n         // batch parts are always members (Stream::add_part adds one to the\n         // task it opens, and only an opened task is handed over).\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::run",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1268
+        },
+        "start": {
+          "column": 5,
+          "line": 1243
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1248:25: replace > with >= in Task::run",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1248
+      },
+      "start": {
+        "column": 25,
+        "line": 1248
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace > with >= in Task::run\n@@ -1254,17 +1254,17 @@\n         // A task without members is a piece of a long message: a stream's\n         // batch parts are always members (Stream::add_part adds one to the\n         // task it opens, and only an opened task is handed over).\n         assert!(self.batch.is_none(), \"a task of batch parts has members\");\n         // Sound: the stream keeps these in place until `left` is zero.\n         let bytes = unsafe { core::slice::from_raw_parts(self.input, self.len) };\n         // Sound: a subtree's `out` is one 64-byte block.\n         let out = unsafe { &mut *(self.out as *mut [u8; crate::BLOCK_LEN]) };\n-        if self.counter == 0 && self.len > CHUNK_LEN {\n+        if self.counter == 0 && self.len >= /* ~ changed by cargo-mutants ~ */ CHUNK_LEN {\n             *out = crate::compress_subtree_to_parent_node(bytes, 0, &self.key, 0, self.flags, platform);\n         } else {\n             out[..crate::OUT_LEN].copy_from_slice(&crate::hash_all_at_once(bytes, &self.key, self.counter, self.flags, platform).chaining_value());\n         }\n         unsafe { &*self.left }.fetch_sub(1, Ordering::Release);\n     }\n }\n \n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::run",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1268
+        },
+        "start": {
+          "column": 5,
+          "line": 1243
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1262:42: replace > with >= in Task::run",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 1262
+      },
+      "start": {
+        "column": 42,
+        "line": 1262
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace run_task with ()\n@@ -1401,17 +1401,17 @@\n #[cfg(test)]\n pub(crate) fn assert_past_the_split(what: &str) {\n     let kinds = crate::RAN.with(|r| r.get());\n     assert!(pool().threads == 1 || kinds & crate::Ran::Pool as u32 != 0, \"{what} went to the pool\");\n }\n \n /// Run `task` on this thread, as a worker would.\n pub(crate) fn run_task(task: Task) {\n-    task.run(pool_platform());\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n fn worker_main(me: usize) {\n     // A worker that panicked would die quietly while callers wait for its\n     // piece forever (their stacks are the work); the process ends instead,\n     // the panic's message printed first by the panic hook.\n     let _ = std::panic::catch_unwind(move || {\n         let pool = pool();\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "run_task",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1410
+        },
+        "start": {
+          "column": 1,
+          "line": 1407
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1409:5: replace run_task with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 1409
+      },
+      "start": {
+        "column": 5,
+        "line": 1409
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace worker_main with ()\n@@ -1408,22 +1408,17 @@\n pub(crate) fn run_task(task: Task) {\n     task.run(pool_platform());\n }\n \n fn worker_main(me: usize) {\n     // A worker that panicked would die quietly while callers wait for its\n     // piece forever (their stacks are the work); the process ends instead,\n     // the panic's message printed first by the panic hook.\n-    let _ = std::panic::catch_unwind(move || {\n-        let pool = pool();\n-        pool.park.register(me);\n-        pool.serve(me)\n-    });\n-    std::process::abort()\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(test)]\n mod test {\n     use super::*;\n \n     /// A call gives its place among the pool's callers back: alone in its\n     /// process, as each test is, the count is zero again after one call\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "worker_main",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 1422
+        },
+        "start": {
+          "column": 1,
+          "line": 1412
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1416:5: replace worker_main with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1421
+      },
+      "start": {
+        "column": 5,
+        "line": 1416
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::run_waiting -> bool with true\n@@ -268,23 +268,17 @@\n             lefts: (0..ENTRIES).map(|_| OwnLine(AtomicUsize::new(0))).collect(),\n         }\n     }\n \n     /// Hash one of the stream's tasks no thread has taken: whether there\n     /// was one. A waiting caller's own help, the one way a lone task runs\n     /// while every worker is parked (only collect wakes one for it).\n     fn run_waiting(&self) -> bool {\n-        match self.source.take_task() {\n-            Some(task) => {\n-                crate::lanes::run_task(task);\n-                true\n-            }\n-            None => false,\n-        }\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The ring's byte at `at`.\n     fn ring_at(&self, at: usize) -> *mut u8 {\n         debug_assert!(at <= RING_BYTES);\n         // Sound: `at` is in the ring.\n         unsafe { self.ring.add(at) }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::run_waiting",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 283
+        },
+        "start": {
+          "column": 5,
+          "line": 272
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:276:9: replace Storage::run_waiting -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 282
+      },
+      "start": {
+        "column": 9,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Storage::run_waiting -> bool with false\n@@ -268,23 +268,17 @@\n             lefts: (0..ENTRIES).map(|_| OwnLine(AtomicUsize::new(0))).collect(),\n         }\n     }\n \n     /// Hash one of the stream's tasks no thread has taken: whether there\n     /// was one. A waiting caller's own help, the one way a lone task runs\n     /// while every worker is parked (only collect wakes one for it).\n     fn run_waiting(&self) -> bool {\n-        match self.source.take_task() {\n-            Some(task) => {\n-                crate::lanes::run_task(task);\n-                true\n-            }\n-            None => false,\n-        }\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The ring's byte at `at`.\n     fn ring_at(&self, at: usize) -> *mut u8 {\n         debug_assert!(at <= RING_BYTES);\n         // Sound: `at` is in the ring.\n         unsafe { self.ring.add(at) }\n     }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Storage::run_waiting",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 283
+        },
+        "start": {
+          "column": 5,
+          "line": 272
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:276:9: replace Storage::run_waiting -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 282
+      },
+      "start": {
+        "column": 9,
+        "line": 276
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with -\n@@ -331,17 +331,17 @@\n     /// Ring bytes reserved, and freed (each counts on; the ring holds\n     /// head - tail).\n     head: usize,\n     tail: usize,\n     /// Short messages gathered, not yet handed to the pool.\n     open: Option<Task>,\n     /// A long message being handed back: its pieces' chaining values so\n     /// far (merged as the Hasher's stack merges), and how many.\n-    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH + 1 }>,\n+    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH - /* ~ changed by cargo-mutants ~ */ 1 }>,\n     pieces: u64,\n     /// Invariant in 'env, as std::thread::Scope is: the messages' and the\n     /// places' lifetime.\n     env: PhantomData<&'env mut &'env ()>,\n }\n \n // Sound: the entries are reached by the program's thread through `&mut\n // self`, and by the pool's threads only for entries in tasks in flight,\n",
+    "file": "src/stream.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:339:59: replace + with -",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 339
+      },
+      "start": {
+        "column": 59,
+        "line": 339
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with *\n@@ -331,17 +331,17 @@\n     /// Ring bytes reserved, and freed (each counts on; the ring holds\n     /// head - tail).\n     head: usize,\n     tail: usize,\n     /// Short messages gathered, not yet handed to the pool.\n     open: Option<Task>,\n     /// A long message being handed back: its pieces' chaining values so\n     /// far (merged as the Hasher's stack merges), and how many.\n-    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH + 1 }>,\n+    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH * /* ~ changed by cargo-mutants ~ */ 1 }>,\n     pieces: u64,\n     /// Invariant in 'env, as std::thread::Scope is: the messages' and the\n     /// places' lifetime.\n     env: PhantomData<&'env mut &'env ()>,\n }\n \n // Sound: the entries are reached by the program's thread through `&mut\n // self`, and by the pool's threads only for entries in tasks in flight,\n",
+    "file": "src/stream.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:339:59: replace + with *",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 339
+      },
+      "start": {
+        "column": 59,
+        "line": 339
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete field key from struct Task expression in Stream<'env, D>::add_part\n@@ -553,17 +553,17 @@\n             Kind::Abandoned => unreachable!(\"an abandoned message adds no part\"),\n             Kind::Batch { .. } if len == 0 => return,\n             Kind::Batch { message_len, .. } => Some(message_len),\n             Kind::Piece { counter, .. } => {\n                 self.s.lefts[entry].store(1, Ordering::Relaxed);\n                 // Sound: the bytes stay in place until the entry is handed back.\n                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };\n                 let task = Task {\n-                    key: self.key,\n+                     /* ~ changed by cargo-mutants ~ */\n                     flags: self.flags,\n                     out: self.s.pieces_out[entry].0.0.get() as *mut u8,\n                     left: &*self.s.lefts[entry],\n                     ..Task::of(bytes, counter)\n                 };\n                 self.hand_over(task);\n                 return;\n             }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::add_part",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 592
+        },
+        "start": {
+          "column": 5,
+          "line": 543
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/stream.rs:561:21: delete field key from struct Task expression in Stream<'env, D>::add_part",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 561
+      },
+      "start": {
+        "column": 21,
+        "line": 561
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete field flags from struct Task expression in Stream<'env, D>::add_part\n@@ -554,17 +554,17 @@\n             Kind::Batch { .. } if len == 0 => return,\n             Kind::Batch { message_len, .. } => Some(message_len),\n             Kind::Piece { counter, .. } => {\n                 self.s.lefts[entry].store(1, Ordering::Relaxed);\n                 // Sound: the bytes stay in place until the entry is handed back.\n                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };\n                 let task = Task {\n                     key: self.key,\n-                    flags: self.flags,\n+                     /* ~ changed by cargo-mutants ~ */\n                     out: self.s.pieces_out[entry].0.0.get() as *mut u8,\n                     left: &*self.s.lefts[entry],\n                     ..Task::of(bytes, counter)\n                 };\n                 self.hand_over(task);\n                 return;\n             }\n         };\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::add_part",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 592
+        },
+        "start": {
+          "column": 5,
+          "line": 543
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/stream.rs:562:21: delete field flags from struct Task expression in Stream<'env, D>::add_part",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 562
+      },
+      "start": {
+        "column": 21,
+        "line": 562
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete field out from struct Task expression in Stream<'env, D>::add_part\n@@ -555,17 +555,17 @@\n             Kind::Batch { message_len, .. } => Some(message_len),\n             Kind::Piece { counter, .. } => {\n                 self.s.lefts[entry].store(1, Ordering::Relaxed);\n                 // Sound: the bytes stay in place until the entry is handed back.\n                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };\n                 let task = Task {\n                     key: self.key,\n                     flags: self.flags,\n-                    out: self.s.pieces_out[entry].0.0.get() as *mut u8,\n+                     /* ~ changed by cargo-mutants ~ */\n                     left: &*self.s.lefts[entry],\n                     ..Task::of(bytes, counter)\n                 };\n                 self.hand_over(task);\n                 return;\n             }\n         };\n         if self.open.as_ref().is_some_and(|open| open.batch != batch) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::add_part",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 592
+        },
+        "start": {
+          "column": 5,
+          "line": 543
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/stream.rs:563:21: delete field out from struct Task expression in Stream<'env, D>::add_part",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 72,
+        "line": 563
+      },
+      "start": {
+        "column": 21,
+        "line": 563
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete field left from struct Task expression in Stream<'env, D>::add_part\n@@ -556,17 +556,17 @@\n             Kind::Piece { counter, .. } => {\n                 self.s.lefts[entry].store(1, Ordering::Relaxed);\n                 // Sound: the bytes stay in place until the entry is handed back.\n                 let bytes = unsafe { core::slice::from_raw_parts(input, len) };\n                 let task = Task {\n                     key: self.key,\n                     flags: self.flags,\n                     out: self.s.pieces_out[entry].0.0.get() as *mut u8,\n-                    left: &*self.s.lefts[entry],\n+                     /* ~ changed by cargo-mutants ~ */\n                     ..Task::of(bytes, counter)\n                 };\n                 self.hand_over(task);\n                 return;\n             }\n         };\n         if self.open.as_ref().is_some_and(|open| open.batch != batch) {\n             self.publish();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::add_part",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 592
+        },
+        "start": {
+          "column": 5,
+          "line": 543
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/stream.rs:564:21: delete field left from struct Task expression in Stream<'env, D>::add_part",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 564
+      },
+      "start": {
+        "column": 21,
+        "line": 564
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace > with < in Stream<'env, D>::reserve\n@@ -593,17 +593,17 @@\n \n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n-        let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n+        let skip = if at + slot < /* ~ changed by cargo-mutants ~ */ RING_BYTES { RING_BYTES - at } else { 0 };\n         while RING_BYTES - (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:601:33: replace > with < in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 601
+      },
+      "start": {
+        "column": 33,
+        "line": 601
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in Stream<'env, D>::reserve\n@@ -593,17 +593,17 @@\n \n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n-        let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n+        let skip = if at - /* ~ changed by cargo-mutants ~ */ slot > RING_BYTES { RING_BYTES - at } else { 0 };\n         while RING_BYTES - (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:601:26: replace + with - in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 601
+      },
+      "start": {
+        "column": 26,
+        "line": 601
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::reserve\n@@ -593,17 +593,17 @@\n \n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n-        let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n+        let skip = if at + slot > RING_BYTES { RING_BYTES + /* ~ changed by cargo-mutants ~ */ at } else { 0 };\n         while RING_BYTES - (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:601:59: replace - with + in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 601
+      },
+      "start": {
+        "column": 59,
+        "line": 601
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with > in Stream<'env, D>::reserve\n@@ -594,17 +594,17 @@\n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n-        while RING_BYTES - (self.head - self.tail) < skip + slot {\n+        while RING_BYTES - (self.head - self.tail) > /* ~ changed by cargo-mutants ~ */ skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n         at\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:602:52: replace < with > in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 53,
+        "line": 602
+      },
+      "start": {
+        "column": 52,
+        "line": 602
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::reserve\n@@ -594,17 +594,17 @@\n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n-        while RING_BYTES - (self.head - self.tail) < skip + slot {\n+        while RING_BYTES + /* ~ changed by cargo-mutants ~ */ (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n         at\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:602:26: replace - with + in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 602
+      },
+      "start": {
+        "column": 26,
+        "line": 602
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::reserve\n@@ -594,17 +594,17 @@\n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n-        while RING_BYTES - (self.head - self.tail) < skip + slot {\n+        while RING_BYTES - (self.head + /* ~ changed by cargo-mutants ~ */ self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n         at\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:602:39: replace - with + in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 602
+      },
+      "start": {
+        "column": 39,
+        "line": 602
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in Stream<'env, D>::reserve\n@@ -594,17 +594,17 @@\n     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,\n     /// before the ring's end), reserved: waits, handing places back and\n     /// hashing tasks, until entries in flight free them.\n     fn reserve(&mut self, len: usize) -> usize {\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n-        while RING_BYTES - (self.head - self.tail) < skip + slot {\n+        while RING_BYTES - (self.head - self.tail) < skip - /* ~ changed by cargo-mutants ~ */ slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n         at\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:602:59: replace + with - in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 602
+      },
+      "start": {
+        "column": 59,
+        "line": 602
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace > with < in Stream<'env, D>::reserve\n@@ -598,17 +598,17 @@\n         let slot = len.div_ceil(64) * 64;\n         let mut at = self.head % RING_BYTES;\n         // A slot that would cross the end starts the next lap instead.\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n         while RING_BYTES - (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n-        if skip > 0 {\n+        if skip < /* ~ changed by cargo-mutants ~ */ 0 {\n             at = 0;\n         }\n         self.head += skip + slot;\n         at\n     }\n \n     /// Hand back every place whose digests are done, in order, without\n     /// waiting; and hand the open task to the pool, so what it holds\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:606:17: replace > with < in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 606
+      },
+      "start": {
+        "column": 17,
+        "line": 606
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in Stream<'env, D>::reserve\n@@ -601,17 +601,17 @@\n         let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };\n         while RING_BYTES - (self.head - self.tail) < skip + slot {\n             self.publish();\n             self.help();\n         }\n         if skip > 0 {\n             at = 0;\n         }\n-        self.head += skip + slot;\n+        self.head += skip - /* ~ changed by cargo-mutants ~ */ slot;\n         at\n     }\n \n     /// Hand back every place whose digests are done, in order, without\n     /// waiting; and hand the open task to the pool, so what it holds\n     /// starts hashing.\n     pub fn collect(&mut self) {\n         self.publish();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::reserve",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 611
+        },
+        "start": {
+          "column": 5,
+          "line": 594
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:609:27: replace + with - in Stream<'env, D>::reserve",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 609
+      },
+      "start": {
+        "column": 27,
+        "line": 609
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::collect with ()\n@@ -609,26 +609,17 @@\n         self.head += skip + slot;\n         at\n     }\n \n     /// Hand back every place whose digests are done, in order, without\n     /// waiting; and hand the open task to the pool, so what it holds\n     /// starts hashing.\n     pub fn collect(&mut self) {\n-        self.publish();\n-        // Nothing back: a worker for any task still waiting (the caller\n-        // takes none here; in steady flow the workers are awake and this\n-        // costs a comparison). Workers spin 5 us for a stream's next task\n-        // and then park, and publish wakes one only for two waiting tasks,\n-        // so without this a caller looping on collect waited forever where\n-        // no SME2 thread takes stream tasks (tests/stream_collect_parked_workers).\n-        if self.deliver() == 0 && self.slot.is_some() {\n-            self.s.source.wake_for_waiting();\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hand back every place, in order, once its digests are done: this\n     /// thread hashes any task no thread has taken, and waits for the rest.\n     pub fn finish(&mut self) {\n         self.publish();\n         while self.delivered < self.next {\n             self.help();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::collect",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 627
+        },
+        "start": {
+          "column": 5,
+          "line": 613
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:617:9: replace Stream<'env, D>::collect with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 626
+      },
+      "start": {
+        "column": 9,
+        "line": 617
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace && with || in Stream<'env, D>::collect\n@@ -616,17 +616,17 @@\n     pub fn collect(&mut self) {\n         self.publish();\n         // Nothing back: a worker for any task still waiting (the caller\n         // takes none here; in steady flow the workers are awake and this\n         // costs a comparison). Workers spin 5 us for a stream's next task\n         // and then park, and publish wakes one only for two waiting tasks,\n         // so without this a caller looping on collect waited forever where\n         // no SME2 thread takes stream tasks (tests/stream_collect_parked_workers).\n-        if self.deliver() == 0 && self.slot.is_some() {\n+        if self.deliver() == 0 || /* ~ changed by cargo-mutants ~ */ self.slot.is_some() {\n             self.s.source.wake_for_waiting();\n         }\n     }\n \n     /// Hand back every place, in order, once its digests are done: this\n     /// thread hashes any task no thread has taken, and waits for the rest.\n     pub fn finish(&mut self) {\n         self.publish();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::collect",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 627
+        },
+        "start": {
+          "column": 5,
+          "line": 613
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:624:32: replace && with || in Stream<'env, D>::collect",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 624
+      },
+      "start": {
+        "column": 32,
+        "line": 624
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::collect\n@@ -616,17 +616,17 @@\n     pub fn collect(&mut self) {\n         self.publish();\n         // Nothing back: a worker for any task still waiting (the caller\n         // takes none here; in steady flow the workers are awake and this\n         // costs a comparison). Workers spin 5 us for a stream's next task\n         // and then park, and publish wakes one only for two waiting tasks,\n         // so without this a caller looping on collect waited forever where\n         // no SME2 thread takes stream tasks (tests/stream_collect_parked_workers).\n-        if self.deliver() == 0 && self.slot.is_some() {\n+        if self.deliver() != /* ~ changed by cargo-mutants ~ */ 0 && self.slot.is_some() {\n             self.s.source.wake_for_waiting();\n         }\n     }\n \n     /// Hand back every place, in order, once its digests are done: this\n     /// thread hashes any task no thread has taken, and waits for the rest.\n     pub fn finish(&mut self) {\n         self.publish();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::collect",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 627
+        },
+        "start": {
+          "column": 5,
+          "line": 613
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:624:27: replace == with != in Stream<'env, D>::collect",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 624
+      },
+      "start": {
+        "column": 27,
+        "line": 624
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with <= in Stream<'env, D>::finish\n@@ -625,17 +625,17 @@\n             self.s.source.wake_for_waiting();\n         }\n     }\n \n     /// Hand back every place, in order, once its digests are done: this\n     /// thread hashes any task no thread has taken, and waits for the rest.\n     pub fn finish(&mut self) {\n         self.publish();\n-        while self.delivered < self.next {\n+        while self.delivered <= /* ~ changed by cargo-mutants ~ */ self.next {\n             self.help();\n         }\n     }\n \n     /// Hand back what is done; with nothing done, hash a waiting task or\n     /// pause.\n     fn help(&mut self) {\n         if self.deliver() == 0 && !self.s.run_waiting() {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::finish",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 636
+        },
+        "start": {
+          "column": 5,
+          "line": 629
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:633:30: replace < with <= in Stream<'env, D>::finish",
+    "package": "blake3-servil",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 633
+      },
+      "start": {
+        "column": 30,
+        "line": 633
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::help with ()\n@@ -633,19 +633,17 @@\n         while self.delivered < self.next {\n             self.help();\n         }\n     }\n \n     /// Hand back what is done; with nothing done, hash a waiting task or\n     /// pause.\n     fn help(&mut self) {\n-        if self.deliver() == 0 && !self.s.run_waiting() {\n-            core::hint::spin_loop();\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A new entry of `len` bytes, waiting for room when every entry is in\n     /// flight.\n     #[inline(always)]\n     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {\n         if self.next - self.delivered == ENTRIES {\n             self.wait_for_room();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::help",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 644
+        },
+        "start": {
+          "column": 5,
+          "line": 638
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:641:9: replace Stream<'env, D>::help with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 643
+      },
+      "start": {
+        "column": 9,
+        "line": 641
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace && with || in Stream<'env, D>::help\n@@ -633,17 +633,17 @@\n         while self.delivered < self.next {\n             self.help();\n         }\n     }\n \n     /// Hand back what is done; with nothing done, hash a waiting task or\n     /// pause.\n     fn help(&mut self) {\n-        if self.deliver() == 0 && !self.s.run_waiting() {\n+        if self.deliver() == 0 || /* ~ changed by cargo-mutants ~ */ !self.s.run_waiting() {\n             core::hint::spin_loop();\n         }\n     }\n \n     /// A new entry of `len` bytes, waiting for room when every entry is in\n     /// flight.\n     #[inline(always)]\n     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::help",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 644
+        },
+        "start": {
+          "column": 5,
+          "line": 638
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:641:32: replace && with || in Stream<'env, D>::help",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 641
+      },
+      "start": {
+        "column": 32,
+        "line": 641
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::help\n@@ -633,17 +633,17 @@\n         while self.delivered < self.next {\n             self.help();\n         }\n     }\n \n     /// Hand back what is done; with nothing done, hash a waiting task or\n     /// pause.\n     fn help(&mut self) {\n-        if self.deliver() == 0 && !self.s.run_waiting() {\n+        if self.deliver() != /* ~ changed by cargo-mutants ~ */ 0 && !self.s.run_waiting() {\n             core::hint::spin_loop();\n         }\n     }\n \n     /// A new entry of `len` bytes, waiting for room when every entry is in\n     /// flight.\n     #[inline(always)]\n     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::help",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 644
+        },
+        "start": {
+          "column": 5,
+          "line": 638
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:641:27: replace == with != in Stream<'env, D>::help",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 641
+      },
+      "start": {
+        "column": 27,
+        "line": 641
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete ! in Stream<'env, D>::help\n@@ -633,17 +633,17 @@\n         while self.delivered < self.next {\n             self.help();\n         }\n     }\n \n     /// Hand back what is done; with nothing done, hash a waiting task or\n     /// pause.\n     fn help(&mut self) {\n-        if self.deliver() == 0 && !self.s.run_waiting() {\n+        if self.deliver() == 0 &&  /* ~ changed by cargo-mutants ~ */self.s.run_waiting() {\n             core::hint::spin_loop();\n         }\n     }\n \n     /// A new entry of `len` bytes, waiting for room when every entry is in\n     /// flight.\n     #[inline(always)]\n     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::help",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 644
+        },
+        "start": {
+          "column": 5,
+          "line": 638
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/stream.rs:641:35: delete ! in Stream<'env, D>::help",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 641
+      },
+      "start": {
+        "column": 35,
+        "line": 641
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::add_entry\n@@ -642,17 +642,17 @@\n             core::hint::spin_loop();\n         }\n     }\n \n     /// A new entry of `len` bytes, waiting for room when every entry is in\n     /// flight.\n     #[inline(always)]\n     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {\n-        if self.next - self.delivered == ENTRIES {\n+        if self.next + /* ~ changed by cargo-mutants ~ */ self.delivered == ENTRIES {\n             self.wait_for_room();\n         }\n         let index = self.next % ENTRIES;\n         self.s.entries[index] = Entry { len, kind, first: index, ring_end };\n         self.next += 1;\n         index\n     }\n \n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::add_entry",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 657
+        },
+        "start": {
+          "column": 5,
+          "line": 646
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:650:22: replace - with + in Stream<'env, D>::add_entry",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 650
+      },
+      "start": {
+        "column": 22,
+        "line": 650
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::hand_over with ()\n@@ -674,20 +674,17 @@\n             self.s.lefts[self.open_first].store(task.members, Ordering::Relaxed);\n             self.hand_over(task);\n         }\n     }\n \n     /// Give `task` to the workers through the stream's source; with no\n     /// slot, hash it on this thread now.\n     fn hand_over(&mut self, task: Task) {\n-        match self.slot {\n-            Some(_) => self.s.source.publish(task),\n-            None => crate::lanes::run_task(task),\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hand back every finished entry's place from the oldest on (a\n     /// batch's once its last part is done); how many entries.\n     fn deliver(&mut self) -> usize {\n         let mut count = 0;\n         while self.delivered < self.next {\n             let index = self.delivered % ENTRIES;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::hand_over",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 686
+        },
+        "start": {
+          "column": 5,
+          "line": 679
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:682:9: replace Stream<'env, D>::hand_over with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 685
+      },
+      "start": {
+        "column": 9,
+        "line": 682
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::deliver -> usize with 0\n@@ -683,74 +683,17 @@\n             Some(_) => self.s.source.publish(task),\n             None => crate::lanes::run_task(task),\n         }\n     }\n \n     /// Hand back every finished entry's place from the oldest on (a\n     /// batch's once its last part is done); how many entries.\n     fn deliver(&mut self) -> usize {\n-        let mut count = 0;\n-        while self.delivered < self.next {\n-            let index = self.delivered % ENTRIES;\n-            let Entry { len, kind, first, ring_end } = self.s.entries[index];\n-            // An entry of no task (an empty batch's part, an abandoned\n-            // message) has its own `left`, zero.\n-            if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n-                break;\n-            }\n-            self.delivered += 1;\n-            self.tail = ring_end;\n-            count += 1;\n-            // Sound, each place: the program lent it for 'env and the stream\n-            // hands it back once, after its task wrote it (the Acquire above).\n-            match kind {\n-                Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n-                Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n-                Kind::Batch { whole: None, .. } => {}\n-                Kind::Abandoned => {\n-                    self.stack.clear();\n-                    self.pieces = 0;\n-                }\n-                Kind::Piece { counter, last, out } => {\n-                    // Sound: the task wrote its out before counting `left` down.\n-                    let piece = unsafe { *self.s.pieces_out[index].0.0.get() };\n-                    let (key, flags, platform) = (self.key, self.flags, Platform::detect());\n-                    let parent = |left: &CVBytes, right: &CVBytes| crate::hasher::parent_output(left, right, &key, flags, platform);\n-                    // A piece at chunk 0 is a long message's first, a whole\n-                    // PIECE: it gave its two children.\n-                    debug_assert!(counter != 0 || len == PIECE, \"a long message's first piece is whole\");\n-                    let cv: CVBytes = if counter == 0 {\n-                        parent(piece[..OUT_LEN].try_into().unwrap(), piece[OUT_LEN..].try_into().unwrap()).chaining_value()\n-                    } else {\n-                        piece[..OUT_LEN].try_into().unwrap()\n-                    };\n-                    // As the Hasher's stack: before pushing piece n, merge\n-                    // down to as many values as n has 1 bits.\n-                    while self.stack.len() > self.pieces.count_ones() as usize {\n-                        let right = self.stack.pop().unwrap();\n-                        let left = self.stack.pop().unwrap();\n-                        self.stack.push(parent(&left, &right).chaining_value());\n-                    }\n-                    self.stack.push(cv);\n-                    self.pieces += 1;\n-                    if last {\n-                        let mut right = self.stack.pop().unwrap();\n-                        while self.stack.len() > 1 {\n-                            right = parent(&self.stack.pop().unwrap(), &right).chaining_value();\n-                        }\n-                        let place = unsafe { &mut *out };\n-                        *place = parent(&self.stack.pop().unwrap(), &right).root_hash();\n-                        self.pieces = 0;\n-                        (self.done)(core::slice::from_mut(place));\n-                    }\n-                }\n-            }\n-        }\n-        count\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl<D> Drop for Stream<'_, D> {\n     /// Keep the storage as the thread's spare. A stream drops finished,\n     /// every place handed back: one that unwinds ends the process first\n     /// ([`stream`]'s guard), and the C API finishes it before it drops.\n     fn drop(&mut self) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:691:9: replace Stream<'env, D>::deliver -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 748
+      },
+      "start": {
+        "column": 9,
+        "line": 691
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::deliver -> usize with 1\n@@ -683,74 +683,17 @@\n             Some(_) => self.s.source.publish(task),\n             None => crate::lanes::run_task(task),\n         }\n     }\n \n     /// Hand back every finished entry's place from the oldest on (a\n     /// batch's once its last part is done); how many entries.\n     fn deliver(&mut self) -> usize {\n-        let mut count = 0;\n-        while self.delivered < self.next {\n-            let index = self.delivered % ENTRIES;\n-            let Entry { len, kind, first, ring_end } = self.s.entries[index];\n-            // An entry of no task (an empty batch's part, an abandoned\n-            // message) has its own `left`, zero.\n-            if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n-                break;\n-            }\n-            self.delivered += 1;\n-            self.tail = ring_end;\n-            count += 1;\n-            // Sound, each place: the program lent it for 'env and the stream\n-            // hands it back once, after its task wrote it (the Acquire above).\n-            match kind {\n-                Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n-                Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n-                Kind::Batch { whole: None, .. } => {}\n-                Kind::Abandoned => {\n-                    self.stack.clear();\n-                    self.pieces = 0;\n-                }\n-                Kind::Piece { counter, last, out } => {\n-                    // Sound: the task wrote its out before counting `left` down.\n-                    let piece = unsafe { *self.s.pieces_out[index].0.0.get() };\n-                    let (key, flags, platform) = (self.key, self.flags, Platform::detect());\n-                    let parent = |left: &CVBytes, right: &CVBytes| crate::hasher::parent_output(left, right, &key, flags, platform);\n-                    // A piece at chunk 0 is a long message's first, a whole\n-                    // PIECE: it gave its two children.\n-                    debug_assert!(counter != 0 || len == PIECE, \"a long message's first piece is whole\");\n-                    let cv: CVBytes = if counter == 0 {\n-                        parent(piece[..OUT_LEN].try_into().unwrap(), piece[OUT_LEN..].try_into().unwrap()).chaining_value()\n-                    } else {\n-                        piece[..OUT_LEN].try_into().unwrap()\n-                    };\n-                    // As the Hasher's stack: before pushing piece n, merge\n-                    // down to as many values as n has 1 bits.\n-                    while self.stack.len() > self.pieces.count_ones() as usize {\n-                        let right = self.stack.pop().unwrap();\n-                        let left = self.stack.pop().unwrap();\n-                        self.stack.push(parent(&left, &right).chaining_value());\n-                    }\n-                    self.stack.push(cv);\n-                    self.pieces += 1;\n-                    if last {\n-                        let mut right = self.stack.pop().unwrap();\n-                        while self.stack.len() > 1 {\n-                            right = parent(&self.stack.pop().unwrap(), &right).chaining_value();\n-                        }\n-                        let place = unsafe { &mut *out };\n-                        *place = parent(&self.stack.pop().unwrap(), &right).root_hash();\n-                        self.pieces = 0;\n-                        (self.done)(core::slice::from_mut(place));\n-                    }\n-                }\n-            }\n-        }\n-        count\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n impl<D> Drop for Stream<'_, D> {\n     /// Keep the storage as the thread's spare. A stream drops finished,\n     /// every place handed back: one that unwinds ends the process first\n     /// ([`stream`]'s guard), and the C API finishes it before it drops.\n     fn drop(&mut self) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:691:9: replace Stream<'env, D>::deliver -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 748
+      },
+      "start": {
+        "column": 9,
+        "line": 691
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with == in Stream<'env, D>::deliver\n@@ -684,17 +684,17 @@\n             None => crate::lanes::run_task(task),\n         }\n     }\n \n     /// Hand back every finished entry's place from the oldest on (a\n     /// batch's once its last part is done); how many entries.\n     fn deliver(&mut self) -> usize {\n         let mut count = 0;\n-        while self.delivered < self.next {\n+        while self.delivered == /* ~ changed by cargo-mutants ~ */ self.next {\n             let index = self.delivered % ENTRIES;\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n             self.delivered += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:692:30: replace < with == in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 692
+      },
+      "start": {
+        "column": 30,
+        "line": 692
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace < with > in Stream<'env, D>::deliver\n@@ -684,17 +684,17 @@\n             None => crate::lanes::run_task(task),\n         }\n     }\n \n     /// Hand back every finished entry's place from the oldest on (a\n     /// batch's once its last part is done); how many entries.\n     fn deliver(&mut self) -> usize {\n         let mut count = 0;\n-        while self.delivered < self.next {\n+        while self.delivered > /* ~ changed by cargo-mutants ~ */ self.next {\n             let index = self.delivered % ENTRIES;\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n             self.delivered += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:692:30: replace < with > in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 692
+      },
+      "start": {
+        "column": 30,
+        "line": 692
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in Stream<'env, D>::deliver\n@@ -692,17 +692,17 @@\n         while self.delivered < self.next {\n             let index = self.delivered % ENTRIES;\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n-            self.delivered += 1;\n+            self.delivered -= /* ~ changed by cargo-mutants ~ */ 1;\n             self.tail = ring_end;\n             count += 1;\n             // Sound, each place: the program lent it for 'env and the stream\n             // hands it back once, after its task wrote it (the Acquire above).\n             match kind {\n                 Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n                 Kind::Batch { whole: None, .. } => {}\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:700:28: replace += with -= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 700
+      },
+      "start": {
+        "column": 28,
+        "line": 700
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in Stream<'env, D>::deliver\n@@ -692,17 +692,17 @@\n         while self.delivered < self.next {\n             let index = self.delivered % ENTRIES;\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n-            self.delivered += 1;\n+            self.delivered *= /* ~ changed by cargo-mutants ~ */ 1;\n             self.tail = ring_end;\n             count += 1;\n             // Sound, each place: the program lent it for 'env and the stream\n             // hands it back once, after its task wrote it (the Acquire above).\n             match kind {\n                 Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n                 Kind::Batch { whole: None, .. } => {}\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:700:28: replace += with *= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 700
+      },
+      "start": {
+        "column": 28,
+        "line": 700
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in Stream<'env, D>::deliver\n@@ -694,17 +694,17 @@\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n             self.delivered += 1;\n             self.tail = ring_end;\n-            count += 1;\n+            count -= /* ~ changed by cargo-mutants ~ */ 1;\n             // Sound, each place: the program lent it for 'env and the stream\n             // hands it back once, after its task wrote it (the Acquire above).\n             match kind {\n                 Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n                 Kind::Batch { whole: None, .. } => {}\n                 Kind::Abandoned => {\n                     self.stack.clear();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:702:19: replace += with -= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 702
+      },
+      "start": {
+        "column": 19,
+        "line": 702
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in Stream<'env, D>::deliver\n@@ -694,17 +694,17 @@\n             let Entry { len, kind, first, ring_end } = self.s.entries[index];\n             // An entry of no task (an empty batch's part, an abandoned\n             // message) has its own `left`, zero.\n             if self.s.lefts[first].load(Ordering::Acquire) != 0 {\n                 break;\n             }\n             self.delivered += 1;\n             self.tail = ring_end;\n-            count += 1;\n+            count *= /* ~ changed by cargo-mutants ~ */ 1;\n             // Sound, each place: the program lent it for 'env and the stream\n             // hands it back once, after its task wrote it (the Acquire above).\n             match kind {\n                 Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),\n                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),\n                 Kind::Batch { whole: None, .. } => {}\n                 Kind::Abandoned => {\n                     self.stack.clear();\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:702:19: replace += with *= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 702
+      },
+      "start": {
+        "column": 19,
+        "line": 702
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in Stream<'env, D>::deliver\n@@ -726,17 +726,17 @@\n                     // As the Hasher's stack: before pushing piece n, merge\n                     // down to as many values as n has 1 bits.\n                     while self.stack.len() > self.pieces.count_ones() as usize {\n                         let right = self.stack.pop().unwrap();\n                         let left = self.stack.pop().unwrap();\n                         self.stack.push(parent(&left, &right).chaining_value());\n                     }\n                     self.stack.push(cv);\n-                    self.pieces += 1;\n+                    self.pieces -= /* ~ changed by cargo-mutants ~ */ 1;\n                     if last {\n                         let mut right = self.stack.pop().unwrap();\n                         while self.stack.len() > 1 {\n                             right = parent(&self.stack.pop().unwrap(), &right).chaining_value();\n                         }\n                         let place = unsafe { &mut *out };\n                         *place = parent(&self.stack.pop().unwrap(), &right).root_hash();\n                         self.pieces = 0;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:734:33: replace += with -= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 734
+      },
+      "start": {
+        "column": 33,
+        "line": 734
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in Stream<'env, D>::deliver\n@@ -726,17 +726,17 @@\n                     // As the Hasher's stack: before pushing piece n, merge\n                     // down to as many values as n has 1 bits.\n                     while self.stack.len() > self.pieces.count_ones() as usize {\n                         let right = self.stack.pop().unwrap();\n                         let left = self.stack.pop().unwrap();\n                         self.stack.push(parent(&left, &right).chaining_value());\n                     }\n                     self.stack.push(cv);\n-                    self.pieces += 1;\n+                    self.pieces *= /* ~ changed by cargo-mutants ~ */ 1;\n                     if last {\n                         let mut right = self.stack.pop().unwrap();\n                         while self.stack.len() > 1 {\n                             right = parent(&self.stack.pop().unwrap(), &right).chaining_value();\n                         }\n                         let place = unsafe { &mut *out };\n                         *place = parent(&self.stack.pop().unwrap(), &right).root_hash();\n                         self.pieces = 0;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::deliver",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 749
+        },
+        "start": {
+          "column": 5,
+          "line": 688
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:734:33: replace += with *= in Stream<'env, D>::deliver",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 734
+      },
+      "start": {
+        "column": 33,
+        "line": 734
+      }
+    }
+  }
+]

@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with + in part_kind
+@@ -304,17 +304,17 @@
+         assert!(n <= left, "fill says it wrote {n} bytes into a room of {left}");
+         done += n;
+     }
+ }
+ 
+ /// Part `i` of a message in `pieces` parts, its digest at `out`: the
+ /// message whole, or a piece.
+ fn part_kind(i: usize, pieces: usize, out: *mut Hash) -> Kind {
+-    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }
++    if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i + /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, out } }
+ }
+ 
+ /// The messages of one [`stream`] call, and the places for their digests,
+ /// borrowed for its scope; `D` is the stream's handler.
+ pub struct Stream<'env, D> {
+     key: CVWords,
+     flags: u8,
+     /// Its own until the stream ends (then the thread's spare).

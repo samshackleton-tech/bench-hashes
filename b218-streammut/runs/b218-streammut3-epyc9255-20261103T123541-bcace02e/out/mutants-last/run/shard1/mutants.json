@@ -1,0 +1,1154 @@
+[
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::submit_with\n@@ -381,17 +381,17 @@\n     /// that must keep one caller's secrets from another reads none of\n     /// `room` before writing it). The stream reuses the bytes once `out`\n     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`\n     /// waits for room as `submit` does.\n     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part_len = (len - i * PIECE).min(PIECE);\n+            let part_len = (len + /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n             fill_all(&mut fill, i * PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:389:33: replace - with + in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 389
+      },
+      "start": {
+        "column": 33,
+        "line": 389
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in Stream<'env, D>::submit_with\n@@ -381,17 +381,17 @@\n     /// that must keep one caller's secrets from another reads none of\n     /// `room` before writing it). The stream reuses the bytes once `out`\n     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`\n     /// waits for room as `submit` does.\n     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part_len = (len - i * PIECE).min(PIECE);\n+            let part_len = (len / /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n             fill_all(&mut fill, i * PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:389:33: replace - with / in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 389
+      },
+      "start": {
+        "column": 33,
+        "line": 389
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_with\n@@ -381,17 +381,17 @@\n     /// that must keep one caller's secrets from another reads none of\n     /// `room` before writing it). The stream reuses the bytes once `out`\n     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`\n     /// waits for room as `submit` does.\n     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part_len = (len - i * PIECE).min(PIECE);\n+            let part_len = (len - i + /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n             fill_all(&mut fill, i * PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:389:37: replace * with + in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 389
+      },
+      "start": {
+        "column": 37,
+        "line": 389
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_with\n@@ -381,17 +381,17 @@\n     /// that must keep one caller's secrets from another reads none of\n     /// `room` before writing it). The stream reuses the bytes once `out`\n     /// is handed back; a stream keeps 2 MiB of them, and `submit_with`\n     /// waits for room as `submit` does.\n     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n-            let part_len = (len - i * PIECE).min(PIECE);\n+            let part_len = (len - i / /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n             fill_all(&mut fill, i * PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:389:37: replace * with / in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 389
+      },
+      "start": {
+        "column": 37,
+        "line": 389
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_with\n@@ -386,17 +386,17 @@\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n             let part_len = (len - i * PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n-            fill_all(&mut fill, i * PIECE, room);\n+            fill_all(&mut fill, i + /* ~ changed by cargo-mutants ~ */ PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n     }\n \n     /// Hash the message `reader` yields, to its end, read straight into the\n     /// stream's own bytes in pieces of up to 64 KiB (a file or socket read\n     /// into the stream, overlapping the hashing of earlier pieces), its\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:394:35: replace * with + in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 394
+      },
+      "start": {
+        "column": 35,
+        "line": 394
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_with\n@@ -386,17 +386,17 @@\n         let out: *mut Hash = out;\n         let pieces = len.div_ceil(PIECE).max(1);\n         for i in 0..pieces {\n             let part_len = (len - i * PIECE).min(PIECE);\n             let at = self.reserve(part_len);\n             // Sound: [at, at + part_len) is reserved and free (no entry in\n             // flight holds it), and `&mut self` keeps every other writer out.\n             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };\n-            fill_all(&mut fill, i * PIECE, room);\n+            fill_all(&mut fill, i / /* ~ changed by cargo-mutants ~ */ PIECE, room);\n             let end = self.head;\n             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out), end, out as *mut u8);\n         }\n     }\n \n     /// Hash the message `reader` yields, to its end, read straight into the\n     /// stream's own bytes in pieces of up to 64 KiB (a file or socket read\n     /// into the stream, overlapping the hashing of earlier pieces), its\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_with",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 398
+        },
+        "start": {
+          "column": 5,
+          "line": 370
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:394:35: replace * with / in Stream<'env, D>::submit_with",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 394
+      },
+      "start": {
+        "column": 35,
+        "line": 394
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit_reader -> std::io::Result<u64> with Ok(0)\n@@ -407,58 +407,17 @@\n     /// reads one piece ahead to tell the last.\n     ///\n     /// `size_hint` is the length the caller expects, where it knows one (a\n     /// file's size, a protocol's length field): a scheduling hint, never\n     /// part of the hash, so a wrong one costs nothing but speed. Today the\n     /// stream does not use it; it is here so that a stream that schedules\n     /// by it later changes no caller.\n     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {\n-        let _ = size_hint;\n-        let out: *mut Hash = out;\n-        let start = self.head;\n-        let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n-        let mut i = 0;\n-        loop {\n-            let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n-            let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n-            if failed {\n-                let error = match (read, ahead) {\n-                    (Err(e), _) => e,\n-                    (_, Some((_, _, _, Err(e)))) => e,\n-                    _ => unreachable!(\"a read failed\"),\n-                };\n-                // The bytes not yet handed to the pool go; the pieces that\n-                // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n-                if i > 0 {\n-                    let head = self.head;\n-                    self.add_entry(0, Kind::Abandoned, head);\n-                }\n-                return Err(error);\n-            }\n-            let last = match &ahead {\n-                None => true,\n-                // Exactly a piece, then the end: give the read-ahead room back.\n-                Some((_, _, 0, _)) => {\n-                    self.head = end;\n-                    true\n-                }\n-                Some(_) => false,\n-            };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n-            // [at, at + n): this piece's reserved room, written.\n-            let input = self.s.ring_at(at);\n-            self.add_part(input, n, kind, end, out as *mut u8);\n-            if last {\n-                return Ok((i * PIECE + n) as u64);\n-            }\n-            (at, end, n, read) = ahead.unwrap();\n-            i += 1;\n-        }\n+        Ok(0) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n         let end = self.head;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:415:9: replace Stream<'env, D>::submit_reader -> std::io::Result<u64> with Ok(0)",
+    "package": "blake3-servil",
+    "replacement": "Ok(0)",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 456
+      },
+      "start": {
+        "column": 9,
+        "line": 415
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::submit_reader -> std::io::Result<u64> with Ok(1)\n@@ -407,58 +407,17 @@\n     /// reads one piece ahead to tell the last.\n     ///\n     /// `size_hint` is the length the caller expects, where it knows one (a\n     /// file's size, a protocol's length field): a scheduling hint, never\n     /// part of the hash, so a wrong one costs nothing but speed. Today the\n     /// stream does not use it; it is here so that a stream that schedules\n     /// by it later changes no caller.\n     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {\n-        let _ = size_hint;\n-        let out: *mut Hash = out;\n-        let start = self.head;\n-        let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n-        let mut i = 0;\n-        loop {\n-            let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n-            let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n-            if failed {\n-                let error = match (read, ahead) {\n-                    (Err(e), _) => e,\n-                    (_, Some((_, _, _, Err(e)))) => e,\n-                    _ => unreachable!(\"a read failed\"),\n-                };\n-                // The bytes not yet handed to the pool go; the pieces that\n-                // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n-                if i > 0 {\n-                    let head = self.head;\n-                    self.add_entry(0, Kind::Abandoned, head);\n-                }\n-                return Err(error);\n-            }\n-            let last = match &ahead {\n-                None => true,\n-                // Exactly a piece, then the end: give the read-ahead room back.\n-                Some((_, _, 0, _)) => {\n-                    self.head = end;\n-                    true\n-                }\n-                Some(_) => false,\n-            };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n-            // [at, at + n): this piece's reserved room, written.\n-            let input = self.s.ring_at(at);\n-            self.add_part(input, n, kind, end, out as *mut u8);\n-            if last {\n-                return Ok((i * PIECE + n) as u64);\n-            }\n-            (at, end, n, read) = ahead.unwrap();\n-            i += 1;\n-        }\n+        Ok(1) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n         let end = self.head;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:415:9: replace Stream<'env, D>::submit_reader -> std::io::Result<u64> with Ok(1)",
+    "package": "blake3-servil",
+    "replacement": "Ok(1)",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 456
+      },
+      "start": {
+        "column": 9,
+        "line": 415
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace && with || in Stream<'env, D>::submit_reader\n@@ -413,17 +413,17 @@\n     /// by it later changes no caller.\n     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {\n         let _ = size_hint;\n         let out: *mut Hash = out;\n         let start = self.head;\n         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n         let mut i = 0;\n         loop {\n-            let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n+            let ahead = (n == PIECE || /* ~ changed by cargo-mutants ~ */ read.is_ok()).then(|| self.read_piece(&mut reader));\n             let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:421:37: replace && with || in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 421
+      },
+      "start": {
+        "column": 37,
+        "line": 421
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::submit_reader\n@@ -413,17 +413,17 @@\n     /// by it later changes no caller.\n     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {\n         let _ = size_hint;\n         let out: *mut Hash = out;\n         let start = self.head;\n         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n         let mut i = 0;\n         loop {\n-            let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n+            let ahead = (n != /* ~ changed by cargo-mutants ~ */ PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n             let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:421:28: replace == with != in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 421
+      },
+      "start": {
+        "column": 28,
+        "line": 421
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace || with && in Stream<'env, D>::submit_reader\n@@ -414,17 +414,17 @@\n     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {\n         let _ = size_hint;\n         let out: *mut Hash = out;\n         let start = self.head;\n         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n         let mut i = 0;\n         loop {\n             let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n-            let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n+            let failed = read.is_err() && /* ~ changed by cargo-mutants ~ */ ahead.as_ref().is_some_and(|a| a.3.is_err());\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:422:40: replace || with && in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "&&",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 422
+      },
+      "start": {
+        "column": 40,
+        "line": 422
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete match arm (Err(e), _) in Stream<'env, D>::submit_reader\n@@ -417,17 +417,17 @@\n         let start = self.head;\n         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n         let mut i = 0;\n         loop {\n             let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n             let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n             if failed {\n                 let error = match (read, ahead) {\n-                    (Err(e), _) => e,\n+                     /* ~ changed by cargo-mutants ~ */\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n                 if i > 0 {\n                     let head = self.head;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/stream.rs:425:21: delete match arm (Err(e), _) in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 425
+      },
+      "start": {
+        "column": 21,
+        "line": 425
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ delete match arm (_, Some((_, _, _, Err(e)))) in Stream<'env, D>::submit_reader\n@@ -418,17 +418,17 @@\n         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);\n         let mut i = 0;\n         loop {\n             let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));\n             let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n-                    (_, Some((_, _, _, Err(e)))) => e,\n+                     /* ~ changed by cargo-mutants ~ */\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/stream.rs:426:21: delete match arm (_, Some((_, _, _, Err(e)))) in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 426
+      },
+      "start": {
+        "column": 21,
+        "line": 426
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::submit_reader\n@@ -423,17 +423,17 @@\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n+                self.head = if i != /* ~ changed by cargo-mutants ~ */ 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:431:34: replace == with != in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 431
+      },
+      "start": {
+        "column": 34,
+        "line": 431
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with + in Stream<'env, D>::submit_reader\n@@ -423,17 +423,17 @@\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n+                self.head = if i == 0 { start } else { end + /* ~ changed by cargo-mutants ~ */ PIECE.div_ceil(64) * 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:431:60: replace - with + in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 431
+      },
+      "start": {
+        "column": 60,
+        "line": 431
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace - with / in Stream<'env, D>::submit_reader\n@@ -423,17 +423,17 @@\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n+                self.head = if i == 0 { start } else { end / /* ~ changed by cargo-mutants ~ */ PIECE.div_ceil(64) * 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:431:60: replace - with / in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 61,
+        "line": 431
+      },
+      "start": {
+        "column": 60,
+        "line": 431
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_reader\n@@ -423,17 +423,17 @@\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n+                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) + /* ~ changed by cargo-mutants ~ */ 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:431:81: replace * with + in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 82,
+        "line": 431
+      },
+      "start": {
+        "column": 81,
+        "line": 431
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_reader\n@@ -423,17 +423,17 @@\n             if failed {\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n+                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) / /* ~ changed by cargo-mutants ~ */ 64 };\n                 if i > 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:431:81: replace * with / in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 82,
+        "line": 431
+      },
+      "start": {
+        "column": 81,
+        "line": 431
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace > with == in Stream<'env, D>::submit_reader\n@@ -424,17 +424,17 @@\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n-                if i > 0 {\n+                if i == /* ~ changed by cargo-mutants ~ */ 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:432:22: replace > with == in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 432
+      },
+      "start": {
+        "column": 22,
+        "line": 432
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace > with < in Stream<'env, D>::submit_reader\n@@ -424,17 +424,17 @@\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n-                if i > 0 {\n+                if i < /* ~ changed by cargo-mutants ~ */ 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:432:22: replace > with < in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 432
+      },
+      "start": {
+        "column": 22,
+        "line": 432
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace > with >= in Stream<'env, D>::submit_reader\n@@ -424,17 +424,17 @@\n                 let error = match (read, ahead) {\n                     (Err(e), _) => e,\n                     (_, Some((_, _, _, Err(e)))) => e,\n                     _ => unreachable!(\"a read failed\"),\n                 };\n                 // The bytes not yet handed to the pool go; the pieces that\n                 // were end in an entry that drops their chaining values.\n                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };\n-                if i > 0 {\n+                if i >= /* ~ changed by cargo-mutants ~ */ 0 {\n                     let head = self.head;\n                     self.add_entry(0, Kind::Abandoned, head);\n                 }\n                 return Err(error);\n             }\n             let last = match &ahead {\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:432:22: replace > with >= in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 432
+      },
+      "start": {
+        "column": 22,
+        "line": 432
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace && with || in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i == 0 || /* ~ changed by cargo-mutants ~ */ last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:34: replace && with || in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 447
+      },
+      "start": {
+        "column": 34,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace == with != in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i != /* ~ changed by cargo-mutants ~ */ 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:29: replace == with != in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 447
+      },
+      "start": {
+        "column": 29,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with % in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE % /* ~ changed by cargo-mutants ~ */ CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:109: replace / with % in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 110,
+        "line": 447
+      },
+      "start": {
+        "column": 109,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace / with * in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:109: replace / with * in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 110,
+        "line": 447
+      },
+      "start": {
+        "column": 109,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i + /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:101: replace * with + in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 102,
+        "line": 447
+      },
+      "start": {
+        "column": 101,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_reader\n@@ -439,17 +439,17 @@\n                 None => true,\n                 // Exactly a piece, then the end: give the read-ahead room back.\n                 Some((_, _, 0, _)) => {\n                     self.head = end;\n                     true\n                 }\n                 Some(_) => false,\n             };\n-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n+            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i / /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:447:101: replace * with / in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 102,
+        "line": 447
+      },
+      "start": {
+        "column": 101,
+        "line": 447
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with - in Stream<'env, D>::submit_reader\n@@ -444,17 +444,17 @@\n                 }\n                 Some(_) => false,\n             };\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n-                return Ok((i * PIECE + n) as u64);\n+                return Ok((i * PIECE - /* ~ changed by cargo-mutants ~ */ n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:452:38: replace + with - in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 452
+      },
+      "start": {
+        "column": 38,
+        "line": 452
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace + with * in Stream<'env, D>::submit_reader\n@@ -444,17 +444,17 @@\n                 }\n                 Some(_) => false,\n             };\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n-                return Ok((i * PIECE + n) as u64);\n+                return Ok((i * PIECE * /* ~ changed by cargo-mutants ~ */ n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:452:38: replace + with * in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 452
+      },
+      "start": {
+        "column": 38,
+        "line": 452
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with + in Stream<'env, D>::submit_reader\n@@ -444,17 +444,17 @@\n                 }\n                 Some(_) => false,\n             };\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n-                return Ok((i * PIECE + n) as u64);\n+                return Ok((i + /* ~ changed by cargo-mutants ~ */ PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:452:30: replace * with + in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 452
+      },
+      "start": {
+        "column": 30,
+        "line": 452
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace * with / in Stream<'env, D>::submit_reader\n@@ -444,17 +444,17 @@\n                 }\n                 Some(_) => false,\n             };\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n-                return Ok((i * PIECE + n) as u64);\n+                return Ok((i / /* ~ changed by cargo-mutants ~ */ PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:452:30: replace * with / in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 452
+      },
+      "start": {
+        "column": 30,
+        "line": 452
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with -= in Stream<'env, D>::submit_reader\n@@ -447,17 +447,17 @@\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n-            i += 1;\n+            i -= /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:455:15: replace += with -= in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 455
+      },
+      "start": {
+        "column": 15,
+        "line": 455
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace += with *= in Stream<'env, D>::submit_reader\n@@ -447,17 +447,17 @@\n             let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };\n             // [at, at + n): this piece's reserved room, written.\n             let input = self.s.ring_at(at);\n             self.add_part(input, n, kind, end, out as *mut u8);\n             if last {\n                 return Ok((i * PIECE + n) as u64);\n             }\n             (at, end, n, read) = ahead.unwrap();\n-            i += 1;\n+            i *= /* ~ changed by cargo-mutants ~ */ 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n         let at = self.reserve(PIECE);\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::submit_reader",
+      "return_type": "-> std::io::Result<u64>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 457
+        },
+        "start": {
+          "column": 5,
+          "line": 400
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/stream.rs:455:15: replace += with *= in Stream<'env, D>::submit_reader",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 455
+      },
+      "start": {
+        "column": 15,
+        "line": 455
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 0, 0, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (0, 0, 0, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 0, 0, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(0, 0, 0, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 0, 1, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (0, 0, 1, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 0, 1, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(0, 0, 1, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  },
+  {
+    "diff": "--- src/stream.rs\n+++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 1, 0, Ok(()))\n@@ -455,31 +455,17 @@\n             i += 1;\n         }\n     }\n \n     /// A piece's room (PIECE bytes, reserved), read into from `reader` until\n     /// it is full, the reader ends, or a read fails: its offset, the ring's\n     /// head after its reservation, the bytes read, and the read's result.\n     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {\n-        let at = self.reserve(PIECE);\n-        let end = self.head;\n-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`\n-        // keeps every other writer out.\n-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };\n-        let mut n = 0;\n-        while n < PIECE {\n-            match reader.read(&mut room[n..]) {\n-                Ok(0) => break,\n-                Ok(k) => n += k,\n-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}\n-                Err(e) => return (at, end, n, Err(e)),\n-            }\n-        }\n-        (at, end, n, Ok(()))\n+        (0, 1, 0, Ok(())) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Hash a [`Batch`](crate::performance::Batch) where it is, as\n     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per\n     /// message into `out`, in the messages' order: `out` holds one per\n     /// message. The batch goes in parts of up to 64 KiB, each one entry;\n     /// `out` comes back whole.\n     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {\n",
+    "file": "src/stream.rs",
+    "function": {
+      "function_name": "Stream<'env, D>::read_piece",
+      "return_type": "-> (usize, usize, usize, std::io::Result<()>)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 478
+        },
+        "start": {
+          "column": 5,
+          "line": 459
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/stream.rs:463:9: replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (0, 1, 0, Ok(()))",
+    "package": "blake3-servil",
+    "replacement": "(0, 1, 0, Ok(()))",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 477
+      },
+      "start": {
+        "column": 9,
+        "line": 463
+      }
+    }
+  }
+]

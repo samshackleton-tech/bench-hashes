@@ -1,0 +1,23 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::help with ()
+@@ -633,19 +633,17 @@
+         while self.delivered < self.next {
+             self.help();
+         }
+     }
+ 
+     /// Hand back what is done; with nothing done, hash a waiting task or
+     /// pause.
+     fn help(&mut self) {
+-        if self.deliver() == 0 && !self.s.run_waiting() {
+-            core::hint::spin_loop();
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// A new entry of `len` bytes, waiting for room when every entry is in
+     /// flight.
+     #[inline(always)]
+     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {
+         if self.next - self.delivered == ENTRIES {
+             self.wait_for_room();

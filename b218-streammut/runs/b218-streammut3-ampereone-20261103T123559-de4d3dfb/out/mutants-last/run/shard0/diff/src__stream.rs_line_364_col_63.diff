@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace - with + in Stream<'env, D>::submit
+@@ -356,17 +356,17 @@
+     /// its digest into `out`: a [`Block`](crate::performance::Block)-aligned
+     /// message, as [`hash`](crate::performance::hash) takes one (the bytes
+     /// past its end ignored).
+     pub fn submit(&mut self, message: &'env [crate::performance::Block], len: usize, out: &'env mut Hash) {
+         let message: &'env [u8] = &crate::performance::Block::bytes(message)[..len];
+         let out: *mut Hash = out;
+         let pieces = message.len().div_ceil(PIECE).max(1);
+         for i in 0..pieces {
+-            let part = &message[i * PIECE..][..(message.len() - i * PIECE).min(PIECE)];
++            let part = &message[i * PIECE..][..(message.len() + /* ~ changed by cargo-mutants ~ */ i * PIECE).min(PIECE)];
+             let at = self.head;
+             self.add_part(part.as_ptr(), part.len(), part_kind(i, pieces, out), at, out as *mut u8);
+         }
+     }
+ 
+     /// Hash a message of `len` bytes that `fill` writes in place, into the
+     /// stream's own bytes, in pieces of up to 64 KiB, its digest into
+     /// `out`. `fill(at, room)` writes the message's bytes from `at` at the

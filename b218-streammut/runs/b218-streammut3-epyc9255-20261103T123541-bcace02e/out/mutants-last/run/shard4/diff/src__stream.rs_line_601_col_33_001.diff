@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace > with < in Stream<'env, D>::reserve
+@@ -593,17 +593,17 @@
+ 
+     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,
+     /// before the ring's end), reserved: waits, handing places back and
+     /// hashing tasks, until entries in flight free them.
+     fn reserve(&mut self, len: usize) -> usize {
+         let slot = len.div_ceil(64) * 64;
+         let mut at = self.head % RING_BYTES;
+         // A slot that would cross the end starts the next lap instead.
+-        let skip = if at + slot > RING_BYTES { RING_BYTES - at } else { 0 };
++        let skip = if at + slot < /* ~ changed by cargo-mutants ~ */ RING_BYTES { RING_BYTES - at } else { 0 };
+         while RING_BYTES - (self.head - self.tail) < skip + slot {
+             self.publish();
+             self.help();
+         }
+         if skip > 0 {
+             at = 0;
+         }
+         self.head += skip + slot;

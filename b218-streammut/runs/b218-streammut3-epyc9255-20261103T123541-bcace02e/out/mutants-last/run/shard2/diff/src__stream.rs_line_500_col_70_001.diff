@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with / in Stream<'env, D>::submit_batch
+@@ -492,17 +492,17 @@
+         let per_part = (TASK_LEN / slot).max(1);
+         let parts = out.len().div_ceil(per_part).max(1);
+         for p in 0..parts {
+             let first = p * per_part;
+             let count = (out.len() - first).min(per_part);
+             let at = self.head;
+             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };
+             // Sound: `first` is within the batch and its space (count may be 0).
+-            let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };
++            let (input, output) = unsafe { (batch.as_ptr().add(first / /* ~ changed by cargo-mutants ~ */ slot), whole.0.add(first)) };
+             self.add_part(input, count * slot, kind, at, output as *mut u8);
+         }
+     }
+ 
+     /// Hash a batch of `out.len()` messages of `message_len` bytes that
+     /// `fill` writes in place, laid out as [`hash_many`](crate::performance::hash_many)
+     /// takes them: `fill(at, room)` writes the batch's bytes from `at` at
+     /// the start of `room` and returns how many it wrote, as in

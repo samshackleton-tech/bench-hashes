@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace << with >>
+@@ -39,17 +39,17 @@
+ /// this long (a task's subtree).
+ pub(crate) const PIECE: usize = TASK_LEN;
+ 
+ /// The bytes a stream keeps for messages and batches written in place:
+ /// 2 MiB. With the digests in the program's places, 4 MiB made two
+ /// programs streaming 4 MiB batches 18% slower (the ring, the places, and
+ /// the programs' own buffers past the L3, i7-12700K); 2 MiB is level there
+ /// and 2-4 points less fast than 4 MiB on some other cells.
+-const RING_BYTES: usize = 2 << 20;
++const RING_BYTES: usize = 2 >> /* ~ changed by cargo-mutants ~ */ 20;
+ 
+ /// The most entries (messages and pieces) in flight in one stream (1024:
+ /// 4 KiB to 16 KiB messages 8-9% faster than at 8192, i7-12700K; 256 lost
+ /// 26-130% at 64 and 256 B).
+ const ENTRIES: usize = 1024;
+ 
+ /// One message, one piece of a long one, or one part of a batch, from its
+ /// submission to its delivery: what the program's thread keeps of it. Its

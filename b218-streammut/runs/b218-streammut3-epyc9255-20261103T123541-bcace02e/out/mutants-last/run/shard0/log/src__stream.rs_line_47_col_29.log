@@ -1,0 +1,44 @@
+
+*** src/stream.rs:47:29: replace << with >>
+
+*** mutation diff:
+--- src/stream.rs
++++ replace << with >>
+@@ -39,17 +39,17 @@
+ /// this long (a task's subtree).
+ pub(crate) const PIECE: usize = TASK_LEN;
+ 
+ /// The bytes a stream keeps for messages and batches written in place:
+ /// 2 MiB. With the digests in the program's places, 4 MiB made two
+ /// programs streaming 4 MiB batches 18% slower (the ring, the places, and
+ /// the programs' own buffers past the L3, i7-12700K); 2 MiB is level there
+ /// and 2-4 points less fast than 4 MiB on some other cells.
+-const RING_BYTES: usize = 2 << 20;
++const RING_BYTES: usize = 2 >> /* ~ changed by cargo-mutants ~ */ 20;
+ 
+ /// The most entries (messages and pieces) in flight in one stream (1024:
+ /// 4 KiB to 16 KiB messages 8-9% faster than at 8192, i7-12700K; 256 lost
+ /// 26-130% at 64 and 256 B).
+ const ENTRIES: usize = 1024;
+ 
+ /// One message, one piece of a long one, or one part of a batch, from its
+ /// submission to its delivery: what the program's thread keeps of it. Its
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-uvlikdup)
+error: this operation will panic at runtime
+   --> src/stream.rs:599:22
+    |
+599 |         let mut at = self.head % RING_BYTES;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^ attempt to calculate the remainder of `_` with a divisor of zero
+    |
+    = note: `#[deny(unconditional_panic)]` on by default
+
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

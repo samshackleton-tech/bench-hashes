@@ -1,0 +1,62 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::submit_reader -> std::io::Result<u64> with Ok(0)
+@@ -407,58 +407,17 @@
+     /// reads one piece ahead to tell the last.
+     ///
+     /// `size_hint` is the length the caller expects, where it knows one (a
+     /// file's size, a protocol's length field): a scheduling hint, never
+     /// part of the hash, so a wrong one costs nothing but speed. Today the
+     /// stream does not use it; it is here so that a stream that schedules
+     /// by it later changes no caller.
+     pub fn submit_reader(&mut self, mut reader: impl std::io::Read, size_hint: Option<u64>, out: &'env mut Hash) -> std::io::Result<u64> {
+-        let _ = size_hint;
+-        let out: *mut Hash = out;
+-        let start = self.head;
+-        let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);
+-        let mut i = 0;
+-        loop {
+-            let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));
+-            let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());
+-            if failed {
+-                let error = match (read, ahead) {
+-                    (Err(e), _) => e,
+-                    (_, Some((_, _, _, Err(e)))) => e,
+-                    _ => unreachable!("a read failed"),
+-                };
+-                // The bytes not yet handed to the pool go; the pieces that
+-                // were end in an entry that drops their chaining values.
+-                self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };
+-                if i > 0 {
+-                    let head = self.head;
+-                    self.add_entry(0, Kind::Abandoned, head);
+-                }
+-                return Err(error);
+-            }
+-            let last = match &ahead {
+-                None => true,
+-                // Exactly a piece, then the end: give the read-ahead room back.
+-                Some((_, _, 0, _)) => {
+-                    self.head = end;
+-                    true
+-                }
+-                Some(_) => false,
+-            };
+-            let kind = if i == 0 && last { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last, out } };
+-            // [at, at + n): this piece's reserved room, written.
+-            let input = self.s.ring_at(at);
+-            self.add_part(input, n, kind, end, out as *mut u8);
+-            if last {
+-                return Ok((i * PIECE + n) as u64);
+-            }
+-            (at, end, n, read) = ahead.unwrap();
+-            i += 1;
+-        }
++        Ok(0) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// A piece's room (PIECE bytes, reserved), read into from `reader` until
+     /// it is full, the reader ends, or a read fails: its offset, the ring's
+     /// head after its reservation, the bytes read, and the read's result.
+     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {
+         let at = self.reserve(PIECE);
+         let end = self.head;

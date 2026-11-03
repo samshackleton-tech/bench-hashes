@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with *= in Stream<'env, D>::deliver
+@@ -726,17 +726,17 @@
+                     // As the Hasher's stack: before pushing piece n, merge
+                     // down to as many values as n has 1 bits.
+                     while self.stack.len() > self.pieces.count_ones() as usize {
+                         let right = self.stack.pop().unwrap();
+                         let left = self.stack.pop().unwrap();
+                         self.stack.push(parent(&left, &right).chaining_value());
+                     }
+                     self.stack.push(cv);
+-                    self.pieces += 1;
++                    self.pieces *= /* ~ changed by cargo-mutants ~ */ 1;
+                     if last {
+                         let mut right = self.stack.pop().unwrap();
+                         while self.stack.len() > 1 {
+                             right = parent(&self.stack.pop().unwrap(), &right).chaining_value();
+                         }
+                         let place = unsafe { &mut *out };
+                         *place = parent(&self.stack.pop().unwrap(), &right).root_hash();
+                         self.pieces = 0;

@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace != with == in Stream<'env, D>::add_part
+@@ -563,17 +563,17 @@
+                     out: self.s.pieces_out[entry].0.0.get() as *mut u8,
+                     left: &*self.s.lefts[entry],
+                     ..Task::of(bytes, counter)
+                 };
+                 self.hand_over(task);
+                 return;
+             }
+         };
+-        if self.open.as_ref().is_some_and(|open| open.batch != batch) {
++        if self.open.as_ref().is_some_and(|open| open.batch == /* ~ changed by cargo-mutants ~ */ batch) {
+             self.publish();
+         }
+         let (key, flags) = (self.key, self.flags);
+         let open = self.open.get_or_insert_with(|| Task::members(&key, flags, batch));
+         // The task's first member's `left` counts all of its members (set
+         // as the task is handed over).
+         if open.members == 0 {
+             self.open_first = entry;

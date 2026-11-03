@@ -1,0 +1,30 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::collect with ()
+@@ -609,26 +609,17 @@
+         self.head += skip + slot;
+         at
+     }
+ 
+     /// Hand back every place whose digests are done, in order, without
+     /// waiting; and hand the open task to the pool, so what it holds
+     /// starts hashing.
+     pub fn collect(&mut self) {
+-        self.publish();
+-        // Nothing back: a worker for any task still waiting (the caller
+-        // takes none here; in steady flow the workers are awake and this
+-        // costs a comparison). Workers spin 5 us for a stream's next task
+-        // and then park, and publish wakes one only for two waiting tasks,
+-        // so without this a caller looping on collect waited forever where
+-        // no SME2 thread takes stream tasks (tests/stream_collect_parked_workers).
+-        if self.deliver() == 0 && self.slot.is_some() {
+-            self.s.source.wake_for_waiting();
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Hand back every place, in order, once its digests are done: this
+     /// thread hashes any task no thread has taken, and waits for the rest.
+     pub fn finish(&mut self) {
+         self.publish();
+         while self.delivered < self.next {
+             self.help();

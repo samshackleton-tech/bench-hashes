@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace == with != in Stream<'env, D>::add_part
+@@ -570,17 +570,17 @@
+         };
+         if self.open.as_ref().is_some_and(|open| open.batch != batch) {
+             self.publish();
+         }
+         let (key, flags) = (self.key, self.flags);
+         let open = self.open.get_or_insert_with(|| Task::members(&key, flags, batch));
+         // The task's first member's `left` counts all of its members (set
+         // as the task is handed over).
+-        if open.members == 0 {
++        if open.members != /* ~ changed by cargo-mutants ~ */ 0 {
+             self.open_first = entry;
+             open.left = &*self.s.lefts[entry];
+         }
+         self.s.entries[entry].first = self.open_first;
+         open.member[open.members] = Member { input, len, out };
+         open.members += 1;
+         open.len += len;
+         // Messages longer than a block hash one at a time: a task of them

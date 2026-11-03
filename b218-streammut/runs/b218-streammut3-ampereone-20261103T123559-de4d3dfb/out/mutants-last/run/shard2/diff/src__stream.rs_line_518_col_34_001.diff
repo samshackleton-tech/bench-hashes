@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace / with * in Stream<'env, D>::submit_batch_with
+@@ -510,17 +510,17 @@
+     /// part of up to 64 KiB is full, each message at the start of its slot
+     /// of whole blocks. The bytes past each message are the
+     /// stream's: whatever `fill` leaves there, the stream zeroes them before
+     /// hashing, so a room reused for shorter messages hashes right. As
+     /// [`submit_with`](Stream::submit_with) and [`submit_batch`](Stream::submit_batch).
+     pub fn submit_batch_with(&mut self, message_len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut [Hash]) {
+         let slot = crate::many::slot_len(message_len);
+         let whole = (out.as_mut_ptr(), out.len());
+-        let per_part = (TASK_LEN / slot).max(1);
++        let per_part = (TASK_LEN * /* ~ changed by cargo-mutants ~ */ slot).max(1);
+         let parts = out.len().div_ceil(per_part).max(1);
+         for p in 0..parts {
+             let first = p * per_part;
+             let count = (out.len() - first).min(per_part);
+             let at = self.reserve(count * slot);
+             // Sound: as in submit_with.
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };
+             fill_all(&mut fill, first * slot, room);

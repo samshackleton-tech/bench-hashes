@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ delete match arm (_, Some((_, _, _, Err(e)))) in Stream<'env, D>::submit_reader
+@@ -418,17 +418,17 @@
+         let (mut at, mut end, mut n, mut read) = self.read_piece(&mut reader);
+         let mut i = 0;
+         loop {
+             let ahead = (n == PIECE && read.is_ok()).then(|| self.read_piece(&mut reader));
+             let failed = read.is_err() || ahead.as_ref().is_some_and(|a| a.3.is_err());
+             if failed {
+                 let error = match (read, ahead) {
+                     (Err(e), _) => e,
+-                    (_, Some((_, _, _, Err(e)))) => e,
++                     /* ~ changed by cargo-mutants ~ */
+                     _ => unreachable!("a read failed"),
+                 };
+                 // The bytes not yet handed to the pool go; the pieces that
+                 // were end in an entry that drops their chaining values.
+                 self.head = if i == 0 { start } else { end - PIECE.div_ceil(64) * 64 };
+                 if i > 0 {
+                     let head = self.head;
+                     self.add_entry(0, Kind::Abandoned, head);

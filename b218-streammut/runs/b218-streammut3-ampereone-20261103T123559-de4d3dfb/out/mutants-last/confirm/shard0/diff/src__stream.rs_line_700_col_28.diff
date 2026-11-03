@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with -= in Stream<'env, D>::deliver
+@@ -692,17 +692,17 @@
+         while self.delivered < self.next {
+             let index = self.delivered % ENTRIES;
+             let Entry { len, kind, first, ring_end } = self.s.entries[index];
+             // An entry of no task (an empty batch's part, an abandoned
+             // message) has its own `left`, zero.
+             if self.s.lefts[first].load(Ordering::Acquire) != 0 {
+                 break;
+             }
+-            self.delivered += 1;
++            self.delivered -= /* ~ changed by cargo-mutants ~ */ 1;
+             self.tail = ring_end;
+             count += 1;
+             // Sound, each place: the program lent it for 'env and the stream
+             // hands it back once, after its task wrote it (the Acquire above).
+             match kind {
+                 Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),
+                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),
+                 Kind::Batch { whole: None, .. } => {}
