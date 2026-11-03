@@ -6,8 +6,10 @@ res = {}
 for l in open(O + '/results.txt'):
     v, n, rnd, rate, tpn = l.split()[:5]; res[(v, n, rnd)] = float(tpn)
 print(f"{'side':4} {'in flight':9} | tasks with a busy sibling | hash us: sibling busy / sibling idle | CPUs used")
-for n in ('4', '8'):
-    for v in ('base', 'r'):
+import os
+NS = sorted({k[1] for k in res}, key=int)
+for n in NS:
+    for v in [x for x in ('base', 'r', 'cores') if (x, n, '1') in res]:
         both = []; alone = []; cpus = collections.Counter()
         for rnd in '123':
             tpn = res[(v, n, rnd)]

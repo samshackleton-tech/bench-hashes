@@ -17,8 +17,8 @@ for (v, n, rnd), (rate, tpn) in res.items():
         s, c = map(int, l.split())
         if s: lat[(v, n)].append((c - s) / tpn / 1000)
 print(f"{'side':5} {'in flight':9} | {'GB/s':>6} | {'msg latency us':>14} | task hash us (median) and share: caller | home domain | other domains")
-for n in ('4', '8'):
-    for v in ('base', 'r'):
+for n in sorted({k[1] for k in res}, key=int):
+    for v in [x for x in ('base', 'r', 'cores') if (x, n, '1') in res]:
         rate = st.median([res[(v, n, r)][0] for r in '123']) * 65536 / 1e9
         tot = sum(share[(v, n)].values())
         cells = ' | '.join(f"{st.median(agg[(v, n)][w]):5.2f} us {100 * share[(v, n)][w] / tot:4.0f}%" if agg[(v, n)][w] else f"{'-':>5}    {0:4.0f}%" for w in ('caller', 'home', 'away'))
