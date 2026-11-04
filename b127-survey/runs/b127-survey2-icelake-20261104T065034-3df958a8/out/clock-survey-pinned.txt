@@ -1,0 +1,36 @@
+clock_survey on linux x86_64 (1 CPUs); the raw counter: CLOCK_MONOTONIC_RAW
+
+clock                 read ns  step ns   slew ppm      offset ms   note
+Instant                  37.7       34        3.0              -   std reads CLOCK_MONOTONIC here
+REALTIME                 32.1       29        3.0 1793433934897.3   the offset is since the epoch: the whole date
+MONOTONIC                31.8       30        3.0         2681.2   the offset is the time daemon's slew since boot
+MONOTONIC_RAW            31.7       30        0.0              -   raw
+THREAD_CPUTIME          343.8      333  -999998.3              -   this thread's CPU time: the sleep is not counted (a slew of about -1e6)
+rdtscp                   22.6       20        0.2              -   raw
+
+timing one fixed call (10340 ns of integer work) 2000 times: median, then p90 / p10
+clock                        back to back  p90/p10     after 1 ms  p90/p10     after 5 ms  p90/p10    read ns
+Instant                             10275    1.000          24948    2.504          24305    1.096         37
+REALTIME                            10266    1.000          24994    2.510          24309    1.105         30
+MONOTONIC                           10266    1.000          24943    2.506          24252    1.098         30
+MONOTONIC_RAW                       10266    1.000          24988    2.509          24255    1.097         30
+THREAD_CPUTIME                      10585    1.002          25075    2.500          24303    1.131        342
+rdtscp                              10258    1.000          25089    2.511          24304    1.091         20
+Counts cycles                       20685    1.000          20799    1.004          20796    1.003        681
+Counts instructions                 28763    1.000          28763    1.000          28763    1.000        681
+perf cycles, read()                 20642    1.000          20643    1.001          20643    1.000        482
+perf cycles, rdpmc                  20427    1.000          20437    1.000          20439    1.000         21
+perf cycles, agreement                      rdpmc and read() agree within 316 of the count over a call (read() brackets rdpmc, so a small excess is its own)
+perf instructions, read()           28720    1.000          28719    1.000          28719    1.000        483
+perf instructions, rdpmc            28686    1.001          28598    1.000          28598    1.000         21
+perf instructions, agreement                rdpmc and read() agree within 179 of the count over a call (read() brackets rdpmc, so a small excess is its own)
+perf ref-cycles, read()             20640    1.000          34720    1.922          33280    1.296        483
+perf ref-cycles, rdpmc              20400    1.004          36480    2.039          35360    1.306         21
+perf ref-cycles, agreement                  rdpmc and read() agree within 320 of the count over a call (read() brackets rdpmc, so a small excess is its own)
+perf task-clock ns, read()          10722    1.002          17931    1.919          17070    1.301        482
+perf task-clock ns, rdpmc    no counter register (software)
+
+the core's clock from the counts after each pause (Counts cycles over the thread's time), MHz:
+  after 0 ms: median 1894 MHz, p10 1891, p90 1896
+  after 1 ms: median 1137 MHz, p10 1003, p90 1871
+  after 5 ms: median 1188 MHz, p10 957, p90 1244
