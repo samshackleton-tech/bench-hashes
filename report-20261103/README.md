@@ -1,4 +1,4 @@
-# Night of Nov 3: charts
+# Charts: Nov 3-4
 
 ## 1-oddeven.png
 
@@ -27,4 +27,12 @@
 ## 7-splitwake.png
 
 ![7-splitwake.png](7-splitwake.png)
+
+## 8-clocks.png
+
+![8-clocks.png](8-clocks.png)
+
+## 9-sme2-test.png
+
+![9-sme2-test.png](9-sme2-test.png)
 
