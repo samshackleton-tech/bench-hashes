@@ -6,7 +6,7 @@ import sys, glob, os, re, collections, statistics as st
 O = sys.argv[1]
 rows = collections.defaultdict(list)
 for f in sorted(glob.glob(O + "/*-*-*-*.txt")):
-    m = re.match(r"^(base|cores)-(\d+)-([\d,]+)-(\d)$", os.path.basename(f)[:-4])
+    m = re.match(r"^(base|cores|nospin)-(\d+)-([\d,]+)-(\d)$", os.path.basename(f)[:-4])
     if not m:
         continue
     rate, n, ran = 0.0, 0, collections.Counter()
