@@ -19,7 +19,8 @@ for f in glob.glob(O + '/*-*-*-*.txt'):
     pin[(m.group(1), int(m.group(2)), m.group(3))].append(tot)
 print("pinned callers, total messages a second, x servil:")
 for size in (64, 1024, 65536):
-    for cp, name in (('0', 'one caller'), ('0,1', 'two, one domain'), ('0,6', 'two, two domains')):
+    TWO = os.environ.get('TWO_DOMAINS', '0,6')
+    for cp, name in (('0', 'one caller'), ('0,1', 'two, one domain'), (TWO, 'two, two domains')):
         b = st.median(pin[('base', size, cp)])
         print(f"  {size:6} B {name:17} servil {b:10.0f} | " + " | ".join(f"{v} x{st.median(pin[(v, size, cp)]) / b:.2f}" for v in W))
 full = {v: collections.defaultdict(list) for v in V}

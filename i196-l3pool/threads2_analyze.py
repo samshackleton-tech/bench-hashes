@@ -10,6 +10,8 @@ O = sys.argv[1]
 
 def domain(cpus):
     first = int(re.split("[-,]", cpus)[0])
+    if os.environ.get('XEON'):  # 2x Gold 6330: 0-27,56-83 / 28-55,84-111
+        return (first % 56) // 28
     return (first % 24) // 6
 
 
@@ -32,7 +34,7 @@ for f in sorted(glob.glob(O + "/*-*-*-*.txt")):
     for tid, ns, vol, cpus in workers:
         d = domain(cpus)
         local = seen[d]; seen[d] += 1
-        role = "" if v not in ("split", "splitwake") else (" primary" if local < 6 else " second")
+        role = "" if v not in ("split", "splitwake") else (" primary" if local < (28 if os.environ.get("XEON") else 6) else " second")
         acc[f"d{d}{role} s"] += ns / 1e9
         acc[f"d{d}{role} wakes/1k"] += vol / 1e3
     rows[(size, callers)][v].append((rate, acc, len(workers)))
