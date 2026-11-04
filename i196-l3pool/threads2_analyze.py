@@ -17,7 +17,7 @@ def domain(cpus):
 
 rows = collections.defaultdict(lambda: collections.defaultdict(list))
 for f in sorted(glob.glob(O + "/*-*-*-*.txt")):
-    m = re.match(r"^(base|split|splitwake|corepin)-(\d+)-([\d,]+)-(\d)$", os.path.basename(f)[:-4])
+    m = re.match(r"^(base|split|splitwake|splitfloat|corepin)-(\d+)-([\d,]+)-(\d)$", os.path.basename(f)[:-4])
     if not m:
         continue
     v, size, callers = m.group(1), int(m.group(2)), m.group(3)
@@ -34,14 +34,14 @@ for f in sorted(glob.glob(O + "/*-*-*-*.txt")):
     for tid, ns, vol, cpus in workers:
         d = domain(cpus)
         local = seen[d]; seen[d] += 1
-        role = "" if v not in ("split", "splitwake") else (" primary" if local < (28 if os.environ.get("XEON") else 6) else " second")
+        role = "" if v not in ("split", "splitwake", "splitfloat") else (" primary" if local < (28 if os.environ.get("XEON") else 6) else " second")
         acc[f"d{d}{role} s"] += ns / 1e9
         acc[f"d{d}{role} wakes/1k"] += vol / 1e3
     rows[(size, callers)][v].append((rate, acc, len(workers)))
 
 for k in sorted(rows, key=lambda k: (-k[0], k[1])):
     print(f"{k[0]:6} B, callers on CPUs {k[1]}:")
-    for v in ("base", "split", "splitwake", "corepin"):
+    for v in ("base", "split", "splitwake", "splitfloat", "corepin"):
         rs = rows[k][v]
         if not rs:
             continue
