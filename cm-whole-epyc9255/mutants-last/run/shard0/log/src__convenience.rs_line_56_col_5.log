@@ -1,0 +1,52 @@
+
+*** src/convenience.rs:56:5: replace hash_with -> Hash with Default::default()
+
+*** mutation diff:
+--- src/convenience.rs
++++ replace hash_with -> Hash with Default::default()
+@@ -48,19 +48,17 @@
+ /// # blake3_servil::initialize();
+ /// use blake3_servil::{Mode, convenience};
+ /// let key = [7u8; 32];
+ /// let mac = convenience::hash_with(Mode::Keyed(&key), b"foo");
+ /// assert_eq!(mac, blake3_servil::performance::Hasher::new(Mode::Keyed(&key)).update(b"foo").finalize());
+ /// ```
+ #[inline]
+ pub fn hash_with(mode: Mode, input: &[u8]) -> Hash {
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    crate::hash_serial(input, key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The extended output of `input` in `mode`: an [`OutputReader`] that
+ /// gives as many bytes as the program reads (the first 32 are
+ /// [`hash_with`]'s).
+ ///
+ /// ```
+ /// # blake3_servil::initialize();
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-yo_aypsm)
+error[E0277]: the trait bound `Hash: Default` is not satisfied
+   --> src/convenience.rs:56:5
+    |
+ 56 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Hash`
+    |
+help: consider annotating `Hash` with `#[derive(Default)]`
+   --> src/lib.rs:426:1
+    |
+426 + #[derive(Default)]
+427 | pub struct Hash([u8; OUT_LEN]);
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

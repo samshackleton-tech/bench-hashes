@@ -1,0 +1,473 @@
+
+*** src/tree.rs:52:5: replace wide -> usize with 1
+
+*** mutation diff:
+--- src/tree.rs
++++ replace wide -> usize with 1
+@@ -44,31 +44,17 @@
+     (1usize << (usize::BITS - 1 - chunks.leading_zeros())) * CHUNK_LEN
+ }
+ 
+ /// The chaining values of a cut through the subtree over `input` (at least
+ /// one byte), its first chunk numbered `counter`, into `out[..n]`; returns
+ /// n, between 1 and degree. `out` holds at least that many.
+ /// `ahead` bytes of the caller's input follow `input`.
+ pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+-    if input.len() <= k.degree() * CHUNK_LEN {
+-        return k.chunks(input, counter, out);
+-    }
+-    if let Some(n) = k.subtree(input, ahead, counter, out) {
+-        return n;
+-    }
+-    let l = left_len(input.len());
+-    let (a, b) = input.split_at(l);
+-    // More than degree chunks (2 or more), so the left half holds two
+-    // chunks or more, and gives two values or more (up to degree).
+-    let mut cvs = [[0u8; OUT_LEN]; 2 * MAX];
+-    let (lo, hi) = cvs.split_at_mut(k.degree());
+-    let ln = wide(k, a, b.len() + ahead, counter, lo);
+-    let rn = wide(k, b, ahead, counter + (l / CHUNK_LEN) as u64, hi);
+-    k.parents(&cvs[..ln + rn], out)
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The chaining values of the root's two children, for `input` of more
+ /// than one chunk, its first chunk numbered `counter`: the walk's values,
+ /// condensed a layer of parents at a time. `cvs` holds at least
+ /// degree values and `next` half that. `ahead` bytes of the
+ /// caller's input follow `input`.
+ pub fn children<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, cvs: &mut [Cv], next: &mut [Cv]) -> [Cv; 2] {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-syivgx2m)
+warning: unused variable: `k`
+  --> src/tree.rs:51:25
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                         ^ help: if this is intentional, prefix it with an underscore: `_k`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `input`
+  --> src/tree.rs:51:32
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `ahead`
+  --> src/tree.rs:51:46
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_ahead`
+
+warning: unused variable: `counter`
+  --> src/tree.rs:51:60
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `out`
+  --> src/tree.rs:51:74
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                                                          ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `spare_lane` is never used
+   --> src/lib.rs:744:4
+    |
+744 | fn spare_lane(platform: Platform, whole: usize, partial: usize) -> Option<usize> {
+    |    ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `compress_chunks_parallel` is never used
+   --> src/lib.rs:760:4
+    |
+760 | fn compress_chunks_parallel(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform, out: &mut [u8]) -> usize {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Params` is never constructed
+  --> src/ffi_partial.rs:15:12
+   |
+15 | pub struct Params<const W: usize> {
+   |            ^^^^^^
+
+warning: function `rotation` is never used
+  --> src/ffi_partial.rs:37:4
+   |
+37 | fn rotation<const W: usize>(r: u32) -> [u32; W] {
+   |    ^^^^^^^^
+
+warning: function `hash_chunks_with_partial` is never used
+  --> src/ffi_partial.rs:48:4
+   |
+48 | fn hash_chunks_with_partial<const W: usize>(
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_chunks_with_partial_sse41` is never used
+   --> src/ffi_partial.rs:107:15
+    |
+107 | pub unsafe fn hash_chunks_with_partial_sse41(whole: &[&[u8; CHUNK_LEN]], partial: &[u8], key: &CVWords, counter: u64, flags: u8, ou...
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_chunks_with_partial_avx2` is never used
+   --> src/ffi_partial.rs:113:15
+    |
+113 | pub unsafe fn hash_chunks_with_partial_avx2(whole: &[&[u8; CHUNK_LEN]], partial: &[u8], key: &CVWords, counter: u64, flags: u8, out...
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_partial_sse41` is never used
+  --> src/ffi_partial.rs:30:8
+   |
+30 |     fn blake3_servil_partial_sse41(params: *mut Params<4>);
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_partial_avx2` is never used
+  --> src/ffi_partial.rs:31:8
+   |
+31 |     fn blake3_servil_partial_avx2(params: *mut Params<8>);
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `takes` is never used
+  --> src/pair.rs:25:15
+   |
+25 | pub(crate) fn takes(platform: Platform, len: usize) -> bool {
+   |               ^^^^^
+
+warning: function `takes_platform` is never used
+  --> src/pair.rs:32:15
+   |
+32 | pub(crate) fn takes_platform(platform: Platform) -> bool {
+   |               ^^^^^^^^^^^^^^
+
+warning: function `parent` is never used
+  --> src/pair.rs:44:15
+   |
+44 | pub(crate) fn parent(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> [u8; BLOCK_LEN] {
+   |               ^^^^^^
+
+warning: function `hash_many_blocks` is never used
+  --> src/pair.rs:80:22
+   |
+80 | pub(crate) unsafe fn hash_many_blocks(
+   |                      ^^^^^^^^^^^^^^^^
+
+warning: methods `degree`, `chunks`, and `subtree` are never used
+  --> src/tree.rs:15:8
+   |
+13 | pub trait Kernels {
+   |           ------- methods in this trait
+14 |     /// The chunks hashed per call: a power of two, 2 to MAX.
+15 |     fn degree(&self) -> usize;
+   |        ^^^^^^
+...
+19 |     fn chunks(&self, input: &[u8], counter: u64, out: &mut [Cv]) -> usize;
+   |        ^^^^^^
+...
+26 |     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize>;
+   |        ^^^^^^^
+
+warning: `blake3-servil` (lib) generated 19 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: methods `degree`, `chunks`, and `subtree` are never used
+  --> src/tree.rs:15:8
+   |
+13 | pub trait Kernels {
+   |           ------- methods in this trait
+14 |     /// The chunks hashed per call: a power of two, 2 to MAX.
+15 |     fn degree(&self) -> usize;
+   |        ^^^^^^
+...
+19 |     fn chunks(&self, input: &[u8], counter: u64, out: &mut [Cv]) -> usize;
+   |        ^^^^^^
+...
+26 |     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize>;
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib test) generated 6 warnings (5 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.68s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `k`
+  --> src/tree.rs:51:25
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                         ^ help: if this is intentional, prefix it with an underscore: `_k`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `input`
+  --> src/tree.rs:51:32
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+
+warning: unused variable: `ahead`
+  --> src/tree.rs:51:46
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                              ^^^^^ help: if this is intentional, prefix it with an underscore: `_ahead`
+
+warning: unused variable: `counter`
+  --> src/tree.rs:51:60
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `out`
+  --> src/tree.rs:51:74
+   |
+51 | pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+   |                                                                          ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `spare_lane` is never used
+   --> src/lib.rs:744:4
+    |
+744 | fn spare_lane(platform: Platform, whole: usize, partial: usize) -> Option<usize> {
+    |    ^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `compress_chunks_parallel` is never used
+   --> src/lib.rs:760:4
+    |
+760 | fn compress_chunks_parallel(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform, out: &mut [u8]) -> usize {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: struct `Params` is never constructed
+  --> src/ffi_partial.rs:15:12
+   |
+15 | pub struct Params<const W: usize> {
+   |            ^^^^^^
+
+warning: function `rotation` is never used
+  --> src/ffi_partial.rs:37:4
+   |
+37 | fn rotation<const W: usize>(r: u32) -> [u32; W] {
+   |    ^^^^^^^^
+
+warning: function `hash_chunks_with_partial` is never used
+  --> src/ffi_partial.rs:48:4
+   |
+48 | fn hash_chunks_with_partial<const W: usize>(
+   |    ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_chunks_with_partial_sse41` is never used
+   --> src/ffi_partial.rs:107:15
+    |
+107 | pub unsafe fn hash_chunks_with_partial_sse41(whole: &[&[u8; CHUNK_LEN]], partial: &[u8], key: &CVWords, counter: u64, flags: u8, ou...
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_chunks_with_partial_avx2` is never used
+   --> src/ffi_partial.rs:113:15
+    |
+113 | pub unsafe fn hash_chunks_with_partial_avx2(whole: &[&[u8; CHUNK_LEN]], partial: &[u8], key: &CVWords, counter: u64, flags: u8, out...
+    |               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_partial_sse41` is never used
+  --> src/ffi_partial.rs:30:8
+   |
+30 |     fn blake3_servil_partial_sse41(params: *mut Params<4>);
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_partial_avx2` is never used
+  --> src/ffi_partial.rs:31:8
+   |
+31 |     fn blake3_servil_partial_avx2(params: *mut Params<8>);
+   |        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `takes` is never used
+  --> src/pair.rs:25:15
+   |
+25 | pub(crate) fn takes(platform: Platform, len: usize) -> bool {
+   |               ^^^^^
+
+warning: function `takes_platform` is never used
+  --> src/pair.rs:32:15
+   |
+32 | pub(crate) fn takes_platform(platform: Platform) -> bool {
+   |               ^^^^^^^^^^^^^^
+
+warning: function `parent` is never used
+  --> src/pair.rs:44:15
+   |
+44 | pub(crate) fn parent(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> [u8; BLOCK_LEN] {
+   |               ^^^^^^
+
+warning: function `hash_many_blocks` is never used
+  --> src/pair.rs:80:22
+   |
+80 | pub(crate) unsafe fn hash_many_blocks(
+   |                      ^^^^^^^^^^^^^^^^
+
+warning: methods `degree`, `chunks`, and `subtree` are never used
+  --> src/tree.rs:15:8
+   |
+13 | pub trait Kernels {
+   |           ------- methods in this trait
+14 |     /// The chunks hashed per call: a power of two, 2 to MAX.
+15 |     fn degree(&self) -> usize;
+   |        ^^^^^^
+...
+19 |     fn chunks(&self, input: &[u8], counter: u64, out: &mut [Cv]) -> usize;
+   |        ^^^^^^
+...
+26 |     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize>;
+   |        ^^^^^^^
+
+warning: `blake3-servil` (lib) generated 19 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: methods `degree`, `chunks`, and `subtree` are never used
+  --> src/tree.rs:15:8
+   |
+13 | pub trait Kernels {
+   |           ------- methods in this trait
+14 |     /// The chunks hashed per call: a power of two, 2 to MAX.
+15 |     fn degree(&self) -> usize;
+   |        ^^^^^^
+...
+19 |     fn chunks(&self, input: &[u8], counter: u64, out: &mut [Cv]) -> usize;
+   |        ^^^^^^
+...
+26 |     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize>;
+   |        ^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib test) generated 6 warnings (5 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.04s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 5ad47772-4632-4fe6-80f2-55d3ad65c75a with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.068s] (  1/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.081s] (  2/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.091s] (  3/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.111s] (  4/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  5/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.115s] (  5/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  6/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.136s] (  6/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  7/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.072s] (  7/168) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  8/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.144s] (  8/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] (  9/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.145s] (  9/168) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] ( 10/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.045s] ( 10/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 11/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.045s] ( 11/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 12/168) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.028s] ( 12/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 13/168) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.030s] ( 13/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 14/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+     SIGABRT [   0.182s] ( 14/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: 7 tests still running
+     SIGABRT [   0.204s] ( 15/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+        PASS [   0.152s] ( 16/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGABRT [   0.208s] ( 17/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+     SIGABRT [   0.210s] ( 18/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+     SIGABRT [   0.227s] ( 19/168) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+     SIGABRT [   0.258s] ( 20/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+     SIGABRT [   0.292s] ( 21/168) blake3-servil each::test::test_hash_each_multithreaded
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 1, keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512) (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+────────────
+     Summary [   0.462s] 21/168 tests run: 14 passed, 7 failed, 0 skipped
+warning: 147/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

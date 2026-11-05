@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with & in hash_four_at_a_time
+@@ -577,17 +577,17 @@
+ }
+ 
+ /// The arrangement for messages of whole blocks where the NEON plans are
+ /// absent: groups of four through the platform's `hash_many`, a fourth,
+ /// spare lane for three left over (its value kept in a scratch array), one
+ /// call each for one or two.
+ #[inline(never)]
+ fn hash_four_at_a_time<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+-    let (start, end) = (CHUNK_START, CHUNK_END | ROOT);
++    let (start, end) = (CHUNK_START, CHUNK_END & /* ~ changed by cargo-mutants ~ */ ROOT);
+     // Keep the padded fourth lane for remainders of three. For other
+     // x86 tails, the existing platform kernel avoids separate scalar hashes.
+     if cfg!(target_arch = "x86_64") && lanes.len() % 4 != 3 {
+         noted_lanes(lanes.len());
+         platform.hash_many::<N>(lanes, key, 0, IncrementCounter::No, flags, start, end, outputs.as_flattened_mut());
+         return;
+     }
+     let fours = lanes.len() / 4 * 4;

@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace Finish::own with ()
+@@ -61,17 +61,17 @@
+ 
+     /// The pieces finished so far.
+     pub(crate) fn finished_count(&self) -> usize {
+         self.state.load(Ordering::SeqCst) & !SLEEPING
+     }
+ 
+     /// The thread that waits on this source from now on.
+     pub(crate) fn own(&self) {
+-        *self.owner.lock().unwrap() = Some(thread::current());
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Count `n` pieces finished (their outputs written before); the last
+     /// one wakes a caller parked for it.
+     pub(crate) fn finished(&self, n: usize) {
+         let before = self.state.fetch_add(n, Ordering::SeqCst);
+         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+             if let Some(owner) = &*self.owner.lock().unwrap() {

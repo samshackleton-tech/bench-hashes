@@ -1,0 +1,21 @@
+--- src/block.rs
++++ replace != with == in Block::from_bytes
+@@ -34,17 +34,17 @@
+     /// `bytes` as blocks, without a copy, when they start on a 64-byte
+     /// boundary and are whole blocks (bytes already in place, such as a
+     /// mapped file's records), or are empty: `None` otherwise.
+     pub fn from_bytes(bytes: &[u8]) -> Option<&[Block]> {
+         // An empty slice's pointer says nothing of placement.
+         if bytes.is_empty() {
+             return Some(&[]);
+         }
+-        if bytes.as_ptr().align_offset(BLOCK_LEN) != 0 || bytes.len() % BLOCK_LEN != 0 {
++        if bytes.as_ptr().align_offset(BLOCK_LEN) == /* ~ changed by cargo-mutants ~ */ 0 || bytes.len() % BLOCK_LEN != 0 {
+             return None;
+         }
+         // Sound: aligned and whole blocks, just checked; Block has no padding.
+         Some(unsafe { core::slice::from_raw_parts(bytes.as_ptr().cast(), bytes.len() / BLOCK_LEN) })
+     }
+ }
+ 
+ impl core::fmt::Debug for Block {

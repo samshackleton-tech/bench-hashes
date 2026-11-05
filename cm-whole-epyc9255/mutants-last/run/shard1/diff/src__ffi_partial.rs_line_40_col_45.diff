@@ -1,0 +1,21 @@
+--- src/ffi_partial.rs
++++ replace << with >> in rotation
+@@ -32,17 +32,17 @@
+ }
+ 
+ /// The byte shuffle (pshufb) that rotates each 32-bit word right by `r`
+ /// bytes, as `W` little-endian words; each 16-byte lane of a ymm register
+ /// shuffles within itself, so the pattern repeats every four words.
+ fn rotation<const W: usize>(r: u32) -> [u32; W] {
+     core::array::from_fn(|k| {
+         let base = 4 * (k as u32 % 4);
+-        (0..4).map(|i| (base + (i + r) % 4) << (8 * i)).fold(0, |a, b| a | b)
++        (0..4).map(|i| (base + (i + r) % 4) >> /* ~ changed by cargo-mutants ~ */ (8 * i)).fold(0, |a, b| a | b)
+     })
+ }
+ 
+ /// The chaining values of `whole.len()` whole chunks and one partial chunk
+ /// after them (1 to CHUNK_LEN - 1 bytes), at `counter` and the counters
+ /// after it, into `out`, `(whole.len() + 1) * OUT_LEN` bytes. Requires 1 to
+ /// `W - 1` whole chunks.
+ fn hash_chunks_with_partial<const W: usize>(

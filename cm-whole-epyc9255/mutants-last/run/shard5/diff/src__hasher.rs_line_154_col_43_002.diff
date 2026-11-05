@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace < with <= in fill
+@@ -146,17 +146,17 @@
+ }
+ 
+ /// The partial chunk filled from `input`; when more input follows, the full
+ /// chunk goes onto the stack and a new chunk begins. Returns the rest.
+ pub fn fill<'a, C: Chunk, K: Feed<C>>(k: &K, chunk: &mut C, stack: &mut CvStack, initial: u64, input: &'a [u8]) -> &'a [u8] {
+     if chunk.len() == 0 {
+         return input;
+     }
+-    let take = if CHUNK_LEN - chunk.len() < input.len() { CHUNK_LEN - chunk.len() } else { input.len() };
++    let take = if CHUNK_LEN - chunk.len() <= /* ~ changed by cargo-mutants ~ */ input.len() { CHUNK_LEN - chunk.len() } else { input.len() };
+     chunk.update(&input[..take]);
+     let rest = &input[take..];
+     if rest.is_empty() {
+         return rest;
+     }
+     let counter = chunk.counter();
+     push(k, stack, initial, k.chunk_cv(chunk), counter);
+     *chunk = k.new_chunk(counter + 1);

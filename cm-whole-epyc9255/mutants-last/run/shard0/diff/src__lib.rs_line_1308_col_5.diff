@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace hash_many_serial with ()
+@@ -1300,17 +1300,17 @@
+ #[inline]
+ fn hash_serial_on(input: &[u8], key: &CVWords, flags: u8, platform: Platform) -> Hash {
+     Hash(tree::hash(&tree::PlatformKernels { key, flags, platform }, input))
+ }
+ 
+ /// [`hash_many`] in the mode of `key` and `flags`, on the calling thread.
+ #[inline]
+ pub(crate) fn hash_many_serial(input: &[u8], message_len: usize, key: &CVWords, flags: u8, out: &mut [[u8; OUT_LEN]]) {
+-    hash_many_serial_from(Platform::detect(), input, message_len, key, flags, out);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`hash_many_serial`] from `platform` (the self-test's way in, as
+ /// [`hash_serial_from`]).
+ #[inline]
+ fn hash_many_serial_from(platform: Platform, input: &[u8], message_len: usize, key: &CVWords, flags: u8, out: &mut [[u8; OUT_LEN]]) {
+     let turn = platform::Sme2Turn::take(platform, many::sme2_sized(message_len, out.len()));
+     // A small batch of one-block messages after a pause fetches its kernels'

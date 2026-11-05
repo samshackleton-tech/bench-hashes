@@ -1,0 +1,38 @@
+--- src/self_test.rs
++++ replace test::reference -> std::vec::Vec<u8> with vec![1]
+@@ -644,34 +644,17 @@
+             out[..output.len()].copy_from_slice(&output);
+             output.len()
+         }
+     }
+ 
+     /// A case's outputs from official BLAKE3 1.8.7, which shares no code
+     /// with this crate's assembly: the generator of EXPECTED.
+     fn reference(case: Case, input: &[u8], previous: &[u8; 32]) -> std::vec::Vec<u8> {
+-        use crate::Mode;
+-        use crate::test::official;
+-        match case {
+-            Hash { offset, len } => official::hash(Mode::Plain, &input[offset..][..len]).to_vec(),
+-            Many { len, count, .. } => (0..count).flat_map(|i| official::hash(Mode::Plain, &input[i * len..][..len])).collect(),
+-            ChunkValues { chunks } => {
+-                let key = crate::platform::words_from_le_bytes_32(previous);
+-                let table: std::vec::Vec<&[u8; crate::CHUNK_LEN]> =
+-                    input[..chunks * crate::CHUNK_LEN].chunks_exact(crate::CHUNK_LEN).map(|c| c.try_into().unwrap()).collect();
+-                let mut out = std::vec![0u8; chunks * crate::OUT_LEN];
+-                official::hash_many(&table, &key, 1, true, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, &mut out);
+-                out
+-            }
+-            Keyed { len } => official::hash(Mode::Keyed(previous), &input[..len]).to_vec(),
+-            Derive { len } => official::hash(Mode::DeriveKey(CONTEXT), &input[..len]).to_vec(),
+-            Incremental { len, .. } => official::hash(Mode::Plain, &input[..len]).to_vec(),
+-            Xof { len, skip, out } => official::xof(Mode::Plain, &input[..len], skip as u64, out),
+-        }
++        vec![1] /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     /// The chain's outputs from this crate's own kernels (the production
+     /// self-test's), for the tests that need a correct chain to start from:
+     /// every process checks those kernels against EXPECTED at startup.
+     fn ours(case: Case, input: &[u8], previous: &[u8; 32], out: &mut [u8]) -> usize {
+         outputs(Platform::detect_unchecked(), case, input, previous, out)

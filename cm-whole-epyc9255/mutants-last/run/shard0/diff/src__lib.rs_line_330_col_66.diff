@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace + with - in counted
+@@ -322,17 +322,17 @@
+ }
+ 
+ /// Count one of `what`: in the tests' record, and nothing in any other
+ /// build.
+ #[inline(always)]
+ #[allow(dead_code)]
+ pub(crate) fn counted(what: Counted) {
+     #[cfg(all(test, feature = "std"))]
+-    COUNTED.with(|c| c[what as usize].set(c[what as usize].get() + 1));
++    COUNTED.with(|c| c[what as usize].set(c[what as usize].get() - /* ~ changed by cargo-mutants ~ */ 1));
+     let _ = what;
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ std::thread_local! {
+     /// The assembly entry points this thread's calls ran since the test
+     /// last cleared it, by address.
+     pub(crate) static RAN_ENTRIES: core::cell::RefCell<std::collections::BTreeSet<usize>> = const { core::cell::RefCell::new(std::collections::BTreeSet::new()) };

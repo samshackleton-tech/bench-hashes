@@ -1,0 +1,23 @@
+--- src/lanes.rs
++++ replace sources::Source::wait with ()
+@@ -1045,19 +1045,17 @@
+         pub(crate) fn finished(&self, n: usize) {
+             self.finish.finished(n);
+         }
+ 
+         /// Wait until `finished` reaches `target`: polling for
+         /// SPIN_BEFORE_SLEEP, then parked until the worker finishing the
+         /// last piece unparks this thread.
+         pub(crate) fn wait(&self, target: usize) {
+-            let started = now();
+-            let mut yielded = started;
+-            self.finish.wait(target, || keeps_polling(started, &mut yielded));
++            () /* ~ changed by cargo-mutants ~ */
+         }
+     }
+ 
+     /// One poll of a caller waiting for its pieces: a pause (yielding the
+     /// CPU every YIELD_EVERY), and whether to poll on, which it does for
+     /// SPIN_BEFORE_SLEEP from `started` before it sleeps.
+     fn keeps_polling(started: std::time::Instant, yielded: &mut std::time::Instant) -> bool {
+         poll_pause(yielded);

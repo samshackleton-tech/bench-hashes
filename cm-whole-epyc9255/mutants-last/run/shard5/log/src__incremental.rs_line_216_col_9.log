@@ -1,0 +1,249 @@
+
+*** src/incremental.rs:216:9: replace Hasher::take_held with ()
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace Hasher::take_held with ()
+@@ -208,20 +208,17 @@
+         None
+     }
+ 
+     /// The held group's subtree, as [`HasherCore::update_with_results`]
+     /// takes it (its two halves' values at chunk zero, else its own), into
+     /// the core; the stage empty again.
+     #[cfg(feature = "std")]
+     pub(crate) fn take_held(&mut self, result: &[u8; BLOCK_LEN]) {
+-        let staged = core::mem::replace(&mut self.staged, 0);
+-        // Sound: as in gather_part.
+-        let bytes = unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, staged) };
+-        self.core.update_with_results(bytes, &mut core::iter::once(result));
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The root's output: the core's, after the stage's bytes.
+     pub(crate) fn final_output(&self) -> Output {
+         if self.staged == 0 {
+             return self.core.final_output();
+         }
+         let mut core = self.core.clone();
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-syivgx2m)
+warning: unused variable: `result`
+   --> src/incremental.rs:215:40
+    |
+215 |     pub(crate) fn take_held(&mut self, result: &[u8; BLOCK_LEN]) {
+    |                                        ^^^^^^ help: if this is intentional, prefix it with an underscore: `_result`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `merge_cv_stack`, `push_cv`, `update_with_results`, and `update_part_with_results` are never used
+   --> src/incremental.rs:389:8
+    |
+359 | impl HasherCore {
+    | --------------- methods in this implementation
+...
+389 |     fn merge_cv_stack(&mut self, chunk_counter: u64) {
+    |        ^^^^^^^^^^^^^^
+...
+438 |     fn push_cv(&mut self, new_cv: &CVBytes, chunk_counter: u64) {
+    |        ^^^^^^^
+...
+448 |     pub(crate) fn update_with_results<'a>(&mut self, input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+    |                   ^^^^^^^^^^^^^^^^^^^
+...
+455 |     fn update_part_with_results<'a>(&mut self, mut input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 2 warnings (run `cargo fix --lib -p blake3-servil` to apply 1 suggestion)
+warning: `blake3-servil` (lib test) generated 2 warnings (2 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 1.04s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `result`
+   --> src/incremental.rs:215:40
+    |
+215 |     pub(crate) fn take_held(&mut self, result: &[u8; BLOCK_LEN]) {
+    |                                        ^^^^^^ help: if this is intentional, prefix it with an underscore: `_result`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `merge_cv_stack`, `push_cv`, `update_with_results`, and `update_part_with_results` are never used
+   --> src/incremental.rs:389:8
+    |
+359 | impl HasherCore {
+    | --------------- methods in this implementation
+...
+389 |     fn merge_cv_stack(&mut self, chunk_counter: u64) {
+    |        ^^^^^^^^^^^^^^
+...
+438 |     fn push_cv(&mut self, new_cv: &CVBytes, chunk_counter: u64) {
+    |        ^^^^^^^
+...
+448 |     pub(crate) fn update_with_results<'a>(&mut self, input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+    |                   ^^^^^^^^^^^^^^^^^^^
+...
+455 |     fn update_part_with_results<'a>(&mut self, mut input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 2 warnings (run `cargo fix --lib -p blake3-servil` to apply 1 suggestion)
+warning: `blake3-servil` (lib test) generated 2 warnings (2 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 05744db5-f303-49d2-b7de-740657f9124c with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.038s] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.045s] (  2/168) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.045s] (  3/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.045s] (  4/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  5/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.048s] (  5/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  6/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.051s] (  6/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  7/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.055s] (  7/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  8/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.024s] (  8/168) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  9/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.020s] (  9/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] ( 10/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.023s] ( 10/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 11/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.027s] ( 11/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 12/168) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.027s] ( 12/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 13/168) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.027s] ( 13/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] ( 14/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.080s] ( 14/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 15/168) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.027s] ( 15/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 16/168) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.024s] ( 16/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 17/168) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_update_each --nocapture
+        PASS [   0.025s] ( 17/168) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 18/168) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.026s] ( 18/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 19/168) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.028s] ( 19/168) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 20/168) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+        PASS [   0.028s] ( 20/168) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 21/168) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+        FAIL [   0.029s] ( 21/168) blake3-servil each::test::test_update_each
+  stdout ───
+
+    running 1 test
+    test each::test::test_update_each ... FAILED
+
+    failures:
+
+    failures:
+        each::test::test_update_each
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'each::test::test_update_each' (348000) panicked at src/each.rs:129:9:
+    a held group outlived its turn
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 7 tests still running
+        FAIL [   0.022s] ( 22/168) blake3-servil each::test::test_update_each_at_offsets
+  stdout ───
+
+    running 1 test
+    test each::test::test_update_each_at_offsets ... FAILED
+
+    failures:
+
+    failures:
+        each::test::test_update_each_at_offsets
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'each::test::test_update_each_at_offsets' (348029) panicked at src/each.rs:129:9:
+    a held group outlived its turn
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        FAIL [   0.016s] ( 23/168) blake3-servil each::test::test_update_each_holds_groups_together
+  stdout ───
+
+    running 1 test
+    test each::test::test_update_each_holds_groups_together ... FAILED
+
+    failures:
+
+    failures:
+        each::test::test_update_each_holds_groups_together
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'each::test::test_update_each_holds_groups_together' (348064) panicked at src/each.rs:129:9:
+    a held group outlived its turn
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.015s] ( 24/168) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+        PASS [   0.063s] ( 25/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+        PASS [   0.021s] ( 26/168) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+        PASS [   0.114s] ( 27/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+        PASS [   0.152s] ( 28/168) blake3-servil each::test::test_hash_each_multithreaded
+────────────
+     Summary [   0.228s] 28/168 tests run: 25 passed, 3 failed, 0 skipped
+warning: 140/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

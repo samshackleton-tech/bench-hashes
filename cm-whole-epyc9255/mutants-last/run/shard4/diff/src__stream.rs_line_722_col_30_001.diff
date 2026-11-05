@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace < with > in Stream<'env, D>::finish
+@@ -714,17 +714,17 @@
+             self.s.source.wake_for_waiting();
+         }
+     }
+ 
+     /// Hand back every place, in order, once its digests are done: this
+     /// thread hashes any task no thread has taken, and waits for the rest.
+     pub fn finish(&mut self) {
+         self.publish();
+-        while self.delivered < self.next {
++        while self.delivered > /* ~ changed by cargo-mutants ~ */ self.next {
+             self.help();
+         }
+     }
+ 
+     /// Hand back what is done; with nothing done, hash a waiting task or
+     /// pause.
+     fn help(&mut self) {
+         if self.deliver() == 0 && !self.s.run_waiting() {

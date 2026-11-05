@@ -1,0 +1,112 @@
+
+*** src/tree.rs:154:52: replace && with || in <impl Kernels for PlatformKernels<'_>>::subtree
+
+*** mutation diff:
+--- src/tree.rs
++++ replace && with || in <impl Kernels for PlatformKernels<'_>>::subtree
+@@ -146,17 +146,17 @@
+     }
+ 
+     #[inline(always)]
+     #[allow(unused_variables)]
+     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize> {
+         // Whole subtrees of 32 KiB to 1 MiB on SME2: the flat walk, SME2
+         // alone (see sme2::compress_subtree_flat).
+         #[cfg(blake3_sme2)]
+-        if matches!(self.platform, Platform::SME2) && crate::sme2::flat_takes(input.len()) {
++        if matches!(self.platform, Platform::SME2) || /* ~ changed by cargo-mutants ~ */ crate::sme2::flat_takes(input.len()) {
+             // Safe: the SME2 platform is selected only where the CPU has it,
+             // and `out` holds simd_degree() values, which is sme2::DEGREE.
+             return Some(unsafe { crate::sme2::compress_subtree_flat(input, ahead, self.key, counter, self.flags, out.as_flattened_mut()) });
+         }
+         None
+     }
+ 
+     #[inline(always)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-syivgx2m)
+    Finished `mutants` profile [optimized] target(s) in 1.49s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.03s
+info: using target runner `sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 5dcf218a-dc91-4214-b7c8-4667967eadd5 with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/tools/mutants/test-runner /root/pinned-runs/cm-whole-epyc9255-20261105T021745-c053a0c8/fork/target/mutants/mutants-syivgx2m/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        FAIL [   0.223s] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+  Cancelling due to test failure: 7 tests still running
+        FAIL [   0.231s] (  2/168) blake3-servil avx512_32::tests::generated_assembly_matches
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.235s] (  3/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.240s] (  4/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.246s] (  5/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.255s] (  6/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.260s] (  7/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.266s] (  8/168) blake3-servil avx512::test::test_xof_many
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+────────────
+     Summary [   0.267s] 8/168 tests run: 0 passed, 8 failed, 0 skipped
+warning: 160/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace > with == in sources::visible
+@@ -1155,17 +1155,17 @@
+             found = if source.ring.is_empty() { None } else { source.take_task() };
+             found.is_some()
+         });
+         found
+     }
+ 
+     /// Whether any source has work waiting (`streams`: any stream).
+     pub(crate) fn visible(streams: bool) -> bool {
+-        find(|source| (!streams || !source.ring.is_empty()) && source.waiting() > 0)
++        find(|source| (!streams || !source.ring.is_empty()) && source.waiting() == /* ~ changed by cargo-mutants ~ */ 0)
+     }
+ 
+     #[cfg(test)]
+     mod test {
+         use super::*;
+ 
+         /// Unregistering takes a source out of the walk: its slot is
+         /// given back. (A leaked slot is a slowdown: after enough streams

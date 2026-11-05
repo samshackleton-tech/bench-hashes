@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace Pool::workers -> usize with 1
+@@ -808,17 +808,17 @@
+ 
+     /// Wake workers for `wanted` pieces of new work (crate::park).
+     pub(crate) fn wake_for(&self, wanted: usize) {
+         self.park.wake_for(wanted, self.workers());
+     }
+ 
+     /// The pool's workers: every thread but the calling one.
+     pub(crate) fn workers(&self) -> usize {
+-        Self::workers_of(self.threads)
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn workers_of(threads: usize) -> usize {
+         threads - 1
+     }
+ 
+     /// Worker `me`'s loop: the sources' tasks and pieces; spinning a while
+     /// when a stream is open (more is coming), else parked, whenever it

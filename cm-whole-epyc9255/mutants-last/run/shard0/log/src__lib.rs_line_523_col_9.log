@@ -1,0 +1,50 @@
+
+*** src/lib.rs:523:9: replace <impl core::str::FromStr for Hash>::from_str -> Result<Self, Self::Err> with Ok(Default::default())
+
+*** mutation diff:
+--- src/lib.rs
++++ replace <impl core::str::FromStr for Hash>::from_str -> Result<Self, Self::Err> with Ok(Default::default())
+@@ -515,17 +515,17 @@
+         hash.0
+     }
+ }
+ 
+ impl core::str::FromStr for Hash {
+     type Err = HexError;
+ 
+     fn from_str(s: &str) -> Result<Self, Self::Err> {
+-        Hash::from_hex(s)
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Hash {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+         let Self(bytes) = self;
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-yo_aypsm)
+error[E0277]: the trait bound `Hash: Default` is not satisfied
+   --> src/lib.rs:523:12
+    |
+523 |         Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+    |            ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Hash`
+    |
+help: consider annotating `Hash` with `#[derive(Default)]`
+    |
+426 + #[derive(Default)]
+427 | pub struct Hash([u8; OUT_LEN]);
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

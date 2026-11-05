@@ -1,0 +1,27 @@
+--- src/lib.rs
++++ replace compress_subtree_to_parent_node -> [u8; BLOCK_LEN] with [0; BLOCK_LEN]
+@@ -865,23 +865,17 @@
+ // first call to update() supplies a complete subtree, because the topmost
+ // parent node of that subtree could end up being the root. It's also necessary
+ // for extended output in the general case.
+ //
+ // This function is not used on inputs of 1 chunk or less. That's a
+ // different codepath. Its arrays live in tree::root_children, out of line.
+ #[inline]
+ fn compress_subtree_to_parent_node(input: &[u8], ahead: usize, key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> [u8; BLOCK_LEN] {
+-    debug_assert!(input.len() > CHUNK_LEN);
+-    let kernels = tree::PlatformKernels { key, flags, platform };
+-    let [left, right] = tree::root_children(&kernels, input, ahead, chunk_counter);
+-    let mut block = [0u8; BLOCK_LEN];
+-    block[..OUT_LEN].copy_from_slice(&left);
+-    block[OUT_LEN..].copy_from_slice(&right);
+-    block
++    [0; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ // The root hash of an input of one chunk or less, in one kernel call. The
+ // whole blocks are read in place, the final one too when it is full; a
+ // short final block (and the empty block for the empty input) is copied
+ // into a zero-padded buffer, which is the copy ChunkState::update() makes
+ // too. The scalar kernel runs on every AArch64 core, so this path needs no
+ // platform check.

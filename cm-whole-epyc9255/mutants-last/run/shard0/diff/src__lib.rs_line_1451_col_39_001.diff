@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace / with * in OutputReader::set_position
+@@ -1443,17 +1443,17 @@
+     /// Seek to a new read position in the output stream. This is equivalent to
+     /// calling [`Seek::seek`] with [`SeekFrom::Start`], except that it doesn't
+     /// return a `Result`.
+     ///
+     /// [`Seek::seek`]: #method.seek
+     /// [`SeekFrom::Start`]: https://doc.rust-lang.org/std/io/enum.SeekFrom.html
+     pub fn set_position(&mut self, position: u64) {
+         self.position_within_block = (position % BLOCK_LEN as u64) as u8;
+-        self.inner.counter = position / BLOCK_LEN as u64;
++        self.inner.counter = position * /* ~ changed by cargo-mutants ~ */ BLOCK_LEN as u64;
+     }
+ }
+ 
+ // Don't derive(Debug), because the state may be secret.
+ impl fmt::Debug for OutputReader {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         f.debug_struct("OutputReader").field("position", &self.position()).finish()
+     }

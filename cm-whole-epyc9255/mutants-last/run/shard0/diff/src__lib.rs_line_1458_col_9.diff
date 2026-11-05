@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace <impl fmt::Debug for OutputReader>::fmt -> fmt::Result with Ok(Default::default())
+@@ -1450,17 +1450,17 @@
+         self.position_within_block = (position % BLOCK_LEN as u64) as u8;
+         self.inner.counter = position / BLOCK_LEN as u64;
+     }
+ }
+ 
+ // Don't derive(Debug), because the state may be secret.
+ impl fmt::Debug for OutputReader {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+-        f.debug_struct("OutputReader").field("position", &self.position()).finish()
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ impl std::io::Read for OutputReader {
+     #[inline]
+     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+         self.fill(buf);

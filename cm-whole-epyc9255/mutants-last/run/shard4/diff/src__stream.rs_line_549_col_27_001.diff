@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace match guard e.kind() == std::io::ErrorKind::Interrupted with false in Stream<'env, D>::read_piece
+@@ -541,17 +541,17 @@
+         // Sound: [at, at + PIECE) is reserved and free, and `&mut self`
+         // keeps every other writer out.
+         let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };
+         let mut n = 0;
+         while n < PIECE {
+             match reader.read(&mut room[n..]) {
+                 Ok(0) => break,
+                 Ok(k) => n += k,
+-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}
++                Err(e) if false /* ~ changed by cargo-mutants ~ */ => {}
+                 Err(e) => return (at, end, n, Err(e)),
+             }
+         }
+         (at, end, n, Ok(()))
+     }
+ 
+     /// Hash a [`Batch`](crate::performance::Batch) where it is, as
+     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per

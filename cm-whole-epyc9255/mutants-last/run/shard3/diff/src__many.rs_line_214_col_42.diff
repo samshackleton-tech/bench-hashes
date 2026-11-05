@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with + in hash_two_chunks
+@@ -206,17 +206,17 @@
+     for (messages, digests) in input.chunks(slot * GROUP).zip(outputs.chunks_mut(GROUP)) {
+         let count = digests.len();
+         let mut firsts: [core::mem::MaybeUninit<&[u8; CHUNK_LEN]>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];
+         let mut seconds: [core::mem::MaybeUninit<*const u8>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];
+         for (i, message) in messages.chunks_exact(slot).enumerate() {
+             firsts[i].write(message[..CHUNK_LEN].try_into().expect("a whole first chunk"));
+             seconds[i].write(message[CHUNK_LEN..].as_ptr());
+         }
+-        let mut cvs = [[0u8; OUT_LEN]; 2 * GROUP];
++        let mut cvs = [[0u8; OUT_LEN]; 2 + /* ~ changed by cargo-mutants ~ */ GROUP];
+         let mut pairs = [[0u8; BLOCK_LEN]; GROUP];
+         // Sound: the first `count` entries of both tables were written just
+         // above; each second-chunk pointer reaches `second_blocks` whole
+         // blocks inside its slot, zero past the message; NEON is every
+         // AArch64 CPU's (neon_plans).
+         unsafe {
+             let firsts = core::slice::from_raw_parts(firsts.as_ptr() as *const &[u8; CHUNK_LEN], count);
+             crate::neon_hybrid::hash_many_last_len(

@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace - with + in subtree_len
+@@ -121,17 +121,17 @@
+ /// A whole subtree's length to hash next, from chunk `counter` with
+ /// `remaining` (more than CHUNK_LEN) bytes to go: the largest power of two
+ /// at most `remaining` that divides the bytes so far, CHUNK_LEN times a
+ /// power of two dividing `counter`.
+ /// A power of two divides `so_far` exactly when it is at most its lowest
+ /// 1-bit, so the length is the smaller of the two, with no loop (one that
+ /// halved until it divided could, changed, run forever).
+ pub fn subtree_len(counter: u64, remaining: usize) -> usize {
+-    let len = 1usize << (usize::BITS - 1 - remaining.leading_zeros());
++    let len = 1usize << (usize::BITS - 1 + /* ~ changed by cargo-mutants ~ */ remaining.leading_zeros());
+     let so_far = counter * CHUNK_LEN as u64;
+     if so_far == 0 {
+         len
+     } else {
+         // The lowest 1-bit as a mask, compared in u64: no shift to bound,
+         // and the result is at most `len`, so it fits a usize.
+         (len as u64).min(so_far & so_far.wrapping_neg()) as usize
+     }

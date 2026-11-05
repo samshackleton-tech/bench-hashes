@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace - with + in left_len
+@@ -36,17 +36,17 @@
+ 
+ /// The bytes of the left subtree of an input of `len` > CHUNK_LEN bytes:
+ /// the largest power of two chunks below its chunk count.
+ pub fn left_len(len: usize) -> usize {
+     let chunks = (len - 1) / CHUNK_LEN;
+     // The largest power of two at most `chunks` (1 or more), from its top
+     // 1-bit, as each.rs's left_len: no doubling loop that a change could
+     // keep from ending.
+-    (1usize << (usize::BITS - 1 - chunks.leading_zeros())) * CHUNK_LEN
++    (1usize << (usize::BITS + /* ~ changed by cargo-mutants ~ */ 1 - chunks.leading_zeros())) * CHUNK_LEN
+ }
+ 
+ /// The chaining values of a cut through the subtree over `input` (at least
+ /// one byte), its first chunk numbered `counter`, into `out[..n]`; returns
+ /// n, between 1 and degree. `out` holds at least that many.
+ /// `ahead` bytes of the caller's input follow `input`.
+ pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+     if input.len() <= k.degree() * CHUNK_LEN {

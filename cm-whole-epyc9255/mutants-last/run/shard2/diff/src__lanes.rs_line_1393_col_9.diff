@@ -1,0 +1,40 @@
+--- src/lanes.rs
++++ replace Task::run_equal_members with ()
+@@ -1385,36 +1385,17 @@
+     }
+ }
+ 
+ impl Task {
+     /// The members' digests, each a message of `N` bytes (whole blocks, at
+     /// most a chunk; run_members checked), side by side on the multi-lane
+     /// kernel from a table of pointers.
+     fn run_equal_members<const N: usize>(&self, platform: Platform) {
+-        crate::ran(crate::Ran::EqualMembers);
+-        let members = &self.member[..self.members];
+-        // Sound: the stream keeps every member's N bytes and `out` in place
+-        // until the task's `left` is zero.
+-        let table: arrayvec::ArrayVec<&[u8; N], MEMBERS> = members.iter().map(|m| unsafe { &*(m.input as *const [u8; N]) }).collect();
+-        let mut digests = [[0u8; crate::OUT_LEN]; MEMBERS];
+-        // One block carries every flag at once, and passes them as the
+-        // 64-byte batches do (flags_start and flags_end 0): with every
+-        // caller of hash_many::<64> passing those zeros, LLVM specializes it
+-        // (AArch64: x5 and x6 left out, `out` in a register; a queue passing
+-        // its flags here instead cost the VM's lent batches of 16).
+-        let (flags, start, end) = if N == crate::BLOCK_LEN {
+-            (self.flags | crate::CHUNK_START | crate::CHUNK_END | crate::ROOT, 0, 0)
+-        } else {
+-            (self.flags, crate::CHUNK_START, crate::CHUNK_END | crate::ROOT)
+-        };
+-        platform.hash_many::<N>(&table, &self.key, 0, crate::IncrementCounter::No, flags, start, end, digests[..members.len()].as_flattened_mut());
+-        for (m, digest) in members.iter().zip(&digests) {
+-            unsafe { core::ptr::copy_nonoverlapping(digest.as_ptr(), m.out, crate::OUT_LEN) };
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The SME2 thread, on CPUs with SME2: it hashes tasks only, on SME2 (the
+ /// SME unit hashes a 64 KiB piece in 14 us where a NEON worker takes 22,
+ /// Mac, probe/queue-timeline), under the process's turn so that a caller of
+ /// hash() elsewhere keeps the unit; without the turn, on NEON. It takes
+ /// streams' tasks while any wait, and parks as soon as none does; every

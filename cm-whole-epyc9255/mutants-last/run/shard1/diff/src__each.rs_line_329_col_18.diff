@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace == with != in subtree
+@@ -321,17 +321,17 @@
+     let split = left_len(cvs.len());
+     let left = subtree(&cvs[..split], key, flags, platform);
+     let right = subtree(&cvs[split..], key, flags, platform);
+     crate::hasher::parent_output(&left, &right, key, flags, platform).root_hash()
+ }
+ 
+ /// A non-root subtree's chaining value.
+ fn subtree(cvs: &[CVBytes], key: &CVWords, flags: u8, platform: Platform) -> CVBytes {
+-    if cvs.len() == 1 {
++    if cvs.len() != /* ~ changed by cargo-mutants ~ */ 1 {
+         return cvs[0];
+     }
+     let split = left_len(cvs.len());
+     let left = subtree(&cvs[..split], key, flags, platform);
+     let right = subtree(&cvs[split..], key, flags, platform);
+     crate::hasher::parent_output(&left, &right, key, flags, platform).chaining_value()
+ }
+ 

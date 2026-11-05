@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace Hash::as_bytes -> &[u8; OUT_LEN] with Box::leak(Box::new([0; OUT_LEN]))
+@@ -426,17 +426,17 @@
+ pub struct Hash([u8; OUT_LEN]);
+ 
+ impl Hash {
+     /// The raw bytes of the `Hash`. Note that byte arrays don't provide
+     /// constant-time equality checking, so if you need to compare hashes,
+     /// prefer the `Hash` type.
+     #[inline]
+     pub const fn as_bytes(&self) -> &[u8; OUT_LEN] {
+-        &self.0
++        Box::leak(Box::new([0; OUT_LEN])) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Create a `Hash` from its raw bytes representation.
+     pub const fn from_bytes(bytes: [u8; OUT_LEN]) -> Self {
+         Self(bytes)
+     }
+ 
+     /// The raw bytes of the `Hash`, as a slice. Useful for serialization. Note that byte arrays

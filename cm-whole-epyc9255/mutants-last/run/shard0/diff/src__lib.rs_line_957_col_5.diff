@@ -1,0 +1,22 @@
+--- src/lib.rs
++++ replace initialize with ()
+@@ -949,18 +949,17 @@
+ /// (see the crate's documentation); later calls return at once.
+ ///
+ /// ```
+ /// blake3_servil::initialize();
+ /// let hash = blake3_servil::convenience::hash(b"foo");
+ /// # assert_eq!(hash, blake3_servil::performance::Hasher::new(blake3_servil::Mode::Plain).update(b"foo").finalize());
+ /// ```
+ pub fn initialize() {
+-    self_test::ensure();
+-    platform::Platform::detect_unchecked().record();
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`initialize`], and start the threads that the multithreaded calls and
+ /// [`stream`](performance::stream) use: every program that makes such calls calls this once,
+ /// before them, in place of `initialize`. It starts `threads - 1` workers,
+ /// and each multithreaded call hashes on its calling thread and the
+ /// workers (calls made at once share the workers), and on CPUs with SME2
+ /// (Apple M4) the SME2 thread too; `None` means one thread

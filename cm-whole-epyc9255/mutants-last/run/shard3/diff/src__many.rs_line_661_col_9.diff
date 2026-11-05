@@ -1,0 +1,22 @@
+--- src/many.rs
++++ delete match arm Platform::AVX512 in takes_platform
+@@ -653,18 +653,17 @@
+ /// assembly is in this build.
+ #[inline]
+ #[cfg(target_arch = "x86_64")]
+ #[cfg_attr(not(any(blake3_avx2_ffi, blake3_avx512_ffi)), allow(unused_variables, unreachable_code))]
+ fn takes_platform(platform: Platform) -> bool {
+     match platform {
+         #[cfg(blake3_avx2_ffi)]
+         Platform::AVX2 => true,
+-        #[cfg(blake3_avx512_ffi)]
+-        Platform::AVX512 => true,
++         /* ~ changed by cargo-mutants ~ */
+         _ => false,
+     }
+ }
+ 
+ /// The platform's assembly `hash_many`, with the block count at run time
+ /// (AVX2 and AVX-512; elsewhere each input in turn). Unsafe: each of `inputs` reaches `blocks`
+ /// blocks, and the CPU has the platform.
+ #[allow(clippy::too_many_arguments)]

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with * in sources::Source::publish_job
+@@ -981,17 +981,17 @@
+             debug_assert_eq!(self.finish.finished_count(), base, "the last job is finished");
+             self.job.store(job, Ordering::Relaxed);
+             self.base.store(base, Ordering::Relaxed);
+             // No worker can claim a number yet (claimed == published), so
+             // this store alone moves `claimed` past the caller's own pieces.
+             self.claimed.store(base + own, Ordering::Relaxed);
+             self.finish.published.store(base + pieces, Ordering::Release);
+             core::sync::atomic::fence(Ordering::SeqCst);
+-            base + pieces
++            base * /* ~ changed by cargo-mutants ~ */ pieces
+         }
+ 
+         /// Claim the next published item, if any.
+         pub(crate) fn take(&self) -> Option<Item> {
+             let mut c = self.claimed.load(Ordering::Acquire);
+             loop {
+                 let p = self.finish.published.load(Ordering::Acquire);
+                 if c >= p {

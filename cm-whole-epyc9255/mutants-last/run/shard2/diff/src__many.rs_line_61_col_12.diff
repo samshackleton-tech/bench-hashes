@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace == with != in hash_many_on
+@@ -53,17 +53,17 @@
+ /// plain hashing), on `platform`: messages of up to a chunk go to
+ /// the kernels TABLE at a time, 2 to 15 chunks side by side on SME2, others
+ /// through the one-message path. Requires `input.len() == slot *
+ /// outputs.len()` and every slot's bytes past `len` zero (a Batch's, or
+ /// the crate's own).
+ pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     // One-block messages first, on the path they took before slots (a
+     // shared entry cost 64 B x 3 7% in the regression check).
+-    if len == BLOCK_LEN && outputs.len() >= 2 {
++    if len != /* ~ changed by cargo-mutants ~ */ BLOCK_LEN && outputs.len() >= 2 {
+         crate::ran(crate::Ran::BlockRun);
+         assert_slots(input, len, outputs.len());
+         for (messages, digests) in input.chunks(BLOCK_LEN * TABLE).zip(outputs.chunks_mut(TABLE)) {
+             hash_run::<{ BLOCK_LEN }>(messages, key, flags, digests, platform);
+         }
+         return;
+     }
+     let slot = slot_len(len);

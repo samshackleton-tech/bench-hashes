@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace == with != in all_workers_parked
+@@ -711,17 +711,17 @@
+         "blake3-servil: this process was forked after initialize_multithreaded started its threads, and a forked child has none: \
+          initialize the pool in the process that hashes, after any fork (single-threaded calls work anywhere)"
+     )
+ }
+ 
+ /// Whether every worker is parked: false before the pool exists
+ /// ([`crate::__all_workers_parked`], for tests).
+ pub(crate) fn all_workers_parked() -> bool {
+-    POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.workers())
++    POOL.get().is_some_and(|pool| pool.park.parked_count() != /* ~ changed by cargo-mutants ~ */ pool.workers())
+ }
+ 
+ /// The pool. The caller must have called
+ /// [`crate::initialize_multithreaded`] before; a call before it panics. The
+ /// check is the load of the pool, which every call makes anyway.
+ #[inline]
+ fn pool() -> &'static Pool {
+     match POOL.get() {

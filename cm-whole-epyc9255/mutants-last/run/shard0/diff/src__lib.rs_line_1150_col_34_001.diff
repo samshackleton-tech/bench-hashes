@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace * with /
+@@ -1142,17 +1142,17 @@
+ /// starting before their lines arrive. Tried and set aside: prefetching
+ /// for a chunk or less (2-10% gained, less than the pause check costs);
+ /// prefetching the 16 KiB of Rust around the kernels too (every call
+ /// 400-500 ns slower: prefetches beyond some number in flight are
+ /// dropped); a rolled four-lane NEON path for calls after a pause (1.3 KB,
+ /// 1.2-1.5x slower: a four-lane NEON BLAKE3 is bound by its chains'
+ /// latency, where the hybrids' integer lanes fill the idle issue slots).
+ #[cfg(all(blake3_neon, feature = "std"))]
+-const PREFETCH_BELOW: usize = 64 * 1024;
++const PREFETCH_BELOW: usize = 64 / /* ~ changed by cargo-mutants ~ */ 1024;
+ 
+ /// After a pause (code_may_be_cold), prefetch the kernels hashing `len`
+ /// bytes runs: a one-shot call's (prefetch_kernels), or with `fresh_hasher`
+ /// a fresh Hasher's first update's (prefetch_update_kernels).
+ #[cfg(all(blake3_neon, feature = "std"))]
+ // Cold for layout: the path of a chunk or less falls through past its
+ // call, on the lines it had before the call existed.
+ #[cold]

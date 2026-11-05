@@ -1,0 +1,26 @@
+--- src/lanes.rs
++++ replace worker_main with ()
+@@ -1482,22 +1482,17 @@
+ pub(crate) fn run_task(task: Task) {
+     task.run(pool_platform());
+ }
+ 
+ fn worker_main(me: usize) {
+     // A worker that panicked would die quietly while callers wait for its
+     // piece forever (their stacks are the work); the process ends instead,
+     // the panic's message printed first by the panic hook.
+-    let _ = std::panic::catch_unwind(move || {
+-        let pool = pool();
+-        pool.park.register(me);
+-        pool.serve(me)
+-    });
+-    std::process::abort()
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ mod test {
+     use super::*;
+ 
+     /// A call gives its place among the pool's callers back: alone in its
+     /// process, as each test is, the count is zero again after one call

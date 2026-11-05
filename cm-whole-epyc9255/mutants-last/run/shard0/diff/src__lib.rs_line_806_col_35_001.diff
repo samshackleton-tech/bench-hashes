@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace + with * in compress_chunks_parallel
+@@ -798,17 +798,17 @@
+         && hybrids
+         && neon_hybrid::partial_pays(chunks_array.len(), chunks_exact.remainder().len())
+         && neon_hybrid::sha3_detected()
+     {
+         // Safe: the kernel exists for this count and the CPU has SHA-3.
+         unsafe {
+             neon_hybrid::hash_chunks_with_partial(&chunks_array, chunks_exact.remainder(), key, chunk_counter, flags, CHUNK_START, CHUNK_END, out);
+         }
+-        return chunks_array.len() + 1;
++        return chunks_array.len() * /* ~ changed by cargo-mutants ~ */ 1;
+     }
+     platform.hash_many(&chunks_array, key, chunk_counter, IncrementCounter::Yes, flags, CHUNK_START, CHUNK_END, out);
+ 
+     // Hash the remaining partial chunk, if there is one. Note that the empty
+     // chunk (meaning the empty message) is a different codepath.
+     let chunks_so_far = chunks_array.len();
+     if !chunks_exact.remainder().is_empty() {
+         let counter = chunk_counter + chunks_so_far as u64;

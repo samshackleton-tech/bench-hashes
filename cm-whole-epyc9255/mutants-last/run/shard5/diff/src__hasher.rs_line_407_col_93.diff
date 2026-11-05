@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace | with & in Output<P>::root_bytes
+@@ -399,17 +399,17 @@
+         le_bytes(&cv)
+     }
+ 
+     /// The first 32 bytes of the root's output (the node the root, its
+     /// counter 0).
+     #[inline]
+     pub fn root_bytes(&self) -> [u8; 32] {
+         let mut cv = self.input_chaining_value;
+-        self.platform.compress_in_place(&mut cv, &self.block, self.block_len, 0, self.flags | ROOT);
++        self.platform.compress_in_place(&mut cv, &self.block, self.block_len, 0, self.flags & /* ~ changed by cargo-mutants ~ */ ROOT);
+         le_bytes(&cv)
+     }
+ }
+ 
+ impl<P: Blocks + Copy> ChunkState<P> {
+     /// The chunk's node.
+     pub fn output(&self) -> Output<P> {
+         Output {

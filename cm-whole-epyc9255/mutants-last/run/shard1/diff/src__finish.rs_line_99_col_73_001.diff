@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace & with ^ in Finish::wait
+@@ -91,17 +91,17 @@
+                 return;
+             }
+             if !poll() {
+                 break;
+             }
+         }
+         // The bit and the count in one read: a finisher after this sees
+         // the bit; one before it left its count here.
+-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
++        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ !SLEEPING;
+         while count < target {
+             thread::park();
+             count = self.finished_count();
+         }
+         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);
+     }
+ }
+ 

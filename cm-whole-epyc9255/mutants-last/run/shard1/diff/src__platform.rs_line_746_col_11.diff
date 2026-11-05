@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace == with != in sme2_detect_uncached
+@@ -738,17 +738,17 @@
+ fn sme2_detect_uncached() -> bool {
+     if !sme2_reported() {
+         return false;
+     }
+ 
+     // Vector length check: the kernel reports it without doing any work
+     // when asked for zero groups.
+     let lanes = unsafe { crate::sme2::ffi::blake3_servil_sme2_hash16_chunks_512(core::ptr::null(), core::ptr::null(), 0, 0, core::ptr::null_mut(), 0) };
+-    lanes == crate::sme2::GROUP as u64
++    lanes != /* ~ changed by cargo-mutants ~ */ crate::sme2::GROUP as u64
+ }
+ 
+ #[cfg(all(blake3_sme2, target_vendor = "apple"))]
+ fn sme2_reported() -> bool {
+     let mut value: u32 = 0;
+     let mut size = core::mem::size_of::<u32>();
+     let rc =
+         unsafe { libc::sysctlbyname(c"hw.optional.arm.FEAT_SME2".as_ptr(), &mut value as *mut u32 as *mut libc::c_void, &mut size, core::ptr::null_mut(), 0) };

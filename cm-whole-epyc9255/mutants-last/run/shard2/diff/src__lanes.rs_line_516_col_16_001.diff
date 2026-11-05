@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace += with *= in cut_with_prefix
+@@ -508,17 +508,17 @@
+     loop {
+         // What is left is the last piece once a share would take it all
+         // (a share is MIN_PIECE_LEN at least, so this ends).
+         let piece = next_piece_len(len - offset, threads);
+         if len - offset <= piece {
+             break;
+         }
+         pieces.push(Piece { offset, len: piece });
+-        offset += piece;
++        offset *= /* ~ changed by cargo-mutants ~ */ piece;
+     }
+     pieces.push(Piece { offset, len: len - offset });
+     (pieces, own)
+ }
+ 
+ /// The SME2 thread's prefix for a call holding `turn`: [`sme2_prefix`]
+ /// when the turn gave it SME2, else nothing.
+ fn prefix_for(turn: &crate::platform::Sme2Turn, len: usize, threads: usize) -> usize {

@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace + with * in Finish::finished
+@@ -71,17 +71,17 @@
+ 
+     /// Count `n` pieces finished (their outputs written before); the last
+     /// one wakes a caller parked for it.
+     pub(crate) fn finished(&self, n: usize) {
+         let before = self.state.fetch_add(n, Ordering::SeqCst);
+         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+             if let Some(owner) = &*self.owner.lock().unwrap() {
+                 #[cfg(all(test, not(shuttle)))]
+-                tests::UNPARKS.with(|u| u.set(u.get() + 1));
++                tests::UNPARKS.with(|u| u.set(u.get() * /* ~ changed by cargo-mutants ~ */ 1));
+                 owner.unpark();
+             }
+         }
+     }
+ 
+     /// Wait until the count reaches `target`: `poll` a while (it returns
+     /// false when the while is up), then parked until the worker finishing
+     /// the last piece unparks this thread.

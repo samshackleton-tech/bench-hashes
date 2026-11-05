@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace && with || in Task::run_members
+@@ -1357,17 +1357,17 @@
+                 let count = m.len / crate::many::slot_len(message_len);
+                 let digests = unsafe { core::slice::from_raw_parts_mut(m.out as *mut [u8; crate::OUT_LEN], count) };
+                 crate::many::hash_many_on(bytes, message_len, &self.key, self.flags, digests, platform);
+             }
+             return;
+         }
+         // Sound: the stream keeps every member's bytes and `out` in place
+         // until the task's `left` is zero.
+-        if members.len() >= 2 && members.iter().all(|m| m.len == members[0].len) {
++        if members.len() >= 2 || /* ~ changed by cargo-mutants ~ */ members.iter().all(|m| m.len == members[0].len) {
+             match members[0].len {
+                 crate::BLOCK_LEN => return self.run_equal_members::<{ crate::BLOCK_LEN }>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 128 => return self.run_equal_members::<128>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 256 => return self.run_equal_members::<256>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 512 => return self.run_equal_members::<512>(platform),

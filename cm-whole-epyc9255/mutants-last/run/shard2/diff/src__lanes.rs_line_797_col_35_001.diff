@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with * in Pool::run_job
+@@ -789,17 +789,17 @@
+         }
+         for index in 0..own {
+             // Sound: the workers' pieces start past these.
+             unsafe { job.hash_piece(index, own_platform) };
+         }
+         source.finished(own);
+         while let Some(sources::Item::Pieces(_, index, n)) = source.take() {
+             // Sound: this thread took these, so it alone writes their slots.
+-            for i in index..index + n {
++            for i in index..index * /* ~ changed by cargo-mutants ~ */ n {
+                 unsafe { job.hash_piece(i, pool_platform()) };
+             }
+             source.finished(n);
+         }
+         source.wait(target);
+         core::mem::forget(published);
+         if let Some(slot) = slot {
+             sources::Source::unregister(slot);

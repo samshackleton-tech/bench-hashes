@@ -1,0 +1,27 @@
+--- src/lib.rs
++++ replace max_subtree_len -> Option<u64> with None
+@@ -1045,23 +1045,17 @@
+ pub type ContextKey = [u8; KEY_LEN];
+ 
+ /// The most bytes a subtree starting at byte `input_offset` of a message
+ /// can hold: `None` at offset zero (the whole message), else the largest
+ /// power-of-two multiple of a chunk the offset is aligned to. Requires a
+ /// whole-chunk offset.
+ #[inline(always)]
+ pub(crate) fn max_subtree_len(input_offset: u64) -> Option<u64> {
+-    if input_offset == 0 {
+-        return None;
+-    }
+-    assert_eq!(input_offset % CHUNK_LEN as u64, 0);
+-    let counter = input_offset / CHUNK_LEN as u64;
+-    let max_chunks = 1 << counter.trailing_zeros();
+-    Some(max_chunks * CHUNK_LEN as u64)
++    None /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Which of BLAKE3's three functions a call computes: the plain hash
+ /// ([`hash`](convenience::hash)), the keyed hash, or key derivation. Every call that takes a mode runs each one at the same
+ /// speed, but for `DeriveKey`, which first hashes its context string (once
+ /// per call; [`DeriveKeyWith`](Mode::DeriveKeyWith) takes it hashed
+ /// once for many calls).
+ #[derive(Clone, Copy)]

@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in batch_after_pause
+@@ -1200,17 +1200,17 @@
+ /// messages: 1 to PAIRS_AFTER_PAUSE_UPTO hashed here on the pair kernel
+ /// (true: done); otherwise its kernels' code prefetched (false: hash it as
+ /// usual), SME2's message kernel where it takes the batch, else the
+ /// hybrids' parent plans.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ #[cold]
+ #[inline(never)]
+ fn batch_after_pause(input: &[u8], message_len: usize, key: &CVWords, flags: u8, out: &mut [[u8; OUT_LEN]], platform: Platform) -> bool {
+-    if !code_may_be_cold() {
++    if  /* ~ changed by cargo-mutants ~ */code_may_be_cold() {
+         return false;
+     }
+     let count = out.len();
+     #[cfg(blake3_sme2)]
+     if matches!(platform, Platform::SME2) && count >= many::ONE_BLOCK_PAD_MIN {
+         sme2::prefetch_code();
+         return false;
+     }

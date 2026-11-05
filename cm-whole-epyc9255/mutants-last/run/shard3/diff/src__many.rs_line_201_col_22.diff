@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace - with + in hash_two_chunks
+@@ -193,17 +193,17 @@
+ /// side: 2000 B x 2 1018 / 927, x 3 1036 / 653, x 4 1050 / 697, x 8 690
+ /// (SME2 from 7); 1100 B x 3 442 / 379. Commonware's four NEON lanes: 2000
+ /// B x 4 824 (Mac P-core 914 against servil's 1050 before, job 283).
+ #[cfg(blake3_neon)]
+ #[inline(never)]
+ fn hash_two_chunks(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]]) {
+     use crate::PARENT;
+     let slot = slot_len(len);
+-    let second = len - CHUNK_LEN;
++    let second = len + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;
+     let second_blocks = second.div_ceil(BLOCK_LEN);
+     let last_len = second - (second_blocks - 1) * BLOCK_LEN;
+     // Sixteen at a time, as the plans take them: small arrays to zero.
+     const GROUP: usize = 16;
+     for (messages, digests) in input.chunks(slot * GROUP).zip(outputs.chunks_mut(GROUP)) {
+         let count = digests.len();
+         let mut firsts: [core::mem::MaybeUninit<&[u8; CHUNK_LEN]>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];
+         let mut seconds: [core::mem::MaybeUninit<*const u8>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];

@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with / in room
+@@ -325,17 +325,17 @@
+     block[start..].as_mut_ptr()
+ }
+ 
+ /// Where `len` bytes go in a ring of `ring` bytes whose head is at `head`
+ /// (counting on), at a 64-byte boundary, whole before its end: their
+ /// offset, and the bytes they take from the head (a room that would cross
+ /// the end starts the next lap, the rest of this one skipped).
+ fn room(head: usize, ring: usize, len: usize) -> (usize, usize) {
+-    let slot = len.div_ceil(64) * 64;
++    let slot = len.div_ceil(64) / /* ~ changed by cargo-mutants ~ */ 64;
+     let at = head % ring;
+     if at + slot > ring { (0, ring - at + slot) } else { (at, slot) }
+ }
+ 
+ /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:
+ /// each call writes at the start of what is left, the bytes from `at` on,
+ /// and returns how many it wrote. A short write (a plain read's) would
+ /// otherwise leave bytes an earlier message left, hashed into a wrong

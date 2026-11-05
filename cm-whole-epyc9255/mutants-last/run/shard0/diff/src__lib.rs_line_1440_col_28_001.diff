@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace * with / in OutputReader::position
+@@ -1432,17 +1432,17 @@
+     /// a `Result`. The position of a new `OutputReader` starts at 0, and each
+     /// call to [`fill`] or [`Read::read`] moves the position forward by the
+     /// number of bytes read.
+     ///
+     /// [`Seek::stream_position`]: #method.stream_position
+     /// [`fill`]: #method.fill
+     /// [`Read::read`]: #method.read
+     pub fn position(&self) -> u64 {
+-        self.inner.counter * BLOCK_LEN as u64 + self.position_within_block as u64
++        self.inner.counter / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN as u64 + self.position_within_block as u64
+     }
+ 
+     /// Seek to a new read position in the output stream. This is equivalent to
+     /// calling [`Seek::seek`] with [`SeekFrom::Start`], except that it doesn't
+     /// return a `Result`.
+     ///
+     /// [`Seek::seek`]: #method.seek
+     /// [`SeekFrom::Start`]: https://doc.rust-lang.org/std/io/enum.SeekFrom.html

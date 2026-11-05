@@ -1,0 +1,48 @@
+--- src/self_test.rs
++++ replace ensure_slow with ()
+@@ -528,44 +528,17 @@
+     if STATE.load(core::sync::atomic::Ordering::Relaxed) != PASSED {
+         ensure_slow();
+     }
+ }
+ 
+ #[cold]
+ #[inline(never)]
+ fn ensure_slow() {
+-    use core::sync::atomic::Ordering::Relaxed;
+-    if STATE.compare_exchange(UNTESTED, RUNNING, Relaxed, Relaxed).is_ok() {
+-        /// A kernel that panics during the test stops the process too:
+-        /// its unwind passes here.
+-        struct Failed;
+-        impl Drop for Failed {
+-            fn drop(&mut self) {
+-                stop(format_args!("blake3-servil startup self-test failed: a kernel panicked on this build or this CPU"));
+-            }
+-        }
+-        let failed = Failed;
+-        run();
+-        core::mem::forget(failed);
+-        STATE.store(PASSED, Relaxed);
+-        return;
+-    }
+-    #[cfg(all(test, feature = "std"))]
+-    WAITING.fetch_add(1, Relaxed);
+-    // Wait for the verdict: a test that fails stops the process, so the
+-    // one a thread sees leave RUNNING is PASSED. The loop spins while the
+-    // test runs and leaves on any other state, so no change below can
+-    // make a thread spin forever (the mutation check's clock was the only
+-    // thing stopping two such changes).
+-    while STATE.load(Relaxed) == RUNNING {
+-        core::hint::spin_loop();
+-    }
+-    let state = STATE.load(Relaxed);
+-    assert!(state == PASSED, "the self-test's state is {state} after it ran");
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ mod test {
+     use super::*;
+ 
+     /// The startup run checks every case, on every platform (a run that
+     /// skipped them would pass by doing nothing).

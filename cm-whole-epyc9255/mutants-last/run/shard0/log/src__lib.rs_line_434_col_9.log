@@ -1,0 +1,56 @@
+
+*** src/lib.rs:434:9: replace Hash::as_bytes -> &[u8; OUT_LEN] with Box::leak(Box::new([0; OUT_LEN]))
+
+*** mutation diff:
+--- src/lib.rs
++++ replace Hash::as_bytes -> &[u8; OUT_LEN] with Box::leak(Box::new([0; OUT_LEN]))
+@@ -426,17 +426,17 @@
+ pub struct Hash([u8; OUT_LEN]);
+ 
+ impl Hash {
+     /// The raw bytes of the `Hash`. Note that byte arrays don't provide
+     /// constant-time equality checking, so if you need to compare hashes,
+     /// prefer the `Hash` type.
+     #[inline]
+     pub const fn as_bytes(&self) -> &[u8; OUT_LEN] {
+-        &self.0
++        Box::leak(Box::new([0; OUT_LEN])) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Create a `Hash` from its raw bytes representation.
+     pub const fn from_bytes(bytes: [u8; OUT_LEN]) -> Self {
+         Self(bytes)
+     }
+ 
+     /// The raw bytes of the `Hash`, as a slice. Useful for serialization. Note that byte arrays
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-yo_aypsm)
+error[E0015]: cannot call non-const associated function `Box::<[u8; 32]>::new` in constant functions
+   --> src/lib.rs:434:19
+    |
+434 |         Box::leak(Box::new([0; OUT_LEN])) /* ~ changed by cargo-mutants ~ */
+    |                   ^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: calls in constant functions are limited to constant functions, tuple structs and tuple variants
+
+error[E0015]: cannot call non-const associated function `Box::<[u8; 32]>::leak::<'_>` in constant functions
+   --> src/lib.rs:434:9
+    |
+434 |         Box::leak(Box::new([0; OUT_LEN])) /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: calls in constant functions are limited to constant functions, tuple structs and tuple variants
+
+For more information about this error, try `rustc --explain E0015`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

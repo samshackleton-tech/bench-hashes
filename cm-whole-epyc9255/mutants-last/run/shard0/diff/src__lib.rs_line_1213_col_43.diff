@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace && with || in batch_after_pause
+@@ -1205,17 +1205,17 @@
+ #[cold]
+ #[inline(never)]
+ fn batch_after_pause(input: &[u8], message_len: usize, key: &CVWords, flags: u8, out: &mut [[u8; OUT_LEN]], platform: Platform) -> bool {
+     if !code_may_be_cold() {
+         return false;
+     }
+     let count = out.len();
+     #[cfg(blake3_sme2)]
+-    if matches!(platform, Platform::SME2) && count >= many::ONE_BLOCK_PAD_MIN {
++    if matches!(platform, Platform::SME2) || /* ~ changed by cargo-mutants ~ */ count >= many::ONE_BLOCK_PAD_MIN {
+         sme2::prefetch_code();
+         return false;
+     }
+     let _ = platform;
+     if !neon_hybrid::sha3_detected() {
+         return false;
+     }
+     if message_len == 0 || !(1..=PAIRS_AFTER_PAUSE_UPTO).contains(&count) {

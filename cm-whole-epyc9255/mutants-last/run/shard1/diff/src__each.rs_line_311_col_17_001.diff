@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace < with > in hash_each_on
+@@ -303,17 +303,17 @@
+         for (j, &slot) in owners.iter().enumerate() {
+             cvs[slot].copy_from_slice(&lanes[j * OUT_LEN..(j + 1) * OUT_LEN]);
+         }
+     }
+     for &(i, at) in &shared {
+         let item = items[i].bytes();
+         let chunks = item.len().div_ceil(CHUNK_LEN);
+         let full = item.len() / CHUNK_LEN;
+-        if full < chunks {
++        if full > /* ~ changed by cargo-mutants ~ */ chunks {
+             cvs[at + full] = ChunkState::new(&key, full as u64, flags, platform).update(&item[full * CHUNK_LEN..]).output().chaining_value();
+         }
+         out[i] = *root(&cvs[at..at + chunks], &key, flags, platform).as_bytes();
+     }
+ }
+ 
+ /// The root of a message of two or more chunks, from its chunk values: the
+ /// left subtree takes the largest power of two of chunks below the count.

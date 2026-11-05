@@ -1,0 +1,37 @@
+--- src/self_test.rs
++++ replace outputs -> usize with 1
+@@ -285,33 +285,17 @@
+     0x9e68560dd612af97,
+     0xe1a4c5967b2225ff,
+     0xdb630ec123f1460e,
+ ];
+ 
+ /// A case's outputs from this build, into `out`, through the entry points'
+ /// bodies from `platform`; returns their length.
+ pub(crate) fn outputs(platform: Platform, case: Case, input: &[u8], previous: &[u8; 32], out: &mut [u8]) -> usize {
+-    let words = |key: &[u8; 32]| crate::platform::words_from_le_bytes_32(key);
+-    let mut digest = |hash: crate::Hash| {
+-        out[..32].copy_from_slice(hash.as_bytes());
+-        32
+-    };
+-    match case {
+-        Hash { offset, len } => digest(crate::hash_serial_from(platform, &input[offset..][..len], crate::IV, 0)),
+-        Many { offset, len, count } => many(platform, &input[..len * count], offset, len, &mut out[..count * crate::OUT_LEN]),
+-        ChunkValues { chunks } => chunk_values(platform, &input[..chunks * crate::CHUNK_LEN], previous, out),
+-        Keyed { len } => digest(crate::hash_serial_from(platform, &input[..len], &words(previous), crate::KEYED_HASH)),
+-        Derive { len } => {
+-            let context = crate::hash_serial_from(platform, CONTEXT.as_bytes(), crate::IV, crate::DERIVE_KEY_CONTEXT);
+-            digest(crate::hash_serial_from(platform, &input[..len], &words(context.as_bytes()), crate::DERIVE_KEY_MATERIAL))
+-        }
+-        Incremental { len, piece } => digest(incremental(platform, &input[..len], piece)),
+-        Xof { len, skip, out: n } => xof(platform, &input[..len], skip, &mut out[..n]),
+-    }
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// A Hasher on `platform` fed `input` in pieces of `piece` bytes (out of
+ /// line, as `xof` and `many`: their buffers take the stack only in turn).
+ #[inline(never)]
+ fn incremental(platform: Platform, input: &[u8], piece: usize) -> crate::Hash {
+     let mut hasher = crate::Hasher::from_core(crate::HasherCore::new_from(crate::IV, 0, platform));
+     for part in input.chunks(piece) {

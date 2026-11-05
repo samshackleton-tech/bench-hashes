@@ -1,0 +1,35 @@
+--- src/lib.rs
++++ replace initialize_multithreaded with ()
+@@ -1009,31 +1009,17 @@
+ /// ```
+ /// blake3_servil::initialize_multithreaded(None);
+ /// let message = vec![blake3_servil::performance::Block::ZERO; (1 << 20) / 64];
+ /// let hash = blake3_servil::performance::hash_multithreaded(blake3_servil::Mode::Plain, &message, 1 << 20);
+ /// assert_eq!(hash, blake3_servil::convenience::hash(&[0u8; 1 << 20]));
+ /// ```
+ #[cfg(feature = "std")]
+ pub fn initialize_multithreaded(threads: Option<core::num::NonZeroUsize>) {
+-    static STARTED: std::sync::OnceLock<usize> = std::sync::OnceLock::new();
+-    let cpus = || std::thread::available_parallelism().map_or(1, |n| n.get());
+-    let started = *STARTED.get_or_init(|| {
+-        let threads = threads.map_or_else(cpus, |n| n.get());
+-        initialize();
+-        lanes::initialize(threads);
+-        threads
+-    });
+-    if let Some(threads) = threads {
+-        assert_eq!(
+-            started,
+-            threads.get(),
+-            "blake3-servil: the multithreaded calls were started with {started} threads; initialize_multithreaded cannot change that to {threads}"
+-        );
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Whether every worker of the multithreaded calls' pool is parked (false
+ /// before [`initialize_multithreaded`]). Undocumented and unstable, for
+ /// tests only: a test that needs the pool idle waits for this, not for a
+ /// sleep that a loaded machine could outlast.
+ #[cfg(feature = "std")]
+ #[doc(hidden)]

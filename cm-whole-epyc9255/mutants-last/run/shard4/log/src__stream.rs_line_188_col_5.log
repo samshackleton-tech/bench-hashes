@@ -1,0 +1,55 @@
+
+*** src/stream.rs:188:5: replace stream -> T with Default::default()
+
+*** mutation diff:
+--- src/stream.rs
++++ replace stream -> T with Default::default()
+@@ -180,24 +180,17 @@
+ ///         s.submit(core::slice::from_ref(message), 64, digest);
+ ///     }
+ ///     s.finish();
+ /// });
+ /// assert_eq!(handed_back, 1000);
+ /// assert_eq!(digests[7], blake3_servil::convenience::hash(&messages[7].0));
+ /// ```
+ pub fn stream<'env, D: FnMut(&'env mut [Hash]), T>(mode: Mode, done: D, body: impl for<'s> FnOnce(&'s mut Stream<'env, D>) -> T) -> T {
+-    let mut stream = Stream::open(mode, done);
+-    // Dropped first if anything below unwinds: the process ends there, while
+-    // the threads may still read the messages and write the places.
+-    let unwinding = crate::lanes::AbortOnUnwind;
+-    let result = body(&mut stream);
+-    assert_eq!(stream.delivered, stream.next, "a stream's body calls finish last");
+-    core::mem::forget(unwinding);
+-    result
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl<'env, D: FnMut(&'env mut [Hash])> Stream<'env, D> {
+     /// A stream outside [`stream`]'s scope, for the C API (`capi/`): the
+     /// same contract, with the program holding the stream and ending it
+     /// (`finish`, then drop). Dropping a stream waits for its tasks. Rust
+     /// programs call [`stream`], whose scope holds the contract for them.
+     #[doc(hidden)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-3sax23il)
+error[E0277]: the trait bound `T: Default` is not satisfied
+   --> src/stream.rs:188:5
+    |
+188 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `T`
+    |
+help: consider restricting type parameter `T` with trait `Default`
+    |
+187 | pub fn stream<'env, D: FnMut(&'env mut [Hash]), T: std::default::Default>(mode: Mode, done: D, body: impl for<'s> FnOnce(&'s mut Stream<'env, D>) -> T) -> T {
+    |                                                  +++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

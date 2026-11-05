@@ -1,0 +1,22 @@
+--- src/each.rs
++++ replace update_each_multithreaded with ()
+@@ -75,18 +75,17 @@
+ }
+ 
+ /// [`update_each`], using other CPU cores where
+ /// that is faster (pieces of 512 KiB and more): the same result, never
+ /// slower.
+ /// Requires each `i < hashers.len()`.
+ #[cfg(feature = "std")]
+ pub fn update_each_multithreaded(hashers: &mut [Hasher], pieces: &[(usize, &[u8])]) {
+-    crate::lanes::require();
+-    update_turn(hashers, pieces, true);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The hash of each message `which` names: `out[k]` is
+ /// `hashers[which[k]].finalize()`. Requires `out.len() == which.len()`
+ /// and each index `< hashers.len()`.
+ pub fn finalize_each(hashers: &[Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(which.len(), out.len(), "one digest per message named");
+     for (&i, out) in which.iter().zip(out) {

@@ -1,0 +1,48 @@
+
+*** src/lanes.rs:164:5: replace now -> std::time::Instant with Default::default()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace now -> std::time::Instant with Default::default()
+@@ -156,22 +156,17 @@
+ /// test_the_pool_reads_time_through_now), so the tests' clock can stand
+ /// in: set, it answers a fixed instant plus what the test set, stepping
+ /// by the test's step at each read, so a wait that polls until time
+ /// passes ends when the test says (BLAKE3 #219: SPIN, SPIN_BEFORE_SLEEP
+ /// and YIELD_EVERY stay in microseconds, and their comparisons are
+ /// counted exactly).
+ #[inline(always)]
+ fn now() -> std::time::Instant {
+-    #[cfg(test)]
+-    if let Some((base, at, step)) = TEST_CLOCK.with(|c| c.get()) {
+-        TEST_CLOCK.with(|c| c.set(Some((base, at + step, step))));
+-        return base + at;
+-    }
+-    std::time::Instant::now()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The tests' clock for now(): a fixed instant, the time past it that
+     /// now() answers next, and its step at each read (None: the real
+     /// clock).
+     pub(crate) static TEST_CLOCK: core::cell::Cell<Option<(std::time::Instant, std::time::Duration, std::time::Duration)>> = const { core::cell::Cell::new(None) };
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-easlomsm)
+error[E0277]: the trait bound `Instant: Default` is not satisfied
+   --> src/lanes.rs:164:5
+    |
+164 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Instant`
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

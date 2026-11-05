@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace <impl PartialEq<[u8]> for Hash>::eq -> bool with false
+@@ -548,17 +548,17 @@
+         constant_time_eq::constant_time_eq_32(&self.0, other)
+     }
+ }
+ 
+ /// This implementation is constant-time if the target is 32 bytes long.
+ impl PartialEq<[u8]> for Hash {
+     #[inline]
+     fn eq(&self, other: &[u8]) -> bool {
+-        constant_time_eq::constant_time_eq(&self.0, other)
++        false /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl fmt::Display for Hash {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         // Formatting field as `&str` to reduce code size since the `Debug`
+         // dynamic dispatch table for `&str` is likely needed elsewhere already,
+         // but that for `ArrayString<[u8; 64]>` is not.

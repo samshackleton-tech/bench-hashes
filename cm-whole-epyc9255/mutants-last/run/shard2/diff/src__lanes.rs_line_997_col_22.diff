@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace >= with < in sources::Source::take
+@@ -989,17 +989,17 @@
+             base + pieces
+         }
+ 
+         /// Claim the next published item, if any.
+         pub(crate) fn take(&self) -> Option<Item> {
+             let mut c = self.claimed.load(Ordering::Acquire);
+             loop {
+                 let p = self.finish.published.load(Ordering::Acquire);
+-                if c >= p {
++                if c < /* ~ changed by cargo-mutants ~ */ p {
+                     return None;
+                 }
+                 // A job's pieces go in runs, consecutive, sized to the work
+                 // left (guided self-scheduling): each worker reads its input
+                 // front to back, so a mapped file from storage meets the
+                 // kernel's readahead stream by stream (official's I/O
+                 // pattern), and runs shrink to one piece near the end for
+                 // balance. A stream's tasks go one at a time.

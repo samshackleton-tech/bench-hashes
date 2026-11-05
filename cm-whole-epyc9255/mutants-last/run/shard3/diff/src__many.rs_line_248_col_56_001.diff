@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace + with * in hash_two_chunks
+@@ -240,17 +240,17 @@
+                 CHUNK_START,
+                 CHUNK_END,
+                 last_len,
+                 cvs[count..2 * count].as_flattened_mut(),
+             );
+         }
+         for (i, pair) in pairs[..count].iter_mut().enumerate() {
+             pair[..OUT_LEN].copy_from_slice(&cvs[i]);
+-            pair[OUT_LEN..].copy_from_slice(&cvs[count + i]);
++            pair[OUT_LEN..].copy_from_slice(&cvs[count * /* ~ changed by cargo-mutants ~ */ i]);
+         }
+         let parents: arrayvec::ArrayVec<&[u8; BLOCK_LEN], GROUP> = pairs[..count].iter().collect();
+         // Sound: as above.
+         unsafe {
+             crate::neon_hybrid::hash_many_last_len(&parents, key, 0, IncrementCounter::No, flags | PARENT, 0, ROOT, BLOCK_LEN, digests.as_flattened_mut())
+         };
+     }
+ }

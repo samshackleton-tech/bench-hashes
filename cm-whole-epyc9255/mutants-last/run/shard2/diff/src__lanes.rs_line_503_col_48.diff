@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace << with >> in cut_with_prefix
+@@ -495,17 +495,17 @@
+     assert!(threads >= 2, "a serial call hashes the input whole");
+     assert!(len > MIN_PIECE_LEN, "one piece has no parent to merge; hash it whole instead");
+     assert!(prefix < len, "the SME2 thread's prefix leaves the pool some input");
+     let mut pieces = Vec::with_capacity(64);
+     let mut offset = 0;
+     let first_after = next_piece_len(len - prefix, threads);
+     let prefix = prefix / first_after * first_after;
+     while offset < prefix {
+-        let piece = MAX_PREFIX_PIECE_LEN.min(1 << (usize::BITS - 1 - (prefix - offset).leading_zeros()));
++        let piece = MAX_PREFIX_PIECE_LEN.min(1 >> /* ~ changed by cargo-mutants ~ */ (usize::BITS - 1 - (prefix - offset).leading_zeros()));
+         pieces.push(Piece { offset, len: piece });
+         offset += piece;
+     }
+     let own = pieces.len();
+     loop {
+         // What is left is the last piece once a share would take it all
+         // (a share is MIN_PIECE_LEN at least, so this ends).
+         let piece = next_piece_len(len - offset, threads);

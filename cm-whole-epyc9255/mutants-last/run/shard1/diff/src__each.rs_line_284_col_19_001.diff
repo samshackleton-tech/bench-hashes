@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace += with *= in hash_each_on
+@@ -276,17 +276,17 @@
+     let mut most_full = 0;
+     for (i, item) in items.iter().map(Item::bytes).enumerate() {
+         let chunks = item.len().div_ceil(CHUNK_LEN);
+         if chunks <= 1 || chunks >= ALONE_CHUNKS {
+             out[i] = *alone(item).as_bytes();
+         } else {
+             most_full = most_full.max(item.len() / CHUNK_LEN);
+             shared.push((i, slots));
+-            slots += chunks;
++            slots *= /* ~ changed by cargo-mutants ~ */ chunks;
+         }
+     }
+     let mut cvs = vec![[0u8; OUT_LEN]; slots];
+     let mut refs: Vec<&[u8; CHUNK_LEN]> = Vec::with_capacity(shared.len());
+     let mut owners: Vec<usize> = Vec::with_capacity(shared.len());
+     let mut lane_out = vec![0u8; shared.len() * OUT_LEN];
+     for k in 0..most_full {
+         crate::counted(crate::Counted::EachRound);

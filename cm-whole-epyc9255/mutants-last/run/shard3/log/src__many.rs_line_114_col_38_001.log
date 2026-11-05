@@ -1,0 +1,119 @@
+
+*** src/many.rs:114:38: replace * with / in hash_many_on
+
+*** mutation diff:
+--- src/many.rs
++++ replace * with / in hash_many_on
+@@ -106,17 +106,17 @@
+             8 => hash_blocks::<{ 8 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             9 => hash_blocks::<{ 9 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             10 => hash_blocks::<{ 10 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             11 => hash_blocks::<{ 11 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             12 => hash_blocks::<{ 12 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             13 => hash_blocks::<{ 13 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             14 => hash_blocks::<{ 14 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             15 => hash_blocks::<{ 15 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            16 => hash_blocks::<{ 16 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
++            16 => hash_blocks::<{ 16 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+             _ => unreachable!("messages of up to a chunk"),
+         }
+     }
+ }
+ 
+ /// Fewest messages of 2 to 16 blocks that go to SME2 as one more group of
+ /// sixteen, its spare lanes reading the last message again: 10 in a batch
+ /// of fewer than sixteen, 5 left over after the SME2 groups (where NEON
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-2n66otsp)
+error[E0080]: evaluation panicked: hash_many inputs are whole blocks
+   --> src/platform.rs:330:17
+    |
+330 |         const { assert!(N > 0 && N % BLOCK_LEN == 0, "hash_many inputs are whole blocks") };
+    |                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `platform::Platform::hash_many::<0>::{constant#1}` failed here
+
+note: erroneous constant encountered
+   --> src/platform.rs:330:9
+    |
+330 |         const { assert!(N > 0 && N % BLOCK_LEN == 0, "hash_many inputs are whole blocks") };
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+note: the above error was encountered while instantiating `fn platform::Platform::hash_many::<0>`
+   --> src/many.rs:590:9
+    |
+590 |         platform.hash_many::<N>(lanes, key, 0, IncrementCounter::No, flags, start, end, outputs.as_flattened_mut());
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error[E0080]: evaluation panicked: assertion failed: N > 0 && N <= 1024 && N % BLOCK_LEN == 0
+  --> src/ffi_avx512_32.rs:25:9
+   |
+25 |         assert!(N > 0 && N <= 1024 && N % BLOCK_LEN == 0);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `avx512_32::hash32::<0>::{constant#1}` failed here
+
+note: erroneous constant encountered
+  --> src/ffi_avx512_32.rs:24:5
+   |
+24 | /     const {
+25 | |         assert!(N > 0 && N <= 1024 && N % BLOCK_LEN == 0);
+26 | |     }
+   | |_____^
+
+note: the above error was encountered while instantiating `fn hash32::<0>`
+  --> src/ffi_avx512.rs:45:21
+   |
+45 | /                     crate::avx512_32::hash32(
+46 | |                         batch,
+47 | |                         key,
+48 | |                         counter.wrapping_add(if increment_counter.yes() { first as u64 } else { 0 }),
+...  |
+53 | |                         outputs,
+54 | |                     );
+   | |_____________________^
+
+error[E0080]: evaluation panicked: assertion failed: N > 0 && N <= 1024 && N % BLOCK_LEN == 0
+  --> src/ffi_avx512_32.rs:44:9
+   |
+44 |         assert!(N > 0 && N <= 1024 && N % BLOCK_LEN == 0);
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `avx512_32::hash16::<0>::{constant#1}` failed here
+
+note: erroneous constant encountered
+  --> src/ffi_avx512_32.rs:43:5
+   |
+43 | /     const {
+44 | |         assert!(N > 0 && N <= 1024 && N % BLOCK_LEN == 0);
+45 | |     }
+   | |_____^
+
+note: the above error was encountered while instantiating `fn hash16::<0>`
+  --> src/ffi_avx512.rs:67:21
+   |
+67 |                     crate::avx512_32::hash16(batch, key, counter, flags, flags_start, flags_end, outputs);
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0080`.
+error: could not compile `blake3-servil` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+note: the above error was encountered while instantiating `fn avx512_32::hash32::<0>`
+  --> src/ffi_avx512.rs:45:21
+   |
+45 | /                     crate::avx512_32::hash32(
+46 | |                         batch,
+47 | |                         key,
+48 | |                         counter.wrapping_add(if increment_counter.yes() { first as u64 } else { 0 }),
+...  |
+53 | |                         outputs,
+54 | |                     );
+   | |_____________________^
+
+note: the above error was encountered while instantiating `fn avx512_32::hash16::<0>`
+  --> src/ffi_avx512.rs:67:21
+   |
+67 |                     crate::avx512_32::hash16(batch, key, counter, flags, flags_start, flags_end, outputs);
+   |                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 3 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

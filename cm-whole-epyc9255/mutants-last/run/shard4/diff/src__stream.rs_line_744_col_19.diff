@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with -= in Stream<'env, D>::add_entry
+@@ -736,17 +736,17 @@
+     /// flight.
+     #[inline(always)]
+     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {
+         if self.next - self.delivered == ENTRIES {
+             self.wait_for_room();
+         }
+         let index = self.next % ENTRIES;
+         self.s.entries[index] = Entry { len, kind, first: index, ring_end };
+-        self.next += 1;
++        self.next -= /* ~ changed by cargo-mutants ~ */ 1;
+         index
+     }
+ 
+     /// Hand back places, and hash tasks, until an entry is free (out of
+     /// line: a frame of its own, set up only when the stream is full).
+     #[cold]
+     #[inline(never)]
+     fn wait_for_room(&mut self) {

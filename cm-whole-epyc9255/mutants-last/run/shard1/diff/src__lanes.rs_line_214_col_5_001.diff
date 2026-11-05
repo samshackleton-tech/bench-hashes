@@ -1,0 +1,23 @@
+--- src/lanes.rs
++++ replace next_piece_len -> usize with 1
+@@ -206,19 +206,17 @@
+ pub(crate) const SPIN_BEFORE_SLEEP: std::time::Duration = std::time::Duration::from_micros(200);
+ 
+ /// The length of the next piece when `remaining` bytes are uncut and
+ /// `threads` threads may share them: about a thread's share of what is
+ /// left, rounded down to a power of two chunks within the bounds above.
+ /// `threads` is positive. Pieces therefore shrink toward the end of the input, and the slowest
+ /// thread's last piece is a small one.
+ fn next_piece_len(remaining: usize, threads: usize) -> usize {
+-    debug_assert!(threads > 0, "a cut needs at least one thread");
+-    let want = (remaining / threads).clamp(MIN_PIECE_LEN, MAX_PIECE_LEN);
+-    1 << (usize::BITS - 1 - want.leading_zeros())
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Hash `input` over the machine's threads in the mode of `key` and
+ /// `flags` (IV and 0 for plain hashing).
+ #[inline]
+ pub(crate) fn hash_with_key(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+     // The short path first and inline, so a small input costs what hash()
+     // costs; everything the pool needs is behind the call below.

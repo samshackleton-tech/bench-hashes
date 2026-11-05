@@ -1,0 +1,54 @@
+--- src/platform.rs
++++ replace read_x86_features -> u8 with 1
+@@ -486,50 +486,17 @@
+ /// [`x86_features`] from CPUID: leaf 1, and, where the CPU has AVX and the
+ /// OS saves its registers (XSAVE, OSXSAVE, AVX, then XCR0), leaf 7. Every
+ /// CPU with AVX has leaf 7.
+ #[cfg(target_arch = "x86_64")]
+ #[cold]
+ // Read by the x86 kernels' dispatch and the tests.
+ #[cfg_attr(not(blake3_sse41_ffi), allow(dead_code))]
+ fn read_x86_features() -> u8 {
+-    use core::arch::x86_64 as arch;
+-    use x86_bits::*;
+-    // Sound: every x86-64 CPU has CPUID. (Safe since Rust 1.94; unsafe
+-    // before.)
+-    #[allow(unused_unsafe)]
+-    let leaf1 = unsafe { arch::__cpuid(1) };
+-    let mut features = READ;
+-    if leaf1.ecx & (1 << 19) != 0 {
+-        features |= SSE41;
+-    }
+-    let avx = (1 << 26) | (1 << 27) | (1 << 28);
+-    if leaf1.ecx & avx == avx {
+-        // Sound: OSXSAVE (bit 27) says the OS enabled XGETBV.
+-        let xcr0 = unsafe { arch::_xgetbv(0) };
+-        // Sound: as leaf 1; leaf 7 exists where AVX does.
+-        #[allow(unused_unsafe)]
+-        let leaf7 = unsafe { arch::__cpuid_count(7, 0) };
+-        let (ymm, zmm) = (0b110, 0b1110_0110);
+-        if xcr0 & ymm == ymm && leaf7.ebx & (1 << 5) != 0 {
+-            features |= AVX2;
+-        }
+-        let f_vl = (1 << 16) | (1 << 31);
+-        if xcr0 & zmm == zmm && leaf7.ebx & f_vl == f_vl {
+-            features |= AVX512;
+-            // Sound: as leaf 1; leaf 0 names the vendor.
+-            #[allow(unused_unsafe)]
+-            let leaf0 = unsafe { arch::__cpuid(0) };
+-            let amd = (leaf0.ebx, leaf0.edx, leaf0.ecx) == (0x6874_7541, 0x6974_6e65, 0x444d_4163); // "AuthenticAMD"
+-            if wide_cpu(amd, family(leaf1.eax)) {
+-                features |= WIDE;
+-            }
+-        }
+-    }
+-    features
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The display family of CPUID leaf 1's EAX: the base family, plus the
+ /// extended family where the base is 0xF.
+ #[cfg(target_arch = "x86_64")]
+ #[cfg_attr(not(blake3_sse41_ffi), allow(dead_code))]
+ fn family(eax: u32) -> u32 {
+     let base = (eax >> 8) & 0xF;

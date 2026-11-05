@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace Hash::from_slice -> Result<Self, core::array::TryFromSliceError> with Ok(Default::default())
+@@ -446,17 +446,17 @@
+     pub const fn as_slice(&self) -> &[u8] {
+         self.0.as_slice()
+     }
+ 
+     /// Create a `Hash` from its raw bytes representation as a slice.
+     ///
+     /// Returns an error if the slice is not exactly 32 bytes long.
+     pub fn from_slice(bytes: &[u8]) -> Result<Self, core::array::TryFromSliceError> {
+-        Ok(Self::from_bytes(bytes.try_into()?))
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Encode a `Hash` in lowercase hexadecimal.
+     ///
+     /// The returned [`ArrayString`] is a fixed size and doesn't allocate memory
+     /// on the heap. Note that [`ArrayString`] doesn't provide constant-time
+     /// equality checking, so if you need to compare hashes, prefer the `Hash`
+     /// type.

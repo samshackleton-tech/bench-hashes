@@ -1,0 +1,21 @@
+--- src/ffi_partial.rs
++++ replace * with / in hash_chunks_with_partial
+@@ -67,17 +67,17 @@
+         msg: [padded.as_ptr(); W],
+         key: core::array::from_fn(|i| [key[i]; W]),
+         iv: core::array::from_fn(|i| [IV[i]; W]),
+         rot16: rotation(2),
+         rot8: rotation(1),
+         ctr: [core::array::from_fn(|j| (counter + j as u64) as u32), core::array::from_fn(|j| ((counter + j as u64) >> 32) as u32)],
+         lens: [[64; W]; 16],
+         flags: [[flags; W]; 16],
+-        last: core::array::from_fn(|i| if i == 0 { 64 * last as u32 } else { 0 }),
++        last: core::array::from_fn(|i| if i == 0 { 64 / /* ~ changed by cargo-mutants ~ */ last as u32 } else { 0 }),
+         h: [[0; W]; 8],
+         snap: [[0; W]; 8],
+     };
+     // Every block is whole and carries `flags`, but for three places: each
+     // lane's first block starts a chunk, its sixteenth ends one, and the
+     // partial lane's last block holds `last_len` bytes and ends its chunk.
+     // Filled whole and patched, not entry by entry: built entry by entry,
+     // the 16-by-4 tables unrolled into 20 KB of code that a cold call

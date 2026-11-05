@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace | with ^ in hash_one_chunk_root
+@@ -904,17 +904,17 @@
+             block.0[..tail.len()].copy_from_slice(tail);
+             padded = block;
+             &padded.0
+         }
+     };
+     let mut out = [0u8; OUT_LEN];
+     // Safe: `input` holds `whole` bytes before `tail`, and blocks is 1..=16.
+     unsafe {
+-        neon_hybrid::hash_chunk(input.as_ptr(), blocks, last, tail.len() as u8, key, 0, flags, CHUNK_START, CHUNK_END | ROOT, &mut out);
++        neon_hybrid::hash_chunk(input.as_ptr(), blocks, last, tail.len() as u8, key, 0, flags, CHUNK_START, CHUNK_END ^ /* ~ changed by cargo-mutants ~ */ ROOT, &mut out);
+     }
+     Hash(out)
+ }
+ 
+ // Hash a whole subtree at its chunk counter (or the whole input at zero).
+ // Unlike the wider helpers above, this also handles one chunk or less.
+ // The pool's pieces (lanes.rs) use it; the one-shot calls go through
+ // tree::hash.

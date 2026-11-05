@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace / with * in prefetch_update_kernels
+@@ -1263,17 +1263,17 @@
+ #[cfg(all(blake3_neon, feature = "std"))]
+ fn prefetch_update_kernels(len: usize, platform: Platform) {
+     if !neon_hybrid::sha3_detected() {
+         return;
+     }
+     let (mut counter, mut left) = (0u64, len);
+     while left > CHUNK_LEN {
+         let subtree = hasher::subtree_len(counter, left);
+-        let chunks = subtree / CHUNK_LEN;
++        let chunks = subtree * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;
+         #[cfg(blake3_sme2)]
+         if matches!(platform, Platform::SME2) && chunks >= 16 {
+             sme2::prefetch_code();
+             if !sme2::flat_takes(subtree) {
+                 neon_hybrid::prefetch_parent_code(16);
+             }
+             counter += chunks as u64;
+             left -= subtree;

@@ -1,0 +1,26 @@
+--- src/lanes.rs
++++ replace now -> std::time::Instant with Default::default()
+@@ -156,22 +156,17 @@
+ /// test_the_pool_reads_time_through_now), so the tests' clock can stand
+ /// in: set, it answers a fixed instant plus what the test set, stepping
+ /// by the test's step at each read, so a wait that polls until time
+ /// passes ends when the test says (BLAKE3 #219: SPIN, SPIN_BEFORE_SLEEP
+ /// and YIELD_EVERY stay in microseconds, and their comparisons are
+ /// counted exactly).
+ #[inline(always)]
+ fn now() -> std::time::Instant {
+-    #[cfg(test)]
+-    if let Some((base, at, step)) = TEST_CLOCK.with(|c| c.get()) {
+-        TEST_CLOCK.with(|c| c.set(Some((base, at + step, step))));
+-        return base + at;
+-    }
+-    std::time::Instant::now()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The tests' clock for now(): a fixed instant, the time past it that
+     /// now() answers next, and its step at each read (None: the real
+     /// clock).
+     pub(crate) static TEST_CLOCK: core::cell::Cell<Option<(std::time::Instant, std::time::Duration, std::time::Duration)>> = const { core::cell::Cell::new(None) };

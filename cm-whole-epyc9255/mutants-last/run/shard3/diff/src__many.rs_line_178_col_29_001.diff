@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with / in hash_chunked
+@@ -170,17 +170,17 @@
+     let grouped = outputs.len() - alone;
+     let (groups, rest) = outputs.split_at_mut(grouped);
+     for (i, output) in rest.iter_mut().enumerate() {
+         *output = *crate::hash_serial_on(&input[(grouped + i) * slot..][..len], key, flags, platform).as_bytes();
+     }
+     for (g, digests) in groups.chunks_mut(GROUP).enumerate() {
+         let mut lanes = [core::ptr::null::<u8>(); GROUP];
+         for (i, lane) in lanes.iter_mut().enumerate() {
+-            let message = g * GROUP + i.min(digests.len() - 1);
++            let message = g / /* ~ changed by cargo-mutants ~ */ GROUP + i.min(digests.len() - 1);
+             *lane = input[message * slot..][..slot].as_ptr();
+         }
+         // Sound: the caller found SME2 (platform_is_sme2), and every lane
+         // points at a whole slot inside `input`, zero past its message.
+         unsafe { crate::sme2::hash_chunked_messages(&lanes, len, key, flags, digests.as_flattened_mut()) };
+     }
+ }
+ 

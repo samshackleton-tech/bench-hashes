@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace - with / in Stream<'env, D>::wait_for_room
+@@ -746,17 +746,17 @@
+     }
+ 
+     /// Hand back places, and hash tasks, until an entry is free (out of
+     /// line: a frame of its own, set up only when the stream is full).
+     #[cold]
+     #[inline(never)]
+     fn wait_for_room(&mut self) {
+         self.publish();
+-        while self.next - self.delivered == ENTRIES {
++        while self.next / /* ~ changed by cargo-mutants ~ */ self.delivered == ENTRIES {
+             self.help();
+         }
+     }
+ 
+     /// Hand the open task to the pool.
+     fn publish(&mut self) {
+         if let Some(task) = self.open.take() {
+             // Before the push, whose lock orders it before the threads' reads.

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace splits -> bool with true
+@@ -683,17 +683,17 @@
+ #[inline]
+ pub(crate) fn require() {
+     pool();
+ }
+ 
+ /// Whether a call may leave the calling thread: the process has more
+ /// than one CPU. Requires the pool (`require`).
+ pub(crate) fn splits() -> bool {
+-    pool().threads > 1
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The pool, once [`initialize`] has created it.
+ static POOL: OnceLock<Pool> = OnceLock::new();
+ 
+ /// Set in a child forked after the pool started its threads (the fork
+ /// handler, `pthread_atfork`'s child): the child has none of them.
+ static FORKED: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);

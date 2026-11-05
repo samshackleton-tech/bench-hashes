@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ delete match arm crate::BLOCK_LEN in Task::run_members
+@@ -1359,17 +1359,17 @@
+                 crate::many::hash_many_on(bytes, message_len, &self.key, self.flags, digests, platform);
+             }
+             return;
+         }
+         // Sound: the stream keeps every member's bytes and `out` in place
+         // until the task's `left` is zero.
+         if members.len() >= 2 && members.iter().all(|m| m.len == members[0].len) {
+             match members[0].len {
+-                crate::BLOCK_LEN => return self.run_equal_members::<{ crate::BLOCK_LEN }>(platform),
++                 /* ~ changed by cargo-mutants ~ */
+                 #[cfg(target_arch = "x86_64")]
+                 128 => return self.run_equal_members::<128>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 256 => return self.run_equal_members::<256>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 512 => return self.run_equal_members::<512>(platform),
+                 #[cfg(target_arch = "x86_64")]
+                 CHUNK_LEN => return self.run_equal_members::<CHUNK_LEN>(platform),

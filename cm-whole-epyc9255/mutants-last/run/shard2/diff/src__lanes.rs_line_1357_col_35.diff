@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace / with % in Task::run_members
+@@ -1349,17 +1349,17 @@
+     /// of two (128 B to 1 KiB); any others one at a time.
+     fn run_members(&self, platform: Platform) {
+         let members = &self.member[..self.members];
+         if let Some(message_len) = self.batch {
+             for m in members {
+                 // Sound: the stream keeps each batch's bytes and digest
+                 // space in place until the task's `left` is zero.
+                 let bytes = unsafe { core::slice::from_raw_parts(m.input, m.len) };
+-                let count = m.len / crate::many::slot_len(message_len);
++                let count = m.len % /* ~ changed by cargo-mutants ~ */ crate::many::slot_len(message_len);
+                 let digests = unsafe { core::slice::from_raw_parts_mut(m.out as *mut [u8; crate::OUT_LEN], count) };
+                 crate::many::hash_many_on(bytes, message_len, &self.key, self.flags, digests, platform);
+             }
+             return;
+         }
+         // Sound: the stream keeps every member's bytes and `out` in place
+         // until the task's `left` is zero.
+         if members.len() >= 2 && members.iter().all(|m| m.len == members[0].len) {

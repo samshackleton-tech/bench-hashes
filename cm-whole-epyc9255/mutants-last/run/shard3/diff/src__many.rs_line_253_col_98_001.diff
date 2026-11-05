@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with ^ in hash_two_chunks
+@@ -245,17 +245,17 @@
+         }
+         for (i, pair) in pairs[..count].iter_mut().enumerate() {
+             pair[..OUT_LEN].copy_from_slice(&cvs[i]);
+             pair[OUT_LEN..].copy_from_slice(&cvs[count + i]);
+         }
+         let parents: arrayvec::ArrayVec<&[u8; BLOCK_LEN], GROUP> = pairs[..count].iter().collect();
+         // Sound: as above.
+         unsafe {
+-            crate::neon_hybrid::hash_many_last_len(&parents, key, 0, IncrementCounter::No, flags | PARENT, 0, ROOT, BLOCK_LEN, digests.as_flattened_mut())
++            crate::neon_hybrid::hash_many_last_len(&parents, key, 0, IncrementCounter::No, flags ^ /* ~ changed by cargo-mutants ~ */ PARENT, 0, ROOT, BLOCK_LEN, digests.as_flattened_mut())
+         };
+     }
+ }
+ 
+ /// Keep long-message tree work outside the short-message dispatcher's frame.
+ #[cfg(target_arch = "x86_64")]
+ #[inline(never)]
+ fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {

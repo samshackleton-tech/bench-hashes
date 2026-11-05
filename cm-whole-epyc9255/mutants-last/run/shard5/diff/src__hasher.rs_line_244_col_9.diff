@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::new_chunk -> ChunkState<P> with ChunkState::new()
+@@ -236,17 +236,17 @@
+     fn parent(&self, left: &Cv, right: &Cv) -> Cv {
+         parent_output(left, right, self.key, self.flags, self.platform).chaining_value()
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H: Hooks> Feed<ChunkState<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn new_chunk(&self, counter: u64) -> ChunkState<P> {
+-        ChunkState::new(self.key, counter, self.flags, self.platform)
++        ChunkState::new() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn chunk_cv(&self, chunk: &ChunkState<P>) -> Cv {
+         chunk.output().chaining_value()
+     }
+ 
+     #[inline(always)]

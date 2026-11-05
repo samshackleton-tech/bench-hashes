@@ -1,0 +1,24 @@
+--- src/platform.rs
++++ replace <impl Drop for Sme2Turn>::drop with ()
+@@ -100,20 +100,17 @@
+     pub(crate) fn platform(&self) -> Platform {
+         self.platform
+     }
+ }
+ 
+ impl Drop for Sme2Turn {
+     #[inline]
+     fn drop(&mut self) {
+-        #[cfg(blake3_sme2)]
+-        if self.held {
+-            SME2_BUSY.0.store(false, core::sync::atomic::Ordering::Relaxed);
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The platform `initialize` detected, as its discriminant (1 and up), or 0
+ /// before `initialize` has run.
+ static DETECTED: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(0);
+ 
+ /// A call before `initialize`: the caller broke the contract. The crate's

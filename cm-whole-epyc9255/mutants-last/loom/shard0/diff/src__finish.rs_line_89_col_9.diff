@@ -1,0 +1,36 @@
+--- src/finish.rs
++++ replace Finish::wait with ()
+@@ -81,32 +81,17 @@
+             }
+         }
+     }
+ 
+     /// Wait until the count reaches `target`: `poll` a while (it returns
+     /// false when the while is up), then parked until the worker finishing
+     /// the last piece unparks this thread.
+     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {
+-        loop {
+-            if self.finished_count() >= target {
+-                return;
+-            }
+-            if !poll() {
+-                break;
+-            }
+-        }
+-        // The bit and the count in one read: a finisher after this sees
+-        // the bit; one before it left its count here.
+-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+-        while count < target {
+-            thread::park();
+-            count = self.finished_count();
+-        }
+-        self.state.fetch_and(!SLEEPING, Ordering::SeqCst);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)
+ // the file compiles beside Shuttle's primitives, which have no sleep.
+ #[cfg(all(test, not(shuttle)))]
+ mod tests {
+     use super::*;

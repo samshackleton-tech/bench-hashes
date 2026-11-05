@@ -1,0 +1,24 @@
+--- src/tree.rs
++++ replace hash -> Cv with Default::default()
+@@ -102,20 +102,17 @@
+         let mut next = [[0u8; OUT_LEN]; MAX / 2];
+         children(k, input, ahead, counter, &mut cvs, &mut next)
+     }
+ }
+ 
+ /// The hash (the 32-byte root output) of `input`.
+ #[inline(always)]
+ pub fn hash<K: Kernels>(k: &K, input: &[u8]) -> Cv {
+-    if input.len() <= CHUNK_LEN {
+-        return k.chunk_root(input);
+-    }
+-    hash_tree(k, input)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// A tree of two chunks or more, out of line: its frame (the children's
+ /// chaining values, 64-byte aligned, and the registers it saves) would
+ /// otherwise be set up on every call, a chunk or less included, whose one
+ /// kernel call needs none of it.
+ #[inline(never)]
+ fn hash_tree<K: Kernels>(k: &K, input: &[u8]) -> Cv {

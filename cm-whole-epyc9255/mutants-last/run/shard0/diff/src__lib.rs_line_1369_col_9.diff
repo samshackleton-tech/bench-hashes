@@ -1,0 +1,31 @@
+--- src/lib.rs
++++ replace OutputReader::fill_one_block with ()
+@@ -1361,27 +1361,17 @@
+     fn new(inner: Output) -> Self {
+         Self { inner, position_within_block: 0 }
+     }
+ 
+     // This helper function handles both the case where the output buffer is
+     // shorter than one block, and the case where our position_within_block is
+     // non-zero.
+     fn fill_one_block(&mut self, buf: &mut &mut [u8]) {
+-        let output_block: [u8; BLOCK_LEN] = self.inner.root_output_block();
+-        let output_bytes = &output_block[self.position_within_block as usize..];
+-        let take = cmp::min(buf.len(), output_bytes.len());
+-        buf[..take].copy_from_slice(&output_bytes[..take]);
+-        self.position_within_block += take as u8;
+-        if self.position_within_block == BLOCK_LEN as u8 {
+-            self.inner.counter += 1;
+-            self.position_within_block = 0;
+-        }
+-        // Advance the dest buffer. mem::take() is a borrowck workaround.
+-        *buf = &mut core::mem::take(buf)[take..];
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Fill a buffer with output bytes and advance the position of the
+     /// `OutputReader`. This is equivalent to [`Read::read`], except that it
+     /// doesn't return a `Result`. Both methods always fill the entire buffer.
+     ///
+     /// Note that `OutputReader` doesn't buffer output bytes internally, so
+     /// calling `fill` repeatedly with a short-length or odd-length slice will

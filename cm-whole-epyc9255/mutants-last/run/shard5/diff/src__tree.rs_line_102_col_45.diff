@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace / with % in root_children
+@@ -94,17 +94,17 @@
+         return c;
+     }
+     if input.len() <= SMALL * CHUNK_LEN {
+         let mut cvs = [[0u8; OUT_LEN]; SMALL];
+         let mut next = [[0u8; OUT_LEN]; SMALL / 2];
+         children(k, input, ahead, counter, &mut cvs, &mut next)
+     } else {
+         let mut cvs = [[0u8; OUT_LEN]; MAX];
+-        let mut next = [[0u8; OUT_LEN]; MAX / 2];
++        let mut next = [[0u8; OUT_LEN]; MAX % /* ~ changed by cargo-mutants ~ */ 2];
+         children(k, input, ahead, counter, &mut cvs, &mut next)
+     }
+ }
+ 
+ /// The hash (the 32-byte root output) of `input`.
+ #[inline(always)]
+ pub fn hash<K: Kernels>(k: &K, input: &[u8]) -> Cv {
+     if input.len() <= CHUNK_LEN {

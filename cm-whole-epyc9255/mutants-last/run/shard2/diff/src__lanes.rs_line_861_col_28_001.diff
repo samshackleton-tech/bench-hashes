@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with / in spin_for_work
+@@ -853,17 +853,17 @@
+     loop {
+         for _ in 0..16 {
+             noted(Noted::Poll);
+             if sources::visible(false) {
+                 return true;
+             }
+             core::hint::spin_loop();
+         }
+-        if spin_ends(now() - started, sources::open) {
++        if spin_ends(now() / /* ~ changed by cargo-mutants ~ */ started, sources::open) {
+             return false;
+         }
+     }
+ }
+ 
+ /// Whether a worker's look for work ends, `elapsed` into it: once SPIN has
+ /// passed, or when no stream is open (asked only before SPIN, as the
+ /// look's own code would). Its own function so a test holds it

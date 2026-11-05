@@ -1,0 +1,26 @@
+--- src/lanes.rs
++++ replace sources::take_stream_task -> Option<Task> with None
+@@ -1145,22 +1145,17 @@
+                 }
+             }
+             true
+         })
+     }
+ 
+     /// A task from any stream (the SME2 thread takes these alone).
+     pub(crate) fn take_stream_task() -> Option<Task> {
+-        let mut found = None;
+-        find(|source| {
+-            found = if source.ring.is_empty() { None } else { source.take_task() };
+-            found.is_some()
+-        });
+-        found
++        None /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Whether any source has work waiting (`streams`: any stream).
+     pub(crate) fn visible(streams: bool) -> bool {
+         find(|source| (!streams || !source.ring.is_empty()) && source.waiting() > 0)
+     }
+ 
+     #[cfg(test)]

@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace % with + in hash_chunked
+@@ -156,17 +156,17 @@
+ /// messages left over past whole groups make one more group, its spare
+ /// lanes repeating the last message, when there are sme2_chunked_min of
+ /// them, and otherwise run through hash() one at a time, first.
+ #[cfg(blake3_sme2)]
+ #[inline(never)]
+ fn hash_chunked(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     const GROUP: usize = 16;
+     let slot = slot_len(len);
+-    let left = outputs.len() % GROUP;
++    let left = outputs.len() + /* ~ changed by cargo-mutants ~ */ GROUP;
+     // Past whole groups a group pays from two messages sooner: hash() calls
+     // beside the SME2 kernels run in their slow state (VM, 22 x 2 KiB: 630
+     // ns per message with six alone, 486 with a padded group).
+     let min = if outputs.len() > GROUP { sme2_chunked_min(len) - 2 } else { sme2_chunked_min(len) };
+     let alone = if left >= min { 0 } else { left };
+     let grouped = outputs.len() - alone;
+     let (groups, rest) = outputs.split_at_mut(grouped);
+     for (i, output) in rest.iter_mut().enumerate() {

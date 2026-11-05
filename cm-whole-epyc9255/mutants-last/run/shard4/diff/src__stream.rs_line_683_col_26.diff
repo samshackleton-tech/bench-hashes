@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace - with + in Stream<'env, D>::reserve
+@@ -675,17 +675,17 @@
+         self.hand_over(task);
+     }
+ 
+     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,
+     /// before the ring's end), reserved: waits, handing places back and
+     /// hashing tasks, until entries in flight free them.
+     fn reserve(&mut self, len: usize) -> usize {
+         let (at, taken) = room(self.head, RING_BYTES, len);
+-        while RING_BYTES - (self.head - self.tail) < taken {
++        while RING_BYTES + /* ~ changed by cargo-mutants ~ */ (self.head - self.tail) < taken {
+             self.publish();
+             self.help();
+         }
+         self.head += taken;
+         at
+     }
+ 
+     /// `reserve`, in the long ring.

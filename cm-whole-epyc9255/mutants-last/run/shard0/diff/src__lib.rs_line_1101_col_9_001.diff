@@ -1,0 +1,26 @@
+--- src/lib.rs
++++ replace Mode<'_>::key_and_flags -> (CVWords, u8) with (Default::default(), 1)
+@@ -1093,22 +1093,17 @@
+                 (room.write(key), flags)
+             }
+         }
+     }
+ 
+     /// The key words and flags this mode hashes with.
+     #[inline]
+     fn key_and_flags(self) -> (CVWords, u8) {
+-        match self {
+-            Mode::Plain => (*IV, 0),
+-            Mode::Keyed(key) => (platform::words_from_le_bytes_32(key), KEYED_HASH),
+-            Mode::DeriveKey(context) => (platform::words_from_le_bytes_32(&performance::context_key(context)), DERIVE_KEY_MATERIAL),
+-            Mode::DeriveKeyWith(context_key) => (platform::words_from_le_bytes_32(context_key), DERIVE_KEY_MATERIAL),
+-        }
++        (Default::default(), 1) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The whole input on the calling thread, in the given mode: the one-chunk
+ /// kernel call up to CHUNK_LEN, the subtree walk above. hash(),
+ /// hash() in its modes and hash_multithreaded()'s short path all come
+ /// through here.
+ #[inline]

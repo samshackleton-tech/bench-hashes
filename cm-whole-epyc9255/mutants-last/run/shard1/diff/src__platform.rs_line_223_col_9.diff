@@ -1,0 +1,43 @@
+--- src/platform.rs
++++ replace Platform::simd_degree -> usize with 0
+@@ -215,39 +215,17 @@
+             #[cfg(blake3_neon)]
+             Platform::NEON => "NEON",
+             #[cfg(blake3_sme2)]
+             Platform::SME2 => "SME2",
+         }
+     }
+ 
+     pub fn simd_degree(&self) -> usize {
+-        let degree = match self {
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 => 4,
+-            #[cfg(blake3_avx2_ffi)]
+-            Platform::AVX2 => 8,
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => {
+-                if cfg!(target_os = "linux") {
+-                    32
+-                } else {
+-                    16
+-                }
+-            }
+-            // Sixteen chunks per call reach the k10 kernel (see
+-            // neon_hybrid), in both its families.
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => 16,
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => crate::sme2::DEGREE,
+-        };
+-        debug_assert!((2..=MAX_SIMD_DEGREE).contains(&degree), "the walk (src/tree.rs) takes 2 to MAX_SIMD_DEGREE chunks a call");
+-        degree
++        0 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+         match self {
+             // Safe because detect() checked for platform support.
+             #[cfg(blake3_sse41_ffi)]
+             Platform::SSE41 | Platform::AVX2 => unsafe { crate::sse41::compress_in_place(cv, block, block_len, counter, flags) },
+             // Safe because detect() checked for platform support.

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace << with >> in sources::Source::register
+@@ -940,17 +940,17 @@
+                 finish: crate::finish::Finish::new(),
+             }
+         }
+ 
+         /// Register for the workers: the slot, or None when all are taken.
+         pub(crate) fn register(&'static self) -> Option<usize> {
+             let ptr = self as *const Source as *mut Source;
+             let slot = (0..SLOTS).find(|&i| REGISTERED[i].compare_exchange(core::ptr::null_mut(), ptr, Ordering::SeqCst, Ordering::Relaxed).is_ok())?;
+-            ACTIVE.fetch_or(1 << slot, Ordering::SeqCst);
++            ACTIVE.fetch_or(1 >> /* ~ changed by cargo-mutants ~ */ slot, Ordering::SeqCst);
+             Some(slot)
+         }
+ 
+         pub(crate) fn unregister(slot: usize) {
+             ACTIVE.fetch_and(!(1 << slot), Ordering::SeqCst);
+             REGISTERED[slot].store(core::ptr::null_mut(), Ordering::SeqCst);
+         }
+ 

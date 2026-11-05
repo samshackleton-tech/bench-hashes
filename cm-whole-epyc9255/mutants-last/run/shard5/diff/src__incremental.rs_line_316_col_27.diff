@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace + with - in Hasher::count
+@@ -308,17 +308,17 @@
+     /// [`OutputReader`]: struct.OutputReader.html
+     pub fn finalize_xof(&self) -> OutputReader {
+         assert_eq!(self.core.initial_chunk_counter, 0, "set_input_offset must be used with finalize_non_root",);
+         OutputReader::new(self.final_output())
+     }
+ 
+     /// The number of bytes passed to [`update`](Hasher::update) so far.
+     pub fn count(&self) -> u64 {
+-        self.core.count() + self.staged as u64
++        self.core.count() - /* ~ changed by cargo-mutants ~ */ self.staged as u64
+     }
+ 
+     /// As [`update`](Hasher::update), but reading from a
+     /// [`std::io::Read`](https://doc.rust-lang.org/std/io/trait.Read.html) implementation.
+     ///
+     /// [`Hasher`] implements
+     /// [`std::io::Write`](https://doc.rust-lang.org/std/io/trait.Write.html), so it's possible to
+     /// use [`std::io::copy`](https://doc.rust-lang.org/std/io/fn.copy.html) to update a [`Hasher`]

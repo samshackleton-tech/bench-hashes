@@ -1,0 +1,24 @@
+--- src/performance.rs
++++ replace hash_multithreaded -> Hash with Default::default()
+@@ -154,20 +154,17 @@
+ ///
+ /// The program calls [`initialize_multithreaded`](crate::initialize_multithreaded) first; a call before it
+ /// panics.
+ #[cfg(feature = "std")]
+ // Inlined, so a constant mode folds to its constants (as
+ // convenience::hash is: no mode stored for the call to read).
+ #[inline]
+ pub fn hash_multithreaded(mode: Mode, input: &[Block], len: usize) -> Hash {
+-    crate::lanes::require();
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    crate::lanes::hash_with_key(&Block::bytes(input)[..len], key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Hash a key-derivation context string and return a [`ContextKey`].
+ ///
+ /// This has the same security requirement as key derivation. **The context
+ /// string should be hardcoded, globally unique, and application-specific.**
+ ///
+ /// Its one use is [`Mode::DeriveKeyWith`]: a program that derives many

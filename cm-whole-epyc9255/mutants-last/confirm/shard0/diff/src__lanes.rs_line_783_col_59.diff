@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with + in Pool::run_job
+@@ -775,17 +775,17 @@
+         let ptr = &job as *const Job as *mut Job<'static>;
+         let published = AbortOnUnwind;
+         let target = source.publish_job(ptr, pieces, own);
+         if slot.is_some() {
+             // A worker for each piece past the caller's first (none for a
+             // job of one past its own: a wake for none is nothing); for a
+             // tree, within the wide kernel's thread budget.
+             let wanted = match &job.work {
+-                Work::Tree { input, .. } => (pieces - own - 1).min(tree_threads(input.len(), self.threads, own_platform.simd_degree()).saturating_sub(1)),
++                Work::Tree { input, .. } => (pieces - own + /* ~ changed by cargo-mutants ~ */ 1).min(tree_threads(input.len(), self.threads, own_platform.simd_degree()).saturating_sub(1)),
+                 _ => pieces - own - 1,
+             };
+             #[cfg(test)]
+             WAKES_WANTED.with(|w| w.set(Some(wanted)));
+             self.wake_for(wanted);
+         }
+         for index in 0..own {
+             // Sound: the workers' pieces start past these.

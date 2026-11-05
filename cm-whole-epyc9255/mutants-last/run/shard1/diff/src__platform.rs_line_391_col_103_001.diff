@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace / with * in Platform::xof_many
+@@ -383,17 +383,17 @@
+                 };
+                 // Then four or eight at a time on NEON (AArch64): CPUs
+                 // without SME2, and SME2's leftovers; the last one to three
+                 // blocks after them (neon_hybrid::xof_tail).
+                 #[cfg(blake3_neon)]
+                 {
+                     let done = crate::neon_hybrid::xof_many(cv, block, block_len, counter, flags, out);
+                     if done < out.len() {
+-                        crate::neon_hybrid::xof_tail(cv, block, block_len, counter.wrapping_add((done / BLOCK_LEN) as u64), flags, &mut out[done..]);
++                        crate::neon_hybrid::xof_tail(cv, block, block_len, counter.wrapping_add((done * /* ~ changed by cargo-mutants ~ */ BLOCK_LEN) as u64), flags, &mut out[done..]);
+                     }
+                 }
+                 // SSE4.1 and AVX2, without an xof_many kernel: block by block.
+                 #[cfg(target_arch = "x86_64")]
+                 for out_block in out.chunks_exact_mut(BLOCK_LEN) {
+                     // TODO: Use array_chunks_mut here once that's stable.
+                     let out_array: &mut [u8; BLOCK_LEN] = out_block.try_into().unwrap();
+                     *out_array = self.compress_xof(cv, block, block_len, counter, flags);

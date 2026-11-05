@@ -1,0 +1,31 @@
+--- src/many.rs
++++ replace hash_run with ()
+@@ -407,27 +407,17 @@
+ /// `messages`: whole SME2 groups on the message kernel, the last padded,
+ /// where the count calls for it; otherwise the platform's `hash_many` (the
+ /// parent kernels and the NEON plans). Kept out of line:
+ /// with all sixteen lengths inlined into hash_many_on, batches of two
+ /// 64-byte messages took 30% longer (VM, bench-hashes); out of line they
+ /// cost what they did before.
+ #[inline(never)]
+ fn hash_run<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+-    #[cfg(blake3_sme2)]
+-    if platform_is_sme2(platform) && outputs.len() % 16 >= if outputs.len() > 16 { ONE_BLOCK_PAD_AFTER_GROUPS } else { ONE_BLOCK_PAD_MIN } {
+-        return hash_run_padded::<N>(messages, key, flags, outputs, BLOCK_LEN);
+-    }
+-    let mut table: [core::mem::MaybeUninit<&[u8; N]>; TABLE] = [core::mem::MaybeUninit::uninit(); TABLE];
+-    for (slot, message) in table[..outputs.len()].iter_mut().zip(messages.chunks_exact(N)) {
+-        slot.write(message.try_into().expect("messages of N bytes"));
+-    }
+-    // Sound: the first outputs.len() slots were written just above.
+-    let filled: &[&[u8; N]] = unsafe { core::slice::from_raw_parts(table.as_ptr() as *const &[u8; N], outputs.len()) };
+-    platform.hash_many::<N>(filled, key, 0, IncrementCounter::No, flags | CHUNK_START | CHUNK_END | ROOT, 0, 0, outputs.as_flattened_mut());
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// One-block messages on SME2, every group on the message kernel, the
+ /// last one padded, their last block `last_len` bytes.
+ #[cfg(blake3_sme2)]
+ #[inline(never)]
+ fn hash_run_padded<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], last_len: usize) {
+     let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];

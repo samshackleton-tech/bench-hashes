@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace + with - in compress_chunks_parallel
+@@ -779,17 +779,17 @@
+         let (whole, partial) = (&chunks_array[..], chunks_exact.remainder());
+         // Sound: spare_lane admits each width only on a platform whose CPU
+         // has its instructions.
+         if lanes == 4 {
+             unsafe { ffi_partial::hash_chunks_with_partial_sse41(whole, partial, key, chunk_counter, flags, out) };
+         } else {
+             unsafe { ffi_partial::hash_chunks_with_partial_avx2(whole, partial, key, chunk_counter, flags, out) };
+         }
+-        return whole.len() + 1;
++        return whole.len() - /* ~ changed by cargo-mutants ~ */ 1;
+     }
+     // Whole chunks and a partial one, on the NEON hybrids: where a q kernel
+     // covers the count, the partial chunk runs on the scalar units beside
+     // the whole chunks rather than after them.
+     #[cfg(blake3_neon)]
+     let hybrids = matches!(platform, Platform::NEON);
+     #[cfg(blake3_sme2)]
+     let hybrids = hybrids || matches!(platform, Platform::SME2);

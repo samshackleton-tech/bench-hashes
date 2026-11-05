@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ delete ! in sources::Source::unregister
+@@ -945,17 +945,17 @@
+         pub(crate) fn register(&'static self) -> Option<usize> {
+             let ptr = self as *const Source as *mut Source;
+             let slot = (0..SLOTS).find(|&i| REGISTERED[i].compare_exchange(core::ptr::null_mut(), ptr, Ordering::SeqCst, Ordering::Relaxed).is_ok())?;
+             ACTIVE.fetch_or(1 << slot, Ordering::SeqCst);
+             Some(slot)
+         }
+ 
+         pub(crate) fn unregister(slot: usize) {
+-            ACTIVE.fetch_and(!(1 << slot), Ordering::SeqCst);
++            ACTIVE.fetch_and( /* ~ changed by cargo-mutants ~ */(1 << slot), Ordering::SeqCst);
+             REGISTERED[slot].store(core::ptr::null_mut(), Ordering::SeqCst);
+         }
+ 
+         /// A stream's task to the workers: one write, one Release store;
+         /// then the SME2 thread first, and with two or more waiting and a
+         /// worker parked, a worker.
+         pub(crate) fn publish(&self, task: Task) {
+             let p = self.finish.published.load(Ordering::Relaxed);

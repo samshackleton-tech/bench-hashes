@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace <impl Kernels for PlatformKernels<'_>>::parents -> usize with 0
+@@ -137,17 +137,17 @@
+ 
+     #[inline(always)]
+     fn chunks(&self, input: &[u8], counter: u64, out: &mut [Cv]) -> usize {
+         crate::compress_chunks_parallel(input, self.key, counter, self.flags, self.platform, out.as_flattened_mut())
+     }
+ 
+     #[inline(always)]
+     fn parents(&self, children: &[Cv], out: &mut [Cv]) -> usize {
+-        crate::compress_parents_parallel(children.as_flattened(), self.key, self.flags, self.platform, out.as_flattened_mut())
++        0 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     #[allow(unused_variables)]
+     fn subtree(&self, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> Option<usize> {
+         // Whole subtrees of 32 KiB to 1 MiB on SME2: the flat walk, SME2
+         // alone (see sme2::compress_subtree_flat).
+         #[cfg(blake3_sme2)]

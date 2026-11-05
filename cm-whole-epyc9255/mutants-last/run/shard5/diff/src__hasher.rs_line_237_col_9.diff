@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace <impl Parent for Kernels<'_, P, H>>::parent -> Cv with Default::default()
+@@ -229,17 +229,17 @@
+     pub flags: u8,
+     pub platform: P,
+     pub hooks: H,
+ }
+ 
+ impl<P: Blocks + Copy, H> Parent for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn parent(&self, left: &Cv, right: &Cv) -> Cv {
+-        parent_output(left, right, self.key, self.flags, self.platform).chaining_value()
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H: Hooks> Feed<ChunkState<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn new_chunk(&self, counter: u64) -> ChunkState<P> {
+         ChunkState::new(self.key, counter, self.flags, self.platform)
+     }

@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace || with && in compress_chunks_parallel
+@@ -787,17 +787,17 @@
+         return whole.len() + 1;
+     }
+     // Whole chunks and a partial one, on the NEON hybrids: where a q kernel
+     // covers the count, the partial chunk runs on the scalar units beside
+     // the whole chunks rather than after them.
+     #[cfg(blake3_neon)]
+     let hybrids = matches!(platform, Platform::NEON);
+     #[cfg(blake3_sme2)]
+-    let hybrids = hybrids || matches!(platform, Platform::SME2);
++    let hybrids = hybrids && /* ~ changed by cargo-mutants ~ */ matches!(platform, Platform::SME2);
+     #[cfg(blake3_neon)]
+     if !chunks_exact.remainder().is_empty()
+         && hybrids
+         && neon_hybrid::partial_pays(chunks_array.len(), chunks_exact.remainder().len())
+         && neon_hybrid::sha3_detected()
+     {
+         // Safe: the kernel exists for this count and the CPU has SHA-3.
+         unsafe {

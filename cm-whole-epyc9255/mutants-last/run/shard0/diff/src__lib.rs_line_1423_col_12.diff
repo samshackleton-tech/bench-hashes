@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in OutputReader::fill
+@@ -1415,17 +1415,17 @@
+                 self.inner.counter,
+                 self.inner.flags | ROOT,
+                 &mut buf[..full_blocks_len],
+             );
+             self.inner.counter += full_blocks as u64;
+             buf = &mut buf[full_blocks * BLOCK_LEN..];
+         }
+ 
+-        if !buf.is_empty() {
++        if  /* ~ changed by cargo-mutants ~ */buf.is_empty() {
+             debug_assert!(buf.len() < BLOCK_LEN);
+             self.fill_one_block(&mut buf);
+             debug_assert!(buf.is_empty());
+         }
+     }
+ 
+     /// Return the current read position in the output stream. This is
+     /// equivalent to [`Seek::stream_position`], except that it doesn't return

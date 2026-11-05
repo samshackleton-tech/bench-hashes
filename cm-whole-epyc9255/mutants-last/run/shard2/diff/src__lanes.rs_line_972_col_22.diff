@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with + in sources::Source::publish
+@@ -964,17 +964,17 @@
+             // only this stream writes it.
+             unsafe { (*self.ring[p % self.ring.len()].get()).write(task) };
+             self.finish.published.store(p + 1, Ordering::Release);
+             core::sync::atomic::fence(Ordering::SeqCst);
+             let pool = pool();
+             if pool.sme2 {
+                 wake_sme2();
+             }
+-            if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {
++            if p + 1 + /* ~ changed by cargo-mutants ~ */ self.claimed.load(Ordering::Relaxed) >= 2 {
+                 pool.park.wake_one();
+             }
+         }
+ 
+         /// Make `job` the caller's current job, its pieces `0..own` the
+         /// caller's own: the number `finished` must reach when it is done.
+         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {
+             let base = self.finish.published.load(Ordering::Relaxed);

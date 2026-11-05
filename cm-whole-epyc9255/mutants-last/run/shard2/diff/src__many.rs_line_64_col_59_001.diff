@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with / in hash_many_on
+@@ -56,17 +56,17 @@
+ /// outputs.len()` and every slot's bytes past `len` zero (a Batch's, or
+ /// the crate's own).
+ pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     // One-block messages first, on the path they took before slots (a
+     // shared entry cost 64 B x 3 7% in the regression check).
+     if len == BLOCK_LEN && outputs.len() >= 2 {
+         crate::ran(crate::Ran::BlockRun);
+         assert_slots(input, len, outputs.len());
+-        for (messages, digests) in input.chunks(BLOCK_LEN * TABLE).zip(outputs.chunks_mut(TABLE)) {
++        for (messages, digests) in input.chunks(BLOCK_LEN / /* ~ changed by cargo-mutants ~ */ TABLE).zip(outputs.chunks_mut(TABLE)) {
+             hash_run::<{ BLOCK_LEN }>(messages, key, flags, digests, platform);
+         }
+         return;
+     }
+     let slot = slot_len(len);
+     assert_slots(input, len, outputs.len());
+     if len == 0 {
+         outputs.fill(*crate::hash_serial_on(&[], key, flags, platform).as_bytes());

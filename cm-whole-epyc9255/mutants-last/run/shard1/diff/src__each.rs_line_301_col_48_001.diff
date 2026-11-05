@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace * with / in hash_each_on
+@@ -293,17 +293,17 @@
+         refs.clear();
+         owners.clear();
+         for &(i, at) in &shared {
+             if let Some(chunk) = items[i].bytes().get(k * CHUNK_LEN..(k + 1) * CHUNK_LEN) {
+                 refs.push(chunk.try_into().unwrap());
+                 owners.push(at + k);
+             }
+         }
+-        let lanes = &mut lane_out[..refs.len() * OUT_LEN];
++        let lanes = &mut lane_out[..refs.len() / /* ~ changed by cargo-mutants ~ */ OUT_LEN];
+         platform.hash_many(&refs, &key, k as u64, IncrementCounter::No, flags, CHUNK_START, CHUNK_END, lanes);
+         for (j, &slot) in owners.iter().enumerate() {
+             cvs[slot].copy_from_slice(&lanes[j * OUT_LEN..(j + 1) * OUT_LEN]);
+         }
+     }
+     for &(i, at) in &shared {
+         let item = items[i].bytes();
+         let chunks = item.len().div_ceil(CHUNK_LEN);

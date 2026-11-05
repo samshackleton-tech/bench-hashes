@@ -1,0 +1,24 @@
+--- src/hasher.rs
++++ replace parent_output -> Output<P> with Output::from(Default::default())
+@@ -420,20 +420,17 @@
+             flags: self.flags | self.start_flag() | CHUNK_END,
+             platform: self.platform,
+         }
+     }
+ }
+ 
+ /// The parent node of two chaining values.
+ pub fn parent_output<P>(left: &[u8; 32], right: &[u8; 32], key: &[u32; 8], flags: u8, platform: P) -> Output<P> {
+-    let mut block = [0u8; BLOCK_LEN];
+-    block[..32].copy_from_slice(left);
+-    block[32..].copy_from_slice(right);
+-    Output { block, input_chaining_value: *key, block_len: BLOCK_LEN as u8, counter: 0, flags: flags | PARENT, platform }
++    Output::from(Default::default()) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The chunk state the Hasher's loop (above) works with.
+ impl<P: Blocks> Chunk for ChunkState<P> {
+     #[inline(always)]
+     fn counter(&self) -> u64 {
+         self.chunk_counter
+     }

@@ -1,0 +1,22 @@
+--- src/block.rs
++++ replace Batch<'_>::blocks_mut -> &mut[Block] with Vec::leak(Vec::new())
+@@ -179,18 +179,17 @@
+     /// Message `i` becomes `message`, `message_len` bytes.
+     pub fn set(&mut self, i: usize, message: &[u8]) {
+         self.message_mut(i).copy_from_slice(message);
+     }
+ 
+     /// Every byte for writing, where no message has bytes past its end to
+     /// keep zero: `message_len` a multiple of 64 and not 0.
+     pub fn blocks_mut(&mut self) -> &mut [Block] {
+-        assert!(self.message_len % BLOCK_LEN == 0 && self.message_len > 0, "a batch whose messages leave no bytes past their ends ({} B)", self.message_len);
+-        self.blocks.to_mut()
++        Vec::leak(Vec::new()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Its 64-byte messages as 32-byte digests, two a message: a Merkle
+     /// layer's digests written straight into the next layer, whose
+     /// messages are pairs of children. A layer of an odd count leaves a
+     /// digest to spare: slice it, `&mut batch.digests_mut()[..count]`.
+     pub fn digests_mut(&mut self) -> &mut [[u8; 32]] {
+         assert!(self.message_len == 2 * 32, "digests_mut takes a batch of 64-byte messages, two digests each, not {} B", self.message_len);

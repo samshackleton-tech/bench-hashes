@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace <impl Item for (&[Block], usize)>::bytes -> &[u8] with Vec::leak(Vec::new())
+@@ -255,17 +255,17 @@
+     fn bytes(&self) -> &[u8] {
+         self
+     }
+ }
+ 
+ impl Item for (&[Block], usize) {
+     #[inline(always)]
+     fn bytes(&self) -> &[u8] {
+-        &Block::bytes(self.0)[..self.1]
++        Vec::leak(Vec::new()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// [`hash_each`] in the mode of `key` and `flags`, the lanes on
+ /// `platform`, each message that fills the lanes alone (or is a chunk or
+ /// less) through `alone`.
+ pub(crate) fn hash_each_on<I: Item>(key: &CVWords, flags: u8, items: &[I], out: &mut [[u8; OUT_LEN]], platform: Platform, alone: impl Fn(&[u8]) -> Hash) {
+     let key = *key;

@@ -1,0 +1,26 @@
+--- src/incremental.rs
++++ replace kernels_on -> HasherKernels<'a> with Default::default()
+@@ -116,22 +116,17 @@
+ 
+ /// The Hasher's kernels: chunks, nodes, and parents on the chunk state's
+ /// platform, the rest from `hooks`.
+ type HasherKernels<'a> = hasher::Kernels<'a, Platform, HasherHooks<'a>>;
+ 
+ /// A Hasher's kernels on its key and chunk state (see HasherHooks).
+ #[inline(always)]
+ fn kernels_on<'a>(key: &'a CVWords, chunk_state: &ChunkState, platform: Platform, pooled: bool) -> HasherKernels<'a> {
+-    hasher::Kernels {
+-        key,
+-        flags: chunk_state.flags,
+-        platform: chunk_state.platform,
+-        hooks: HasherHooks { key, flags: chunk_state.flags, chunk_platform: chunk_state.platform, platform, pooled },
+-    }
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl Hasher {
+     pub(crate) fn from_core(core: HasherCore) -> Self {
+         Self { core, staged: 0, stage: [core::mem::MaybeUninit::uninit(); STAGE_LEN] }
+     }
+ 
+     /// The bytes gathered in the stage.

@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace Finish::finished_count -> usize with 1
+@@ -56,17 +56,17 @@
+ 
+ impl Finish {
+     pub(crate) fn new() -> Finish {
+         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }
+     }
+ 
+     /// The pieces finished so far.
+     pub(crate) fn finished_count(&self) -> usize {
+-        self.state.load(Ordering::SeqCst) & !SLEEPING
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The thread that waits on this source from now on.
+     pub(crate) fn own(&self) {
+         *self.owner.lock().unwrap() = Some(thread::current());
+     }
+ 
+     /// Count `n` pieces finished (their outputs written before); the last

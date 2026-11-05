@@ -1,0 +1,29 @@
+--- src/lib.rs
++++ replace hash_serial_from -> Hash with Default::default()
+@@ -1115,25 +1115,17 @@
+ fn hash_serial(input: &[u8], key: &CVWords, flags: u8) -> Hash {
+     hash_serial_from(Platform::detect(), input, key, flags)
+ }
+ 
+ /// [`hash_serial`] from `platform`: the startup self-test's way in, which
+ /// has not run `Platform::detect`'s check (it is that check).
+ #[inline]
+ fn hash_serial_from(platform: Platform, input: &[u8], key: &CVWords, flags: u8) -> Hash {
+-    let turn = platform::Sme2Turn::take(platform, input.len() >= SME2_SIZED_LEN);
+-    // One comparison on the path of a chunk or less: everything else is
+-    // out of line, so that path's code stays as small as it was (a call
+-    // after other work fetches every line of it from DRAM).
+-    #[cfg(all(blake3_neon, feature = "std"))]
+-    if (CHUNK_LEN + 1..PREFETCH_BELOW).contains(&input.len()) {
+-        prefetch_after_pause(input.len(), turn.platform(), false);
+-    }
+-    hash_serial_on(input, key, flags, turn.platform())
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Below this length a one-shot call that follows a pause prefetches its
+ /// kernels' code: after other work the call then fetches it from DRAM in
+ /// parallel, not one miss at a time (M4 Max, after other work: 4 KiB
+ /// x0.61, 8 KiB x0.51, 16 KiB x0.66; 32 KiB and up level, the hashing's
+ /// own time dwarfing it; jobs 971-975). The streaming paths (Hasher,
+ /// batches, the streams' tasks) run back to back with their code near.

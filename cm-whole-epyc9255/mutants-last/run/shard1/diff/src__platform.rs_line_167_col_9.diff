@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace Platform::record with ()
+@@ -159,17 +159,17 @@
+         }
+         // Sound: DETECTED holds 0 or a Platform's discriminant (`record`).
+         unsafe { core::mem::transmute::<u8, Platform>(code) }
+     }
+ 
+     /// Make `self` what [`Platform::detect`] returns from now on, in every
+     /// thread: `initialize` does, once its self-test has passed.
+     pub(crate) fn record(self) {
+-        DETECTED.store(self as u8, core::sync::atomic::Ordering::Relaxed);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// [`Platform::detect`] without the startup self-test: an assembly
+     /// platform on every supported machine, or the process stops.
+     #[allow(unreachable_code)]
+     pub(crate) fn detect_unchecked() -> Self {
+         // Every x86-64 build assembles every kernel (build.rs), so a CPU
+         // runs the widest it has; one without SSE4.1 is not supported, and

@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace update_each with ()
+@@ -66,17 +66,17 @@
+ /// let mut hashers = vec![Hasher::new(blake3_servil::Mode::Plain), Hasher::new(blake3_servil::Mode::Plain)];
+ /// performance::update_each(&mut hashers, &[(0, b"ab"), (1, b"xyz"), (0, b"c")]);
+ /// let mut out = [[0u8; 32]; 2];
+ /// performance::finalize_each(&hashers, &[0, 1], &mut out);
+ /// let hash = blake3_servil::convenience::hash;
+ /// assert_eq!((&out[0], &out[1]), (hash(b"abc").as_bytes(), hash(b"xyz").as_bytes()));
+ /// ```
+ pub fn update_each(hashers: &mut [Hasher], pieces: &[(usize, &[u8])]) {
+-    update_turn(hashers, pieces, false);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`update_each`], using other CPU cores where
+ /// that is faster (pieces of 512 KiB and more): the same result, never
+ /// slower.
+ /// Requires each `i < hashers.len()`.
+ #[cfg(feature = "std")]
+ pub fn update_each_multithreaded(hashers: &mut [Hasher], pieces: &[(usize, &[u8])]) {

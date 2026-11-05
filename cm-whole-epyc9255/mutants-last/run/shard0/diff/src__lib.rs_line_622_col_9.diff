@@ -1,0 +1,28 @@
+--- src/lib.rs
++++ replace <impl Clone for Output>::clone -> Self with Default::default()
+@@ -614,24 +614,17 @@
+ 
+ #[cfg(feature = "std")]
+ impl std::error::Error for HexError {}
+ 
+ type Output = hasher::Output<Platform>;
+ 
+ impl Clone for Output {
+     fn clone(&self) -> Self {
+-        hasher::Output {
+-            block: self.block,
+-            input_chaining_value: self.input_chaining_value,
+-            block_len: self.block_len,
+-            counter: self.counter,
+-            flags: self.flags,
+-            platform: self.platform,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Output {
+     fn root_hash(&self) -> Hash {
+         debug_assert_eq!(self.counter, 0);
+         Hash(self.root_bytes())
+     }

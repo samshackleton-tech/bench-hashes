@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with & in hash_blocks
+@@ -565,17 +565,17 @@
+             }
+         }
+     }
+     #[cfg(blake3_sme2)]
+     if on_sme2 > 0 {
+         // Sound: platform_is_sme2 means detect() found SME2 with 512-bit
+         // streaming vectors.
+         let sme2_lanes = &table[..if padded { lanes } else { on_sme2 }];
+-        unsafe { crate::sme2::hash_messages::<N>(sme2_lanes, key, flags, CHUNK_START, CHUNK_END | ROOT, last_len, groups.as_flattened_mut()) };
++        unsafe { crate::sme2::hash_messages::<N>(sme2_lanes, key, flags, CHUNK_START, CHUNK_END & /* ~ changed by cargo-mutants ~ */ ROOT, last_len, groups.as_flattened_mut()) };
+     }
+     #[cfg(not(blake3_sme2))]
+     let _ = groups;
+ }
+ 
+ /// The arrangement for messages of whole blocks where the NEON plans are
+ /// absent: groups of four through the platform's `hash_many`, a fourth,
+ /// spare lane for three left over (its value kept in a scratch array), one

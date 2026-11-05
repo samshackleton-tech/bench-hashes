@@ -1,0 +1,23 @@
+--- src/many.rs
++++ replace noted_lanes with ()
+@@ -617,19 +617,17 @@
+     /// thread, for the test of its arrangement (BLAKE3 #219).
+     pub(crate) static FOUR_AT_A_TIME_LANES: core::cell::RefCell<std::vec::Vec<usize>> = const { core::cell::RefCell::new(std::vec::Vec::new()) };
+ }
+ 
+ /// Note a hash_many call of `lanes` lanes (in the tests' record; nothing
+ /// in any other build).
+ #[inline(always)]
+ fn noted_lanes(lanes: usize) {
+-    #[cfg(test)]
+-    FOUR_AT_A_TIME_LANES.with(|v| v.borrow_mut().push(lanes));
+-    let _ = lanes;
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Whether this build runs the integer + NEON kernels (hash_many's plans
+ /// for messages of whole blocks at one counter): every AArch64 CPU does,
+ /// with SHA-3 or without.
+ #[inline(always)]
+ fn neon_plans() -> bool {
+     cfg!(blake3_neon)

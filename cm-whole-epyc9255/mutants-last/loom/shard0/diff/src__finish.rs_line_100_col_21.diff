@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace < with == in Finish::wait
+@@ -92,17 +92,17 @@
+             }
+             if !poll() {
+                 break;
+             }
+         }
+         // The bit and the count in one read: a finisher after this sees
+         // the bit; one before it left its count here.
+         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+-        while count < target {
++        while count == /* ~ changed by cargo-mutants ~ */ target {
+             thread::park();
+             count = self.finished_count();
+         }
+         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);
+     }
+ }
+ 
+ // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)

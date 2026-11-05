@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with + in hash_two_chunks
+@@ -235,17 +235,17 @@
+                 count,
+                 second_blocks,
+                 key,
+                 1,
+                 flags,
+                 CHUNK_START,
+                 CHUNK_END,
+                 last_len,
+-                cvs[count..2 * count].as_flattened_mut(),
++                cvs[count..2 + /* ~ changed by cargo-mutants ~ */ count].as_flattened_mut(),
+             );
+         }
+         for (i, pair) in pairs[..count].iter_mut().enumerate() {
+             pair[..OUT_LEN].copy_from_slice(&cvs[i]);
+             pair[OUT_LEN..].copy_from_slice(&cvs[count + i]);
+         }
+         let parents: arrayvec::ArrayVec<&[u8; BLOCK_LEN], GROUP> = pairs[..count].iter().collect();
+         // Sound: as above.

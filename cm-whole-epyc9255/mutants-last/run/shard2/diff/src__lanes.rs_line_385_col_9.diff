@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace <impl Drop for Caller<'_>>::drop with ()
+@@ -377,17 +377,17 @@
+     }
+ }
+ 
+ /// A counted call (spare_pool), until it returns, unwinding too.
+ struct Caller<'a>(&'a AtomicUsize);
+ 
+ impl Drop for Caller<'_> {
+     fn drop(&mut self) {
+-        self.0.fetch_sub(1, Ordering::SeqCst);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// One call's work, on the caller's stack, reached by workers through the
+ /// caller's source ([`sources::job_source`]) while the call runs: a
+ /// worker that took piece `i` hashes it and counts it finished, and the
+ /// caller returns only once every piece is, so every worker access falls
+ /// inside the caller's frame.

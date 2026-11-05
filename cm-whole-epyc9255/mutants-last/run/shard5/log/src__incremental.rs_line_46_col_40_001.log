@@ -1,0 +1,44 @@
+
+*** src/incremental.rs:46:40: replace * with /
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace * with /
+@@ -38,17 +38,17 @@
+     /// The message's bytes from its last 16 KiB boundary, gathered while
+     /// they arrive in shorter updates: the first `staged`.
+     pub(crate) staged: usize,
+     pub(crate) stage: [core::mem::MaybeUninit<u8>; STAGE_LEN],
+ }
+ 
+ /// The bytes a Hasher gathers before they hash side by side: 16 chunks,
+ /// the widest kernels' lanes.
+-pub(crate) const STAGE_LEN: usize = 16 * CHUNK_LEN;
++pub(crate) const STAGE_LEN: usize = 16 / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;
+ 
+ /// The tree's state behind a [`Hasher`]: its chunk, and the chaining values
+ /// of its finished subtrees.
+ #[derive(Clone)]
+ pub(crate) struct HasherCore {
+     pub(crate) key: CVWords,
+     pub(crate) chunk_state: ChunkState,
+     pub(crate) initial_chunk_counter: u64,
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-syivgx2m)
+error: this operation will panic at runtime
+   --> src/incremental.rs:175:22
+    |
+175 |             let at = (self.core.initial_chunk_counter * CHUNK_LEN as u64 + self.count()) % STAGE_LEN as u64;
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ attempt to calculate the remainder of `_` with a divisor of zero
+    |
+    = note: `#[deny(unconditional_panic)]` on by default
+
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

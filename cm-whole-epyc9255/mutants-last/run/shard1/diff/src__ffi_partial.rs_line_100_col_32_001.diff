@@ -1,0 +1,21 @@
+--- src/ffi_partial.rs
++++ replace + with * in hash_chunks_with_partial
+@@ -92,17 +92,17 @@
+         p.msg[lane] = chunk.as_ptr();
+     }
+     // Sound: every lane's pointer reaches 16 blocks (a whole chunk, or the
+     // padded copy), and the caller's CPU has the kernel's instructions.
+     unsafe { kernel(&mut p) };
+     for lane in 0..=n {
+         let words = if lane < n { &p.h } else { &p.snap };
+         for (i, word) in words.iter().enumerate() {
+-            out[lane * OUT_LEN + 4 * i..][..4].copy_from_slice(&word[lane].to_le_bytes());
++            out[lane * OUT_LEN * /* ~ changed by cargo-mutants ~ */ 4 * i..][..4].copy_from_slice(&word[lane].to_le_bytes());
+         }
+     }
+ }
+ 
+ /// [`hash_chunks_with_partial`] on four lanes: 1 to 3 whole chunks.
+ /// Unsafe: the CPU must have SSE4.1.
+ pub unsafe fn hash_chunks_with_partial_sse41(whole: &[&[u8; CHUNK_LEN]], partial: &[u8], key: &CVWords, counter: u64, flags: u8, out: &mut [u8]) {
+     hash_chunks_with_partial::<4>(blake3_servil_partial_sse41, whole, partial, key, counter, flags, out)

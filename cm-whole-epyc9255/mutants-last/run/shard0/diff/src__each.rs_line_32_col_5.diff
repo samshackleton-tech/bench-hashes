@@ -1,0 +1,38 @@
+--- src/each.rs
++++ replace hash_each_multithreaded with ()
+@@ -24,34 +24,17 @@
+ /// let items: Vec<(&[Block], usize)> = blocks.iter().enumerate().map(|(i, b)| (&b[..], 1000 * i)).collect();
+ /// let (mut a, mut b) = (vec![[0u8; 32]; 100], vec![[0u8; 32]; 100]);
+ /// performance::hash_each_multithreaded(Mode::Plain, &items, &mut a);
+ /// performance::hash_each(Mode::Plain, &items, &mut b);
+ /// assert_eq!(a, b);
+ /// ```
+ #[cfg(feature = "std")]
+ pub fn hash_each_multithreaded(mode: Mode, items: &[(&[Block], usize)], out: &mut [[u8; OUT_LEN]]) {
+-    crate::lanes::require();
+-    assert_eq!(items.len(), out.len(), "one digest per item");
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    let alone = |item: &[u8]| item.len() >= crate::lanes::MIN_SPLIT_LEN;
+-    // The collection with each item that hashes alone set aside (an empty
+-    // stand-in, its digest written after).
+-    let small: Vec<&[u8]> = items.iter().map(|i| if alone(i.bytes()) { &[][..] } else { i.bytes() }).collect();
+-    if small.iter().map(|i| i.len()).sum::<usize>() < crate::lanes::MIN_SPLIT_LEN {
+-        hash_each_on(key, flags, &small, out, Platform::detect(), |item| crate::hash_serial(item, key, flags));
+-    } else {
+-        crate::lanes::hash_each(key, flags, &small, out);
+-    }
+-    for (item, out) in items.iter().map(Item::bytes).zip(out.iter_mut()) {
+-        if alone(item) {
+-            *out = *crate::lanes::hash_with_key(item, key, flags).as_bytes();
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ // Many messages arriving at once, such as a server's uploads, each with
+ // its own Hasher: one call takes the pieces that have arrived for all of
+ // them, which hash faster together than one Hasher::update each.
+ 
+ /// Feed each piece to its hasher: `(i, bytes)` does
+ /// `hashers[i].update(bytes)`, each hasher's pieces in their order in

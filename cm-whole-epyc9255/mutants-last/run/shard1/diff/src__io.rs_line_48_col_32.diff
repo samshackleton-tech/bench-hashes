@@ -1,0 +1,18 @@
+--- src/io.rs
++++ replace == with != in fill
+@@ -40,14 +40,14 @@
+ /// bytes read, and the error if it failed.
+ fn fill(reader: &mut impl io::Read, buffer: &mut [u8]) -> (usize, io::Result<()>) {
+     let mut filled = 0;
+     while filled < buffer.len() {
+         match reader.read(&mut buffer[filled..]) {
+             Ok(0) => break,
+             Ok(n) => filled += n,
+             // see test_update_reader_interrupted
+-            Err(e) if e.kind() == io::ErrorKind::Interrupted => continue,
++            Err(e) if e.kind() != /* ~ changed by cargo-mutants ~ */ io::ErrorKind::Interrupted => continue,
+             Err(e) => return (filled, Err(e)),
+         }
+     }
+     (filled, Ok(()))
+ }
