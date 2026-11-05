@@ -1,0 +1,15 @@
+#!/bin/bash
+# Dead generality out (candidate/sam-dead-generality): bench-hashes check of the branch's head against
+# servil 06f6e26d, the cells the change touches (check's coverage), bench-hashes 0.20.4 nested.
+set -u
+R="$1"; O="$R/out"; mkdir -p "$O"; cd "$R"
+export HOME=/root; . /root/.cargo/env
+export PATH="$(rustc --print sysroot)/lib/rustlib/x86_64-unknown-linux-gnu/bin:$PATH"
+export GIT_AUTHOR_NAME='Sam Shackleton' GIT_COMMITTER_NAME='Sam Shackleton' GIT_AUTHOR_EMAIL='samshackleton-tech@users.noreply.github.com' GIT_COMMITTER_EMAIL='samshackleton-tech@users.noreply.github.com'
+{ date -u; uptime; grep -m1 'model name' /proc/cpuinfo; nproc; echo "library $(git -C fork rev-parse HEAD)"; git -C fork status --short; echo "against 06f6e26de800f7dec4e9d4af7d0b9b0ab571636a"; echo "bench $(git -C fork/bench rev-parse HEAD)"; } > "$O/provenance.txt"
+cd "$R/fork/bench"
+cargo build --release > "$O/bench-build.log" 2>&1 || { echo "bench build failed" >> "$O/status.txt"; exit 2; }
+./target/release/bench-hashes check --fork "$R/fork" --against 06f6e26de800f7dec4e9d4af7d0b9b0ab571636a --keep "$O/samples" > "$O/check.out" 2> "$O/check.err"
+rc=$?; echo "check exit $rc" >> "$O/status.txt"
+case $rc in 0|1) echo "check verdict" >> "$O/status.txt";; esac
+echo "check done" >> "$O/status.txt"
