@@ -1,0 +1,195 @@
+
+*** src/ffi_neon_hybrid.rs:666:5: replace hash_pairs with ()
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace hash_pairs with ()
+@@ -658,31 +658,17 @@
+ 
+ #[cfg(feature = "std")]
+ /// Separate one-block messages, two at a time on the pair kernel alone
+ /// (2.9 KB of code, where the plans for 3 to 16 run up to 17 KB: after a
+ /// pause the code comes from memory), the last of an odd count paired with
+ /// itself; each message's last block `last_len` bytes (1 to 64, zero past
+ /// it). Unsafe because the CPU must have NEON and the SHA-3 extension.
+ pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+-    assert!(out.len() >= inputs.len() * OUT_LEN && (1..=BLOCK_LEN).contains(&last_len), "a digest per input, a last block of 1 to 64 bytes");
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+-    let pair = PARENT_KERNELS[2].expect("the pair kernel");
+-    crate::ran_kernel(pair as *const ());
+-    let table = inputs.as_ptr() as *const *const u8;
+-    let whole = inputs.len() / 2 * 2;
+-    for p in (0..whole).step_by(2) {
+-        unsafe { pair(table.add(p), 1, key.as_ptr(), 0, packed, out[p * OUT_LEN..].as_mut_ptr()) };
+-    }
+-    if whole < inputs.len() {
+-        let last = [inputs[whole].as_ptr(), inputs[whole].as_ptr()];
+-        let mut two = [0u8; 2 * OUT_LEN];
+-        unsafe { pair(last.as_ptr(), 1, key.as_ptr(), 0, packed, two.as_mut_ptr()) };
+-        out[whole * OUT_LEN..(whole + 1) * OUT_LEN].copy_from_slice(&two[..OUT_LEN]);
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the pair kernel's code ([`hash_pairs`]).
+ pub fn prefetch_pair_code() {
+     crate::platform::prefetch_code(parent_code(2));
+ }
+ 
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ug3xpx0h)
+warning: unused variable: `inputs`
+   --> src/ffi_neon_hybrid.rs:665:26
+    |
+665 | pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, ou...
+    |                          ^^^^^^ help: if this is intentional, prefix it with an underscore: `_inputs`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `key`
+   --> src/ffi_neon_hybrid.rs:665:55
+    |
+665 | pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, ou...
+    |                                                       ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:665:70
+    |
+665 | ...LOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                               ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/ffi_neon_hybrid.rs:665:81
+    |
+665 | ...&CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/ffi_neon_hybrid.rs:665:98
+    |
+665 | ...: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                           ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `last_len`
+   --> src/ffi_neon_hybrid.rs:665:113
+    |
+665 | ...art: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                            ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_last_len`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:665:130
+    |
+665 | ...gs_end: u8, last_len: usize, out: &mut [u8]) {
+    |                                 ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: `blake3-servil` (lib) generated 7 warnings (run `cargo fix --lib -p blake3-servil` to apply 7 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 25.76s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `inputs`
+   --> src/ffi_neon_hybrid.rs:665:26
+    |
+665 | pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, ou...
+    |                          ^^^^^^ help: if this is intentional, prefix it with an underscore: `_inputs`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `key`
+   --> src/ffi_neon_hybrid.rs:665:55
+    |
+665 | pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, ou...
+    |                                                       ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:665:70
+    |
+665 | ...LOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                               ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/ffi_neon_hybrid.rs:665:81
+    |
+665 | ...&CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/ffi_neon_hybrid.rs:665:98
+    |
+665 | ...: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                           ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `last_len`
+   --> src/ffi_neon_hybrid.rs:665:113
+    |
+665 | ...art: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+    |                            ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_last_len`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:665:130
+    |
+665 | ...gs_end: u8, last_len: usize, out: &mut [u8]) {
+    |                                 ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: `blake3-servil` (lib) generated 7 warnings (run `cargo fix --lib -p blake3-servil` to apply 7 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.21s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 023777af-00e0-4cb7-8dd2-9d4a7bb6ec64 with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.356s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.180s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.150s] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.150s] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.152s] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.108s] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.129s] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.121s] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   1.502s] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+       START [         ] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.102s] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+     SIGABRT [   0.135s] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 27, a pair of 64-byte messages: the parent plans (platform NEON): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   3.092s] 11/147 tests run: 10 passed, 1 failed, 0 skipped
+warning: 136/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

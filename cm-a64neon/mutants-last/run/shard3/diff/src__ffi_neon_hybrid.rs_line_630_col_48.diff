@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace - with + in hash_chunks_with_partial
+@@ -622,17 +622,17 @@
+     let (chunks, counter, out) = (&chunks[lead..], counter + lead as u64, &mut out[lead * OUT_LEN..]);
+     let n = chunks.len();
+     let kernel = partial_kernel(n);
+     crate::ran_kernel(kernel as *const ());
+     if n == 1 {
+         // q1's pair takes the whole chunk twice (slots 0 and 2); the
+         // partial chunk is slot 1; the duplicate's value is dropped.
+         let blocks = partial.len().div_ceil(BLOCK_LEN);
+-        let last_len = partial.len() - (blocks - 1) * BLOCK_LEN;
++        let last_len = partial.len() - (blocks + /* ~ changed by cargo-mutants ~ */ 1) * BLOCK_LEN;
+         let mut padded = [0u8; CHUNK_LEN];
+         padded[..partial.len()].copy_from_slice(partial);
+         let table = [chunks[0].as_ptr(), padded.as_ptr(), chunks[0].as_ptr()];
+         let mut cvs = [0u8; 3 * OUT_LEN];
+         let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
+         unsafe {
+             kernel(table.as_ptr(), (CHUNK_LEN / BLOCK_LEN) as u64, key.as_ptr(), counter, packed, cvs.as_mut_ptr(), blocks as u64 | (last_len as u64) << 8);
+         }

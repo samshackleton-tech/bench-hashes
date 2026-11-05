@@ -1,0 +1,37 @@
+--- src/ffi_neon_hybrid.rs
++++ replace while done < inputs.len() { let count = core::cmp::min(GROUP, inputs.len() - done); unsafe { run_plan( plans[count], kernels, table.add(done), blocks, key, counter + done as u64 * counter_step, counter_step, packed, &mut out[done * OUT_LEN..], ); } done += count; } with () in hash_many_in
+@@ -771,33 +771,17 @@
+         (family.parent_plans, family.parent_kernels, 0)
+     };
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+     let blocks = N / BLOCK_LEN;
+     // `&[&[u8; N]]` is a table of pointers, which is what the kernels take.
+     let table = inputs.as_ptr() as *const *const u8;
+ 
+     let mut done = 0;
+-    while done < inputs.len() {
+-        let count = core::cmp::min(GROUP, inputs.len() - done);
+-        unsafe {
+-            run_plan(
+-                plans[count],
+-                kernels,
+-                table.add(done),
+-                blocks,
+-                key,
+-                counter + done as u64 * counter_step,
+-                counter_step,
+-                packed,
+-                &mut out[done * OUT_LEN..],
+-            );
+-        }
+-        done += count;
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Separate inputs of `blocks` whole blocks (1 to 16) at one `counter`, the
+ /// last block `last_len` bytes (1 to 64, zero past it), from a table of
+ /// `count` pointers: the parent plans, as [`hash_many_last_len`] runs them
+ /// for inputs of a const length, `flags` on every block. Unsafe because the CPU must have NEON and
+ /// every pointer must reach `blocks` blocks.
+ #[allow(clippy::too_many_arguments)]

@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace done with 1 in xof_many
+@@ -131,17 +131,17 @@
+             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };
+         crate::ran_kernel(kernel as *const ());
+         // Sound: every table entry points at the 64-byte block; the kernel
+         // writes 64 bytes a block within `out[done..]`.
+         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };
+         counter = counter.wrapping_add(blocks as u64);
+         done += blocks * BLOCK_LEN;
+     }
+-    done
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// One block of extended output, block `counter`, on the integer units
+ /// (x1). The four-lane x4 costs about two compressions on the M4's cores
+ /// and the VM's: one block of output through it took 2.1 times the
+ /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).
+ pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+     let mut out = [0u8; BLOCK_LEN];

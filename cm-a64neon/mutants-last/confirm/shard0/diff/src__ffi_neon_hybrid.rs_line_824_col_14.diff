@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace += with -= in hash_messages_raw
+@@ -816,17 +816,17 @@
+     assert!(out.len() >= count * OUT_LEN, "room for every digest");
+     assert!((1..=16).contains(&blocks) && (1..=BLOCK_LEN).contains(&last_len), "1 to 16 blocks, the last of 1 to 64 bytes");
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+     let mut done = 0;
+     while done < count {
+         let n = core::cmp::min(GROUP, count - done);
+         let family = family();
+         unsafe { run_plan(family.parent_plans[n], family.parent_kernels, table.add(done), blocks, key, counter, 0, packed, &mut out[done * OUT_LEN..]) };
+-        done += n;
++        done -= /* ~ changed by cargo-mutants ~ */ n;
+     }
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ mod test {
+     use super::*;
+ 
+     #[test]

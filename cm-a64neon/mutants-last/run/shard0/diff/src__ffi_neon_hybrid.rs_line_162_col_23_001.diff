@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace * with / in xof_tail
+@@ -154,17 +154,17 @@
+     out
+ }
+ 
+ /// The last one to three blocks of extended output into `out`, from block
+ /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),
+ /// which takes about the time of two x1 calls.
+ pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {
+     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, "a tail of one to three blocks");
+-    if out.len() == 3 * BLOCK_LEN {
++    if out.len() == 3 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {
+         let mut four = [0u8; 4 * BLOCK_LEN];
+         xof_many(cv, block, block_len, counter, flags, &mut four);
+         out.copy_from_slice(&four[..out.len()]);
+         return;
+     }
+     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {
+         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));
+     }

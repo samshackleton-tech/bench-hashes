@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace << with >> in xof_block
+@@ -141,17 +141,17 @@
+ 
+ /// One block of extended output, block `counter`, on the integer units
+ /// (x1). The four-lane x4 costs about two compressions on the M4's cores
+ /// and the VM's: one block of output through it took 2.1 times the
+ /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).
+ pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+     let mut out = [0u8; BLOCK_LEN];
+     let table = [block.as_ptr()];
+-    let packed = flags as u64 | (block_len as u64) << 24;
++    let packed = flags as u64 | (block_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;
+     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());
+     // Sound: the table's one entry points at the 64-byte block; the kernel
+     // writes the block's 64 bytes of output to `out`.
+     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };
+     out
+ }
+ 
+ /// The last one to three blocks of extended output into `out`, from block

@@ -1,0 +1,63 @@
+
+*** src/ffi_neon_hybrid.rs:154:5: replace out with [0; BLOCK_LEN] in xof_block
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace out with [0; BLOCK_LEN] in xof_block
+@@ -146,17 +146,17 @@
+ pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+     let mut out = [0u8; BLOCK_LEN];
+     let table = [block.as_ptr()];
+     let packed = flags as u64 | (block_len as u64) << 24;
+     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());
+     // Sound: the table's one entry points at the 64-byte block; the kernel
+     // writes the block's 64 bytes of output to `out`.
+     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };
+-    out
++    [0; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The last one to three blocks of extended output into `out`, from block
+ /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),
+ /// which takes about the time of two x1 calls.
+ pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {
+     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, "a tail of one to three blocks");
+     if out.len() == 3 * BLOCK_LEN {
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-55nqj4gz)
+    Finished `mutants` profile [optimized] target(s) in 24.38s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Finished `mutants` profile [optimized] target(s) in 0.14s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID d4f647fe-267c-4778-8330-e44ba33aa35a with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.305s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+     SIGABRT [   0.098s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 40, extended output of several blocks, from an unaligned position (platform NEON): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.407s] 2/147 tests run: 1 passed, 1 failed, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

@@ -1,0 +1,62 @@
+
+*** src/ffi_neon_hybrid.rs:480:52: replace << with >> in compress_in_place
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace << with >> in compress_in_place
+@@ -472,17 +472,17 @@
+ /// The kernel uses only integer instructions and runs on every AArch64
+ /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded
+ /// past `block_len` by the caller as the portable compressor requires.
+ pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+     debug_assert!(block_len as usize <= BLOCK_LEN);
+     // The one block is both first and last: the kernel ORs flags_start
+     // into the first block and flags_end into the last, so the flags go
+     // in as the base and the two per-position fields stay zero.
+-    let packed = flags as u64 | (block_len as u64) << 24;
++    let packed = flags as u64 | (block_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;
+     // `cv` is key and output at once; see compress_blocks.
+     let cv_ptr = cv.as_mut_ptr();
+     // Safe: the block is 64 readable bytes and the count is 1.
+     unsafe {
+         let block = block.as_ptr();
+         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());
+         asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);
+     }
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ra3owf0h)
+    Finished `mutants` profile [optimized] target(s) in 19.09s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.16s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID ec7764b1-1f73-4df1-b1f3-d1a9dedacb7a with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ra3owf0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.311s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ra3owf0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+     SIGABRT [   0.153s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 4, a chunk and a partial one: q1 (platform NEON): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.469s] 2/147 tests run: 1 passed, 1 failed, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

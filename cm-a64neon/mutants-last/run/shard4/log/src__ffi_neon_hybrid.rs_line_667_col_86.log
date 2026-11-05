@@ -1,0 +1,251 @@
+
+*** src/ffi_neon_hybrid.rs:667:86: replace | with & in hash_pairs
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace | with & in hash_pairs
+@@ -659,17 +659,17 @@
+ #[cfg(feature = "std")]
+ /// Separate one-block messages, two at a time on the pair kernel alone
+ /// (2.9 KB of code, where the plans for 3 to 16 run up to 17 KB: after a
+ /// pause the code comes from memory), the last of an odd count paired with
+ /// itself; each message's last block `last_len` bytes (1 to 64, zero past
+ /// it). Unsafe because the CPU must have NEON and the SHA-3 extension.
+ pub unsafe fn hash_pairs(inputs: &[&[u8; BLOCK_LEN]], key: &CVWords, flags: u8, flags_start: u8, flags_end: u8, last_len: usize, out: &mut [u8]) {
+     assert!(out.len() >= inputs.len() * OUT_LEN && (1..=BLOCK_LEN).contains(&last_len), "a digest per input, a last block of 1 to 64 bytes");
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
++    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 & /* ~ changed by cargo-mutants ~ */ (last_len as u64) << 24;
+     let pair = PARENT_KERNELS[2].expect("the pair kernel");
+     crate::ran_kernel(pair as *const ());
+     let table = inputs.as_ptr() as *const *const u8;
+     let whole = inputs.len() / 2 * 2;
+     for p in (0..whole).step_by(2) {
+         unsafe { pair(table.add(p), 1, key.as_ptr(), 0, packed, out[p * OUT_LEN..].as_mut_ptr()) };
+     }
+     if whole < inputs.len() {
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ug3xpx0h)
+    Finished `mutants` profile [optimized] target(s) in 24.05s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.29s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 766535a7-4c5d-4a16-925d-11518d03980b with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.440s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.192s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.196s] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.283s] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.234s] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.143s] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.116s] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.189s] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   2.244s] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+       START [         ] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.170s] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.116s] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 12/147) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.077s] ( 12/147) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 13/147) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each --nocapture
+        PASS [   0.151s] ( 13/147) blake3-servil each::test::test_update_each
+       START [         ] ( 14/147) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.170s] ( 14/147) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 15/147) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.224s] ( 15/147) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 16/147) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.262s] ( 16/147) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+       START [         ] ( 17/147) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.240s] ( 17/147) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+       START [         ] ( 18/147) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.122s] ( 18/147) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+       START [         ] ( 19/147) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.132s] ( 19/147) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+       START [         ] ( 20/147) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.189s] ( 20/147) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+       START [         ] ( 21/147) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+        PASS [   0.185s] ( 21/147) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+       START [         ] ( 22/147) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact incremental::test::test_update_stages_to_the_message_boundary_from_an_offset --nocapture
+        PASS [   0.166s] ( 22/147) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+       START [         ] ( 23/147) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_a_finished_threads_source_is_the_next_threads --nocapture
+        PASS [   0.193s] ( 23/147) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+       START [         ] ( 24/147) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_find_reaches_every_registered_source --nocapture
+        PASS [   0.224s] ( 24/147) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+       START [         ] ( 25/147) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_unregister_gives_the_slot_back --nocapture
+        PASS [   0.188s] ( 25/147) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+       START [         ] ( 26/147) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_unregister_leaves_the_other_sources_registered --nocapture
+        PASS [   0.197s] ( 26/147) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+       START [         ] ( 27/147) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind --nocapture
+        PASS [   0.211s] ( 27/147) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+       START [         ] ( 28/147) blake3-servil lanes::test::equal_members_match_the_reference
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::equal_members_match_the_reference --nocapture
+        PASS [   0.306s] ( 28/147) blake3-servil lanes::test::equal_members_match_the_reference
+       START [         ] ( 29/147) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_caller_gives_its_place_back --nocapture
+        PASS [   0.147s] ( 29/147) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+       START [         ] ( 30/147) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps --nocapture
+        PASS [   0.236s] ( 30/147) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+       START [         ] ( 31/147) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own --nocapture
+        PASS [   0.240s] ( 31/147) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+       START [         ] ( 32/147) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_parked_caller_is_woken_by_the_last_piece --nocapture
+        PASS [   0.252s] ( 32/147) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+       START [         ] ( 33/147) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_poller_yields_every_yield_every --nocapture
+        PASS [   0.364s] ( 33/147) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+       START [         ] ( 34/147) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_stream_is_what_opens_the_sources --nocapture
+        PASS [   0.245s] ( 34/147) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+       START [         ] ( 35/147) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open --nocapture
+        PASS [   0.225s] ( 35/147) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+       START [         ] ( 36/147) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_concurrent_batch_callers_agree --nocapture
+        PASS [   0.725s] ( 36/147) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+       START [         ] ( 37/147) blake3-servil lanes::test::test_concurrent_callers_agree
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_concurrent_callers_agree --nocapture
+        PASS [   1.386s] ( 37/147) blake3-servil lanes::test::test_concurrent_callers_agree
+       START [         ] ( 38/147) blake3-servil lanes::test::test_cut_items_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_items_exactly --nocapture
+        PASS [   0.173s] ( 38/147) blake3-servil lanes::test::test_cut_items_exactly
+       START [         ] ( 39/147) blake3-servil lanes::test::test_cut_messages_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_messages_exactly --nocapture
+        PASS [   0.230s] ( 39/147) blake3-servil lanes::test::test_cut_messages_exactly
+       START [         ] ( 40/147) blake3-servil lanes::test::test_cut_messages_shapes
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_messages_shapes --nocapture
+        PASS [   0.191s] ( 40/147) blake3-servil lanes::test::test_cut_messages_shapes
+       START [         ] ( 41/147) blake3-servil lanes::test::test_cut_with_prefix_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_with_prefix_exactly --nocapture
+        PASS [   0.131s] ( 41/147) blake3-servil lanes::test::test_cut_with_prefix_exactly
+       START [         ] ( 42/147) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_cut_with_prefix_shapes_and_hashes --nocapture
+        PASS [   0.444s] ( 42/147) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+       START [         ] ( 43/147) blake3-servil lanes::test::test_hash_many_pool_agrees
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_hash_many_pool_agrees --nocapture
+        PASS [   0.301s] ( 43/147) blake3-servil lanes::test::test_hash_many_pool_agrees
+       START [         ] ( 44/147) blake3-servil lanes::test::test_hash_matches_serial
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_hash_matches_serial --nocapture
+        PASS [   0.438s] ( 44/147) blake3-servil lanes::test::test_hash_matches_serial
+       START [         ] ( 45/147) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_idle_workers_park_while_a_stream_is_open --nocapture
+        PASS [   0.260s] ( 45/147) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+       START [         ] ( 46/147) blake3-servil lanes::test::test_next_piece_len
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_next_piece_len --nocapture
+        PASS [   0.239s] ( 46/147) blake3-servil lanes::test::test_next_piece_len
+       START [         ] ( 47/147) blake3-servil lanes::test::test_one_member_runs_alone
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_one_member_runs_alone --nocapture
+        PASS [   0.171s] ( 47/147) blake3-servil lanes::test::test_one_member_runs_alone
+       START [         ] ( 48/147) blake3-servil lanes::test::test_simd_merge_matches_recursive
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_simd_merge_matches_recursive --nocapture
+        PASS [   0.297s] ( 48/147) blake3-servil lanes::test::test_simd_merge_matches_recursive
+       START [         ] ( 49/147) blake3-servil lanes::test::test_sme2_prefix_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_sme2_prefix_exactly --nocapture
+        PASS [   0.274s] ( 49/147) blake3-servil lanes::test::test_sme2_prefix_exactly
+       START [         ] ( 50/147) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_spin_ends_after_spin_or_with_no_stream_open --nocapture
+        PASS [   0.285s] ( 50/147) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+       START [         ] ( 51/147) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_the_pool_begins_at_min_split_len --nocapture
+        PASS [   0.181s] ( 51/147) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+       START [         ] ( 52/147) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_the_pool_reads_time_through_now --nocapture
+        PASS [   0.111s] ( 52/147) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+       START [         ] ( 53/147) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_the_workers_are_every_thread_but_the_caller --nocapture
+        PASS [   0.155s] ( 53/147) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+       START [         ] ( 54/147) blake3-servil lanes::test::test_tree_thread_budget
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_tree_thread_budget --nocapture
+        PASS [   0.145s] ( 54/147) blake3-servil lanes::test::test_tree_thread_budget
+       START [         ] ( 55/147) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact lanes::test::test_update_multithreaded_matches_hash --nocapture
+        PASS [   3.509s] ( 55/147) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+       START [         ] ( 56/147) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_a_short_input_is_refused_before_the_kernels --nocapture
+        PASS [   0.139s] ( 56/147) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+       START [         ] ( 57/147) blake3-servil many::test::test_hash_blocks_without_plans
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_blocks_without_plans --nocapture
+        PASS [   0.125s] ( 57/147) blake3-servil many::test::test_hash_blocks_without_plans
+       START [         ] ( 58/147) blake3-servil many::test::test_hash_many_modes_every_platform
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_modes_every_platform --nocapture
+        PASS [   0.400s] ( 58/147) blake3-servil many::test::test_hash_many_modes_every_platform
+       START [         ] ( 59/147) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_needs_the_input_it_names --nocapture
+        PASS [   0.148s] ( 59/147) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+       START [         ] ( 60/147) blake3-servil many::test::test_hash_many_whole_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_hash_many_whole_blocks --nocapture
+        PASS [   0.340s] ( 60/147) blake3-servil many::test::test_hash_many_whole_blocks
+       START [         ] ( 61/147) blake3-servil many::test::test_small_batches_after_a_pause
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact many::test::test_small_batches_after_a_pause --nocapture
+        FAIL [   0.216s] ( 61/147) blake3-servil many::test::test_small_batches_after_a_pause
+  stdout ───
+
+    running 1 test
+    test many::test::test_small_batches_after_a_pause ... FAILED
+
+    failures:
+
+    failures:
+        many::test::test_small_batches_after_a_pause
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 125 filtered out; finished in 0.02s
+
+  stderr ───
+
+    thread 'many::test::test_small_batches_after_a_pause' (2176920) panicked at src/many.rs:1165:25:
+    assertion `left == right` failed: len 1 count 1 message 0
+      left: [126, 169, 9, 165, 247, 100, 251, 217, 40, 2, 5, 137, 71, 65, 87, 237, 200, 46, 127, 68, 11, 27, 80, 97, 89, 158, 52, 193, 123, 166, 184, 103]
+     right: [45, 58, 222, 223, 241, 27, 97, 241, 76, 136, 110, 53, 175, 160, 54, 115, 109, 205, 135, 167, 77, 39, 181, 193, 81, 2, 37, 208, 245, 146, 226, 19]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure
+────────────
+     Summary [  20.306s] 61/147 tests run: 60 passed, 1 failed, 0 skipped
+warning: 86/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

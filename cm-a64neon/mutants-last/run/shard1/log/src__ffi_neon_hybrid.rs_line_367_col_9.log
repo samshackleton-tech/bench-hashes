@@ -1,0 +1,113 @@
+
+*** src/ffi_neon_hybrid.rs:367:9: delete match arm 3 in parent_code
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ delete match arm 3 in parent_code
+@@ -359,17 +359,17 @@
+     macro_rules! code {
+         ($kernel:ident, $end:ident) => {
+             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)
+         };
+     }
+     match n {
+         1 => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),
+         2 => code!(blake3_servil_hybrid_p2, blake3_servil_hybrid_p2_end),
+-        3 => code!(blake3_servil_hybrid_p3, blake3_servil_hybrid_p3_end),
++         /* ~ changed by cargo-mutants ~ */
+         4 => code!(blake3_servil_hybrid_p4, blake3_servil_hybrid_p4_end),
+         5 => code!(blake3_servil_hybrid_p5, blake3_servil_hybrid_p5_end),
+         7 => code!(blake3_servil_hybrid_p7, blake3_servil_hybrid_p7_end),
+         8 => code!(blake3_servil_hybrid_p8, blake3_servil_hybrid_p8_end),
+         9 => code!(blake3_servil_hybrid_p9, blake3_servil_hybrid_p9_end),
+         _ => unreachable!("no parent kernel for {n} parents"),
+     }
+ }
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-b91jbd58)
+warning: static `blake3_servil_hybrid_p3_end` is never used
+   --> src/ffi_neon_hybrid.rs:294:20
+    |
+294 |         pub static blake3_servil_hybrid_p3_end: u8;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 25.25s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: static `blake3_servil_hybrid_p3_end` is never used
+   --> src/ffi_neon_hybrid.rs:294:20
+    |
+294 |         pub static blake3_servil_hybrid_p3_end: u8;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.12s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 1b72f8b0-224b-4ceb-99ca-87eafc9f3d35 with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.439s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.214s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.130s] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.143s] (  4/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.169s] (  5/147) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.131s] (  6/147) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.146s] (  7/147) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.195s] (  8/147) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   2.801s] (  9/147) blake3-servil each::test::test_hash_each_multithreaded
+       START [         ] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.188s] ( 10/147) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+     SIGABRT [   0.166s] ( 11/147) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly' (2250382) panicked at src/ffi_neon_hybrid.rs:373:14:
+    internal error: entered unreachable code: no parent kernel for 3 parents
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   4.727s] 11/147 tests run: 10 passed, 1 failed, 0 skipped
+warning: 136/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

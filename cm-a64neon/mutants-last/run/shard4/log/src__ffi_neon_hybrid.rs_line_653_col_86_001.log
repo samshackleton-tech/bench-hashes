@@ -1,0 +1,56 @@
+
+*** src/ffi_neon_hybrid.rs:653:86: replace | with ^ in hash_chunks_with_partial
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace | with ^ in hash_chunks_with_partial
+@@ -645,17 +645,17 @@
+     // of its last block.
+     let mut padded = [0u8; CHUNK_LEN];
+     padded[..partial.len()].copy_from_slice(partial);
+     let mut table = [core::ptr::null::<u8>(); 10];
+     for (slot, chunk) in table.iter_mut().zip(chunks) {
+         *slot = chunk.as_ptr();
+     }
+     table[n] = padded.as_ptr();
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
++    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 ^ /* ~ changed by cargo-mutants ~ */ (BLOCK_LEN as u64) << 24;
+     unsafe {
+         kernel(table.as_ptr(), (CHUNK_LEN / BLOCK_LEN) as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), blocks as u64 | (last_len as u64) << 8);
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Separate one-block messages, two at a time on the pair kernel alone
+ /// (2.9 KB of code, where the plans for 3 to 16 run up to 17 KB: after a
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ug3xpx0h)
+    Finished `mutants` profile [optimized] target(s) in 24.73s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.22s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 72b7784a-6a1f-43dc-8ff3-b5af70d8ea14 with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ug3xpx0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        FAIL [   1.145s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+  Cancelling due to test failure
+────────────
+     Summary [   1.160s] 1/147 tests run: 0 passed, 1 failed, 0 skipped
+warning: 146/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace | with ^ in hash_chunks_with_partial
+@@ -645,17 +645,17 @@
+     // of its last block.
+     let mut padded = [0u8; CHUNK_LEN];
+     padded[..partial.len()].copy_from_slice(partial);
+     let mut table = [core::ptr::null::<u8>(); 10];
+     for (slot, chunk) in table.iter_mut().zip(chunks) {
+         *slot = chunk.as_ptr();
+     }
+     table[n] = padded.as_ptr();
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
++    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 ^ /* ~ changed by cargo-mutants ~ */ (BLOCK_LEN as u64) << 24;
+     unsafe {
+         kernel(table.as_ptr(), (CHUNK_LEN / BLOCK_LEN) as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), blocks as u64 | (last_len as u64) << 8);
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Separate one-block messages, two at a time on the pair kernel alone
+ /// (2.9 KB of code, where the plans for 3 to 16 run up to 17 KB: after a

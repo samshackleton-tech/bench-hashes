@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace + with * in run_plan
+@@ -698,17 +698,17 @@
+     packed_flags: u64,
+     out: &mut [u8],
+ ) {
+     let mut done = 0;
+     for &size in plan {
+         let kernel = kernels[size].expect("plan names an existing kernel");
+         crate::ran_kernel(kernel as *const ());
+         unsafe {
+-            kernel(inputs.add(done), blocks as u64, key.as_ptr(), counter + done as u64 * counter_step, packed_flags, out[done * OUT_LEN..].as_mut_ptr());
++            kernel(inputs.add(done), blocks as u64, key.as_ptr(), counter * /* ~ changed by cargo-mutants ~ */ done as u64 * counter_step, packed_flags, out[done * OUT_LEN..].as_mut_ptr());
+         }
+         done += size;
+     }
+ }
+ 
+ /// `hash_many` for whole chunks (`N == CHUNK_LEN`, counter incrementing)
+ /// on the chunk plans, and for inputs of 1 to 16 whole blocks at one
+ /// counter (parents, separate messages) on the parent plans: the shapes

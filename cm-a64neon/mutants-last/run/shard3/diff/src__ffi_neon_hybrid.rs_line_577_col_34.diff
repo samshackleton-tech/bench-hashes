@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace != with == in partial_covers
+@@ -569,17 +569,17 @@
+         _ => panic!("no q kernel for {n} whole chunks"),
+     }
+ }
+ 
+ /// Whether [`hash_chunks_with_partial`] takes `n` whole chunks: 1 through
+ /// 15 but 10 (from 16 the SME2 kernels or a second call take the whole
+ /// chunks).
+ fn partial_covers(n: usize) -> bool {
+-    (1..GROUP).contains(&n) && n != 10
++    (1..GROUP).contains(&n) && n == /* ~ changed by cargo-mutants ~ */ 10
+ }
+ 
+ /// Whether `n` whole chunks and a partial chunk of `len` bytes hash
+ /// faster through [`hash_chunks_with_partial`] than the whole chunks and
+ /// then the partial one. Ten whole chunks are one k10 call, the kernel with
+ /// the fewest cycles per byte; every split into a lead plan and a q kernel
+ /// costs more than the partial chunk after it (VM, 10 KiB + 500 B: 3097 ns
+ /// against 2790), where 11 to 15 gain 1-11%. One whole chunk moves from the

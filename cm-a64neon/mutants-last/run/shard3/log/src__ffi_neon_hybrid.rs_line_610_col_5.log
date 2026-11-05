@@ -1,0 +1,240 @@
+
+*** src/ffi_neon_hybrid.rs:610:5: replace hash_chunks_with_partial with ()
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace hash_chunks_with_partial with ()
+@@ -602,63 +602,17 @@
+     partial: &[u8],
+     key: &CVWords,
+     counter: u64,
+     flags: u8,
+     flags_start: u8,
+     flags_end: u8,
+     out: &mut [u8],
+ ) {
+-    assert!(partial_covers(chunks.len()), "1 to 15 whole chunks but 10");
+-    assert!(!partial.is_empty() && partial.len() < CHUNK_LEN, "a partial chunk holds 1 to 1023 bytes");
+-    assert!(out.len() >= (chunks.len() + 1) * OUT_LEN);
+-    // Ten whole chunks and more: the first ones through the usual plans,
+-    // so the q kernel takes the last nine or fewer.
+-    let lead = chunks.len().saturating_sub(9);
+-    if lead > 0 {
+-        let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
+-        unsafe {
+-            run_plan(CHUNK_PLANS[lead], &CHUNK_KERNELS, chunks.as_ptr() as *const *const u8, CHUNK_LEN / BLOCK_LEN, key, counter, 1, packed, out);
+-        }
+-    }
+-    let (chunks, counter, out) = (&chunks[lead..], counter + lead as u64, &mut out[lead * OUT_LEN..]);
+-    let n = chunks.len();
+-    let kernel = partial_kernel(n);
+-    crate::ran_kernel(kernel as *const ());
+-    if n == 1 {
+-        // q1's pair takes the whole chunk twice (slots 0 and 2); the
+-        // partial chunk is slot 1; the duplicate's value is dropped.
+-        let blocks = partial.len().div_ceil(BLOCK_LEN);
+-        let last_len = partial.len() - (blocks - 1) * BLOCK_LEN;
+-        let mut padded = [0u8; CHUNK_LEN];
+-        padded[..partial.len()].copy_from_slice(partial);
+-        let table = [chunks[0].as_ptr(), padded.as_ptr(), chunks[0].as_ptr()];
+-        let mut cvs = [0u8; 3 * OUT_LEN];
+-        let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
+-        unsafe {
+-            kernel(table.as_ptr(), (CHUNK_LEN / BLOCK_LEN) as u64, key.as_ptr(), counter, packed, cvs.as_mut_ptr(), blocks as u64 | (last_len as u64) << 8);
+-        }
+-        out[..2 * OUT_LEN].copy_from_slice(&cvs[..2 * OUT_LEN]);
+-        return;
+-    }
+-    let blocks = partial.len().div_ceil(BLOCK_LEN);
+-    let last_len = partial.len() - (blocks - 1) * BLOCK_LEN;
+-    // The partial chunk as whole blocks: its bytes, then zeros to the end
+-    // of its last block.
+-    let mut padded = [0u8; CHUNK_LEN];
+-    padded[..partial.len()].copy_from_slice(partial);
+-    let mut table = [core::ptr::null::<u8>(); 10];
+-    for (slot, chunk) in table.iter_mut().zip(chunks) {
+-        *slot = chunk.as_ptr();
+-    }
+-    table[n] = padded.as_ptr();
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
+-    unsafe {
+-        kernel(table.as_ptr(), (CHUNK_LEN / BLOCK_LEN) as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), blocks as u64 | (last_len as u64) << 8);
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Separate one-block messages, two at a time on the pair kernel alone
+ /// (2.9 KB of code, where the plans for 3 to 16 run up to 17 KB: after a
+ /// pause the code comes from memory), the last of an odd count paired with
+ /// itself; each message's last block `last_len` bytes (1 to 64, zero past
+ /// it). Unsafe because the CPU must have NEON and the SHA-3 extension.
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-cyxbccfq)
+warning: unused variable: `chunks`
+   --> src/ffi_neon_hybrid.rs:601:5
+    |
+601 |     chunks: &[&[u8; CHUNK_LEN]],
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_chunks`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `partial`
+   --> src/ffi_neon_hybrid.rs:602:5
+    |
+602 |     partial: &[u8],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_partial`
+
+warning: unused variable: `key`
+   --> src/ffi_neon_hybrid.rs:603:5
+    |
+603 |     key: &CVWords,
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:604:5
+    |
+604 |     counter: u64,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:605:5
+    |
+605 |     flags: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/ffi_neon_hybrid.rs:606:5
+    |
+606 |     flags_start: u8,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/ffi_neon_hybrid.rs:607:5
+    |
+607 |     flags_end: u8,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:608:5
+    |
+608 |     out: &mut [u8],
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: type alias `PartialKernel` is never used
+   --> src/ffi_neon_hybrid.rs:526:6
+    |
+526 | type PartialKernel = unsafe extern "C" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);
+    |      ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `partial_kernel` is never used
+   --> src/ffi_neon_hybrid.rs:558:4
+    |
+558 | fn partial_kernel(n: usize) -> PartialKernel {
+    |    ^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 10 warnings (run `cargo fix --lib -p blake3-servil` to apply 8 suggestions)
+warning: `blake3-servil` (lib test) generated 8 warnings (8 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 20.86s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `chunks`
+   --> src/ffi_neon_hybrid.rs:601:5
+    |
+601 |     chunks: &[&[u8; CHUNK_LEN]],
+    |     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_chunks`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `partial`
+   --> src/ffi_neon_hybrid.rs:602:5
+    |
+602 |     partial: &[u8],
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_partial`
+
+warning: unused variable: `key`
+   --> src/ffi_neon_hybrid.rs:603:5
+    |
+603 |     key: &CVWords,
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:604:5
+    |
+604 |     counter: u64,
+    |     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:605:5
+    |
+605 |     flags: u8,
+    |     ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/ffi_neon_hybrid.rs:606:5
+    |
+606 |     flags_start: u8,
+    |     ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/ffi_neon_hybrid.rs:607:5
+    |
+607 |     flags_end: u8,
+    |     ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:608:5
+    |
+608 |     out: &mut [u8],
+    |     ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: type alias `PartialKernel` is never used
+   --> src/ffi_neon_hybrid.rs:526:6
+    |
+526 | type PartialKernel = unsafe extern "C" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);
+    |      ^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `partial_kernel` is never used
+   --> src/ffi_neon_hybrid.rs:558:4
+    |
+558 | fn partial_kernel(n: usize) -> PartialKernel {
+    |    ^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 10 warnings (run `cargo fix --lib -p blake3-servil` to apply 8 suggestions)
+warning: `blake3-servil` (lib test) generated 8 warnings (8 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.19s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 3b4694fd-eb8f-4f8d-b042-b68604d3ef9e with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-cyxbccfq/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.515s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-cyxbccfq/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+     SIGABRT [   0.197s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 4, a chunk and a partial one: q1 (platform NEON): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.714s] 2/147 tests run: 1 passed, 1 failed, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

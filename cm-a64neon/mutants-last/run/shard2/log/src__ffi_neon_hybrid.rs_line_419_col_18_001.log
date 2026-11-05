@@ -1,0 +1,61 @@
+
+*** src/ffi_neon_hybrid.rs:419:18: replace > with < in prefetch_parent_code
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace > with < in prefetch_parent_code
+@@ -411,17 +411,17 @@
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the code that merges `values` chaining values to the root:
+ /// each level's parent plan (`compress_parents_parallel`), then the scalar
+ /// kernel that compresses the root. Requires 2 to 32 values.
+ pub fn prefetch_parent_code(mut values: usize) {
+-    while values > 2 {
++    while values < /* ~ changed by cargo-mutants ~ */ 2 {
+         for &n in PARENT_PLANS[values / 2] {
+             crate::platform::prefetch_code(parent_code(n));
+         }
+         values = values / 2 + values % 2;
+     }
+     crate::platform::prefetch_code(parent_code(1));
+ }
+ 
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ra3owf0h)
+    Finished `mutants` profile [optimized] target(s) in 26.39s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.22s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID d2eab5f7-265a-44ec-a1e4-77e77038137c with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ra3owf0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.647s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-ra3owf0h/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+ TERMINATING [> 30.000s] (───────) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+     TIMEOUT [  30.020s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+
+    (test timed out)
+
+  Cancelling due to test failure
+────────────
+     Summary [  30.682s] 2/147 tests run: 1 passed, 1 timed out, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

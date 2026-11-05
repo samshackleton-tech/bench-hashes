@@ -1,0 +1,24 @@
+--- src/ffi_neon_hybrid.rs
++++ replace #[cfg(not(feature = "std"))] { cfg!(target_feature = "sha3") } with false in sha3_detected
+@@ -429,20 +429,17 @@
+ /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The
+ /// pair kernels rotate with `xar`; the scalar and quad kernels need no
+ /// extension.
+ pub fn sha3_detected() -> bool {
+     #[cfg(feature = "std")]
+     {
+         std::arch::is_aarch64_feature_detected!("sha3")
+     }
+-    #[cfg(not(feature = "std"))]
+-    {
+-        cfg!(target_feature = "sha3")
+-    }
++    false /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with
+ /// the same counter: `flags | flags_start` on the first block, `flags` on
+ /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;
+ /// the scalar kernel keeps the whole state in registers and runs at 13.3
+ /// cycles per G-step against the portable compressor's 14.
+ ///

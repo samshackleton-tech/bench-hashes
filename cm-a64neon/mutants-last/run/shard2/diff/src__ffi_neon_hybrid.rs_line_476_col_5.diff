@@ -1,0 +1,33 @@
+--- src/ffi_neon_hybrid.rs
++++ replace compress_in_place with ()
+@@ -468,29 +468,17 @@
+ /// on the scalar kernel: the chunk finalizer, the root compression, and
+ /// every parent node of the incremental `Hasher` go through it. Registers
+ /// hold the whole state, so it saves the portable compressor's spills.
+ ///
+ /// The kernel uses only integer instructions and runs on every AArch64
+ /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded
+ /// past `block_len` by the caller as the portable compressor requires.
+ pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+-    debug_assert!(block_len as usize <= BLOCK_LEN);
+-    // The one block is both first and last: the kernel ORs flags_start
+-    // into the first block and flags_end into the last, so the flags go
+-    // in as the base and the two per-position fields stay zero.
+-    let packed = flags as u64 | (block_len as u64) << 24;
+-    // `cv` is key and output at once; see compress_blocks.
+-    let cv_ptr = cv.as_mut_ptr();
+-    // Safe: the block is 64 readable bytes and the count is 1.
+-    unsafe {
+-        let block = block.as_ptr();
+-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());
+-        asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Hash a whole chunk of `1..=16` blocks in one kernel call and write its
+ /// 32-byte chaining value (or root hash) to `out`. Blocks `0..blocks - 1`
+ /// are the first `(blocks - 1) * 64` bytes of `input`; the last block is
+ /// `last`, zero-padded past `last_len`, so a short final block costs one
+ /// 64-byte copy. The first block carries `flags | flags_start`, the last
+ /// `flags | flags_end`, and every block `flags` and `counter`. This is the

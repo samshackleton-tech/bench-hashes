@@ -1,0 +1,91 @@
+
+*** src/ffi_neon_hybrid.rs:368:9: delete match arm 4 in parent_code
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ delete match arm 4 in parent_code
+@@ -360,17 +360,17 @@
+         ($kernel:ident, $end:ident) => {
+             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)
+         };
+     }
+     match n {
+         1 => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),
+         2 => code!(blake3_servil_hybrid_p2, blake3_servil_hybrid_p2_end),
+         3 => code!(blake3_servil_hybrid_p3, blake3_servil_hybrid_p3_end),
+-        4 => code!(blake3_servil_hybrid_p4, blake3_servil_hybrid_p4_end),
++         /* ~ changed by cargo-mutants ~ */
+         5 => code!(blake3_servil_hybrid_p5, blake3_servil_hybrid_p5_end),
+         7 => code!(blake3_servil_hybrid_p7, blake3_servil_hybrid_p7_end),
+         8 => code!(blake3_servil_hybrid_p8, blake3_servil_hybrid_p8_end),
+         9 => code!(blake3_servil_hybrid_p9, blake3_servil_hybrid_p9_end),
+         _ => unreachable!("no parent kernel for {n} parents"),
+     }
+ }
+ 
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-b91jbd58)
+warning: static `blake3_servil_hybrid_p4_end` is never used
+   --> src/ffi_neon_hybrid.rs:295:20
+    |
+295 |         pub static blake3_servil_hybrid_p4_end: u8;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 22.51s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: static `blake3_servil_hybrid_p4_end` is never used
+   --> src/ffi_neon_hybrid.rs:295:20
+    |
+295 |         pub static blake3_servil_hybrid_p4_end: u8;
+    |                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.32s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 2c2cc34b-c036-4ec9-bf93-07f750eb1366 with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.471s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.202s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-b91jbd58/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+     SIGABRT [   0.182s] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks' (2256106) panicked at src/ffi_neon_hybrid.rs:373:14:
+    internal error: entered unreachable code: no parent kernel for 4 parents
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.860s] 3/147 tests run: 2 passed, 1 failed, 0 skipped
+warning: 144/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

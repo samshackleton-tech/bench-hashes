@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace / with * in hash_many_in
+@@ -766,17 +766,17 @@
+     const { assert!(N > 0 && N % BLOCK_LEN == 0 && N <= CHUNK_LEN, "1 to 16 whole blocks") };
+     let (plans, kernels, counter_step): (&[&[usize]; 17], &[Option<Kernel>], u64) = if increment_counter.yes() {
+         assert_eq!(N, CHUNK_LEN, "incrementing counters hash whole chunks");
+         (family.chunk_plans, family.chunk_kernels, 1)
+     } else {
+         (family.parent_plans, family.parent_kernels, 0)
+     };
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+-    let blocks = N / BLOCK_LEN;
++    let blocks = N * /* ~ changed by cargo-mutants ~ */ BLOCK_LEN;
+     // `&[&[u8; N]]` is a table of pointers, which is what the kernels take.
+     let table = inputs.as_ptr() as *const *const u8;
+ 
+     let mut done = 0;
+     while done < inputs.len() {
+         let count = core::cmp::min(GROUP, inputs.len() - done);
+         unsafe {
+             run_plan(

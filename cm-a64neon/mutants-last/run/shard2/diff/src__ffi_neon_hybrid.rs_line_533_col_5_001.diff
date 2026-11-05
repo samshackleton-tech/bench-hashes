@@ -1,0 +1,42 @@
+--- src/ffi_neon_hybrid.rs
++++ replace entries -> std::vec::Vec<(std::string::String, *const())> with vec![(Default::default(), Default::default())]
+@@ -525,38 +525,17 @@
+ /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.
+ type PartialKernel = unsafe extern "C" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);
+ 
+ /// Every assembly entry point of the hybrids, named: from the kernel
+ /// tables, the q kernels, and the integer kernel (for the self-test's
+ /// test).
+ #[cfg(all(test, feature = "std"))]
+ pub(crate) fn entries() -> std::vec::Vec<(std::string::String, *const ())> {
+-    let mut out = std::vec::Vec::new();
+-    let family = family();
+-    for (size, k) in family.chunk_kernels.iter().enumerate() {
+-        if let Some(k) = k {
+-            out.push((std::format!("k{size}"), *k as *const ()));
+-        }
+-    }
+-    for (size, k) in family.parent_kernels.iter().enumerate() {
+-        if let Some(k) = k {
+-            out.push((std::format!("p{size}"), *k as *const ()));
+-        }
+-    }
+-    if sha3_detected() {
+-        for n in 1..=9 {
+-            out.push((std::format!("q{n}"), partial_kernel(n) as *const ()));
+-        }
+-    }
+-    out.push(("c1".into(), asm::blake3_servil_hybrid_c1 as *const ()));
+-    out.push(("x1".into(), asm::blake3_servil_hybrid_x1 as *const ()));
+-    out.push(("x4".into(), asm::blake3_servil_hybrid_x4 as *const ()));
+-    out.push(("x8".into(), asm::blake3_servil_hybrid_x8 as *const ()));
+-    out
++    vec![(Default::default(), Default::default())] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.
+ fn partial_kernel(n: usize) -> PartialKernel {
+     match n {
+         1 => asm::blake3_servil_hybrid_q1,
+         2 => asm::blake3_servil_hybrid_q2,
+         3 => asm::blake3_servil_hybrid_q3,

@@ -1,0 +1,100 @@
+
+*** src/ffi_neon_hybrid.rs:407:33: replace > with >= in prefetch_message_code
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace > with >= in prefetch_message_code
+@@ -399,17 +399,17 @@
+ /// Prefetch the code a batch of `count` one-block messages runs on the
+ /// hybrids: the parent plans, a group of sixteen at a time (hash_many on
+ /// one-block inputs). Requires 1 or more.
+ pub fn prefetch_message_code(count: usize) {
+     let plan = |n: usize| PARENT_PLANS[n];
+     for &n in plan(count.min(16)) {
+         crate::platform::prefetch_code(parent_code(n));
+     }
+-    if count > 16 && count % 16 > 0 {
++    if count > 16 && count % 16 >= /* ~ changed by cargo-mutants ~ */ 0 {
+         for &n in plan(count % 16) {
+             crate::platform::prefetch_code(parent_code(n));
+         }
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the code that merges `values` chaining values to the root:
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-op9olc1e)
+warning: comparison is useless due to type limits
+   --> src/ffi_neon_hybrid.rs:407:22
+    |
+407 |     if count > 16 && count % 16 >= /* ~ changed by cargo-mutants ~ */ 0 {
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_comparisons)]` on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 4.65s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: comparison is useless due to type limits
+   --> src/ffi_neon_hybrid.rs:407:22
+    |
+407 |     if count > 16 && count % 16 >= /* ~ changed by cargo-mutants ~ */ 0 {
+    |                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_comparisons)]` on by default
+
+warning: `blake3-servil` (lib) generated 1 warning
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID b6127010-aa6f-4f06-b570-c1781d067f06 with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-op9olc1e/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-op9olc1e/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-op9olc1e/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-op9olc1e/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        FAIL [   0.174s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+  Cancelling due to test failure: 3 tests still running
+        FAIL [   0.188s] (  2/147) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.200s] (  3/147) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+        FAIL [   0.212s] (  4/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+────────────
+     Summary [   0.213s] 4/147 tests run: 0 passed, 4 failed, 0 skipped
+warning: 143/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

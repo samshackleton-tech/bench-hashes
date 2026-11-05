@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace | with ^ in hash_chunks_with_partial
+@@ -609,17 +609,17 @@
+ ) {
+     assert!(partial_covers(chunks.len()), "1 to 15 whole chunks but 10");
+     assert!(!partial.is_empty() && partial.len() < CHUNK_LEN, "a partial chunk holds 1 to 1023 bytes");
+     assert!(out.len() >= (chunks.len() + 1) * OUT_LEN);
+     // Ten whole chunks and more: the first ones through the usual plans,
+     // so the q kernel takes the last nine or fewer.
+     let lead = chunks.len().saturating_sub(9);
+     if lead > 0 {
+-        let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
++        let packed = flags as u64 | (flags_start as u64) << 8 ^ /* ~ changed by cargo-mutants ~ */ (flags_end as u64) << 16 | (BLOCK_LEN as u64) << 24;
+         unsafe {
+             run_plan(CHUNK_PLANS[lead], &CHUNK_KERNELS, chunks.as_ptr() as *const *const u8, CHUNK_LEN / BLOCK_LEN, key, counter, 1, packed, out);
+         }
+     }
+     let (chunks, counter, out) = (&chunks[lead..], counter + lead as u64, &mut out[lead * OUT_LEN..]);
+     let n = chunks.len();
+     let kernel = partial_kernel(n);
+     crate::ran_kernel(kernel as *const ());

@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace whole < inputs.len() with false in hash_pairs
+@@ -667,17 +667,17 @@
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+     let pair = PARENT_KERNELS[2].expect("the pair kernel");
+     crate::ran_kernel(pair as *const ());
+     let table = inputs.as_ptr() as *const *const u8;
+     let whole = inputs.len() / 2 * 2;
+     for p in (0..whole).step_by(2) {
+         unsafe { pair(table.add(p), 1, key.as_ptr(), 0, packed, out[p * OUT_LEN..].as_mut_ptr()) };
+     }
+-    if whole < inputs.len() {
++    if false /* ~ changed by cargo-mutants ~ */ {
+         let last = [inputs[whole].as_ptr(), inputs[whole].as_ptr()];
+         let mut two = [0u8; 2 * OUT_LEN];
+         unsafe { pair(last.as_ptr(), 1, key.as_ptr(), 0, packed, two.as_mut_ptr()) };
+         out[whole * OUT_LEN..(whole + 1) * OUT_LEN].copy_from_slice(&two[..OUT_LEN]);
+     }
+ }
+ 
+ #[cfg(feature = "std")]

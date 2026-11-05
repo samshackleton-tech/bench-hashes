@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace prefetch_pair_code with ()
+@@ -678,17 +678,17 @@
+         unsafe { pair(last.as_ptr(), 1, key.as_ptr(), 0, packed, two.as_mut_ptr()) };
+         out[whole * OUT_LEN..(whole + 1) * OUT_LEN].copy_from_slice(&two[..OUT_LEN]);
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the pair kernel's code ([`hash_pairs`]).
+ pub fn prefetch_pair_code() {
+-    crate::platform::prefetch_code(parent_code(2));
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Run the kernels of `plan` over `inputs`.
+ unsafe fn run_plan(
+     plan: &[usize],
+     kernels: &[Option<Kernel>],
+     inputs: *const *const u8,
+     blocks: usize,

@@ -1,0 +1,217 @@
+
+*** src/ffi_neon_hybrid.rs:126:5: replace xof_many -> usize with 0
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace xof_many -> usize with 0
+@@ -118,30 +118,17 @@
+ }
+ 
+ /// Fill `out`'s whole groups of four 64-byte blocks with extended output
+ /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and
+ /// `block_len`, both halves of the state), eight blocks a call where they
+ /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every
+ /// AArch64 CPU runs them (quads, which need no SHA-3).
+ pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+-    let table = [block.as_ptr(); 8];
+-    let packed = flags as u64 | (block_len as u64) << 24;
+-    let mut done = 0;
+-    while out.len() - done >= 4 * BLOCK_LEN {
+-        let (kernel, blocks): (Kernel, usize) =
+-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };
+-        crate::ran_kernel(kernel as *const ());
+-        // Sound: every table entry points at the 64-byte block; the kernel
+-        // writes 64 bytes a block within `out[done..]`.
+-        unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };
+-        counter = counter.wrapping_add(blocks as u64);
+-        done += blocks * BLOCK_LEN;
+-    }
+-    done
++    0 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// One block of extended output, block `counter`, on the integer units
+ /// (x1). The four-lane x4 costs about two compressions on the M4's cores
+ /// and the VM's: one block of output through it took 2.1 times the
+ /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).
+ pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+     let mut out = [0u8; BLOCK_LEN];
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-55nqj4gz)
+warning: variable does not need to be mutable
+   --> src/ffi_neon_hybrid.rs:125:71
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                       ----^^^^^^^
+    |                                                                       |
+    |                                                                       help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `cv`
+   --> src/ffi_neon_hybrid.rs:125:17
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                 ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/ffi_neon_hybrid.rs:125:31
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                               ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/ffi_neon_hybrid.rs:125:56
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                        ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:125:71
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                       ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:125:89
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:125:100
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                                                    ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `blake3_servil_hybrid_x4` is never used
+   --> src/ffi_neon_hybrid.rs:117:37
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `blake3_servil_hybrid_x8` is never used
+   --> src/ffi_neon_hybrid.rs:117:62
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `blake3-servil` (lib) generated 9 warnings (run `cargo fix --lib -p blake3-servil` to apply 7 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 32.23s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: variable does not need to be mutable
+   --> src/ffi_neon_hybrid.rs:125:71
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                       ----^^^^^^^
+    |                                                                       |
+    |                                                                       help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `cv`
+   --> src/ffi_neon_hybrid.rs:125:17
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                 ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/ffi_neon_hybrid.rs:125:31
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                               ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/ffi_neon_hybrid.rs:125:56
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                        ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:125:71
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                       ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:125:89
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                                         ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `out`
+   --> src/ffi_neon_hybrid.rs:125:100
+    |
+125 | pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+    |                                                                                                    ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `blake3_servil_hybrid_x4` is never used
+   --> src/ffi_neon_hybrid.rs:117:37
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |                                     ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: function `blake3_servil_hybrid_x8` is never used
+   --> src/ffi_neon_hybrid.rs:117:62
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |                                                              ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `blake3-servil` (lib) generated 9 warnings (run `cargo fix --lib -p blake3-servil` to apply 7 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.23s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 6d7bc28a-87f5-4503-9209-ab03418b0c3f with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.451s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+     SIGABRT [   0.155s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero' (1977508) panicked at src/ffi_neon_hybrid.rs:148:5:
+    a tail of one to three blocks
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.613s] 2/147 tests run: 1 passed, 1 failed, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

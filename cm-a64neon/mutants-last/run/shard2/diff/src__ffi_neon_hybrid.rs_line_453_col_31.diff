@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace | with & in compress_blocks
+@@ -445,17 +445,17 @@
+ /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;
+ /// the scalar kernel keeps the whole state in registers and runs at 13.3
+ /// cycles per G-step against the portable compressor's 14.
+ ///
+ /// The kernel uses only integer instructions. Unsafe because `blocks` must
+ /// hold `count * 64` readable bytes and `count` must be in 1..=16.
+ pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {
+     debug_assert!((1..=16).contains(&count));
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;
++    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;
+     // The kernel reads the whole key in its prologue and stores the output
+     // at its end, so `cv` serves as both: the output words land in place,
+     // in the little-endian layout CVWords has on this target.
+     let cv_ptr = cv.as_mut_ptr();
+     unsafe {
+         let last = blocks.add((count - 1) * BLOCK_LEN);
+         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());
+         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);

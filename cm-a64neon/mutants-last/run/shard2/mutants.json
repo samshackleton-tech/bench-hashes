@@ -1,0 +1,1954 @@
+[
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace % with + in prefetch_message_code\n@@ -400,17 +400,17 @@\n /// hybrids: the parent plans, a group of sixteen at a time (hash_many on\n /// one-block inputs). Requires 1 or more.\n pub fn prefetch_message_code(count: usize) {\n     let plan = |n: usize| PARENT_PLANS[n];\n     for &n in plan(count.min(16)) {\n         crate::platform::prefetch_code(parent_code(n));\n     }\n     if count > 16 && count % 16 > 0 {\n-        for &n in plan(count % 16) {\n+        for &n in plan(count + /* ~ changed by cargo-mutants ~ */ 16) {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_message_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 412
+        },
+        "start": {
+          "column": 1,
+          "line": 398
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:408:30: replace % with + in prefetch_message_code",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 408
+      },
+      "start": {
+        "column": 30,
+        "line": 408
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace prefetch_parent_code with ()\n@@ -411,23 +411,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n-    while values > 2 {\n-        for &n in PARENT_PLANS[values / 2] {\n-            crate::platform::prefetch_code(parent_code(n));\n-        }\n-        values = values / 2 + values % 2;\n-    }\n-    crate::platform::prefetch_code(parent_code(1));\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n pub fn sha3_detected() -> bool {\n     #[cfg(feature = \"std\")]\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:419:5: replace prefetch_parent_code with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 425
+      },
+      "start": {
+        "column": 5,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace values > 2 with false in prefetch_parent_code\n@@ -411,17 +411,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n-    while values > 2 {\n+    while false /* ~ changed by cargo-mutants ~ */ {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:419:11: replace values > 2 with false in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 419
+      },
+      "start": {
+        "column": 11,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace > with == in prefetch_parent_code\n@@ -411,17 +411,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n-    while values > 2 {\n+    while values == /* ~ changed by cargo-mutants ~ */ 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:419:18: replace > with == in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 419
+      },
+      "start": {
+        "column": 18,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace > with < in prefetch_parent_code\n@@ -411,17 +411,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n-    while values > 2 {\n+    while values < /* ~ changed by cargo-mutants ~ */ 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:419:18: replace > with < in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 419
+      },
+      "start": {
+        "column": 18,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace > with >= in prefetch_parent_code\n@@ -411,17 +411,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n-    while values > 2 {\n+    while values >= /* ~ changed by cargo-mutants ~ */ 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:419:18: replace > with >= in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 419
+      },
+      "start": {
+        "column": 18,
+        "line": 419
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace / with % in prefetch_parent_code\n@@ -412,17 +412,17 @@\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n-        for &n in PARENT_PLANS[values / 2] {\n+        for &n in PARENT_PLANS[values % /* ~ changed by cargo-mutants ~ */ 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:420:39: replace / with % in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 420
+      },
+      "start": {
+        "column": 39,
+        "line": 420
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace / with * in prefetch_parent_code\n@@ -412,17 +412,17 @@\n }\n \n #[cfg(feature = \"std\")]\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n-        for &n in PARENT_PLANS[values / 2] {\n+        for &n in PARENT_PLANS[values * /* ~ changed by cargo-mutants ~ */ 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n         values = values / 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:420:39: replace / with * in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 420
+      },
+      "start": {
+        "column": 39,
+        "line": 420
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace + with - in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values / 2 - /* ~ changed by cargo-mutants ~ */ values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:29: replace + with - in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 423
+      },
+      "start": {
+        "column": 29,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace + with * in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values / 2 * /* ~ changed by cargo-mutants ~ */ values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:29: replace + with * in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 423
+      },
+      "start": {
+        "column": 29,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace / with % in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values % /* ~ changed by cargo-mutants ~ */ 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:25: replace / with % in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 423
+      },
+      "start": {
+        "column": 25,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace / with * in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values * /* ~ changed by cargo-mutants ~ */ 2 + values % 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:25: replace / with * in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 423
+      },
+      "start": {
+        "column": 25,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace % with / in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values / 2 + values / /* ~ changed by cargo-mutants ~ */ 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:38: replace % with / in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 423
+      },
+      "start": {
+        "column": 38,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace % with + in prefetch_parent_code\n@@ -415,17 +415,17 @@\n /// Prefetch the code that merges `values` chaining values to the root:\n /// each level's parent plan (`compress_parents_parallel`), then the scalar\n /// kernel that compresses the root. Requires 2 to 32 values.\n pub fn prefetch_parent_code(mut values: usize) {\n     while values > 2 {\n         for &n in PARENT_PLANS[values / 2] {\n             crate::platform::prefetch_code(parent_code(n));\n         }\n-        values = values / 2 + values % 2;\n+        values = values / 2 + values + /* ~ changed by cargo-mutants ~ */ 2;\n     }\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "prefetch_parent_code",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 426
+        },
+        "start": {
+          "column": 1,
+          "line": 414
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:423:38: replace % with + in prefetch_parent_code",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 423
+      },
+      "start": {
+        "column": 38,
+        "line": 423
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected -> bool with true\n@@ -425,24 +425,17 @@\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n pub fn sha3_detected() -> bool {\n-    #[cfg(feature = \"std\")]\n-    {\n-        std::arch::is_aarch64_feature_detected!(\"sha3\")\n-    }\n-    #[cfg(not(feature = \"std\"))]\n-    {\n-        cfg!(target_feature = \"sha3\")\n-    }\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with\n /// the same counter: `flags | flags_start` on the first block, `flags` on\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "sha3_detected",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 441
+        },
+        "start": {
+          "column": 1,
+          "line": 428
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:433:5: replace sha3_detected -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 440
+      },
+      "start": {
+        "column": 5,
+        "line": 433
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected -> bool with false\n@@ -425,24 +425,17 @@\n     crate::platform::prefetch_code(parent_code(1));\n }\n \n /// True when the CPU has the SHA-3 extension that provides `xar`. Every\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n pub fn sha3_detected() -> bool {\n-    #[cfg(feature = \"std\")]\n-    {\n-        std::arch::is_aarch64_feature_detected!(\"sha3\")\n-    }\n-    #[cfg(not(feature = \"std\"))]\n-    {\n-        cfg!(target_feature = \"sha3\")\n-    }\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with\n /// the same counter: `flags | flags_start` on the first block, `flags` on\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "sha3_detected",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 441
+        },
+        "start": {
+          "column": 1,
+          "line": 428
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:433:5: replace sha3_detected -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 440
+      },
+      "start": {
+        "column": 5,
+        "line": 433
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace #[cfg(not(feature = \"std\"))] { cfg!(target_feature = \"sha3\") } with true in sha3_detected\n@@ -429,20 +429,17 @@\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n pub fn sha3_detected() -> bool {\n     #[cfg(feature = \"std\")]\n     {\n         std::arch::is_aarch64_feature_detected!(\"sha3\")\n     }\n-    #[cfg(not(feature = \"std\"))]\n-    {\n-        cfg!(target_feature = \"sha3\")\n-    }\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with\n /// the same counter: `flags | flags_start` on the first block, `flags` on\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "sha3_detected",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 441
+        },
+        "start": {
+          "column": 1,
+          "line": 428
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:437:5: replace #[cfg(not(feature = \"std\"))] { cfg!(target_feature = \"sha3\") } with true in sha3_detected",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 440
+      },
+      "start": {
+        "column": 5,
+        "line": 437
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace #[cfg(not(feature = \"std\"))] { cfg!(target_feature = \"sha3\") } with false in sha3_detected\n@@ -429,20 +429,17 @@\n /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The\n /// pair kernels rotate with `xar`; the scalar and quad kernels need no\n /// extension.\n pub fn sha3_detected() -> bool {\n     #[cfg(feature = \"std\")]\n     {\n         std::arch::is_aarch64_feature_detected!(\"sha3\")\n     }\n-    #[cfg(not(feature = \"std\"))]\n-    {\n-        cfg!(target_feature = \"sha3\")\n-    }\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with\n /// the same counter: `flags | flags_start` on the first block, `flags` on\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "sha3_detected",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 441
+        },
+        "start": {
+          "column": 1,
+          "line": 428
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:437:5: replace #[cfg(not(feature = \"std\"))] { cfg!(target_feature = \"sha3\") } with false in sha3_detected",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 440
+      },
+      "start": {
+        "column": 5,
+        "line": 437
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace compress_blocks with ()\n@@ -444,27 +444,17 @@\n /// the same counter: `flags | flags_start` on the first block, `flags` on\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n-    debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n-    // The kernel reads the whole key in its prologue and stores the output\n-    // at its end, so `cv` serves as both: the output words land in place,\n-    // in the little-endian layout CVWords has on this target.\n-    let cv_ptr = cv.as_mut_ptr();\n-    unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n /// on the scalar kernel: the chunk finalizer, the root compression, and\n /// every parent node of the incremental `Hasher` go through it. Registers\n /// hold the whole state, so it saves the portable compressor's spills.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:452:5: replace compress_blocks with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 462
+      },
+      "start": {
+        "column": 5,
+        "line": 452
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace unsafe { let last = blocks.add((count - 1) * BLOCK_LEN); crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last); } with () in compress_blocks\n@@ -450,21 +450,17 @@\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n-    unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n /// on the scalar kernel: the chunk finalizer, the root compression, and\n /// every parent node of the incremental `Hasher` go through it. Registers\n /// hold the whole state, so it saves the portable compressor's spills.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:458:5: replace unsafe { let last = blocks.add((count - 1) * BLOCK_LEN); crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last); } with () in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 462
+      },
+      "start": {
+        "column": 5,
+        "line": 458
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 & /* ~ changed by cargo-mutants ~ */ (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:59: replace | with & in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 453
+      },
+      "start": {
+        "column": 59,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 ^ /* ~ changed by cargo-mutants ~ */ (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:59: replace | with ^ in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 453
+      },
+      "start": {
+        "column": 59,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:31: replace | with & in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 453
+      },
+      "start": {
+        "column": 31,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 ^ /* ~ changed by cargo-mutants ~ */ (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:31: replace | with ^ in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 453
+      },
+      "start": {
+        "column": 31,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) >> /* ~ changed by cargo-mutants ~ */ 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:54: replace << with >> in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 453
+      },
+      "start": {
+        "column": 54,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in compress_blocks\n@@ -445,17 +445,17 @@\n /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;\n /// the scalar kernel keeps the whole state in registers and runs at 13.3\n /// cycles per G-step against the portable compressor's 14.\n ///\n /// The kernel uses only integer instructions. Unsafe because `blocks` must\n /// hold `count * 64` readable bytes and `count` must be in 1..=16.\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) >> /* ~ changed by cargo-mutants ~ */ 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n         let last = blocks.add((count - 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:453:80: replace << with >> in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 82,
+        "line": 453
+      },
+      "start": {
+        "column": 80,
+        "line": 453
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in compress_blocks\n@@ -451,17 +451,17 @@\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n+        let last = blocks.add((count - 1) + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n     }\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:459:43: replace * with + in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 459
+      },
+      "start": {
+        "column": 43,
+        "line": 459
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in compress_blocks\n@@ -451,17 +451,17 @@\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n+        let last = blocks.add((count - 1) / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n     }\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:459:43: replace * with / in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 459
+      },
+      "start": {
+        "column": 43,
+        "line": 459
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with + in compress_blocks\n@@ -451,17 +451,17 @@\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n+        let last = blocks.add((count + /* ~ changed by cargo-mutants ~ */ 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n     }\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:459:38: replace - with + in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 459
+      },
+      "start": {
+        "column": 38,
+        "line": 459
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with / in compress_blocks\n@@ -451,17 +451,17 @@\n pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {\n     debug_assert!((1..=16).contains(&count));\n     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;\n     // The kernel reads the whole key in its prologue and stores the output\n     // at its end, so `cv` serves as both: the output words land in place,\n     // in the little-endian layout CVWords has on this target.\n     let cv_ptr = cv.as_mut_ptr();\n     unsafe {\n-        let last = blocks.add((count - 1) * BLOCK_LEN);\n+        let last = blocks.add((count / /* ~ changed by cargo-mutants ~ */ 1) * BLOCK_LEN);\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);\n     }\n }\n \n /// One compression of `block` into `cv`, with every flag in `flags`\n /// (start, end, root, and so on are the caller's business) and the given\n /// `block_len` recorded in the state. This is `Platform::compress_in_place`\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_blocks",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 463
+        },
+        "start": {
+          "column": 1,
+          "line": 443
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:459:38: replace - with / in compress_blocks",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 459
+      },
+      "start": {
+        "column": 38,
+        "line": 459
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace compress_in_place with ()\n@@ -468,29 +468,17 @@\n /// on the scalar kernel: the chunk finalizer, the root compression, and\n /// every parent node of the incremental `Hasher` go through it. Registers\n /// hold the whole state, so it saves the portable compressor's spills.\n ///\n /// The kernel uses only integer instructions and runs on every AArch64\n /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded\n /// past `block_len` by the caller as the portable compressor requires.\n pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {\n-    debug_assert!(block_len as usize <= BLOCK_LEN);\n-    // The one block is both first and last: the kernel ORs flags_start\n-    // into the first block and flags_end into the last, so the flags go\n-    // in as the base and the two per-position fields stay zero.\n-    let packed = flags as u64 | (block_len as u64) << 24;\n-    // `cv` is key and output at once; see compress_blocks.\n-    let cv_ptr = cv.as_mut_ptr();\n-    // Safe: the block is 64 readable bytes and the count is 1.\n-    unsafe {\n-        let block = block.as_ptr();\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Hash a whole chunk of `1..=16` blocks in one kernel call and write its\n /// 32-byte chaining value (or root hash) to `out`. Blocks `0..blocks - 1`\n /// are the first `(blocks - 1) * 64` bytes of `input`; the last block is\n /// `last`, zero-padded past `last_len`, so a short final block costs one\n /// 64-byte copy. The first block carries `flags | flags_start`, the last\n /// `flags | flags_end`, and every block `flags` and `counter`. This is the\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_in_place",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 489
+        },
+        "start": {
+          "column": 1,
+          "line": 465
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:476:5: replace compress_in_place with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 488
+      },
+      "start": {
+        "column": 5,
+        "line": 476
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace unsafe { let block = block.as_ptr(); crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block); } with () in compress_in_place\n@@ -476,21 +476,17 @@\n     debug_assert!(block_len as usize <= BLOCK_LEN);\n     // The one block is both first and last: the kernel ORs flags_start\n     // into the first block and flags_end into the last, so the flags go\n     // in as the base and the two per-position fields stay zero.\n     let packed = flags as u64 | (block_len as u64) << 24;\n     // `cv` is key and output at once; see compress_blocks.\n     let cv_ptr = cv.as_mut_ptr();\n     // Safe: the block is 64 readable bytes and the count is 1.\n-    unsafe {\n-        let block = block.as_ptr();\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Hash a whole chunk of `1..=16` blocks in one kernel call and write its\n /// 32-byte chaining value (or root hash) to `out`. Blocks `0..blocks - 1`\n /// are the first `(blocks - 1) * 64` bytes of `input`; the last block is\n /// `last`, zero-padded past `last_len`, so a short final block costs one\n /// 64-byte copy. The first block carries `flags | flags_start`, the last\n /// `flags | flags_end`, and every block `flags` and `counter`. This is the\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_in_place",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 489
+        },
+        "start": {
+          "column": 1,
+          "line": 465
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:484:5: replace unsafe { let block = block.as_ptr(); crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block); } with () in compress_in_place",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 488
+      },
+      "start": {
+        "column": 5,
+        "line": 484
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in compress_in_place\n@@ -472,17 +472,17 @@\n /// The kernel uses only integer instructions and runs on every AArch64\n /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded\n /// past `block_len` by the caller as the portable compressor requires.\n pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {\n     debug_assert!(block_len as usize <= BLOCK_LEN);\n     // The one block is both first and last: the kernel ORs flags_start\n     // into the first block and flags_end into the last, so the flags go\n     // in as the base and the two per-position fields stay zero.\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     // `cv` is key and output at once; see compress_blocks.\n     let cv_ptr = cv.as_mut_ptr();\n     // Safe: the block is 64 readable bytes and the count is 1.\n     unsafe {\n         let block = block.as_ptr();\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_in_place",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 489
+        },
+        "start": {
+          "column": 1,
+          "line": 465
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:480:31: replace | with & in compress_in_place",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 480
+      },
+      "start": {
+        "column": 31,
+        "line": 480
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in compress_in_place\n@@ -472,17 +472,17 @@\n /// The kernel uses only integer instructions and runs on every AArch64\n /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded\n /// past `block_len` by the caller as the portable compressor requires.\n pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {\n     debug_assert!(block_len as usize <= BLOCK_LEN);\n     // The one block is both first and last: the kernel ORs flags_start\n     // into the first block and flags_end into the last, so the flags go\n     // in as the base and the two per-position fields stay zero.\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 ^ /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     // `cv` is key and output at once; see compress_blocks.\n     let cv_ptr = cv.as_mut_ptr();\n     // Safe: the block is 64 readable bytes and the count is 1.\n     unsafe {\n         let block = block.as_ptr();\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_in_place",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 489
+        },
+        "start": {
+          "column": 1,
+          "line": 465
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:480:31: replace | with ^ in compress_in_place",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 480
+      },
+      "start": {
+        "column": 31,
+        "line": 480
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in compress_in_place\n@@ -472,17 +472,17 @@\n /// The kernel uses only integer instructions and runs on every AArch64\n /// core. `block_len` is at most 64; the block is 64 bytes, zero-padded\n /// past `block_len` by the caller as the portable compressor requires.\n pub fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {\n     debug_assert!(block_len as usize <= BLOCK_LEN);\n     // The one block is both first and last: the kernel ORs flags_start\n     // into the first block and flags_end into the last, so the flags go\n     // in as the base and the two per-position fields stay zero.\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 | (block_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;\n     // `cv` is key and output at once; see compress_blocks.\n     let cv_ptr = cv.as_mut_ptr();\n     // Safe: the block is 64 readable bytes and the count is 1.\n     unsafe {\n         let block = block.as_ptr();\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(block, 1, cv_ptr, counter, packed, cv_ptr as *mut u8, block);\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "compress_in_place",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 489
+        },
+        "start": {
+          "column": 1,
+          "line": 465
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:480:52: replace << with >> in compress_in_place",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 480
+      },
+      "start": {
+        "column": 52,
+        "line": 480
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace hash_chunk with ()\n@@ -507,23 +507,17 @@\n     last_len: u8,\n     key: &CVWords,\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n-    debug_assert!((1..=16).contains(&blocks));\n-    debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n-    unsafe {\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n type PartialKernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);\n \n /// Every assembly entry point of the hybrids, named: from the kernel\n /// tables, the q kernels, and the integer kernel (for the self-test's\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:515:5: replace hash_chunk with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 521
+      },
+      "start": {
+        "column": 5,
+        "line": 515
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace unsafe { crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr()); } with () in hash_chunk\n@@ -510,20 +510,17 @@\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n-    unsafe {\n-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n-        asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n type PartialKernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);\n \n /// Every assembly entry point of the hybrids, named: from the kernel\n /// tables, the q kernels, and the integer kernel (for the self-test's\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:518:5: replace unsafe { crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr()); } with () in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 521
+      },
+      "start": {
+        "column": 5,
+        "line": 518
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 & /* ~ changed by cargo-mutants ~ */ (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:86: replace | with & in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 87,
+        "line": 517
+      },
+      "start": {
+        "column": 86,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 ^ /* ~ changed by cargo-mutants ~ */ (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:86: replace | with ^ in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 87,
+        "line": 517
+      },
+      "start": {
+        "column": 86,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 & /* ~ changed by cargo-mutants ~ */ (flags_end as u64) << 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:59: replace | with & in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 517
+      },
+      "start": {
+        "column": 59,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 ^ /* ~ changed by cargo-mutants ~ */ (flags_end as u64) << 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:59: replace | with ^ in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 517
+      },
+      "start": {
+        "column": 59,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:31: replace | with & in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 517
+      },
+      "start": {
+        "column": 31,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 ^ /* ~ changed by cargo-mutants ~ */ (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:31: replace | with ^ in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 517
+      },
+      "start": {
+        "column": 31,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) >> /* ~ changed by cargo-mutants ~ */ 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:54: replace << with >> in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 517
+      },
+      "start": {
+        "column": 54,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) >> /* ~ changed by cargo-mutants ~ */ 16 | (last_len as u64) << 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:80: replace << with >> in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 82,
+        "line": 517
+      },
+      "start": {
+        "column": 80,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in hash_chunk\n@@ -509,17 +509,17 @@\n     counter: u64,\n     flags: u8,\n     flags_start: u8,\n     flags_end: u8,\n     out: &mut [u8; OUT_LEN],\n ) {\n     debug_assert!((1..=16).contains(&blocks));\n     debug_assert!(last_len as usize <= BLOCK_LEN);\n-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;\n+    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;\n     unsafe {\n         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());\n         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());\n     }\n }\n \n /// A kernel for whole chunks plus a partial chunk: the arguments of\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "hash_chunk",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 522
+        },
+        "start": {
+          "column": 1,
+          "line": 491
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:517:106: replace << with >> in hash_chunk",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 108,
+        "line": 517
+      },
+      "start": {
+        "column": 106,
+        "line": 517
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace entries -> std::vec::Vec<(std::string::String, *const())> with vec![]\n@@ -525,38 +525,17 @@\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n type PartialKernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);\n \n /// Every assembly entry point of the hybrids, named: from the kernel\n /// tables, the q kernels, and the integer kernel (for the self-test's\n /// test).\n #[cfg(all(test, feature = \"std\"))]\n pub(crate) fn entries() -> std::vec::Vec<(std::string::String, *const ())> {\n-    let mut out = std::vec::Vec::new();\n-    let family = family();\n-    for (size, k) in family.chunk_kernels.iter().enumerate() {\n-        if let Some(k) = k {\n-            out.push((std::format!(\"k{size}\"), *k as *const ()));\n-        }\n-    }\n-    for (size, k) in family.parent_kernels.iter().enumerate() {\n-        if let Some(k) = k {\n-            out.push((std::format!(\"p{size}\"), *k as *const ()));\n-        }\n-    }\n-    if sha3_detected() {\n-        for n in 1..=9 {\n-            out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n-        }\n-    }\n-    out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n-    out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n-    out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n-    out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n-    out\n+    vec![] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:533:5: replace entries -> std::vec::Vec<(std::string::String, *const())> with vec![]",
+    "package": "blake3-servil",
+    "replacement": "vec![]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 554
+      },
+      "start": {
+        "column": 5,
+        "line": 533
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace entries -> std::vec::Vec<(std::string::String, *const())> with vec![(Default::default(), Default::default())]\n@@ -525,38 +525,17 @@\n /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.\n type PartialKernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8, u64);\n \n /// Every assembly entry point of the hybrids, named: from the kernel\n /// tables, the q kernels, and the integer kernel (for the self-test's\n /// test).\n #[cfg(all(test, feature = \"std\"))]\n pub(crate) fn entries() -> std::vec::Vec<(std::string::String, *const ())> {\n-    let mut out = std::vec::Vec::new();\n-    let family = family();\n-    for (size, k) in family.chunk_kernels.iter().enumerate() {\n-        if let Some(k) = k {\n-            out.push((std::format!(\"k{size}\"), *k as *const ()));\n-        }\n-    }\n-    for (size, k) in family.parent_kernels.iter().enumerate() {\n-        if let Some(k) = k {\n-            out.push((std::format!(\"p{size}\"), *k as *const ()));\n-        }\n-    }\n-    if sha3_detected() {\n-        for n in 1..=9 {\n-            out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n-        }\n-    }\n-    out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n-    out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n-    out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n-    out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n-    out\n+    vec![(Default::default(), Default::default())] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:533:5: replace entries -> std::vec::Vec<(std::string::String, *const())> with vec![(Default::default(), Default::default())]",
+    "package": "blake3-servil",
+    "replacement": "vec![(Default::default(), Default::default())]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 554
+      },
+      "start": {
+        "column": 5,
+        "line": 533
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out with vec![] in entries\n@@ -546,17 +546,17 @@\n         for n in 1..=9 {\n             out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n         }\n     }\n     out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n     out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n-    out\n+    vec![] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:554:5: replace out with vec![] in entries",
+    "package": "blake3-servil",
+    "replacement": "vec![]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 554
+      },
+      "start": {
+        "column": 5,
+        "line": 554
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out with vec![(Default::default(), Default::default())] in entries\n@@ -546,17 +546,17 @@\n         for n in 1..=9 {\n             out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n         }\n     }\n     out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n     out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n-    out\n+    vec![(Default::default(), Default::default())] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:554:5: replace out with vec![(Default::default(), Default::default())] in entries",
+    "package": "blake3-servil",
+    "replacement": "vec![(Default::default(), Default::default())]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 554
+      },
+      "start": {
+        "column": 5,
+        "line": 554
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected() with true in entries\n@@ -537,17 +537,17 @@\n             out.push((std::format!(\"k{size}\"), *k as *const ()));\n         }\n     }\n     for (size, k) in family.parent_kernels.iter().enumerate() {\n         if let Some(k) = k {\n             out.push((std::format!(\"p{size}\"), *k as *const ()));\n         }\n     }\n-    if sha3_detected() {\n+    if true /* ~ changed by cargo-mutants ~ */ {\n         for n in 1..=9 {\n             out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n         }\n     }\n     out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n     out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:545:8: replace sha3_detected() with true in entries",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 545
+      },
+      "start": {
+        "column": 8,
+        "line": 545
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected() with false in entries\n@@ -537,17 +537,17 @@\n             out.push((std::format!(\"k{size}\"), *k as *const ()));\n         }\n     }\n     for (size, k) in family.parent_kernels.iter().enumerate() {\n         if let Some(k) = k {\n             out.push((std::format!(\"p{size}\"), *k as *const ()));\n         }\n     }\n-    if sha3_detected() {\n+    if false /* ~ changed by cargo-mutants ~ */ {\n         for n in 1..=9 {\n             out.push((std::format!(\"q{n}\"), partial_kernel(n) as *const ()));\n         }\n     }\n     out.push((\"c1\".into(), asm::blake3_servil_hybrid_c1 as *const ()));\n     out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "entries",
+      "return_type": "-> std::vec::Vec<(std::string::String, *const())>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 555
+        },
+        "start": {
+          "column": 1,
+          "line": 528
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:545:8: replace sha3_detected() with false in entries",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 545
+      },
+      "start": {
+        "column": 8,
+        "line": 545
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace partial_kernel -> PartialKernel with Default::default()\n@@ -551,28 +551,17 @@\n     out.push((\"x1\".into(), asm::blake3_servil_hybrid_x1 as *const ()));\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n     out\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n-    match n {\n-        1 => asm::blake3_servil_hybrid_q1,\n-        2 => asm::blake3_servil_hybrid_q2,\n-        3 => asm::blake3_servil_hybrid_q3,\n-        4 => asm::blake3_servil_hybrid_q4,\n-        5 => asm::blake3_servil_hybrid_q5,\n-        6 => asm::blake3_servil_hybrid_q6,\n-        7 => asm::blake3_servil_hybrid_q7,\n-        8 => asm::blake3_servil_hybrid_q8,\n-        9 => asm::blake3_servil_hybrid_q9,\n-        _ => panic!(\"no q kernel for {n} whole chunks\"),\n-    }\n+    Default::default() /* ~ changed by cargo-mutants ~ */\n }\n \n /// Whether [`hash_chunks_with_partial`] takes `n` whole chunks: 1 through\n /// 15 but 10 (from 16 the SME2 kernels or a second call take the whole\n /// chunks).\n fn partial_covers(n: usize) -> bool {\n     (1..GROUP).contains(&n) && n != 10\n }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:559:5: replace partial_kernel -> PartialKernel with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 570
+      },
+      "start": {
+        "column": 5,
+        "line": 559
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 1 in partial_kernel\n@@ -552,17 +552,17 @@\n     out.push((\"x4\".into(), asm::blake3_servil_hybrid_x4 as *const ()));\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n     out\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n-        1 => asm::blake3_servil_hybrid_q1,\n+         /* ~ changed by cargo-mutants ~ */\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:560:9: delete match arm 1 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 560
+      },
+      "start": {
+        "column": 9,
+        "line": 560
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 2 in partial_kernel\n@@ -553,17 +553,17 @@\n     out.push((\"x8\".into(), asm::blake3_servil_hybrid_x8 as *const ()));\n     out\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n-        2 => asm::blake3_servil_hybrid_q2,\n+         /* ~ changed by cargo-mutants ~ */\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:561:9: delete match arm 2 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 561
+      },
+      "start": {
+        "column": 9,
+        "line": 561
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 3 in partial_kernel\n@@ -554,17 +554,17 @@\n     out\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n-        3 => asm::blake3_servil_hybrid_q3,\n+         /* ~ changed by cargo-mutants ~ */\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:562:9: delete match arm 3 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 562
+      },
+      "start": {
+        "column": 9,
+        "line": 562
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 4 in partial_kernel\n@@ -555,17 +555,17 @@\n }\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n-        4 => asm::blake3_servil_hybrid_q4,\n+         /* ~ changed by cargo-mutants ~ */\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:563:9: delete match arm 4 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 563
+      },
+      "start": {
+        "column": 9,
+        "line": 563
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 5 in partial_kernel\n@@ -556,17 +556,17 @@\n \n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n-        5 => asm::blake3_servil_hybrid_q5,\n+         /* ~ changed by cargo-mutants ~ */\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:564:9: delete match arm 5 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 564
+      },
+      "start": {
+        "column": 9,
+        "line": 564
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 6 in partial_kernel\n@@ -557,17 +557,17 @@\n /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n-        6 => asm::blake3_servil_hybrid_q6,\n+         /* ~ changed by cargo-mutants ~ */\n         7 => asm::blake3_servil_hybrid_q7,\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n }\n \n /// Whether [`hash_chunks_with_partial`] takes `n` whole chunks: 1 through\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:565:9: delete match arm 6 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 565
+      },
+      "start": {
+        "column": 9,
+        "line": 565
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 7 in partial_kernel\n@@ -558,17 +558,17 @@\n fn partial_kernel(n: usize) -> PartialKernel {\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n-        7 => asm::blake3_servil_hybrid_q7,\n+         /* ~ changed by cargo-mutants ~ */\n         8 => asm::blake3_servil_hybrid_q8,\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n }\n \n /// Whether [`hash_chunks_with_partial`] takes `n` whole chunks: 1 through\n /// 15 but 10 (from 16 the SME2 kernels or a second call take the whole\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:566:9: delete match arm 7 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 566
+      },
+      "start": {
+        "column": 9,
+        "line": 566
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm 8 in partial_kernel\n@@ -559,17 +559,17 @@\n     match n {\n         1 => asm::blake3_servil_hybrid_q1,\n         2 => asm::blake3_servil_hybrid_q2,\n         3 => asm::blake3_servil_hybrid_q3,\n         4 => asm::blake3_servil_hybrid_q4,\n         5 => asm::blake3_servil_hybrid_q5,\n         6 => asm::blake3_servil_hybrid_q6,\n         7 => asm::blake3_servil_hybrid_q7,\n-        8 => asm::blake3_servil_hybrid_q8,\n+         /* ~ changed by cargo-mutants ~ */\n         9 => asm::blake3_servil_hybrid_q9,\n         _ => panic!(\"no q kernel for {n} whole chunks\"),\n     }\n }\n \n /// Whether [`hash_chunks_with_partial`] takes `n` whole chunks: 1 through\n /// 15 but 10 (from 16 the SME2 kernels or a second call take the whole\n /// chunks).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "partial_kernel",
+      "return_type": "-> PartialKernel",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 571
+        },
+        "start": {
+          "column": 1,
+          "line": 557
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:567:9: delete match arm 8 in partial_kernel",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 43,
+        "line": 567
+      },
+      "start": {
+        "column": 9,
+        "line": 567
+      }
+    }
+  }
+]

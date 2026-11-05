@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace += with *= in hash_many_in
+@@ -786,17 +786,17 @@
+                 blocks,
+                 key,
+                 counter + done as u64 * counter_step,
+                 counter_step,
+                 packed,
+                 &mut out[done * OUT_LEN..],
+             );
+         }
+-        done += count;
++        done *= /* ~ changed by cargo-mutants ~ */ count;
+     }
+ }
+ 
+ /// Separate inputs of `blocks` whole blocks (1 to 16) at one `counter`, the
+ /// last block `last_len` bytes (1 to 64, zero past it), from a table of
+ /// `count` pointers: the parent plans, as [`hash_many_last_len`] runs them
+ /// for inputs of a const length, `flags` on every block. Unsafe because the CPU must have NEON and
+ /// every pointer must reach `blocks` blocks.

@@ -1,0 +1,1850 @@
+[
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace xof_many -> usize with 0\n@@ -118,30 +118,17 @@\n }\n \n /// Fill `out`'s whole groups of four 64-byte blocks with extended output\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n-    let table = [block.as_ptr(); 8];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n-    let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n-        let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n-        crate::ran_kernel(kernel as *const ());\n-        // Sound: every table entry points at the 64-byte block; the kernel\n-        // writes 64 bytes a block within `out[done..]`.\n-        unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n-        counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n-    }\n-    done\n+    0 /* ~ changed by cargo-mutants ~ */\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:126:5: replace xof_many -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 139
+      },
+      "start": {
+        "column": 5,
+        "line": 126
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace xof_many -> usize with 1\n@@ -118,30 +118,17 @@\n }\n \n /// Fill `out`'s whole groups of four 64-byte blocks with extended output\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n-    let table = [block.as_ptr(); 8];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n-    let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n-        let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n-        crate::ran_kernel(kernel as *const ());\n-        // Sound: every table entry points at the 64-byte block; the kernel\n-        // writes 64 bytes a block within `out[done..]`.\n-        unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n-        counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n-    }\n-    done\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:126:5: replace xof_many -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 139
+      },
+      "start": {
+        "column": 5,
+        "line": 126
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace done with 0 in xof_many\n@@ -131,17 +131,17 @@\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n-    done\n+    0 /* ~ changed by cargo-mutants ~ */\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:139:5: replace done with 0 in xof_many",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 139
+      },
+      "start": {
+        "column": 5,
+        "line": 139
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace done with 1 in xof_many\n@@ -131,17 +131,17 @@\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n-    done\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:139:5: replace done with 1 in xof_many",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 139
+      },
+      "start": {
+        "column": 5,
+        "line": 139
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in xof_many\n@@ -119,17 +119,17 @@\n \n /// Fill `out`'s whole groups of four 64-byte blocks with extended output\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:127:31: replace | with & in xof_many",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 127
+      },
+      "start": {
+        "column": 31,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in xof_many\n@@ -119,17 +119,17 @@\n \n /// Fill `out`'s whole groups of four 64-byte blocks with extended output\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 ^ /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:127:31: replace | with ^ in xof_many",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 127
+      },
+      "start": {
+        "column": 31,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in xof_many\n@@ -119,17 +119,17 @@\n \n /// Fill `out`'s whole groups of four 64-byte blocks with extended output\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 | (block_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:127:52: replace << with >> in xof_many",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 127
+      },
+      "start": {
+        "column": 52,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out.len() - done >= 4 * BLOCK_LEN with false in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while false /* ~ changed by cargo-mutants ~ */ {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:129:11: replace out.len() - done >= 4 * BLOCK_LEN with false in xof_many",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 129
+      },
+      "start": {
+        "column": 11,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace >= with < in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while out.len() - done < /* ~ changed by cargo-mutants ~ */ 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:129:28: replace >= with < in xof_many",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 129
+      },
+      "start": {
+        "column": 28,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with + in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while out.len() + /* ~ changed by cargo-mutants ~ */ done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:129:21: replace - with + in xof_many",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 129
+      },
+      "start": {
+        "column": 21,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with / in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while out.len() / /* ~ changed by cargo-mutants ~ */ done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:129:21: replace - with / in xof_many",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 129
+      },
+      "start": {
+        "column": 21,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while out.len() - done >= 4 + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:129:33: replace * with + in xof_many",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 129
+      },
+      "start": {
+        "column": 33,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in xof_many\n@@ -121,17 +121,17 @@\n /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and\n /// `block_len`, both halves of the state), eight blocks a call where they\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n-    while out.len() - done >= 4 * BLOCK_LEN {\n+    while out.len() - done >= 4 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:129:33: replace * with / in xof_many",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 129
+      },
+      "start": {
+        "column": 33,
+        "line": 129
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out.len() - done >= 8 * BLOCK_LEN with true in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if true /* ~ changed by cargo-mutants ~ */ { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:131:16: replace out.len() - done >= 8 * BLOCK_LEN with true in xof_many",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 131
+      },
+      "start": {
+        "column": 16,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out.len() - done >= 8 * BLOCK_LEN with false in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if false /* ~ changed by cargo-mutants ~ */ { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:131:16: replace out.len() - done >= 8 * BLOCK_LEN with false in xof_many",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 131
+      },
+      "start": {
+        "column": 16,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace >= with < in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if out.len() - done < /* ~ changed by cargo-mutants ~ */ 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:131:33: replace >= with < in xof_many",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 131
+      },
+      "start": {
+        "column": 33,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with + in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if out.len() + /* ~ changed by cargo-mutants ~ */ done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:131:26: replace - with + in xof_many",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 131
+      },
+      "start": {
+        "column": 26,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace - with / in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if out.len() / /* ~ changed by cargo-mutants ~ */ done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:131:26: replace - with / in xof_many",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 131
+      },
+      "start": {
+        "column": 26,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if out.len() - done >= 8 + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:131:38: replace * with + in xof_many",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 131
+      },
+      "start": {
+        "column": 38,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in xof_many\n@@ -123,17 +123,17 @@\n /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every\n /// AArch64 CPU runs them (quads, which need no SHA-3).\n pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {\n     let table = [block.as_ptr(); 8];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     let mut done = 0;\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n-            if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n+            if out.len() - done >= 8 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n         done += blocks * BLOCK_LEN;\n     }\n     done\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:131:38: replace * with / in xof_many",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 131
+      },
+      "start": {
+        "column": 38,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace += with -= in xof_many\n@@ -129,17 +129,17 @@\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n+        done -= /* ~ changed by cargo-mutants ~ */ blocks * BLOCK_LEN;\n     }\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:137:14: replace += with -= in xof_many",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 137
+      },
+      "start": {
+        "column": 14,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace += with *= in xof_many\n@@ -129,17 +129,17 @@\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n+        done *= /* ~ changed by cargo-mutants ~ */ blocks * BLOCK_LEN;\n     }\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:137:14: replace += with *= in xof_many",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 137
+      },
+      "start": {
+        "column": 14,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in xof_many\n@@ -129,17 +129,17 @@\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n+        done += blocks + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN;\n     }\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:137:24: replace * with + in xof_many",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 137
+      },
+      "start": {
+        "column": 24,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in xof_many\n@@ -129,17 +129,17 @@\n     while out.len() - done >= 4 * BLOCK_LEN {\n         let (kernel, blocks): (Kernel, usize) =\n             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };\n         crate::ran_kernel(kernel as *const ());\n         // Sound: every table entry points at the 64-byte block; the kernel\n         // writes 64 bytes a block within `out[done..]`.\n         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };\n         counter = counter.wrapping_add(blocks as u64);\n-        done += blocks * BLOCK_LEN;\n+        done += blocks / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN;\n     }\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_many",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 140
+        },
+        "start": {
+          "column": 1,
+          "line": 120
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:137:24: replace * with / in xof_many",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 137
+      },
+      "start": {
+        "column": 24,
+        "line": 137
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace xof_block -> [u8; BLOCK_LEN] with [0; BLOCK_LEN]\n@@ -139,24 +139,17 @@\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n-    let mut out = [0u8; BLOCK_LEN];\n-    let table = [block.as_ptr()];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n-    crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n-    // Sound: the table's one entry points at the 64-byte block; the kernel\n-    // writes the block's 64 bytes of output to `out`.\n-    unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n-    out\n+    [0; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:147:5: replace xof_block -> [u8; BLOCK_LEN] with [0; BLOCK_LEN]",
+    "package": "blake3-servil",
+    "replacement": "[0; BLOCK_LEN]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace xof_block -> [u8; BLOCK_LEN] with [1; BLOCK_LEN]\n@@ -139,24 +139,17 @@\n     done\n }\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n-    let mut out = [0u8; BLOCK_LEN];\n-    let table = [block.as_ptr()];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n-    crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n-    // Sound: the table's one entry points at the 64-byte block; the kernel\n-    // writes the block's 64 bytes of output to `out`.\n-    unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n-    out\n+    [1; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:147:5: replace xof_block -> [u8; BLOCK_LEN] with [1; BLOCK_LEN]",
+    "package": "blake3-servil",
+    "replacement": "[1; BLOCK_LEN]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out with [0; BLOCK_LEN] in xof_block\n@@ -146,17 +146,17 @@\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n     let table = [block.as_ptr()];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n     // Sound: the table's one entry points at the 64-byte block; the kernel\n     // writes the block's 64 bytes of output to `out`.\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n-    out\n+    [0; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:154:5: replace out with [0; BLOCK_LEN] in xof_block",
+    "package": "blake3-servil",
+    "replacement": "[0; BLOCK_LEN]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 154
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out with [1; BLOCK_LEN] in xof_block\n@@ -146,17 +146,17 @@\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n     let table = [block.as_ptr()];\n     let packed = flags as u64 | (block_len as u64) << 24;\n     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n     // Sound: the table's one entry points at the 64-byte block; the kernel\n     // writes the block's 64 bytes of output to `out`.\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n-    out\n+    [1; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:154:5: replace out with [1; BLOCK_LEN] in xof_block",
+    "package": "blake3-servil",
+    "replacement": "[1; BLOCK_LEN]",
+    "span": {
+      "end": {
+        "column": 8,
+        "line": 154
+      },
+      "start": {
+        "column": 5,
+        "line": 154
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with & in xof_block\n@@ -141,17 +141,17 @@\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n     let table = [block.as_ptr()];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 & /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n     // Sound: the table's one entry points at the 64-byte block; the kernel\n     // writes the block's 64 bytes of output to `out`.\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:149:31: replace | with & in xof_block",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 149
+      },
+      "start": {
+        "column": 31,
+        "line": 149
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace | with ^ in xof_block\n@@ -141,17 +141,17 @@\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n     let table = [block.as_ptr()];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 ^ /* ~ changed by cargo-mutants ~ */ (block_len as u64) << 24;\n     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n     // Sound: the table's one entry points at the 64-byte block; the kernel\n     // writes the block's 64 bytes of output to `out`.\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:149:31: replace | with ^ in xof_block",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 149
+      },
+      "start": {
+        "column": 31,
+        "line": 149
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace << with >> in xof_block\n@@ -141,17 +141,17 @@\n \n /// One block of extended output, block `counter`, on the integer units\n /// (x1). The four-lane x4 costs about two compressions on the M4's cores\n /// and the VM's: one block of output through it took 2.1 times the\n /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).\n pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {\n     let mut out = [0u8; BLOCK_LEN];\n     let table = [block.as_ptr()];\n-    let packed = flags as u64 | (block_len as u64) << 24;\n+    let packed = flags as u64 | (block_len as u64) >> /* ~ changed by cargo-mutants ~ */ 24;\n     crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());\n     // Sound: the table's one entry points at the 64-byte block; the kernel\n     // writes the block's 64 bytes of output to `out`.\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_block",
+      "return_type": "-> [u8; BLOCK_LEN]",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 155
+        },
+        "start": {
+          "column": 1,
+          "line": 142
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:149:52: replace << with >> in xof_block",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 149
+      },
+      "start": {
+        "column": 52,
+        "line": 149
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace xof_tail with ()\n@@ -153,26 +153,17 @@\n     unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n-    assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n-        let mut four = [0u8; 4 * BLOCK_LEN];\n-        xof_many(cv, block, block_len, counter, flags, &mut four);\n-        out.copy_from_slice(&four[..out.len()]);\n-        return;\n-    }\n-    for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n-        out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Every kernel shares one signature: `(inputs, blocks, key, counter,\n /// packed_flags, out)`. See the contract in that file.\n type Kernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8);\n \n /// Most inputs one `hash_many` call hands to the kernels at once.\n const GROUP: usize = 16;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:161:5: replace xof_tail with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 170
+      },
+      "start": {
+        "column": 5,
+        "line": 161
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() { out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags)); } with () in xof_tail\n@@ -160,19 +160,17 @@\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n-    for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n-        out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Every kernel shares one signature: `(inputs, blocks, key, counter,\n /// packed_flags, out)`. See the contract in that file.\n type Kernel = unsafe extern \"C\" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8);\n \n /// Most inputs one `hash_many` call hands to the kernels at once.\n const GROUP: usize = 16;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:168:5: replace for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() { out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags)); } with () in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 170
+      },
+      "start": {
+        "column": 5,
+        "line": 168
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out.len() == 3 * BLOCK_LEN with true in xof_tail\n@@ -154,17 +154,17 @@\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n+    if true /* ~ changed by cargo-mutants ~ */ {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:162:8: replace out.len() == 3 * BLOCK_LEN with true in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 162
+      },
+      "start": {
+        "column": 8,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace out.len() == 3 * BLOCK_LEN with false in xof_tail\n@@ -154,17 +154,17 @@\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n+    if false /* ~ changed by cargo-mutants ~ */ {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:162:8: replace out.len() == 3 * BLOCK_LEN with false in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 162
+      },
+      "start": {
+        "column": 8,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace == with != in xof_tail\n@@ -154,17 +154,17 @@\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n+    if out.len() != /* ~ changed by cargo-mutants ~ */ 3 * BLOCK_LEN {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:162:18: replace == with != in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 162
+      },
+      "start": {
+        "column": 18,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in xof_tail\n@@ -154,17 +154,17 @@\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n+    if out.len() == 3 + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:162:23: replace * with + in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 162
+      },
+      "start": {
+        "column": 23,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in xof_tail\n@@ -154,17 +154,17 @@\n     out\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n-    if out.len() == 3 * BLOCK_LEN {\n+    if out.len() == 3 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN {\n         let mut four = [0u8; 4 * BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:162:23: replace * with / in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 162
+      },
+      "start": {
+        "column": 23,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with + in xof_tail\n@@ -155,17 +155,17 @@\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n-        let mut four = [0u8; 4 * BLOCK_LEN];\n+        let mut four = [0u8; 4 + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:163:32: replace * with + in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 163
+      },
+      "start": {
+        "column": 32,
+        "line": 163
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace * with / in xof_tail\n@@ -155,17 +155,17 @@\n }\n \n /// The last one to three blocks of extended output into `out`, from block\n /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),\n /// which takes about the time of two x1 calls.\n pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {\n     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, \"a tail of one to three blocks\");\n     if out.len() == 3 * BLOCK_LEN {\n-        let mut four = [0u8; 4 * BLOCK_LEN];\n+        let mut four = [0u8; 4 / /* ~ changed by cargo-mutants ~ */ BLOCK_LEN];\n         xof_many(cv, block, block_len, counter, flags, &mut four);\n         out.copy_from_slice(&four[..out.len()]);\n         return;\n     }\n     for (i, out) in out.chunks_exact_mut(BLOCK_LEN).enumerate() {\n         out.copy_from_slice(&xof_block(cv, block, block_len, counter.wrapping_add(i as u64), flags));\n     }\n }\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "xof_tail",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 171
+        },
+        "start": {
+          "column": 1,
+          "line": 157
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_neon_hybrid.rs:163:32: replace * with / in xof_tail",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 163
+      },
+      "start": {
+        "column": 32,
+        "line": 163
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &CHUNK_PLANS with Default::default()\n@@ -272,17 +272,17 @@\n /// parents: one with SHA-3, one without.\n struct Family {\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n-static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n+static WITH_SHA3: Family = Family { chunk_plans: Default::default() /* ~ changed by cargo-mutants ~ */, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:280:50: replace &CHUNK_PLANS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 280
+      },
+      "start": {
+        "column": 50,
+        "line": 280
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &CHUNK_KERNELS with Default::default()\n@@ -272,17 +272,17 @@\n /// parents: one with SHA-3, one without.\n struct Family {\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n-static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n+static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: Default::default() /* ~ changed by cargo-mutants ~ */, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:280:79: replace &CHUNK_KERNELS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 93,
+        "line": 280
+      },
+      "start": {
+        "column": 79,
+        "line": 280
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PARENT_PLANS with Default::default()\n@@ -272,17 +272,17 @@\n /// parents: one with SHA-3, one without.\n struct Family {\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n-static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n+static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: Default::default() /* ~ changed by cargo-mutants ~ */, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:280:109: replace &PARENT_PLANS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 122,
+        "line": 280
+      },
+      "start": {
+        "column": 109,
+        "line": 280
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PARENT_KERNELS with Default::default()\n@@ -272,17 +272,17 @@\n /// parents: one with SHA-3, one without.\n struct Family {\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n-static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n+static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: Default::default() /* ~ changed by cargo-mutants ~ */ };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:280:140: replace &PARENT_KERNELS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 155,
+        "line": 280
+      },
+      "start": {
+        "column": 140,
+        "line": 280
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PLAIN_PLANS with Default::default()\n@@ -274,17 +274,17 @@\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n+    Family { chunk_plans: Default::default() /* ~ changed by cargo-mutants ~ */, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:282:27: replace &PLAIN_PLANS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 39,
+        "line": 282
+      },
+      "start": {
+        "column": 27,
+        "line": 282
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PLAIN_CHUNK_KERNELS with Default::default()\n@@ -274,17 +274,17 @@\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n+    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: Default::default() /* ~ changed by cargo-mutants ~ */, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:282:56: replace &PLAIN_CHUNK_KERNELS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 76,
+        "line": 282
+      },
+      "start": {
+        "column": 56,
+        "line": 282
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PLAIN_PLANS with Default::default()\n@@ -274,17 +274,17 @@\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n+    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: Default::default() /* ~ changed by cargo-mutants ~ */, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:282:92: replace &PLAIN_PLANS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 104,
+        "line": 282
+      },
+      "start": {
+        "column": 92,
+        "line": 282
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace &PLAIN_PARENT_KERNELS with Default::default()\n@@ -274,17 +274,17 @@\n     chunk_plans: &'static [&'static [usize]; 17],\n     chunk_kernels: &'static [Option<Kernel>],\n     parent_plans: &'static [&'static [usize]; 17],\n     parent_kernels: &'static [Option<Kernel>],\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n+    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: Default::default() /* ~ changed by cargo-mutants ~ */ };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": null,
+    "genre": "StructFieldValue",
+    "name": "src/ffi_neon_hybrid.rs:282:122: replace &PLAIN_PARENT_KERNELS with Default::default()",
+    "package": "blake3-servil",
+    "replacement": "Default::default()",
+    "span": {
+      "end": {
+        "column": 143,
+        "line": 282
+      },
+      "start": {
+        "column": 122,
+        "line": 282
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace family -> &'static Family with Box::leak(Box::new(Default::default()))\n@@ -278,17 +278,17 @@\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n-    if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n+    Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n mod ends {\n     unsafe extern \"C\" {\n         pub static blake3_servil_hybrid_p2_end: u8;\n         pub static blake3_servil_hybrid_p3_end: u8;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "family",
+      "return_type": "-> &'static Family",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 287
+        },
+        "start": {
+          "column": 1,
+          "line": 284
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:286:5: replace family -> &'static Family with Box::leak(Box::new(Default::default()))",
+    "package": "blake3-servil",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 286
+      },
+      "start": {
+        "column": 5,
+        "line": 286
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected() with true in family\n@@ -278,17 +278,17 @@\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n-    if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n+    if true /* ~ changed by cargo-mutants ~ */ { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n mod ends {\n     unsafe extern \"C\" {\n         pub static blake3_servil_hybrid_p2_end: u8;\n         pub static blake3_servil_hybrid_p3_end: u8;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "family",
+      "return_type": "-> &'static Family",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 287
+        },
+        "start": {
+          "column": 1,
+          "line": 284
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:286:8: replace sha3_detected() with true in family",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 286
+      },
+      "start": {
+        "column": 8,
+        "line": 286
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace sha3_detected() with false in family\n@@ -278,17 +278,17 @@\n }\n \n static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };\n static PLAIN: Family =\n     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };\n \n /// This CPU's family.\n fn family() -> &'static Family {\n-    if sha3_detected() { &WITH_SHA3 } else { &PLAIN }\n+    if false /* ~ changed by cargo-mutants ~ */ { &WITH_SHA3 } else { &PLAIN }\n }\n \n #[cfg(feature = \"std\")]\n /// Where each kernel's code ends (labels the generator puts after each).\n mod ends {\n     unsafe extern \"C\" {\n         pub static blake3_servil_hybrid_p2_end: u8;\n         pub static blake3_servil_hybrid_p3_end: u8;\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "family",
+      "return_type": "-> &'static Family",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 287
+        },
+        "start": {
+          "column": 1,
+          "line": 284
+        }
+      }
+    },
+    "genre": "Condition",
+    "name": "src/ffi_neon_hybrid.rs:286:8: replace sha3_detected() with false in family",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 286
+      },
+      "start": {
+        "column": 8,
+        "line": 286
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace chunk_code -> (usize, usize) with (0, 0)\n@@ -319,43 +319,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the chunk kernel for `n` whole chunks (1 to 10), and of\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n-    macro_rules! code {\n-        ($kernel:ident, $end:ident) => {\n-            (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n-        };\n-    }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (0, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:327:5: replace chunk_code -> (usize, usize) with (0, 0)",
+    "package": "blake3-servil",
+    "replacement": "(0, 0)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 327
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace chunk_code -> (usize, usize) with (0, 1)\n@@ -319,43 +319,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the chunk kernel for `n` whole chunks (1 to 10), and of\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n-    macro_rules! code {\n-        ($kernel:ident, $end:ident) => {\n-            (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n-        };\n-    }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (0, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:327:5: replace chunk_code -> (usize, usize) with (0, 1)",
+    "package": "blake3-servil",
+    "replacement": "(0, 1)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 327
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace chunk_code -> (usize, usize) with (1, 0)\n@@ -319,43 +319,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the chunk kernel for `n` whole chunks (1 to 10), and of\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n-    macro_rules! code {\n-        ($kernel:ident, $end:ident) => {\n-            (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n-        };\n-    }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (1, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:327:5: replace chunk_code -> (usize, usize) with (1, 0)",
+    "package": "blake3-servil",
+    "replacement": "(1, 0)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 327
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace chunk_code -> (usize, usize) with (1, 1)\n@@ -319,43 +319,17 @@\n     }\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the chunk kernel for `n` whole chunks (1 to 10), and of\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n-    macro_rules! code {\n-        ($kernel:ident, $end:ident) => {\n-            (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n-        };\n-    }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_neon_hybrid.rs:327:5: replace chunk_code -> (usize, usize) with (1, 1)",
+    "package": "blake3-servil",
+    "replacement": "(1, 1)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 327
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (0, 0) in chunk_code\n@@ -324,38 +324,17 @@\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (0, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:332:5: replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (0, 0) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "(0, 0)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 332
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (0, 1) in chunk_code\n@@ -324,38 +324,17 @@\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (0, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:332:5: replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (0, 1) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "(0, 1)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 332
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (1, 0) in chunk_code\n@@ -324,38 +324,17 @@\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (1, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:332:5: replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (1, 0) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "(1, 0)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 332
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (1, 1) in chunk_code\n@@ -324,38 +324,17 @@\n /// the q kernel for `n` whole chunks and a partial one (1 to 9): start\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n-    match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n-        (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n-        (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n-        (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n-        (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n-        (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n-        (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n-        (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n-        (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n-        (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end),\n-        (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end),\n-        (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end),\n-        (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end),\n-        (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end),\n-        (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end),\n-        (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end),\n-        (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end),\n-        (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end),\n-        _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"),\n-    }\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(feature = \"std\")]\n /// The code of the parent kernel for `n` parents (PARENT_KERNELS).\n fn parent_code(n: usize) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "ReturnValue",
+    "name": "src/ffi_neon_hybrid.rs:332:5: replace match (n, partial) { (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end), (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end), (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end), (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end), (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end), (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end), (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end), (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end), (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end), (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end), (1, true) => code!(blake3_servil_hybrid_q1, blake3_servil_hybrid_q1_end), (2, true) => code!(blake3_servil_hybrid_q2, blake3_servil_hybrid_q2_end), (3, true) => code!(blake3_servil_hybrid_q3, blake3_servil_hybrid_q3_end), (4, true) => code!(blake3_servil_hybrid_q4, blake3_servil_hybrid_q4_end), (5, true) => code!(blake3_servil_hybrid_q5, blake3_servil_hybrid_q5_end), (6, true) => code!(blake3_servil_hybrid_q6, blake3_servil_hybrid_q6_end), (7, true) => code!(blake3_servil_hybrid_q7, blake3_servil_hybrid_q7_end), (8, true) => code!(blake3_servil_hybrid_q8, blake3_servil_hybrid_q8_end), (9, true) => code!(blake3_servil_hybrid_q9, blake3_servil_hybrid_q9_end), _ => unreachable!(\"no kernel for {n} whole chunks (partial: {partial})\"), } with (1, 1) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "(1, 1)",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 353
+      },
+      "start": {
+        "column": 5,
+        "line": 332
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm (1, false) in chunk_code\n@@ -325,17 +325,17 @@\n /// and end addresses.\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n     match (n, partial) {\n-        (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n+         /* ~ changed by cargo-mutants ~ */\n         (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n         (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n         (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n         (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n         (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n         (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n         (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n         (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:333:9: delete match arm (1, false) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 83,
+        "line": 333
+      },
+      "start": {
+        "column": 9,
+        "line": 333
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_neon_hybrid.rs\n+++ delete match arm (2, false) in chunk_code\n@@ -326,17 +326,17 @@\n fn chunk_code(n: usize, partial: bool) -> (usize, usize) {\n     macro_rules! code {\n         ($kernel:ident, $end:ident) => {\n             (asm::$kernel as *const () as usize, &raw const ends::$end as usize)\n         };\n     }\n     match (n, partial) {\n         (1, false) => code!(blake3_servil_hybrid_k1, blake3_servil_hybrid_k1_end),\n-        (2, false) => code!(blake3_servil_hybrid_k2, blake3_servil_hybrid_k2_end),\n+         /* ~ changed by cargo-mutants ~ */\n         (3, false) => code!(blake3_servil_hybrid_k3, blake3_servil_hybrid_k3_end),\n         (4, false) => code!(blake3_servil_hybrid_k4, blake3_servil_hybrid_k4_end),\n         (5, false) => code!(blake3_servil_hybrid_k5, blake3_servil_hybrid_k5_end),\n         (6, false) => code!(blake3_servil_hybrid_k6, blake3_servil_hybrid_k6_end),\n         (7, false) => code!(blake3_servil_hybrid_k7, blake3_servil_hybrid_k7_end),\n         (8, false) => code!(blake3_servil_hybrid_k8, blake3_servil_hybrid_k8_end),\n         (9, false) => code!(blake3_servil_hybrid_k9, blake3_servil_hybrid_k9_end),\n         (10, false) => code!(blake3_servil_hybrid_k10, blake3_servil_hybrid_k10_end),\n",
+    "file": "src/ffi_neon_hybrid.rs",
+    "function": {
+      "function_name": "chunk_code",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 354
+        },
+        "start": {
+          "column": 1,
+          "line": 322
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_neon_hybrid.rs:334:9: delete match arm (2, false) in chunk_code",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 83,
+        "line": 334
+      },
+      "start": {
+        "column": 9,
+        "line": 334
+      }
+    }
+  }
+]

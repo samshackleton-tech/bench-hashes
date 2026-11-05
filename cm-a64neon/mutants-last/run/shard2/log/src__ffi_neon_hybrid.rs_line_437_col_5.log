@@ -1,0 +1,52 @@
+
+*** src/ffi_neon_hybrid.rs:437:5: replace #[cfg(not(feature = "std"))] { cfg!(target_feature = "sha3") } with true in sha3_detected
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace #[cfg(not(feature = "std"))] { cfg!(target_feature = "sha3") } with true in sha3_detected
+@@ -429,20 +429,17 @@
+ /// Apple M-series core and every Armv8.2+ core with `FEAT_SHA3` does. The
+ /// pair kernels rotate with `xar`; the scalar and quad kernels need no
+ /// extension.
+ pub fn sha3_detected() -> bool {
+     #[cfg(feature = "std")]
+     {
+         std::arch::is_aarch64_feature_detected!("sha3")
+     }
+-    #[cfg(not(feature = "std"))]
+-    {
+-        cfg!(target_feature = "sha3")
+-    }
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Compress `count` whole 64-byte blocks of one chunk into `cv`, all with
+ /// the same counter: `flags | flags_start` on the first block, `flags` on
+ /// the rest. This is `ChunkState::update`'s inner loop as one kernel call;
+ /// the scalar kernel keeps the whole state in registers and runs at 13.3
+ /// cycles per G-step against the portable compressor's 14.
+ ///
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ra3owf0h)
+error[E0308]: mismatched types
+   --> src/ffi_neon_hybrid.rs:435:9
+    |
+435 |         std::arch::is_aarch64_feature_detected!("sha3")
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `()`, found `bool`
+    |
+    = note: this error originates in the macro `$crate::detect_feature` which comes from the expansion of the macro `std::arch::is_aarch64_feature_detected` (in Nightly builds, run with -Z macro-backtrace for more info)
+help: you might have meant to return this value
+    |
+435 |         return std::arch::is_aarch64_feature_detected!("sha3");
+    |         ++++++                                                +
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run '--message-format=json-render-diagnostics' '--package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861' '--features=serde,zeroize' '--profile=mutants'` exited with code 101
+
+*** result: Failure(101)

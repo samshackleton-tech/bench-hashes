@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace done < inputs.len() with false in hash_many_in
+@@ -771,17 +771,17 @@
+         (family.parent_plans, family.parent_kernels, 0)
+     };
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+     let blocks = N / BLOCK_LEN;
+     // `&[&[u8; N]]` is a table of pointers, which is what the kernels take.
+     let table = inputs.as_ptr() as *const *const u8;
+ 
+     let mut done = 0;
+-    while done < inputs.len() {
++    while false /* ~ changed by cargo-mutants ~ */ {
+         let count = core::cmp::min(GROUP, inputs.len() - done);
+         unsafe {
+             run_plan(
+                 plans[count],
+                 kernels,
+                 table.add(done),
+                 blocks,
+                 key,

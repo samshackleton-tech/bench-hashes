@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ delete ! in Sme2Turn::take
+@@ -75,17 +75,17 @@
+             // A load, and a store when the turn is free: two calls that
+             // look at the same instant can both take it, which costs what
+             // running SME2 at once always did, and nothing else depends on
+             // the flag. An atomic swap cost 3-9% for a batch of 24
+             // messages (on the VM, 282 ns against 273, and 9-10% in the
+             // regression check); acquire and release ordering about 1 µs
+             // per call beside the SME2 kernels (256 one-block messages:
+             // 3.43 µs against 2.50).
+-            let held = !SME2_BUSY.0.load(Ordering::Relaxed);
++            let held =  /* ~ changed by cargo-mutants ~ */SME2_BUSY.0.load(Ordering::Relaxed);
+             if held {
+                 SME2_BUSY.0.store(true, Ordering::Relaxed);
+             } else {
+                 crate::ran(crate::Ran::TurnTaken);
+             }
+             return Sme2Turn { platform: if held { Platform::SME2 } else { Platform::NEON }, held };
+         }
+         let _ = sme2_sized;

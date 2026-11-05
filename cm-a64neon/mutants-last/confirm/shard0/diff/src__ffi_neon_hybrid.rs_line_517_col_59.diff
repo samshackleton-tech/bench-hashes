@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace | with ^ in hash_chunk
+@@ -509,17 +509,17 @@
+     counter: u64,
+     flags: u8,
+     flags_start: u8,
+     flags_end: u8,
+     out: &mut [u8; OUT_LEN],
+ ) {
+     debug_assert!((1..=16).contains(&blocks));
+     debug_assert!(last_len as usize <= BLOCK_LEN);
+-    let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
++    let packed = flags as u64 | (flags_start as u64) << 8 ^ /* ~ changed by cargo-mutants ~ */ (flags_end as u64) << 16 | (last_len as u64) << 24;
+     unsafe {
+         crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());
+         asm::blake3_servil_hybrid_c1(input, blocks as u64, key.as_ptr(), counter, packed, out.as_mut_ptr(), last.as_ptr());
+     }
+ }
+ 
+ /// A kernel for whole chunks plus a partial chunk: the arguments of
+ /// [`Kernel`] and the partial chunk's `blocks | last_len << 8`.

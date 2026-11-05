@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace sha3_detected() with false in family
+@@ -278,17 +278,17 @@
+ }
+ 
+ static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };
+ static PLAIN: Family =
+     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
+ 
+ /// This CPU's family.
+ fn family() -> &'static Family {
+-    if sha3_detected() { &WITH_SHA3 } else { &PLAIN }
++    if false /* ~ changed by cargo-mutants ~ */ { &WITH_SHA3 } else { &PLAIN }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Where each kernel's code ends (labels the generator puts after each).
+ mod ends {
+     unsafe extern "C" {
+         pub static blake3_servil_hybrid_p2_end: u8;
+         pub static blake3_servil_hybrid_p3_end: u8;

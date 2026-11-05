@@ -1,0 +1,28 @@
+--- src/ffi_neon_hybrid.rs
++++ replace for &size in plan { let kernel = kernels[size].expect("plan names an existing kernel"); crate::ran_kernel(kernel as *const ()); unsafe { kernel(inputs.add(done), blocks as u64, key.as_ptr(), counter + done as u64 * counter_step, packed_flags, out[done * OUT_LEN..].as_mut_ptr()); } done += size; } with () in run_plan
+@@ -694,24 +694,17 @@
+     blocks: usize,
+     key: &CVWords,
+     counter: u64,
+     counter_step: u64,
+     packed_flags: u64,
+     out: &mut [u8],
+ ) {
+     let mut done = 0;
+-    for &size in plan {
+-        let kernel = kernels[size].expect("plan names an existing kernel");
+-        crate::ran_kernel(kernel as *const ());
+-        unsafe {
+-            kernel(inputs.add(done), blocks as u64, key.as_ptr(), counter + done as u64 * counter_step, packed_flags, out[done * OUT_LEN..].as_mut_ptr());
+-        }
+-        done += size;
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// `hash_many` for whole chunks (`N == CHUNK_LEN`, counter incrementing)
+ /// on the chunk plans, and for inputs of 1 to 16 whole blocks at one
+ /// counter (parents, separate messages) on the parent plans: the shapes
+ /// `Platform::hash_many` takes. Another N cannot compile, and incrementing
+ /// counters on less than a chunk stop.
+ ///

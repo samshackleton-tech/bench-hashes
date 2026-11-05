@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace sha3_detected() with false in entries
+@@ -537,17 +537,17 @@
+             out.push((std::format!("k{size}"), *k as *const ()));
+         }
+     }
+     for (size, k) in family.parent_kernels.iter().enumerate() {
+         if let Some(k) = k {
+             out.push((std::format!("p{size}"), *k as *const ()));
+         }
+     }
+-    if sha3_detected() {
++    if false /* ~ changed by cargo-mutants ~ */ {
+         for n in 1..=9 {
+             out.push((std::format!("q{n}"), partial_kernel(n) as *const ()));
+         }
+     }
+     out.push(("c1".into(), asm::blake3_servil_hybrid_c1 as *const ()));
+     out.push(("x1".into(), asm::blake3_servil_hybrid_x1 as *const ()));
+     out.push(("x4".into(), asm::blake3_servil_hybrid_x4 as *const ()));
+     out.push(("x8".into(), asm::blake3_servil_hybrid_x8 as *const ()));

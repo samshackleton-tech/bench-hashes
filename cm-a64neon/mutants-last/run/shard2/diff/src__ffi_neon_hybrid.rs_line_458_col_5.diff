@@ -1,0 +1,25 @@
+--- src/ffi_neon_hybrid.rs
++++ replace unsafe { let last = blocks.add((count - 1) * BLOCK_LEN); crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ()); asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last); } with () in compress_blocks
+@@ -450,21 +450,17 @@
+ /// hold `count * 64` readable bytes and `count` must be in 1..=16.
+ pub unsafe fn compress_blocks(cv: &mut CVWords, blocks: *const u8, count: usize, counter: u64, flags: u8, flags_start: u8) {
+     debug_assert!((1..=16).contains(&count));
+     let packed = flags as u64 | (flags_start as u64) << 8 | (BLOCK_LEN as u64) << 24;
+     // The kernel reads the whole key in its prologue and stores the output
+     // at its end, so `cv` serves as both: the output words land in place,
+     // in the little-endian layout CVWords has on this target.
+     let cv_ptr = cv.as_mut_ptr();
+-    unsafe {
+-        let last = blocks.add((count - 1) * BLOCK_LEN);
+-        crate::ran_kernel(asm::blake3_servil_hybrid_c1 as *const ());
+-        asm::blake3_servil_hybrid_c1(blocks, count as u64, cv_ptr, counter, packed, cv_ptr as *mut u8, last);
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// One compression of `block` into `cv`, with every flag in `flags`
+ /// (start, end, root, and so on are the caller's business) and the given
+ /// `block_len` recorded in the state. This is `Platform::compress_in_place`
+ /// on the scalar kernel: the chunk finalizer, the root compression, and
+ /// every parent node of the incremental `Hasher` go through it. Registers
+ /// hold the whole state, so it saves the portable compressor's spills.

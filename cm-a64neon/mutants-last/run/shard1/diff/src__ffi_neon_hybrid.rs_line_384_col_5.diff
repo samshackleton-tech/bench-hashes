@@ -1,0 +1,32 @@
+--- src/ffi_neon_hybrid.rs
++++ replace prefetch_tree_code with ()
+@@ -376,28 +376,17 @@
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the code a tree of `whole` chunks and then `partial` bytes
+ /// (under a chunk) runs on the hybrids: the chunk kernels
+ /// (`compress_chunks_parallel` and [`hash_chunks_with_partial`] choose
+ /// them from the same plans), then [`prefetch_parent_code`]. Requires 1 to
+ /// 16 whole chunks.
+ pub fn prefetch_tree_code(whole: usize, partial: usize) {
+-    if partial > 0 && partial_pays(whole, partial) {
+-        let lead = whole.saturating_sub(9);
+-        for &n in CHUNK_PLANS[lead] {
+-            crate::platform::prefetch_code(chunk_code(n, false));
+-        }
+-        crate::platform::prefetch_code(chunk_code(whole - lead, true));
+-    } else {
+-        for &n in CHUNK_PLANS[whole] {
+-            crate::platform::prefetch_code(chunk_code(n, false));
+-        }
+-    }
+-    prefetch_parent_code(whole + usize::from(partial > 0));
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the code a batch of `count` one-block messages runs on the
+ /// hybrids: the parent plans, a group of sixteen at a time (hash_many on
+ /// one-block inputs). Requires 1 or more.
+ pub fn prefetch_message_code(count: usize) {
+     let plan = |n: usize| PARENT_PLANS[n];

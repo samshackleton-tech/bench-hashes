@@ -1,0 +1,48 @@
+
+*** src/ffi_neon_hybrid.rs:282:27: replace &PLAIN_PLANS with Default::default()
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace &PLAIN_PLANS with Default::default()
+@@ -274,17 +274,17 @@
+     chunk_plans: &'static [&'static [usize]; 17],
+     chunk_kernels: &'static [Option<Kernel>],
+     parent_plans: &'static [&'static [usize]; 17],
+     parent_kernels: &'static [Option<Kernel>],
+ }
+ 
+ static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };
+ static PLAIN: Family =
+-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
++    Family { chunk_plans: Default::default() /* ~ changed by cargo-mutants ~ */, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
+ 
+ /// This CPU's family.
+ fn family() -> &'static Family {
+     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Where each kernel's code ends (labels the generator puts after each).
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-55nqj4gz)
+error[E0277]: the trait bound `&[&[usize]; 17]: Default` is not satisfied
+   --> src/ffi_neon_hybrid.rs:282:27
+    |
+282 |     Family { chunk_plans: Default::default() /* ~ changed by cargo-mutants ~ */, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans:...
+    |                           ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `&[&[usize]; 17]`
+    |
+help: consider borrowing here
+    |
+282 |     Family { chunk_plans: &Default::default() /* ~ changed by cargo-mutants ~ */, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
+    |                           +
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run '--message-format=json-render-diagnostics' '--package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861' '--features=serde,zeroize' '--profile=mutants'` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,55 @@
+
+*** src/ffi_neon_hybrid.rs:282:56: replace &PLAIN_CHUNK_KERNELS with Default::default()
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace &PLAIN_CHUNK_KERNELS with Default::default()
+@@ -274,17 +274,17 @@
+     chunk_plans: &'static [&'static [usize]; 17],
+     chunk_kernels: &'static [Option<Kernel>],
+     parent_plans: &'static [&'static [usize]; 17],
+     parent_kernels: &'static [Option<Kernel>],
+ }
+ 
+ static WITH_SHA3: Family = Family { chunk_plans: &CHUNK_PLANS, chunk_kernels: &CHUNK_KERNELS, parent_plans: &PARENT_PLANS, parent_kernels: &PARENT_KERNELS };
+ static PLAIN: Family =
+-    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: &PLAIN_CHUNK_KERNELS, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
++    Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: Default::default() /* ~ changed by cargo-mutants ~ */, parent_plans: &PLAIN_PLANS, parent_kernels: &PLAIN_PARENT_KERNELS };
+ 
+ /// This CPU's family.
+ fn family() -> &'static Family {
+     if sha3_detected() { &WITH_SHA3 } else { &PLAIN }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Where each kernel's code ends (labels the generator puts after each).
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-55nqj4gz)
+error[E0658]: cannot call conditionally-const associated function `<&[std::option::Option<unsafe extern "C" fn(*const *const u8, u64, *const u32, u64, u64, *mut u8)>] as Default>::default` in statics
+   --> src/ffi_neon_hybrid.rs:282:56
+    |
+282 |     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: Default::default() /* ~ changed by cargo-mutants ~ */, parent_plans: &PLAIN_...
+    |                                                        ^^^^^^^^^^^^^^^^^^
+    |
+    = note: calls in statics are limited to constant functions, tuple structs and tuple variants
+    = note: see issue #143874 <https://github.com/rust-lang/rust/issues/143874> for more information
+
+error: `Default` is not yet stable as a const trait
+   --> src/ffi_neon_hybrid.rs:282:56
+    |
+282 |     Family { chunk_plans: &PLAIN_PLANS, chunk_kernels: Default::default() /* ~ changed by cargo-mutants ~ */, parent_plans: &PLAIN_...
+    |                                                        ^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0658`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run '--message-format=json-render-diagnostics' '--package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861' '--features=serde,zeroize' '--profile=mutants'` exited with code 101
+
+*** result: Failure(101)

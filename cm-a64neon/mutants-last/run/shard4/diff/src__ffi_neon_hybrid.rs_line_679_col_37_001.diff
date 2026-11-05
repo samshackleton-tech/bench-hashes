@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace + with * in hash_pairs
+@@ -671,17 +671,17 @@
+     let whole = inputs.len() / 2 * 2;
+     for p in (0..whole).step_by(2) {
+         unsafe { pair(table.add(p), 1, key.as_ptr(), 0, packed, out[p * OUT_LEN..].as_mut_ptr()) };
+     }
+     if whole < inputs.len() {
+         let last = [inputs[whole].as_ptr(), inputs[whole].as_ptr()];
+         let mut two = [0u8; 2 * OUT_LEN];
+         unsafe { pair(last.as_ptr(), 1, key.as_ptr(), 0, packed, two.as_mut_ptr()) };
+-        out[whole * OUT_LEN..(whole + 1) * OUT_LEN].copy_from_slice(&two[..OUT_LEN]);
++        out[whole * OUT_LEN..(whole * /* ~ changed by cargo-mutants ~ */ 1) * OUT_LEN].copy_from_slice(&two[..OUT_LEN]);
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ /// Prefetch the pair kernel's code ([`hash_pairs`]).
+ pub fn prefetch_pair_code() {
+     crate::platform::prefetch_code(parent_code(2));
+ }

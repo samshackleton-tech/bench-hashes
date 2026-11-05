@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace out.len() - done >= 4 * BLOCK_LEN with false in xof_many
+@@ -121,17 +121,17 @@
+ /// (block i: `block` compressed from `cv` at `counter + i` with `flags` and
+ /// `block_len`, both halves of the state), eight blocks a call where they
+ /// fit (x8), then four (x4); the bytes filled, a multiple of 256. Every
+ /// AArch64 CPU runs them (quads, which need no SHA-3).
+ pub fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) -> usize {
+     let table = [block.as_ptr(); 8];
+     let packed = flags as u64 | (block_len as u64) << 24;
+     let mut done = 0;
+-    while out.len() - done >= 4 * BLOCK_LEN {
++    while false /* ~ changed by cargo-mutants ~ */ {
+         let (kernel, blocks): (Kernel, usize) =
+             if out.len() - done >= 8 * BLOCK_LEN { (asm::blake3_servil_hybrid_x8, 8) } else { (asm::blake3_servil_hybrid_x4, 4) };
+         crate::ran_kernel(kernel as *const ());
+         // Sound: every table entry points at the 64-byte block; the kernel
+         // writes 64 bytes a block within `out[done..]`.
+         unsafe { kernel(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out[done..].as_mut_ptr()) };
+         counter = counter.wrapping_add(blocks as u64);
+         done += blocks * BLOCK_LEN;

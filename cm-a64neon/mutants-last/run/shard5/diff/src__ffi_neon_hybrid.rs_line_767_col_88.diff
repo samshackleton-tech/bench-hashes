@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace increment_counter.yes() with true in hash_many_in
+@@ -759,17 +759,17 @@
+     flags_start: u8,
+     flags_end: u8,
+     last_len: usize,
+     out: &mut [u8],
+ ) {
+     assert!(out.len() >= inputs.len() * OUT_LEN);
+     assert!((1..=BLOCK_LEN).contains(&last_len), "a last block of 1 to 64 bytes");
+     const { assert!(N > 0 && N % BLOCK_LEN == 0 && N <= CHUNK_LEN, "1 to 16 whole blocks") };
+-    let (plans, kernels, counter_step): (&[&[usize]; 17], &[Option<Kernel>], u64) = if increment_counter.yes() {
++    let (plans, kernels, counter_step): (&[&[usize]; 17], &[Option<Kernel>], u64) = if true /* ~ changed by cargo-mutants ~ */ {
+         assert_eq!(N, CHUNK_LEN, "incrementing counters hash whole chunks");
+         (family.chunk_plans, family.chunk_kernels, 1)
+     } else {
+         (family.parent_plans, family.parent_kernels, 0)
+     };
+     let packed = flags as u64 | (flags_start as u64) << 8 | (flags_end as u64) << 16 | (last_len as u64) << 24;
+     let blocks = N / BLOCK_LEN;
+     // `&[&[u8; N]]` is a table of pointers, which is what the kernels take.

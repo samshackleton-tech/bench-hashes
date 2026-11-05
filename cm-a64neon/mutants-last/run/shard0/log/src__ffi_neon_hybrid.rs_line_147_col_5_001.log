@@ -1,0 +1,155 @@
+
+*** src/ffi_neon_hybrid.rs:147:5: replace xof_block -> [u8; BLOCK_LEN] with [1; BLOCK_LEN]
+
+*** mutation diff:
+--- src/ffi_neon_hybrid.rs
++++ replace xof_block -> [u8; BLOCK_LEN] with [1; BLOCK_LEN]
+@@ -139,24 +139,17 @@
+     done
+ }
+ 
+ /// One block of extended output, block `counter`, on the integer units
+ /// (x1). The four-lane x4 costs about two compressions on the M4's cores
+ /// and the VM's: one block of output through it took 2.1 times the
+ /// portable compression's time, and through x1 0.97 (VM, BLAKE3 #190).
+ pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+-    let mut out = [0u8; BLOCK_LEN];
+-    let table = [block.as_ptr()];
+-    let packed = flags as u64 | (block_len as u64) << 24;
+-    crate::ran_kernel(asm::blake3_servil_hybrid_x1 as *const ());
+-    // Sound: the table's one entry points at the 64-byte block; the kernel
+-    // writes the block's 64 bytes of output to `out`.
+-    unsafe { asm::blake3_servil_hybrid_x1(table.as_ptr(), 1, cv.as_ptr(), counter, packed, out.as_mut_ptr()) };
+-    out
++    [1; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The last one to three blocks of extended output into `out`, from block
+ /// `counter`: one or two blocks on x1, three on x4 (its fourth discarded),
+ /// which takes about the time of two x1 calls.
+ pub fn xof_tail(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {
+     assert!(out.len() < 4 * BLOCK_LEN && out.len() % BLOCK_LEN == 0, "a tail of one to three blocks");
+     if out.len() == 3 * BLOCK_LEN {
+
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-55nqj4gz)
+warning: unused variable: `cv`
+   --> src/ffi_neon_hybrid.rs:146:18
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/ffi_neon_hybrid.rs:146:32
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/ffi_neon_hybrid.rs:146:57
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:146:72
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                                        ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:146:86
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: function `blake3_servil_hybrid_x1` is never used
+   --> src/ffi_neon_hybrid.rs:117:12
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `blake3-servil` (lib) generated 6 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: `blake3-servil` (lib test) generated 5 warnings (5 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 16.49s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-aarch64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `cv`
+   --> src/ffi_neon_hybrid.rs:146:18
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                  ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/ffi_neon_hybrid.rs:146:32
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/ffi_neon_hybrid.rs:146:57
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/ffi_neon_hybrid.rs:146:72
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                                        ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/ffi_neon_hybrid.rs:146:86
+    |
+146 | pub fn xof_block(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; BLOCK_LEN] {
+    |                                                                                      ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: function `blake3_servil_hybrid_x1` is never used
+   --> src/ffi_neon_hybrid.rs:117:12
+    |
+117 |     plain!(blake3_servil_hybrid_x1, blake3_servil_hybrid_x4, blake3_servil_hybrid_x8);
+    |            ^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+    = note: this warning originates in the macro `plain` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: `blake3-servil` (lib) generated 6 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: `blake3-servil` (lib test) generated 5 warnings (5 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.23s
+info: using target runner `sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID ce46d574-6b08-4d41-b2b0-f91e64c83b5c with nextest profile: mutants
+    Starting 147 tests across 15 binaries
+       START [         ] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.249s] (  1/147) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/tools/mutants/test-runner /root/pinned-runs/cm-a64neon-ampereone-20261104T221241-75eeb6d7/fork/target/mutants/mutants-55nqj4gz/mutants/deps/blake3_servil-888258881ea1998c --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+     SIGABRT [   0.112s] (  2/147) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 40, extended output of several blocks, from an unaligned position (platform NEON): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure
+────────────
+     Summary [   0.366s] 2/147 tests run: 1 passed, 1 failed, 0 skipped
+warning: 145/147 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

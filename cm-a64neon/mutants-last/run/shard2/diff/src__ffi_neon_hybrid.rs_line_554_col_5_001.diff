@@ -1,0 +1,21 @@
+--- src/ffi_neon_hybrid.rs
++++ replace out with vec![(Default::default(), Default::default())] in entries
+@@ -546,17 +546,17 @@
+         for n in 1..=9 {
+             out.push((std::format!("q{n}"), partial_kernel(n) as *const ()));
+         }
+     }
+     out.push(("c1".into(), asm::blake3_servil_hybrid_c1 as *const ()));
+     out.push(("x1".into(), asm::blake3_servil_hybrid_x1 as *const ()));
+     out.push(("x4".into(), asm::blake3_servil_hybrid_x4 as *const ()));
+     out.push(("x8".into(), asm::blake3_servil_hybrid_x8 as *const ()));
+-    out
++    vec![(Default::default(), Default::default())] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The q kernel for `n` whole chunks plus a partial chunk, `n` in 1..=9.
+ fn partial_kernel(n: usize) -> PartialKernel {
+     match n {
+         1 => asm::blake3_servil_hybrid_q1,
+         2 => asm::blake3_servil_hybrid_q2,
+         3 => asm::blake3_servil_hybrid_q3,
