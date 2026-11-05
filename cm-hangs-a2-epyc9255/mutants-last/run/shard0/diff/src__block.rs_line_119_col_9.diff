@@ -1,0 +1,25 @@
+--- src/block.rs
++++ replace Batch<'a>::from_blocks -> Self with Default::default()
+@@ -111,21 +111,17 @@
+     /// The messages of `message_len` bytes that `blocks` holds, borrowed
+     /// with no copy, where they fill their blocks: `message_len` a
+     /// multiple of 64 (no byte past a message's end to keep zero; an empty
+     /// message's block, which nothing reads, counts as one), and `blocks`
+     /// whole messages, which each call that hashes it checks against its
+     /// digests by a multiplication: a borrow costs a bit test.
+     #[inline]
+     pub fn from_blocks(blocks: &'a [Block], message_len: usize) -> Self {
+-        assert!(
+-            message_len % BLOCK_LEN == 0,
+-            "Batch::from_blocks takes messages that fill their blocks, not {message_len} B (Batch::new makes one for any length)"
+-        );
+-        Batch { blocks: blocks.into(), message_len }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// For the crate's own tests: `blocks` as a batch of `message_len`-byte
+     /// messages in place, whatever their length, each at the start of its
+     /// blocks and every byte past it zero (checked): the tests' layouts,
+     /// batches beside guard pages among them.
+     #[cfg(test)]
+     pub(crate) fn in_place(blocks: &'a [Block], message_len: usize) -> Self {

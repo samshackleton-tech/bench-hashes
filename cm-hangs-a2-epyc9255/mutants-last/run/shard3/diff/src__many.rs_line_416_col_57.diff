@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace >= with < in hash_run
+@@ -408,17 +408,17 @@
+ /// where the count calls for it; otherwise the platform's `hash_many` (the
+ /// parent kernels and the NEON plans). Kept out of line:
+ /// with all sixteen lengths inlined into hash_many_on, batches of two
+ /// 64-byte messages took 30% longer (VM, bench-hashes); out of line they
+ /// cost what they did before.
+ #[inline(never)]
+ fn hash_run<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     #[cfg(blake3_sme2)]
+-    if platform_is_sme2(platform) && outputs.len() % 16 >= if outputs.len() > 16 { ONE_BLOCK_PAD_AFTER_GROUPS } else { ONE_BLOCK_PAD_MIN } {
++    if platform_is_sme2(platform) && outputs.len() % 16 < /* ~ changed by cargo-mutants ~ */ if outputs.len() > 16 { ONE_BLOCK_PAD_AFTER_GROUPS } else { ONE_BLOCK_PAD_MIN } {
+         return hash_run_padded::<N>(messages, key, flags, outputs, BLOCK_LEN);
+     }
+     let mut table: [core::mem::MaybeUninit<&[u8; N]>; TABLE] = [core::mem::MaybeUninit::uninit(); TABLE];
+     for (slot, message) in table[..outputs.len()].iter_mut().zip(messages.chunks_exact(N)) {
+         slot.write(message.try_into().expect("messages of N bytes"));
+     }
+     // Sound: the first outputs.len() slots were written just above.
+     let filled: &[&[u8; N]] = unsafe { core::slice::from_raw_parts(table.as_ptr() as *const &[u8; N], outputs.len()) };

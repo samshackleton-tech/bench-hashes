@@ -1,0 +1,21 @@
+--- src/pair.rs
++++ replace * with + in takes
+@@ -18,17 +18,17 @@
+ use crate::platform::{Platform, words_from_le_bytes_32};
+ use crate::{BLOCK_LEN, CHUNK_END, CHUNK_LEN, CHUNK_START, CVWords, OUT_LEN};
+ 
+ /// Whether [`parent`] hashes an input of `len` bytes on `platform`: a whole
+ /// chunk and a partial one of two blocks or more, on AVX2 or AVX-512 (whose
+ /// assembly is in this build).
+ #[inline]
+ pub(crate) fn takes(platform: Platform, len: usize) -> bool {
+-    takes_platform(platform) && (CHUNK_LEN + BLOCK_LEN + 1..2 * CHUNK_LEN).contains(&len)
++    takes_platform(platform) && (CHUNK_LEN + BLOCK_LEN + 1..2 + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN).contains(&len)
+ }
+ 
+ /// Whether [`hash_many_blocks`] runs on `platform`: AVX2 or AVX-512, whose
+ /// assembly is in this build.
+ #[inline]
+ pub(crate) fn takes_platform(platform: Platform) -> bool {
+     match platform {
+         #[cfg(blake3_avx2_ffi)]

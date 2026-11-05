@@ -1,0 +1,229 @@
+
+*** src/platform.rs:249:9: replace Platform::compress_in_place with ()
+
+*** mutation diff:
+--- src/platform.rs
++++ replace Platform::compress_in_place with ()
+@@ -241,31 +241,17 @@
+             #[cfg(blake3_sme2)]
+             Platform::SME2 => crate::sme2::DEGREE,
+         };
+         debug_assert!((2..=MAX_SIMD_DEGREE).contains(&degree), "the walk (src/tree.rs) takes 2 to MAX_SIMD_DEGREE chunks a call");
+         degree
+     }
+ 
+     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 | Platform::AVX2 => unsafe { crate::sse41::compress_in_place(cv, block, block_len, counter, flags) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::compress_in_place(cv, block, block_len, counter, flags) },
+-            // The scalar kernel k1 keeps the state in registers; it runs on
+-            // every AArch64 core, so the NEON and SME2 platforms share it.
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => crate::neon_hybrid::compress_in_place(cv, block, block_len, counter, flags),
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => crate::neon_hybrid::compress_in_place(cv, block, block_len, counter, flags),
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Compress `count` whole blocks of one chunk into `cv`: the first block
+     /// with `flags | flags_start`, the rest with `flags`, all with `counter`.
+     /// `blocks` holds at least `count * BLOCK_LEN` bytes; `count` is 1..=16.
+     pub fn compress_blocks(&self, cv: &mut CVWords, blocks: &[u8], count: usize, counter: u64, flags: u8, flags_start: u8) {
+         assert!((1..=16).contains(&count));
+         assert!(blocks.len() >= count * BLOCK_LEN);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-cgkmuykz)
+warning: unused variable: `cv`
+   --> src/platform.rs:248:37
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                     ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/platform.rs:248:55
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                       ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/platform.rs:248:80
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/platform.rs:248:95
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                               ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/platform.rs:248:109
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                                             ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: function `compress_in_place` is never used
+ --> src/ffi_avx512.rs:4:15
+  |
+4 | pub unsafe fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+  |               ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `blake3_servil_compress_in_place_avx512` is never used
+   --> src/ffi_avx512.rs:117:16
+    |
+117 |         pub fn blake3_servil_compress_in_place_avx512(cv: *mut u32, block: *const u8, block_len: u8, counter: u64, flags: u8);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compress_in_place` is never used
+ --> src/ffi_sse41.rs:4:15
+  |
+4 | pub unsafe fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+  |               ^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_compress_in_place_sse41` is never used
+  --> src/ffi_sse41.rs:50:16
+   |
+50 |         pub fn blake3_servil_compress_in_place_sse41(cv: *mut u32, block: *const u8, block_len: u8, counter: u64, flags: u8);
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 9 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 1.97s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: unused variable: `cv`
+   --> src/platform.rs:248:37
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                     ^^ help: if this is intentional, prefix it with an underscore: `_cv`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `block`
+   --> src/platform.rs:248:55
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                       ^^^^^ help: if this is intentional, prefix it with an underscore: `_block`
+
+warning: unused variable: `block_len`
+   --> src/platform.rs:248:80
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_block_len`
+
+warning: unused variable: `counter`
+   --> src/platform.rs:248:95
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                               ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `flags`
+   --> src/platform.rs:248:109
+    |
+248 |     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+    |                                                                                                             ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: function `compress_in_place` is never used
+ --> src/ffi_avx512.rs:4:15
+  |
+4 | pub unsafe fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+  |               ^^^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `blake3_servil_compress_in_place_avx512` is never used
+   --> src/ffi_avx512.rs:117:16
+    |
+117 |         pub fn blake3_servil_compress_in_place_avx512(cv: *mut u32, block: *const u8, block_len: u8, counter: u64, flags: u8);
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compress_in_place` is never used
+ --> src/ffi_sse41.rs:4:15
+  |
+4 | pub unsafe fn compress_in_place(cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+  |               ^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_compress_in_place_sse41` is never used
+  --> src/ffi_sse41.rs:50:16
+   |
+50 |         pub fn blake3_servil_compress_in_place_sse41(cv: *mut u32, block: *const u8, block_len: u8, counter: u64, flags: u8);
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 9 warnings (run `cargo fix --lib -p blake3-servil` to apply 5 suggestions)
+warning: `blake3-servil` (lib test) generated 7 warnings (7 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 6984c457-a20e-4253-84e8-431a02d1d306 with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-cgkmuykz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        FAIL [   0.039s] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+  stdout ───
+
+    running 1 test
+    test avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds ... FAILED
+
+    failures:
+
+    failures:
+        avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds' (1465493) panicked at src/ffi_avx512_32_guard_tests.rs:124:21:
+    assertion `left == right` failed: width=16 at_end=false blocks=1 last_len=0 increment=false
+      left: [93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202, 93, 133, 72, 151, 21, 59, 132, 188, 233, 85, 249, 186, 121, 48, 229, 237, 21, 98, 184, 84, 64, 184, 162, 79, 6, 145, 173, 65, 47, 38, 15, 202]
+     right: [103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91, 103, 230, 9, 106, 133, 174, 103, 187, 114, 243, 110, 60, 58, 245, 79, 165, 127, 82, 14, 81, 140, 104, 5, 155, 171, 217, 131, 31, 25, 205, 224, 91]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGTERM [   0.041s] (  2/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+     SIGTERM [   0.041s] (  3/168) blake3-servil avx512_32::tests::generated_assembly_matches
+     SIGTERM [   0.041s] (  4/168) blake3-servil avx512::test::test_xof_many
+     SIGTERM [   0.041s] (  5/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+     SIGTERM [   0.041s] (  6/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+     SIGTERM [   0.041s] (  7/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+     SIGTERM [   0.041s] (  8/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+────────────
+     Summary [   0.042s] 8/168 tests run: 0 passed, 8 failed, 0 skipped
+warning: 160/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

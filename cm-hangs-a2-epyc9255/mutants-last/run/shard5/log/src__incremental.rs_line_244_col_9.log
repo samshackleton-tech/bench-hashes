@@ -1,0 +1,51 @@
+
+*** src/incremental.rs:244:9: replace Hasher::reset -> &mut Self with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace Hasher::reset -> &mut Self with Box::leak(Box::new(Default::default()))
+@@ -236,19 +236,17 @@
+         Self::from_core(HasherCore::new_internal(&key, flags))
+     }
+ 
+     /// Reset the `Hasher` to its initial state.
+     ///
+     /// This is functionally the same as overwriting the `Hasher` with a new
+     /// one, using the same key or context string if any.
+     pub fn reset(&mut self) -> &mut Self {
+-        self.core.reset();
+-        self.staged = 0;
+-        self
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Add the message's next piece, of any length, on the calling thread.
+     ///
+     /// **Speed**: pieces of any size hash at nearly the speed of whole
+     /// buffers: short pieces are copied into the `Hasher` until it holds
+     /// 16 KiB, which then hash at once. Pieces of 16 KiB and more, starting
+     /// at a multiple of 16 KiB of the message, skip the copy (about 5% of the
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-fb6vadgh)
+error[E0277]: the trait bound `incremental::Hasher: Default` is not satisfied
+   --> src/incremental.rs:244:28
+    |
+244 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `incremental::Hasher`
+   --> src/incremental.rs:36:1
+    |
+ 36 | pub struct Hasher {
+    | ^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

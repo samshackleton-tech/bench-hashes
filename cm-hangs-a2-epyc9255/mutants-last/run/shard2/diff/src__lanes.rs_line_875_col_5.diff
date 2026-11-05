@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace spin_ends -> bool with true
+@@ -867,17 +867,17 @@
+ /// Whether a worker's look for work ends, `elapsed` into it: once SPIN has
+ /// passed, or when no stream is open (asked only before SPIN, as the
+ /// look's own code would). Its own function so a test holds it
+ /// whatever the machine's load (#202: with `>=` turned to `<`, a worker
+ /// preempted past SPIN before its first look spun while the stream stayed
+ /// open, and the mutant timed out only under load).
+ #[inline(always)]
+ fn spin_ends(elapsed: std::time::Duration, open: impl FnOnce() -> bool) -> bool {
+-    elapsed >= SPIN || !open()
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The workers' work: sources, each a numbered sequence of items that its
+ /// owner publishes and workers claim. One owner writes `published` (one
+ /// Release store); workers advance `claimed` by compare-and-swap, only
+ /// below `published`. Both only count up, across everything a source ever
+ /// carries, so a stale claim is impossible. A stream's source carries its
+ /// tasks in a ring (a slot written again only after its task was taken,

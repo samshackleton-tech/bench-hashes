@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace == with != in hash_blocks
+@@ -530,17 +530,17 @@
+ /// - The integer + NEON plans (no SME2, or fewer messages): all at once.
+ /// - Elsewhere (`plans` false: x86-64), whole last blocks:
+ ///   four at a time, a fourth, spare lane for three left over, one call
+ ///   each for one or two; with a short last block, one call each.
+ #[inline(never)]
+ fn hash_blocks<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans: bool, last_len: usize) {
+     const GROUP: usize = 16;
+     let count = outputs.len();
+-    if count == 0 {
++    if count != /* ~ changed by cargo-mutants ~ */ 0 {
+         return;
+     }
+     let sme2 = platform_is_sme2(platform);
+     let left = count % GROUP;
+     let padded = sme2 && left >= if count > GROUP { SME2_TAIL_MIN_AFTER_GROUPS } else { SME2_TAIL_MIN };
+     // Messages hashed on SME2 (the first `on_sme2`), and the table's lanes.
+     let on_sme2 = if padded {
+         count

@@ -1,0 +1,33 @@
+--- src/lanes.rs
++++ replace spin_for_work -> bool with true
+@@ -844,29 +844,17 @@
+ /// open (more is coming) before it parks: 5 us. i7-12700K, against the
+ /// stream on the earlier pool: none cost small messages 9-12% (a park and
+ /// a wake at every gap); 20 us cost 22% more CPU time a run for no speed;
+ /// a cap on how many workers spin did not help.
+ const SPIN: std::time::Duration = std::time::Duration::from_micros(5);
+ 
+ /// Look for work for up to SPIN: whether some appeared.
+ fn spin_for_work() -> bool {
+-    let started = now();
+-    loop {
+-        for _ in 0..16 {
+-            noted(Noted::Poll);
+-            if sources::visible(false) {
+-                return true;
+-            }
+-            core::hint::spin_loop();
+-        }
+-        if spin_ends(now() - started, sources::open) {
+-            return false;
+-        }
+-    }
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Whether a worker's look for work ends, `elapsed` into it: once SPIN has
+ /// passed, or when no stream is open (asked only before SPIN, as the
+ /// look's own code would). Its own function so a test holds it
+ /// whatever the machine's load (#202: with `>=` turned to `<`, a worker
+ /// preempted past SPIN before its first look spun while the stream stayed
+ /// open, and the mutant timed out only under load).

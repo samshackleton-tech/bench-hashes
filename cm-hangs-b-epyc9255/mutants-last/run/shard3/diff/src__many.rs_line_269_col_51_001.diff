@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with / in hash_long_or_single
+@@ -261,17 +261,17 @@
+ fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     if across_from(len, platform).is_some_and(|least| outputs.len() >= least) {
+         crate::ran(crate::Ran::Across);
+         return hash_across(input, len, key, flags, outputs, platform);
+     }
+     crate::ran(crate::Ran::MessageAlone);
+     let slot = slot_len(len);
+     for (i, output) in outputs.iter_mut().enumerate() {
+-        *output = *crate::hash_serial_on(&input[i * slot..][..len], key, flags, platform).as_bytes();
++        *output = *crate::hash_serial_on(&input[i / /* ~ changed by cargo-mutants ~ */ slot..][..len], key, flags, platform).as_bytes();
+     }
+ }
+ 
+ /// The chunks a message has below which [`hash_across`] takes it: from 16,
+ /// a message's own chunks fill the widest lanes alone (as each.rs's
+ /// ALONE_CHUNKS).
+ #[cfg(target_arch = "x86_64")]
+ const ACROSS_CHUNKS: usize = 16;

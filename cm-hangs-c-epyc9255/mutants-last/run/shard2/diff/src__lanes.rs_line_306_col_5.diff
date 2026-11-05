@@ -1,0 +1,28 @@
+--- src/lanes.rs
++++ replace hash_many_over_pool with ()
+@@ -298,24 +298,17 @@
+     if outputs.len() < 2 || input.len() < MIN_SPLIT_LEN {
+         return crate::hash_many_serial(input, message_len, key, flags, outputs);
+     }
+     hash_many_over_pool(input, message_len, key, flags, outputs)
+ }
+ 
+ #[inline(never)]
+ fn hash_many_over_pool(input: &[u8], message_len: usize, key: &crate::CVWords, flags: u8, outputs: &mut [[u8; crate::OUT_LEN]]) {
+-    let slot = crate::many::slot_len(message_len);
+-    assert_eq!(Some(input.len()), slot.checked_mul(outputs.len()), "input holds one slot of whole blocks per output");
+-    let Some((pool, _caller)) = spare_pool() else {
+-        return crate::hash_many_serial(input, message_len, key, flags, outputs);
+-    };
+-    let pieces = cut_messages(outputs.len(), slot, pool.threads);
+-    let work = Work::Messages { input, message_len, key: *key, flags, pieces: &pieces, outputs: outputs.as_mut_ptr() };
+-    pool.run_job(work, pieces.len(), 0, pool_platform());
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`crate::hash_each_multithreaded_with`]'s pool job: `items`, every one
+ /// under MIN_SPLIT_LEN, cut into ranges of about [`next_piece_len`] of the
+ /// bytes that remain.
+ pub(crate) fn hash_each(key: &crate::CVWords, flags: u8, items: &[&[u8]], out: &mut [[u8; crate::OUT_LEN]]) {
+     assert!(items.iter().all(|i| i.len() < MIN_SPLIT_LEN), "items under MIN_SPLIT_LEN");
+     let Some((pool, _caller)) = spare_pool() else {

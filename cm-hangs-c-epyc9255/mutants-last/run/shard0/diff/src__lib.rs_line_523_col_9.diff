@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace <impl core::str::FromStr for Hash>::from_str -> Result<Self, Self::Err> with Ok(Default::default())
+@@ -515,17 +515,17 @@
+         hash.0
+     }
+ }
+ 
+ impl core::str::FromStr for Hash {
+     type Err = HexError;
+ 
+     fn from_str(s: &str) -> Result<Self, Self::Err> {
+-        Hash::from_hex(s)
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Hash {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+         let Self(bytes) = self;

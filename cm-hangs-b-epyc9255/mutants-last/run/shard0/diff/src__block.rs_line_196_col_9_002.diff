@@ -1,0 +1,24 @@
+--- src/block.rs
++++ replace Batch<'_>::digests_mut -> &mut[[u8; 32]] with Vec::leak(vec![[1; 32]])
+@@ -188,20 +188,17 @@
+         self.blocks.to_mut()
+     }
+ 
+     /// Its 64-byte messages as 32-byte digests, two a message: a Merkle
+     /// layer's digests written straight into the next layer, whose
+     /// messages are pairs of children. A layer of an odd count leaves a
+     /// digest to spare: slice it, `&mut batch.digests_mut()[..count]`.
+     pub fn digests_mut(&mut self) -> &mut [[u8; 32]] {
+-        assert!(self.message_len == 2 * 32, "digests_mut takes a batch of 64-byte messages, two digests each, not {} B", self.message_len);
+-        let blocks = self.blocks.to_mut();
+-        // Sound: a [u8; 32] is 32 bytes with alignment 1; two fill a Block.
+-        unsafe { core::slice::from_raw_parts_mut(blocks.as_mut_ptr().cast(), blocks.len() * 2) }
++        Vec::leak(vec![[1; 32]]) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ mod test {
+     use super::*;
+     use crate::Mode;
+     use crate::performance::hash_many;

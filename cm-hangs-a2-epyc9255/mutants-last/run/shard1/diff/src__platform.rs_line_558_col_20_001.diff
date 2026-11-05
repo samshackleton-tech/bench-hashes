@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace & with ^ in wide_avx512
+@@ -550,17 +550,17 @@
+ 
+ /// Whether `hash_many` dispatches to the 32-input AVX-512 kernels
+ /// (Linux): AVX-512 on a CPU where they pay ([`wide_cpu`]).
+ #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+ #[cfg(target_arch = "x86_64")]
+ #[inline(always)]
+ pub fn wide_avx512() -> bool {
+     // The bit comes only with AVX-512 (read_x86_features).
+-    x86_features() & x86_bits::WIDE != 0
++    x86_features() ^ /* ~ changed by cargo-mutants ~ */ x86_bits::WIDE != 0
+ }
+ 
+ #[cfg(blake3_avx512_ffi)]
+ #[cfg(target_arch = "x86_64")]
+ #[inline(always)]
+ pub fn avx512_detected() -> bool {
+     // A build for CPUs that have it (`-C target-cpu=...` or
+     // `-C target-feature=...`) needs no check: run elsewhere, it stops

@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in batch_after_pause
+@@ -1210,17 +1210,17 @@
+     }
+     let count = out.len();
+     #[cfg(blake3_sme2)]
+     if matches!(platform, Platform::SME2) && count >= many::ONE_BLOCK_PAD_MIN {
+         sme2::prefetch_code();
+         return false;
+     }
+     let _ = platform;
+-    if !neon_hybrid::sha3_detected() {
++    if  /* ~ changed by cargo-mutants ~ */neon_hybrid::sha3_detected() {
+         return false;
+     }
+     if message_len == 0 || !(1..=PAIRS_AFTER_PAUSE_UPTO).contains(&count) {
+         neon_hybrid::prefetch_message_code(count);
+         return false;
+     }
+     many::assert_slots(input, message_len, count);
+     neon_hybrid::prefetch_pair_code();

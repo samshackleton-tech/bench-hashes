@@ -1,0 +1,23 @@
+--- src/stream.rs
++++ replace Storage::ring_at -> *mut u8 with Default::default()
+@@ -296,19 +296,17 @@
+                 true
+             }
+             None => false,
+         }
+     }
+ 
+     /// The ring's byte at `at`.
+     fn ring_at(&self, at: usize) -> *mut u8 {
+-        debug_assert!(at <= RING_BYTES);
+-        // Sound: `at` is in the ring.
+-        unsafe { self.ring.add(at) }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The long ring's byte at `at`.
+     fn long_at(&self, at: usize) -> *mut u8 {
+         debug_assert!(at <= LONG_RING_BYTES);
+         // Sound: `at` is in the long ring.
+         unsafe { self.long_ring.add(at) }
+     }

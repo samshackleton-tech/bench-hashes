@@ -1,0 +1,43 @@
+
+*** src/hasher.rs:6:32: replace + with *
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace + with *
+@@ -1,14 +1,14 @@
+ //! The Hasher's stack of chaining values, its loop over the input, a
+ //! chunk's state, and a node's output, in safe Rust over their kernels.
+ 
+ use crate::{BLOCK_LEN, CHUNK_END, CHUNK_LEN, CHUNK_START, PARENT, ROOT};
+ use crate::{CVBytes as Cv, MAX_DEPTH};
+-const DEPTH: usize = MAX_DEPTH + 1;
++const DEPTH: usize = MAX_DEPTH * /* ~ changed by cargo-mutants ~ */ 1;
+ 
+ /// The parent of two chaining values, the stack's one use of the kernels.
+ pub trait Parent {
+     fn parent(&self, left: &Cv, right: &Cv) -> Cv;
+ }
+ 
+ /// Chaining values bottom first: an array made at the first push (a message
+ /// of one chunk pushes none) and its length.
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-js0xhh98)
+error[E0308]: mismatched types
+   --> src/test.rs:663:41
+    |
+663 |     assert_eq!(hasher.cv_stack.array(), Some(&[[0u8; 32]; crate::MAX_DEPTH + 1]));
+    |                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a size of 54, found one with a size of 55
+    |
+    = note: expected enum `Option<&[[u8; 32]; 54]>`
+               found enum `Option<&[[u8; 32]; 55]>`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

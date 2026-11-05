@@ -1,0 +1,34 @@
+--- src/lanes.rs
++++ replace sources::Source::publish with ()
+@@ -953,30 +953,17 @@
+             ACTIVE.fetch_and(!(1 << slot), Ordering::SeqCst);
+             REGISTERED[slot].store(core::ptr::null_mut(), Ordering::SeqCst);
+         }
+ 
+         /// A stream's task to the workers: one write, one Release store;
+         /// then the SME2 thread first, and with two or more waiting and a
+         /// worker parked, a worker.
+         pub(crate) fn publish(&self, task: Task) {
+-            let p = self.finish.published.load(Ordering::Relaxed);
+-            debug_assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), "a source's ring holds every task not yet taken");
+-            // Sound: slot p % len is free (its last task was taken), and
+-            // only this stream writes it.
+-            unsafe { (*self.ring[p % self.ring.len()].get()).write(task) };
+-            self.finish.published.store(p + 1, Ordering::Release);
+-            core::sync::atomic::fence(Ordering::SeqCst);
+-            let pool = pool();
+-            if pool.sme2 {
+-                wake_sme2();
+-            }
+-            if p + 1 - self.claimed.load(Ordering::Relaxed) >= 2 {
+-                pool.park.wake_one();
+-            }
++            () /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// Make `job` the caller's current job, its pieces `0..own` the
+         /// caller's own: the number `finished` must reach when it is done.
+         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {
+             let base = self.finish.published.load(Ordering::Relaxed);
+             debug_assert_eq!(self.finish.finished_count(), base, "the last job is finished");
+             self.job.store(job, Ordering::Relaxed);

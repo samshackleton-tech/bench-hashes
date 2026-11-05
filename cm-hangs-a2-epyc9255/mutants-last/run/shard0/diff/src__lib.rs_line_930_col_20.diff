@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace <= with > in hash_all_at_once
+@@ -922,17 +922,17 @@
+ #[inline]
+ fn hash_all_at_once(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> Output {
+     // The input is a complete subtree at chunk_counter, or the whole
+     // input (including empty) at counter zero. Its byte offset fits u64.
+     debug_assert!(chunk_counter <= u64::MAX / CHUNK_LEN as u64);
+     debug_assert!(chunk_counter == 0 || (!input.is_empty() && input.len() as u64 <= max_subtree_len(chunk_counter * CHUNK_LEN as u64).unwrap()));
+ 
+     // If the whole subtree is one chunk, hash it directly with a ChunkState.
+-    if input.len() <= CHUNK_LEN {
++    if input.len() > /* ~ changed by cargo-mutants ~ */ CHUNK_LEN {
+         return ChunkState::new(key, chunk_counter, flags, platform).update(input).output();
+     }
+ 
+     // Otherwise construct an Output object from the parent node returned by
+     // compress_subtree_to_parent_node().
+     hasher::Output {
+         input_chaining_value: *key,
+         block: compress_subtree_to_parent_node(input, 0, key, chunk_counter, flags, platform),

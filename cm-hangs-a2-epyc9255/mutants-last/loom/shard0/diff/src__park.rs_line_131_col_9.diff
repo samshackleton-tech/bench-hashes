@@ -1,0 +1,40 @@
+--- src/park.rs
++++ replace Park::park_unless -> bool with true
+@@ -123,36 +123,17 @@
+ 
+     /// Worker `me` parks unless `visible()` finds work: the bit first,
+     /// then one more look (a publisher stores, then reads `parked`; this
+     /// sets the bit, then looks: one of the two sees the other), then the
+     /// token, until a waker clears the bit. Returns having found work
+     /// (false) or having been woken (true); a woken worker then pays the
+     /// wakes owed ([`Park::pay_owed`]).
+     pub(crate) fn park_unless(&self, me: usize, visible: impl Fn() -> bool) -> bool {
+-        let (word, bit) = self.place(me);
+-        word.fetch_or(bit, Ordering::SeqCst);
+-        if visible() {
+-            // Ours to clear, unless a waker cleared it first: then its wake
+-            // was spent on a worker that was leaving anyway (its unpark
+-            // leaves a token a later park returns from at once), and a
+-            // worker still parked may be the one it was for. Pass the wake
+-            // on, and return as woken so the caller pays what a woken
+-            // worker owes. Dropping it left a parked worker unwoken with
+-            // work published: Shuttle found both schedules (October 23).
+-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {
+-                self.wake_one();
+-                return true;
+-            }
+-            return false;
+-        }
+-        while word.load(Ordering::SeqCst) & bit != 0 {
+-            thread::park();
+-        }
+-        true
++        true /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// A woken worker pays up to `fanout` of the wakes owed before it
+     /// works, each a worker that pays in turn: how many it woke.
+     pub(crate) fn pay_owed(&self) -> usize {
+         let mut made = 0;
+         while made < self.fanout {
+             let owed = self.owed.load(Ordering::SeqCst);

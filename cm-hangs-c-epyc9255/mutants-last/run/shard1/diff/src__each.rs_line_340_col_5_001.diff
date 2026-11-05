@@ -1,0 +1,22 @@
+--- src/each.rs
++++ replace left_len -> usize with 1
+@@ -332,18 +332,17 @@
+     let split = left_len(cvs.len());
+     let left = subtree(&cvs[..split], key, flags, platform);
+     let right = subtree(&cvs[split..], key, flags, platform);
+     crate::hasher::parent_output(&left, &right, key, flags, platform).chaining_value()
+ }
+ 
+ /// The largest power of two below `n` (n of 2 or more).
+ fn left_len(n: usize) -> usize {
+-    debug_assert!(n >= 2);
+-    1 << (usize::BITS - 1 - (n - 1).leading_zeros())
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ mod test {
+     use super::*;
+ 
+     /// hash_each_multithreaded takes the pool from MIN_SPLIT_LEN bytes of
+     /// items on, exactly, and the calling thread below them. Both give the

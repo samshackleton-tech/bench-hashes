@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace != with == in OutputReader::fill
+@@ -1395,17 +1395,17 @@
+     ///
+     /// [`Read::read`]: #method.read
+     pub fn fill(&mut self, mut buf: &mut [u8]) {
+         if buf.is_empty() {
+             return;
+         }
+ 
+         // If we're partway through a block, try to get to a block boundary.
+-        if self.position_within_block != 0 {
++        if self.position_within_block == /* ~ changed by cargo-mutants ~ */ 0 {
+             self.fill_one_block(&mut buf);
+         }
+ 
+         let full_blocks = buf.len() / BLOCK_LEN;
+         let full_blocks_len = full_blocks * BLOCK_LEN;
+         if full_blocks > 0 {
+             debug_assert_eq!(0, self.position_within_block);
+             self.inner.platform.xof_many(

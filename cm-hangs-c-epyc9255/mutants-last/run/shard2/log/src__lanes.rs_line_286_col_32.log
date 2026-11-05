@@ -1,0 +1,50 @@
+
+*** src/lanes.rs:286:32: replace * with + in subtree_children
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace * with + in subtree_children
+@@ -278,17 +278,17 @@
+ /// of that number, as `Hasher::update` hands out.
+ pub(crate) fn subtree_children(input: &[u8], key: &crate::CVWords, counter: u64, flags: u8) -> [u8; 2 * crate::OUT_LEN] {
+     assert!(input.len().is_power_of_two() && input.len() >= MIN_SPLIT_LEN, "a whole subtree of at least MIN_SPLIT_LEN bytes");
+     assert_eq!(counter % (input.len() / CHUNK_LEN) as u64, 0, "a subtree starts at a multiple of its chunk count");
+     let Some((pool, _caller)) = spare_pool() else { return crate::compress_subtree_to_parent_node(input, 0, key, counter, flags, pool_platform()) };
+     let (pieces, mut cvs) = tree_cvs(pool, input, key, counter, flags);
+     let count = merge_to_children(&pieces, &mut cvs, key, flags);
+     debug_assert_eq!(count, 2);
+-    let mut children = [0u8; 2 * crate::OUT_LEN];
++    let mut children = [0u8; 2 + /* ~ changed by cargo-mutants ~ */ crate::OUT_LEN];
+     children[..crate::OUT_LEN].copy_from_slice(&cvs[0]);
+     children[crate::OUT_LEN..].copy_from_slice(&cvs[1]);
+     children
+ }
+ 
+ /// [`crate::hash_many`] over the machine's threads: below MIN_SPLIT_LEN
+ /// of input, or with one message, on this thread.
+ #[inline]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0308]: mismatched types
+   --> src/lanes.rs:289:5
+    |
+279 | pub(crate) fn subtree_children(input: &[u8], key: &crate::CVWords, counter: u64, flags: u8) -> [u8; 2 * crate::OUT_LEN] {
+    |                                                                                                ------------------------ expected `[u8; 64]` because of return type
+...
+289 |     children
+    |     ^^^^^^^^ expected an array with a size of 64, found one with a size of 34
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

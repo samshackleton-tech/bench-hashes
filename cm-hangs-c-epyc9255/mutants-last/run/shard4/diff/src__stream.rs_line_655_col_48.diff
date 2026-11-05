@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace >= with < in Stream<'env, D>::add_part
+@@ -647,17 +647,17 @@
+         }
+         self.s.entries[entry].first = self.open_first;
+         open.member[open.members] = Member { input, len, out };
+         open.members += 1;
+         open.len += len;
+         // Messages longer than a block hash one at a time: a task of them
+         // stops at a quarter of a task's bytes, to spread over more threads
+         // (spread over more threads); batches fill a task's bytes.
+-        if open.members == MEMBERS || open.len >= if batch.is_some() { TASK_LEN } else { TASK_LEN / 4 } {
++        if open.members == MEMBERS || open.len < /* ~ changed by cargo-mutants ~ */ if batch.is_some() { TASK_LEN } else { TASK_LEN / 4 } {
+             self.publish();
+         }
+     }
+ 
+     /// Entry `entry`, a piece of a long message, `len` bytes at `input`
+     /// from chunk `counter`: a task of its own, a whole subtree at its
+     /// offset, handed over.
+     #[inline(always)]

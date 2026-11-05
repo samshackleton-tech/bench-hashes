@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace <impl Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H>>::chunk_node -> Output<P> with Output::from(Default::default())
+@@ -265,17 +265,17 @@
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> [Cv; 2] {
+         self.hooks.children(input, ahead, counter)
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H> Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn chunk_node(&self, chunk: &ChunkState<P>) -> Output<P> {
+-        chunk.output()
++        Output::from(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn parent_node(&self, left: &Cv, right: &Cv) -> Output<P> {
+         parent_output(left, right, self.key, self.flags, self.platform)
+     }
+ 
+     #[inline(always)]

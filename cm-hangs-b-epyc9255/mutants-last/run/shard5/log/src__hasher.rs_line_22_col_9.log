@@ -1,0 +1,55 @@
+
+*** src/hasher.rs:22:9: replace <impl Clone for CvStack>::clone -> CvStack with Default::default()
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace <impl Clone for CvStack>::clone -> CvStack with Default::default()
+@@ -14,17 +14,17 @@
+ /// of one chunk pushes none) and its length.
+ pub struct CvStack {
+     cvs: Option<[Cv; DEPTH]>,
+     len: usize,
+ }
+ 
+ impl Clone for CvStack {
+     fn clone(&self) -> CvStack {
+-        CvStack { cvs: self.cvs, len: self.len }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl CvStack {
+     pub fn new() -> CvStack {
+         CvStack { cvs: None, len: 0 }
+     }
+ 
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-k3a4o1du)
+error[E0277]: the trait bound `hasher::CvStack: Default` is not satisfied
+  --> src/hasher.rs:22:9
+   |
+22 |         Default::default() /* ~ changed by cargo-mutants ~ */
+   |         ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `hasher::CvStack`
+   |
+help: consider annotating `hasher::CvStack` with `#[derive(Default)]`
+   |
+15 + #[derive(Default)]
+16 | pub struct CvStack {
+   |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

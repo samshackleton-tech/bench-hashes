@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace | with ^ in ChunkState<P>::output
+@@ -412,17 +412,17 @@
+ impl<P: Blocks + Copy> ChunkState<P> {
+     /// The chunk's node.
+     pub fn output(&self) -> Output<P> {
+         Output {
+             block: self.buf,
+             input_chaining_value: self.cv,
+             block_len: self.buf_len,
+             counter: self.chunk_counter,
+-            flags: self.flags | self.start_flag() | CHUNK_END,
++            flags: self.flags | self.start_flag() ^ /* ~ changed by cargo-mutants ~ */ CHUNK_END,
+             platform: self.platform,
+         }
+     }
+ }
+ 
+ /// The parent node of two chaining values.
+ pub fn parent_output<P>(left: &[u8; 32], right: &[u8; 32], key: &[u32; 8], flags: u8, platform: P) -> Output<P> {
+     let mut block = [0u8; BLOCK_LEN];

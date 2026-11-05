@@ -1,0 +1,21 @@
+--- src/io.rs
++++ replace < with > in copy_wide
+@@ -9,17 +9,17 @@
+     // state after the reads between them (M4 Max, files of 8-64 MiB 23-33%
+     // less time).
+     // The first 64 KiB lead the 1 MiB buffer, so its updates stay whole
+     // 1 MiB subtrees (a Hasher's subtrees align to their own size). Every
+     // byte read is hashed before an error returns: a caller that retries
+     // after one (WouldBlock, say) loses nothing.
+     let mut small = [0; 65536];
+     let (n, read) = fill(&mut reader, &mut small);
+-    if n < small.len() || read.is_err() {
++    if n > /* ~ changed by cargo-mutants ~ */ small.len() || read.is_err() {
+         hasher.update(&small[..n]);
+         return read;
+     }
+     let mut buffer = std::vec![0; 1 << 20];
+     buffer[..n].copy_from_slice(&small);
+     let mut start = n;
+     loop {
+         let (filled, read) = fill(&mut reader, &mut buffer[start..]);

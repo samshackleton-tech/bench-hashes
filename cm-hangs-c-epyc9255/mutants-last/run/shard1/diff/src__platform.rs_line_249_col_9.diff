@@ -1,0 +1,35 @@
+--- src/platform.rs
++++ replace Platform::compress_in_place with ()
+@@ -241,31 +241,17 @@
+             #[cfg(blake3_sme2)]
+             Platform::SME2 => crate::sme2::DEGREE,
+         };
+         debug_assert!((2..=MAX_SIMD_DEGREE).contains(&degree), "the walk (src/tree.rs) takes 2 to MAX_SIMD_DEGREE chunks a call");
+         degree
+     }
+ 
+     pub fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 | Platform::AVX2 => unsafe { crate::sse41::compress_in_place(cv, block, block_len, counter, flags) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::compress_in_place(cv, block, block_len, counter, flags) },
+-            // The scalar kernel k1 keeps the state in registers; it runs on
+-            // every AArch64 core, so the NEON and SME2 platforms share it.
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => crate::neon_hybrid::compress_in_place(cv, block, block_len, counter, flags),
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => crate::neon_hybrid::compress_in_place(cv, block, block_len, counter, flags),
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Compress `count` whole blocks of one chunk into `cv`: the first block
+     /// with `flags | flags_start`, the rest with `flags`, all with `counter`.
+     /// `blocks` holds at least `count * BLOCK_LEN` bytes; `count` is 1..=16.
+     pub fn compress_blocks(&self, cv: &mut CVWords, blocks: &[u8], count: usize, counter: u64, flags: u8, flags_start: u8) {
+         assert!((1..=16).contains(&count));
+         assert!(blocks.len() >= count * BLOCK_LEN);

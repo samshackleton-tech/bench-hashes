@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with / in cut_messages
+@@ -353,17 +353,17 @@
+ /// threads, in order: each range holds about [`next_piece_len`] of the
+ /// bytes that remain, at least one message, so ranges shrink toward the
+ /// end as subtree pieces do.
+ fn cut_messages(count: usize, message_len: usize, threads: usize) -> Vec<Piece> {
+     let mut pieces = Vec::with_capacity(64);
+     let mut start = 0;
+     while start < count {
+         let remaining = (count - start) * message_len.max(1);
+-        let take = (next_piece_len(remaining, threads) / message_len.max(1)).clamp(1, count - start);
++        let take = (next_piece_len(remaining, threads) / message_len.max(1)).clamp(1, count / /* ~ changed by cargo-mutants ~ */ start);
+         pieces.push(Piece { offset: start, len: take });
+         start += take;
+     }
+     pieces
+ }
+ 
+ /// Ends the process if dropped: held while a job is published, or while a
+ /// stream's body runs, and forgotten once the workers are done, so it drops

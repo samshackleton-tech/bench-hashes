@@ -1,0 +1,33 @@
+--- src/self_test.rs
++++ replace many -> usize with 0
+@@ -329,29 +329,17 @@
+     reader.fill(out);
+     out.len()
+ }
+ 
+ /// hash_many() of `messages`, `len` bytes each, laid out in slots `offset`
+ /// bytes into a buffer of its own; the digests in `out`.
+ #[inline(never)]
+ fn many(platform: Platform, messages: &[u8], offset: usize, len: usize, out: &mut [u8]) -> usize {
+-    let slot = crate::many::slot_len(len);
+-    let count = out.len() / crate::OUT_LEN;
+-    let mut buffer = [0u8; BATCH_LEN];
+-    let batch = &mut buffer[offset..][..slot * count];
+-    for (message, bytes) in batch.chunks_mut(slot).zip(messages.chunks(len.max(1))) {
+-        message[..len].copy_from_slice(&bytes[..len]);
+-    }
+-    let mut digests = [[0u8; crate::OUT_LEN]; BATCH_COUNT];
+-    crate::hash_many_serial_from(platform, batch, len, crate::IV, 0, &mut digests[..count]);
+-    for (to, digest) in out.chunks_mut(crate::OUT_LEN).zip(&digests) {
+-        to.copy_from_slice(digest);
+-    }
+-    out.len()
++    0 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The chaining values of the whole chunks in `input`, at counter 1 on,
+ /// keyed by `key` (see Case::ChunkValues), into `out`.
+ fn chunk_values(platform: Platform, input: &[u8], key: &[u8; 32], out: &mut [u8]) -> usize {
+     let key = crate::platform::words_from_le_bytes_32(key);
+     let mut chunks = arrayvec::ArrayVec::<&[u8; crate::CHUNK_LEN], 18>::new();
+     chunks.extend(input.chunks_exact(crate::CHUNK_LEN).map(|c| c.try_into().expect("whole chunks")));

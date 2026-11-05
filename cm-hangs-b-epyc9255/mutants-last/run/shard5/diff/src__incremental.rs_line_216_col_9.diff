@@ -1,0 +1,24 @@
+--- src/incremental.rs
++++ replace Hasher::take_held with ()
+@@ -208,20 +208,17 @@
+         None
+     }
+ 
+     /// The held group's subtree, as [`HasherCore::update_with_results`]
+     /// takes it (its two halves' values at chunk zero, else its own), into
+     /// the core; the stage empty again.
+     #[cfg(feature = "std")]
+     pub(crate) fn take_held(&mut self, result: &[u8; BLOCK_LEN]) {
+-        let staged = core::mem::replace(&mut self.staged, 0);
+-        // Sound: as in gather_part.
+-        let bytes = unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, staged) };
+-        self.core.update_with_results(bytes, &mut core::iter::once(result));
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The root's output: the core's, after the stage's bytes.
+     pub(crate) fn final_output(&self) -> Output {
+         if self.staged == 0 {
+             return self.core.final_output();
+         }
+         let mut core = self.core.clone();

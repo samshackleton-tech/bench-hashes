@@ -1,0 +1,73 @@
+
+*** src/platform.rs:72:9: replace Sme2Turn::take -> Self with Default::default()
+
+*** mutation diff:
+--- src/platform.rs
++++ replace Sme2Turn::take -> Self with Default::default()
+@@ -64,41 +64,17 @@
+ struct Busy(core::sync::atomic::AtomicBool);
+ 
+ #[cfg(blake3_sme2)]
+ static SME2_BUSY: Busy = Busy(core::sync::atomic::AtomicBool::new(false));
+ 
+ impl Sme2Turn {
+     #[inline]
+     pub(crate) fn take(platform: Platform, sme2_sized: bool) -> Self {
+-        #[cfg(blake3_sme2)]
+-        if sme2_sized && matches!(platform, Platform::SME2) {
+-            use core::sync::atomic::Ordering;
+-            // A load, and a store when the turn is free: two calls that
+-            // look at the same instant can both take it, which costs what
+-            // running SME2 at once always did, and nothing else depends on
+-            // the flag. An atomic swap cost 3-9% for a batch of 24
+-            // messages (on the VM, 282 ns against 273, and 9-10% in the
+-            // regression check); acquire and release ordering about 1 µs
+-            // per call beside the SME2 kernels (256 one-block messages:
+-            // 3.43 µs against 2.50).
+-            let held = !SME2_BUSY.0.load(Ordering::Relaxed);
+-            if held {
+-                SME2_BUSY.0.store(true, Ordering::Relaxed);
+-            } else {
+-                crate::ran(crate::Ran::TurnTaken);
+-            }
+-            return Sme2Turn { platform: if held { Platform::SME2 } else { Platform::NEON }, held };
+-        }
+-        let _ = sme2_sized;
+-        Sme2Turn {
+-            platform,
+-            #[cfg(blake3_sme2)]
+-            held: false,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline]
+     pub(crate) fn platform(&self) -> Platform {
+         self.platform
+     }
+ }
+ 
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-cgkmuykz)
+error[E0277]: the trait bound `Sme2Turn: Default` is not satisfied
+  --> src/platform.rs:72:9
+   |
+72 |         Default::default() /* ~ changed by cargo-mutants ~ */
+   |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+   |
+help: the trait `Default` is not implemented for `Sme2Turn`
+  --> src/platform.rs:54:1
+   |
+54 | pub(crate) struct Sme2Turn {
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

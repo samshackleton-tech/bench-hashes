@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with *= in Stream<'env, D>::reserve_long
+@@ -690,17 +690,17 @@
+ 
+     /// `reserve`, in the long ring.
+     fn reserve_long(&mut self, len: usize) -> usize {
+         let (at, taken) = room(self.long_head, LONG_RING_BYTES, len);
+         while LONG_RING_BYTES - (self.long_head - self.long_tail) < taken {
+             self.publish();
+             self.help();
+         }
+-        self.long_head += taken;
++        self.long_head *= /* ~ changed by cargo-mutants ~ */ taken;
+         at
+     }
+ 
+     /// Hand back every place whose digests are done, in order, without
+     /// waiting; and hand the open task to the pool, so what it holds
+     /// starts hashing.
+     pub fn collect(&mut self) {
+         self.publish();

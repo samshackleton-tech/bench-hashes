@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace & with | in avx512_detected
+@@ -564,17 +564,17 @@
+ pub fn avx512_detected() -> bool {
+     // A build for CPUs that have it (`-C target-cpu=...` or
+     // `-C target-feature=...`) needs no check: run elsewhere, it stops
+     // at its first such instruction (SIGILL), in the startup self-test.
+     if cfg!(all(target_feature = "avx512f", target_feature = "avx512vl")) {
+         return true;
+     }
+ 
+-    x86_features() & x86_bits::AVX512 != 0
++    x86_features() | /* ~ changed by cargo-mutants ~ */ x86_bits::AVX512 != 0
+ }
+ 
+ #[cfg(target_arch = "x86_64")]
+ #[inline(always)]
+ // Read by the x86 kernels' dispatch and the tests.
+ #[cfg_attr(not(blake3_sse41_ffi), allow(dead_code))]
+ pub fn avx2_detected() -> bool {
+     // A build for CPUs that have it (`-C target-cpu=...` or

@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace < with <= in prefetch_code
+@@ -647,17 +647,17 @@
+ #[cfg(all(blake3_neon, feature = "std"))]
+ #[inline]
+ pub(crate) fn prefetch_code((start, end): (usize, usize)) {
+     debug_assert!(start < end && end - start < 64 * 1024, "a kernel's code");
+     // Four lines a step (past `end` by up to three: harmless).
+     let mut line = start;
+     #[cfg(test)]
+     let mut steps = 0;
+-    while line < end {
++    while line <= /* ~ changed by cargo-mutants ~ */ end {
+         #[cfg(test)]
+         {
+             steps += 1;
+             // A loop that never ends (a mutant's) fails here, at once, not by the clock.
+             assert!(steps < 1 << 16, "prefetch_code without end");
+         }
+         // Sound: a prefetch never faults, whatever the address.
+         unsafe {

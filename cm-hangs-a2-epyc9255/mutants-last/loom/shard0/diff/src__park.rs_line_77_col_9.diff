@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace Park::register with ()
+@@ -69,17 +69,17 @@
+             handles: (0..workers).map(|_| OnceLock::new()).collect(),
+             owed: AtomicUsize::new(0),
+             fanout,
+         }
+     }
+ 
+     /// Worker `me` records its thread, once, as it starts.
+     pub(crate) fn register(&self, me: usize) {
+-        assert!(self.handles[me].set(thread::current()).is_ok(), "each worker sets its thread once");
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Worker `me`'s word and its bit in it.
+     fn place(&self, me: usize) -> (&AtomicU64, u64) {
+         (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))
+     }
+ 
+     /// How many workers are parked.

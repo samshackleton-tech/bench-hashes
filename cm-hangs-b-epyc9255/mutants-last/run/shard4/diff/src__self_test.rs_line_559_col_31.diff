@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace == with != in ensure_slow
+@@ -551,17 +551,17 @@
+     }
+     #[cfg(all(test, feature = "std"))]
+     WAITING.fetch_add(1, Relaxed);
+     // Wait for the verdict: a test that fails stops the process, so the
+     // one a thread sees leave RUNNING is PASSED. The loop spins while the
+     // test runs and leaves on any other state, so no change below can
+     // make a thread spin forever (the mutation check's clock was the only
+     // thing stopping two such changes).
+-    while STATE.load(Relaxed) == RUNNING {
++    while STATE.load(Relaxed) != /* ~ changed by cargo-mutants ~ */ RUNNING {
+         core::hint::spin_loop();
+     }
+     let state = STATE.load(Relaxed);
+     assert!(state == PASSED, "the self-test's state is {state} after it ran");
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ mod test {

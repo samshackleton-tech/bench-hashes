@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace && with || in hash_many_serial_from
+@@ -1311,17 +1311,17 @@
+ /// [`hash_many_serial`] from `platform` (the self-test's way in, as
+ /// [`hash_serial_from`]).
+ #[inline]
+ fn hash_many_serial_from(platform: Platform, input: &[u8], message_len: usize, key: &CVWords, flags: u8, out: &mut [[u8; OUT_LEN]]) {
+     let turn = platform::Sme2Turn::take(platform, many::sme2_sized(message_len, out.len()));
+     // A small batch of one-block messages after a pause fetches its kernels'
+     // code in parallel (as hash_serial does): its time is mostly that code.
+     #[cfg(all(blake3_neon, feature = "std"))]
+-    if message_len <= BLOCK_LEN && (1..=PREFETCH_BATCH_BELOW).contains(&out.len()) && batch_after_pause(input, message_len, key, flags, out, turn.platform()) {
++    if message_len <= BLOCK_LEN || /* ~ changed by cargo-mutants ~ */ (1..=PREFETCH_BATCH_BELOW).contains(&out.len()) && batch_after_pause(input, message_len, key, flags, out, turn.platform()) {
+         return;
+     }
+     many::hash_many_on(input, message_len, key, flags, out, turn.platform());
+ }
+ 
+ mod hasher;
+ use hasher::CvStack;
+ 

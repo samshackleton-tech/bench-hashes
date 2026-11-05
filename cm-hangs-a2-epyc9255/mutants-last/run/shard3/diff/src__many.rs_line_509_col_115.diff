@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with & in neon_plans_last_len
+@@ -501,17 +501,17 @@
+ 
+ /// The integer + NEON parent plans over `lanes`, each message's last block
+ /// `last_len` bytes.
+ #[inline(always)]
+ fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+     #[cfg(blake3_neon)]
+     // Sound: every AArch64 CPU has NEON.
+     unsafe {
+-        crate::neon_hybrid::hash_many_last_len(lanes, key, 0, IncrementCounter::No, flags, CHUNK_START, CHUNK_END | ROOT, last_len, outputs.as_flattened_mut())
++        crate::neon_hybrid::hash_many_last_len(lanes, key, 0, IncrementCounter::No, flags, CHUNK_START, CHUNK_END & /* ~ changed by cargo-mutants ~ */ ROOT, last_len, outputs.as_flattened_mut())
+     };
+     #[cfg(not(blake3_neon))]
+     {
+         let _ = (lanes, key, flags, last_len, outputs);
+         unreachable!("the NEON plans exist on AArch64 alone");
+     }
+ }
+ 

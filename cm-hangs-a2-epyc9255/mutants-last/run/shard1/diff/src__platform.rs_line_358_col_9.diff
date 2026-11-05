@@ -1,0 +1,66 @@
+--- src/platform.rs
++++ replace Platform::xof_many with ()
+@@ -350,62 +350,17 @@
+             Platform::NEON => unsafe { crate::neon_hybrid::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+             // Safe because detect() checked for SME2 with a 512-bit vector length.
+             #[cfg(blake3_sme2)]
+             Platform::SME2 => unsafe { crate::sme2::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+         }
+     }
+ 
+     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+-        debug_assert_eq!(0, out.len() % BLOCK_LEN, "whole blocks only");
+-        if out.is_empty() {
+-            // The current assembly implementation always outputs at least 1 block.
+-            return;
+-        }
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(unix)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::xof_many(cv, block, block_len, counter, flags, out) },
+-            _ => {
+-                // On SME2, whole groups of sixteen blocks on the extended-
+-                // output kernel, under the process's turn; the rest below.
+-                #[cfg(blake3_sme2)]
+-                let out = {
+-                    let turn = Sme2Turn::take(*self, out.len() >= 16 * BLOCK_LEN);
+-                    let done = if matches!(turn.platform(), Platform::SME2) {
+-                        // Safe: the turn's platform is SME2 only where detect() found it.
+-                        unsafe { crate::sme2::xof_many(cv, block, block_len, counter, flags, out) }
+-                    } else {
+-                        0
+-                    };
+-                    counter += (done / BLOCK_LEN) as u64;
+-                    &mut out[done..]
+-                };
+-                // Then four or eight at a time on NEON (AArch64): CPUs
+-                // without SME2, and SME2's leftovers; the last one to three
+-                // blocks after them (neon_hybrid::xof_tail).
+-                #[cfg(blake3_neon)]
+-                {
+-                    let done = crate::neon_hybrid::xof_many(cv, block, block_len, counter, flags, out);
+-                    if done < out.len() {
+-                        crate::neon_hybrid::xof_tail(cv, block, block_len, counter.wrapping_add((done / BLOCK_LEN) as u64), flags, &mut out[done..]);
+-                    }
+-                }
+-                // SSE4.1 and AVX2, without an xof_many kernel: block by block.
+-                #[cfg(target_arch = "x86_64")]
+-                for out_block in out.chunks_exact_mut(BLOCK_LEN) {
+-                    // TODO: Use array_chunks_mut here once that's stable.
+-                    let out_array: &mut [u8; BLOCK_LEN] = out_block.try_into().unwrap();
+-                    *out_array = self.compress_xof(cv, block, block_len, counter, flags);
+-                    counter += 1;
+-                }
+-            }
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     // Explicit platform constructors, for the tests (std).
+ 
+     /// The SSE41 platform where this build has its kernels and the CPU its
+     /// instructions.
+     #[cfg(test)]
+     #[cfg(all(feature = "std", target_arch = "x86_64"))]

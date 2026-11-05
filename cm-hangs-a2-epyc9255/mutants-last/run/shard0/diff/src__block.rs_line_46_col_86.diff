@@ -1,0 +1,21 @@
+--- src/block.rs
++++ replace / with % in Block::from_bytes
+@@ -38,17 +38,17 @@
+         // An empty slice's pointer says nothing of placement.
+         if bytes.is_empty() {
+             return Some(&[]);
+         }
+         if bytes.as_ptr().align_offset(BLOCK_LEN) != 0 || bytes.len() % BLOCK_LEN != 0 {
+             return None;
+         }
+         // Sound: aligned and whole blocks, just checked; Block has no padding.
+-        Some(unsafe { core::slice::from_raw_parts(bytes.as_ptr().cast(), bytes.len() / BLOCK_LEN) })
++        Some(unsafe { core::slice::from_raw_parts(bytes.as_ptr().cast(), bytes.len() % /* ~ changed by cargo-mutants ~ */ BLOCK_LEN) })
+     }
+ }
+ 
+ impl core::fmt::Debug for Block {
+     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+         write!(f, "Block({:02x?})", &self.0[..])
+     }
+ }

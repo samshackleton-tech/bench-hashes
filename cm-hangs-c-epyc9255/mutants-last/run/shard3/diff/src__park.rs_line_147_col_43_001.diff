@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace & with ^ in Park::park_unless
+@@ -139,17 +139,17 @@
+             // worker owes. Dropping it left a parked worker unwoken with
+             // work published: Shuttle found both schedules (October 23).
+             if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {
+                 self.wake_one();
+                 return true;
+             }
+             return false;
+         }
+-        while word.load(Ordering::SeqCst) & bit != 0 {
++        while word.load(Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ bit != 0 {
+             thread::park();
+         }
+         true
+     }
+ 
+     /// A woken worker pays up to `fanout` of the wakes owed before it
+     /// works, each a worker that pays in turn: how many it woke.
+     pub(crate) fn pay_owed(&self) -> usize {

@@ -1,0 +1,42 @@
+
+*** src/lanes.rs:166:50: replace + with * in now
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace + with * in now
+@@ -158,17 +158,17 @@
+ /// by the test's step at each read, so a wait that polls until time
+ /// passes ends when the test says (BLAKE3 #219: SPIN, SPIN_BEFORE_SLEEP
+ /// and YIELD_EVERY stay in microseconds, and their comparisons are
+ /// counted exactly).
+ #[inline(always)]
+ fn now() -> std::time::Instant {
+     #[cfg(test)]
+     if let Some((base, at, step)) = TEST_CLOCK.with(|c| c.get()) {
+-        TEST_CLOCK.with(|c| c.set(Some((base, at + step, step))));
++        TEST_CLOCK.with(|c| c.set(Some((base, at * /* ~ changed by cargo-mutants ~ */ step, step))));
+         return base + at;
+     }
+     std::time::Instant::now()
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The tests' clock for now(): a fixed instant, the time past it that
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-0orjaq00)
+error[E0308]: mismatched types
+   --> src/lanes.rs:166:87
+    |
+166 |         TEST_CLOCK.with(|c| c.set(Some((base, at * /* ~ changed by cargo-mutants ~ */ step, step))));
+    |                                                                                       ^^^^ expected `u32`, found `Duration`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

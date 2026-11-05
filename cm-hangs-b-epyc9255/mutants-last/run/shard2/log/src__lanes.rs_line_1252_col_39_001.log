@@ -1,0 +1,69 @@
+
+*** src/lanes.rs:1252:39: replace * with /
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace * with /
+@@ -1244,17 +1244,17 @@
+                 assert!(find(|t| core::ptr::eq(t, *s)), "find reaches registered source {i} of 3");
+             }
+         }
+     }
+ }
+ 
+ /// The longest part of a stream's input planned as tasks
+ /// (a stream's piece): a task is a whole subtree within one part.
+-pub(crate) const TASK_LEN: usize = 64 * CHUNK_LEN;
++pub(crate) const TASK_LEN: usize = 64 / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;
+ 
+ /// One piece of a stream's work (crate::stream), hashed by whichever thread
+ /// takes it from the stream's source: a whole subtree at chunk `counter` of a message,
+ /// as [`crate::hasher::subtree_len`] cuts it, its result a 64-byte block at `out`;
+ /// or, with `batch` the messages' length, a range of a batch's messages in
+ /// their slots, their digests at `out`. Then it counts down `left`; the
+ /// stream keeps the bytes, `out`, and `left` in place until `left` is zero.
+ pub(crate) struct Task {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-016fck5s)
+error: this arithmetic operation will overflow
+    --> src/stream.rs:1127:33
+     |
+1127 |         let lens = [0, 1, 1000, PIECE - 1, PIECE, PIECE + 1, 2 * PIECE, 3 * PIECE + 7];
+     |                                 ^^^^^^^^^ attempt to compute `0_usize - 1_usize`, which would overflow
+     |
+     = note: `#[deny(arithmetic_overflow)]` on by default
+
+error: this operation will panic at runtime
+    --> src/stream.rs:1136:47
+     |
+1136 |         let after: std::vec::Vec<usize> = (0..2 * RING_BYTES / PIECE + 3).map(|i| [PIECE + 3, 700, 2 * PIECE][i % 3]).collect();
+     |                                               ^^^^^^^^^^^^^^^^^^^^^^ attempt to divide `4194304_usize` by zero
+     |
+     = note: `#[deny(unconditional_panic)]` on by default
+
+error: this operation will panic at runtime
+    --> src/stream.rs:1135:37
+     |
+1135 |         let entries = |kept: usize| kept / PIECE + usize::from(kept > 0);
+     |                                     ^^^^^^^^^^^^ attempt to divide `_` by zero
+
+error: this operation will panic at runtime
+    --> src/stream.rs:1248:30
+     |
+1248 |         let mut got = places(RING_BYTES / PIECE);
+     |                              ^^^^^^^^^^^^^^^^^^ attempt to divide `2097152_usize` by zero
+
+error: could not compile `blake3-servil` (lib test) due to 4 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

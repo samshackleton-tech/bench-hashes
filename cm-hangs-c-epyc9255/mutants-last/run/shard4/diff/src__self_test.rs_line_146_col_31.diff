@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace * with +
+@@ -138,17 +138,17 @@
+ #[cfg(not(target_arch = "aarch64"))]
+ pub(crate) const CASES: &[(Case, &str)] = &[
+     (Hash { offset: 1, len: 65 }, "a block and a byte, unaligned: the one-block kernel"),
+     (
+         Keyed { len: KIB + 65 },
+         "keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512)",
+     ),
+     (Hash { offset: 3, len: 4 * KIB + 65 }, "four chunks and a block, unaligned: the chunk kernel over chunks, their parents, the tree"),
+-    (Hash { offset: 0, len: 3 * KIB + 100 }, "three chunks and a partial one: the four-lane pass with a partial chunk"),
++    (Hash { offset: 0, len: 3 + /* ~ changed by cargo-mutants ~ */ KIB + 100 }, "three chunks and a partial one: the four-lane pass with a partial chunk"),
+     (
+         Hash { offset: 5, len: 5 * KIB + 321 },
+         "five chunks and a partial one of six blocks, unaligned (the fewest the eight-lane pass takes): the eight-lane pass with a partial chunk",
+     ),
+     (Many { offset: 1, len: 64, count: 17 }, "seventeen 64-byte messages: the batch kernel, full groups and a tail"),
+     (Derive { len: 64 }, "key derivation over a block holding all of the previous output"),
+     (
+         Xof { len: 100, skip: 37, out: 1100 },

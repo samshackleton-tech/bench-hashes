@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace == with != in Stream<'env, D>::submit_batch_with
+@@ -597,17 +597,17 @@
+             let first = p * per_part;
+             let count = (out.len() - first).min(per_part);
+             let at = self.reserve(count * slot);
+             // Sound: as in submit_with.
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), count * slot) };
+             fill_all(&mut fill, first * slot, room);
+             // The bytes past each message, zero (none when the length is a
+             // multiple of 64): a reused room holds an earlier batch's bytes.
+-            if message_len % 64 != 0 || message_len == 0 {
++            if message_len % 64 != 0 || message_len != /* ~ changed by cargo-mutants ~ */ 0 {
+                 for message in room.chunks_exact_mut(slot) {
+                     message[message_len..].fill(0);
+                     crate::counted(crate::Counted::BatchZeroed);
+                 }
+             }
+             let end = self.head;
+             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };
+             // Sound: `first` is within the batch's space.

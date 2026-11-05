@@ -1,0 +1,44 @@
+
+*** src/lib.rs:488:47: replace + with * in Hash::from_hex::hex_val
+
+*** mutation diff:
+--- src/lib.rs
++++ replace + with * in Hash::from_hex::hex_val
+@@ -480,17 +480,17 @@
+     /// error.
+     ///
+     /// Note that `Hash` also implements `FromStr`, so `Hash::from_hex("...")`
+     /// is equivalent to `"...".parse()`.
+     pub fn from_hex(hex: impl AsRef<[u8]>) -> Result<Self, HexError> {
+         fn hex_val(byte: u8) -> Result<u8, HexError> {
+             match byte {
+                 b'A'..=b'F' => Ok(byte - b'A' + 10),
+-                b'a'..=b'f' => Ok(byte - b'a' + 10),
++                b'a'..=b'f' => Ok(byte - b'a' * /* ~ changed by cargo-mutants ~ */ 10),
+                 b'0'..=b'9' => Ok(byte - b'0'),
+                 _ => Err(HexError(HexErrorInner::InvalidByte(byte))),
+             }
+         }
+         let hex_bytes: &[u8] = hex.as_ref();
+         if hex_bytes.len() != OUT_LEN * 2 {
+             return Err(HexError(HexErrorInner::InvalidLen(hex_bytes.len())));
+         }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-mkiuwr2e)
+error: this arithmetic operation will overflow
+   --> src/lib.rs:488:42
+    |
+488 |                 b'a'..=b'f' => Ok(byte - b'a' * /* ~ changed by cargo-mutants ~ */ 10),
+    |                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ attempt to compute `97_u8 * 10_u8`, which would overflow
+    |
+    = note: `#[deny(arithmetic_overflow)]` on by default
+
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

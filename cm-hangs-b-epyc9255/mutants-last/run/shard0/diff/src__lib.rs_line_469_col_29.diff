@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace >> with << in Hash::to_hex
+@@ -461,17 +461,17 @@
+     /// equality checking, so if you need to compare hashes, prefer the `Hash`
+     /// type.
+     ///
+     /// [`ArrayString`]: https://docs.rs/arrayvec/0.5.1/arrayvec/struct.ArrayString.html
+     pub fn to_hex(&self) -> ArrayString<{ 2 * OUT_LEN }> {
+         let mut s = ArrayString::new();
+         let table = b"0123456789abcdef";
+         for &b in self.0.iter() {
+-            s.push(table[(b >> 4) as usize] as char);
++            s.push(table[(b << /* ~ changed by cargo-mutants ~ */ 4) as usize] as char);
+             s.push(table[(b & 0xf) as usize] as char);
+         }
+         s
+     }
+ 
+     /// Decode a `Hash` from hexadecimal. Both uppercase and lowercase ASCII
+     /// bytes are supported.
+     ///

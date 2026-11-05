@@ -1,0 +1,21 @@
+--- src/io.rs
++++ replace + with * in copy_wide
+@@ -18,17 +18,17 @@
+         hasher.update(&small[..n]);
+         return read;
+     }
+     let mut buffer = std::vec![0; 1 << 20];
+     buffer[..n].copy_from_slice(&small);
+     let mut start = n;
+     loop {
+         let (filled, read) = fill(&mut reader, &mut buffer[start..]);
+-        let n = start + filled;
++        let n = start * /* ~ changed by cargo-mutants ~ */ filled;
+         hasher.update(&buffer[..n]);
+         read?;
+         if n < buffer.len() {
+             return Ok(());
+         }
+         // The loop's variant: a pass that goes on filled the buffer, so it
+         // read at least one byte; the reader has that many fewer.
+         assert!(filled > 0, "a full buffer with nothing read");

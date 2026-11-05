@@ -1,0 +1,53 @@
+
+*** src/incremental.rs:508:9: replace HasherCore::update -> &mut Self with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace HasherCore::update -> &mut Self with Box::leak(Box::new(Default::default()))
+@@ -500,17 +500,17 @@
+     }
+ 
+     pub(crate) fn final_output(&self) -> Output {
+         hasher::final_node(&self.kernels(self.chunk_state.platform, false), &self.chunk_state, &self.cv_stack)
+     }
+ 
+     /// The serial update: whole subtrees now, the last chunk kept.
+     pub(crate) fn update(&mut self, input: &[u8]) -> &mut Self {
+-        self.update_pooled(input, false)
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Requires that `len` more bytes after `count` fit the subtree that
+     /// set_input_offset started (max_subtree_len).
+     pub(crate) fn assert_room(&self, count: u64, len: usize) {
+         let input_offset = self.initial_chunk_counter * CHUNK_LEN as u64;
+         if let Some(max) = max_subtree_len(input_offset) {
+             assert!(len as u64 <= max - count, "the subtree starting at {} contains at most {} bytes (found {})", input_offset, max, count + len as u64,);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-js0xhh98)
+error[E0277]: the trait bound `incremental::HasherCore: Default` is not satisfied
+   --> src/incremental.rs:508:28
+    |
+508 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `incremental::HasherCore`
+   --> src/incremental.rs:51:1
+    |
+ 51 | pub(crate) struct HasherCore {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

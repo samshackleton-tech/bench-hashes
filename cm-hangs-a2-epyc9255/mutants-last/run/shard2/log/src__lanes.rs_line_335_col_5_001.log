@@ -1,0 +1,76 @@
+
+*** src/lanes.rs:335:5: replace cut_items -> Vec<Piece> with vec![Default::default()]
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace cut_items -> Vec<Piece> with vec![Default::default()]
+@@ -327,31 +327,17 @@
+     pool.run_job(work, pieces.len(), 0, pool_platform());
+ }
+ 
+ /// Cut `items` into consecutive ranges for `threads` threads, in order:
+ /// each range takes items until it holds [`next_piece_len`] of the bytes
+ /// that remain (one item at least, however long), so ranges shrink toward
+ /// the end as subtree pieces do.
+ fn cut_items(items: &[&[u8]], threads: usize) -> Vec<Piece> {
+-    let mut remaining: usize = items.iter().map(|i| i.len()).sum();
+-    let mut pieces = Vec::with_capacity(64);
+-    let mut start = 0;
+-    while start < items.len() {
+-        let want = next_piece_len(remaining, threads);
+-        let (mut end, mut bytes) = (start, 0);
+-        while end < items.len() && (bytes < want || end == start) {
+-            bytes += items[end].len();
+-            end += 1;
+-        }
+-        remaining -= bytes;
+-        pieces.push(Piece { offset: start, len: end - start });
+-        start = end;
+-    }
+-    pieces
++    vec![Default::default()] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Cut `count` messages in slots of `message_len` bytes into ranges for `threads`
+ /// threads, in order: each range holds about [`next_piece_len`] of the
+ /// bytes that remain, at least one message, so ranges shrink toward the
+ /// end as subtree pieces do.
+ fn cut_messages(count: usize, message_len: usize, threads: usize) -> Vec<Piece> {
+     let mut pieces = Vec::with_capacity(64);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-nntved6z)
+error[E0277]: the trait bound `Piece: Default` is not satisfied
+   --> src/lanes.rs:335:10
+    |
+335 |     vec![Default::default()] /* ~ changed by cargo-mutants ~ */
+    |          ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Piece`
+    |
+help: consider annotating `Piece` with `#[derive(Default)]`
+    |
+463 + #[derive(Default)]
+464 | struct Piece {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::Piece: Default` is not satisfied
+   --> src/lanes.rs:335:10
+    |
+335 |     vec![Default::default()] /* ~ changed by cargo-mutants ~ */
+    |          ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `lanes::Piece`
+    |
+help: consider annotating `lanes::Piece` with `#[derive(Default)]`
+    |
+463 + #[derive(Default)]
+464 | struct Piece {
+    |
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

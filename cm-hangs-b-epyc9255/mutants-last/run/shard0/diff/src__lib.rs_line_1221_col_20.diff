@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace == with != in batch_after_pause
+@@ -1213,17 +1213,17 @@
+     if matches!(platform, Platform::SME2) && count >= many::ONE_BLOCK_PAD_MIN {
+         sme2::prefetch_code();
+         return false;
+     }
+     let _ = platform;
+     if !neon_hybrid::sha3_detected() {
+         return false;
+     }
+-    if message_len == 0 || !(1..=PAIRS_AFTER_PAUSE_UPTO).contains(&count) {
++    if message_len != /* ~ changed by cargo-mutants ~ */ 0 || !(1..=PAIRS_AFTER_PAUSE_UPTO).contains(&count) {
+         neon_hybrid::prefetch_message_code(count);
+         return false;
+     }
+     many::assert_slots(input, message_len, count);
+     neon_hybrid::prefetch_pair_code();
+     let mut table: [&[u8; BLOCK_LEN]; PAIRS_AFTER_PAUSE_UPTO] = [&[0; BLOCK_LEN]; PAIRS_AFTER_PAUSE_UPTO];
+     for (slot, message) in table.iter_mut().zip(input.chunks_exact(BLOCK_LEN)) {
+         *slot = message.try_into().unwrap();

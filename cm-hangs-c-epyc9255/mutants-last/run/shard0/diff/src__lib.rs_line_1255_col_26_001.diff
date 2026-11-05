@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace / with * in prefetch_kernels
+@@ -1247,17 +1247,17 @@
+         return;
+     }
+     // Below 16 chunks the SME2 platform runs the hybrids too.
+     #[cfg(blake3_sme2)]
+     let hybrids = matches!(platform, Platform::NEON | Platform::SME2);
+     #[cfg(not(blake3_sme2))]
+     let hybrids = matches!(platform, Platform::NEON);
+     if hybrids && neon_hybrid::sha3_detected() {
+-        let whole = (len / CHUNK_LEN).min(16);
++        let whole = (len * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN).min(16);
+         neon_hybrid::prefetch_tree_code(whole, if whole == 16 { 0 } else { len % CHUNK_LEN });
+     }
+ }
+ 
+ /// Prefetch the code a fresh Hasher's update of `len` bytes runs: the
+ /// subtrees its loop cuts (hasher::subtree_len from counter 0, up to the last
+ /// chunk, which waits in the chunk state), each one's kernels.
+ #[cfg(all(blake3_neon, feature = "std"))]

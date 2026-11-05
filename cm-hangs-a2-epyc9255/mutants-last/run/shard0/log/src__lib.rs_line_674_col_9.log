@@ -1,0 +1,58 @@
+
+*** src/lib.rs:674:9: replace <impl Clone for ChunkState>::clone -> Self with Default::default()
+
+*** mutation diff:
+--- src/lib.rs
++++ replace <impl Clone for ChunkState>::clone -> Self with Default::default()
+@@ -666,25 +666,17 @@
+     #[inline(always)]
+     fn compress_blocks(&self, cv: &mut CVWords, blocks: &[u8], count: usize, counter: u64, flags: u8, flags_start: u8) {
+         Platform::compress_blocks(self, cv, blocks, count, counter, flags, flags_start)
+     }
+ }
+ 
+ impl Clone for ChunkState {
+     fn clone(&self) -> Self {
+-        hasher::ChunkState {
+-            buf: self.buf,
+-            cv: self.cv,
+-            chunk_counter: self.chunk_counter,
+-            buf_len: self.buf_len,
+-            blocks_compressed: self.blocks_compressed,
+-            flags: self.flags,
+-            platform: self.platform,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl ChunkState {
+     // Try to avoid buffering as much as possible, by compressing directly from
+     // the input slice when full blocks are available (src/hasher.rs).
+     #[inline(always)]
+     fn update(&mut self, input: &[u8]) -> &mut Self {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-mkiuwr2e)
+error[E0277]: the trait bound `hasher::ChunkState<platform::Platform>: Default` is not satisfied
+   --> src/lib.rs:674:9
+    |
+674 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::ChunkState<platform::Platform>`
+   --> src/hasher.rs:303:1
+    |
+303 | pub struct ChunkState<P> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace | with ^ in hash_all_at_once
+@@ -933,17 +933,17 @@
+ 
+     // Otherwise construct an Output object from the parent node returned by
+     // compress_subtree_to_parent_node().
+     hasher::Output {
+         input_chaining_value: *key,
+         block: compress_subtree_to_parent_node(input, 0, key, chunk_counter, flags, platform),
+         block_len: BLOCK_LEN as u8,
+         counter: 0,
+-        flags: flags | PARENT,
++        flags: flags ^ /* ~ changed by cargo-mutants ~ */ PARENT,
+         platform,
+     }
+ }
+ 
+ /// Run the startup self-test and detect the CPU: every program calls this
+ /// (or [`initialize_multithreaded`]) once, before any other call of this
+ /// crate, and a call before it panics. Under 0.2 ms, once per process
+ /// (see the crate's documentation); later calls return at once.

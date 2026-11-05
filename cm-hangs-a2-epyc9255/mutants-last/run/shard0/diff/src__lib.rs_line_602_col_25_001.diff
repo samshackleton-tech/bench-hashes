@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace < with > in <impl fmt::Display for HexError>::fmt
+@@ -594,17 +594,17 @@
+     InvalidByte(u8),
+     InvalidLen(usize),
+ }
+ 
+ impl fmt::Display for HexError {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         match self.0 {
+             HexErrorInner::InvalidByte(byte) => {
+-                if byte < 128 {
++                if byte > /* ~ changed by cargo-mutants ~ */ 128 {
+                     write!(f, "invalid hex character: {:?}", byte as char)
+                 } else {
+                     write!(f, "invalid hex character: 0x{:x}", byte)
+                 }
+             }
+             HexErrorInner::InvalidLen(len) => {
+                 write!(f, "expected 64 hex bytes, received {}", len)
+             }

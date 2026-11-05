@@ -1,0 +1,58 @@
+--- src/self_test.rs
++++ replace chunk_values -> usize with 1
+@@ -347,54 +347,17 @@
+         to.copy_from_slice(digest);
+     }
+     out.len()
+ }
+ 
+ /// The chaining values of the whole chunks in `input`, at counter 1 on,
+ /// keyed by `key` (see Case::ChunkValues), into `out`.
+ fn chunk_values(platform: Platform, input: &[u8], key: &[u8; 32], out: &mut [u8]) -> usize {
+-    let key = crate::platform::words_from_le_bytes_32(key);
+-    let mut chunks = arrayvec::ArrayVec::<&[u8; crate::CHUNK_LEN], 18>::new();
+-    chunks.extend(input.chunks_exact(crate::CHUNK_LEN).map(|c| c.try_into().expect("whole chunks")));
+-    let out = &mut out[..chunks.len() * crate::OUT_LEN];
+-    #[cfg(blake3_sme2)]
+-    if chunks.len() % crate::sme2::HYBRID_GROUP == 0 {
+-        let turn = crate::platform::Sme2Turn::take(platform, true);
+-        if matches!(turn.platform(), Platform::SME2) {
+-            let flags = crate::KEYED_HASH as u32 | (crate::CHUNK_START as u32) << 8 | (crate::CHUNK_END as u32) << 16;
+-            crate::ran_kernel(crate::sme2::ffi::blake3_servil_sme2x2_hash_chunks_512 as *const ());
+-            // Sound: SME2 was detected, and the table holds 18 chunk pointers per group.
+-            let lanes = unsafe {
+-                crate::sme2::ffi::blake3_servil_sme2x2_hash_chunks_512(
+-                    chunks.as_ptr() as *const *const u8,
+-                    key.as_ptr(),
+-                    1,
+-                    flags,
+-                    out.as_mut_ptr(),
+-                    (chunks.len() / crate::sme2::HYBRID_GROUP) as u64,
+-                )
+-            };
+-            assert_eq!(lanes, 16, "SME2 streaming vector length changed under us");
+-            return out.len();
+-        }
+-    }
+-    // A group of sixteen: on SME2 the kernel with a counter per group (as
+-    // Hasher::update_each hashes held groups).
+-    #[cfg(all(blake3_sme2, feature = "std"))]
+-    if chunks.len() == crate::sme2::GROUP {
+-        let turn = crate::platform::Sme2Turn::take(platform, true);
+-        if matches!(turn.platform(), Platform::SME2) {
+-            // Sound: SME2 was detected.
+-            unsafe { crate::sme2::hash_groups_at(&chunks, &[1], &key, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, out) };
+-            return out.len();
+-        }
+-    }
+-    platform.hash_many(&chunks, &key, 1, crate::IncrementCounter::Yes, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, out);
+-    out.len()
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Run every case and panic on the first that differs from the reference;
+ /// how many cases ran (CASES and the selected platform's extra entries).
+ fn run() -> usize {
+     // A kernel's panic, as a test plants it: the guard in ensure_slow
+     // stops the process for it.
+     #[cfg(test)]

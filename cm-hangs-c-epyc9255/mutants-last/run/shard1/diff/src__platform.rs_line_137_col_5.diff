@@ -1,0 +1,29 @@
+--- src/platform.rs
++++ replace x86_platform -> Option<Platform> with None
+@@ -129,25 +129,17 @@
+     #[cfg(not(test))]
+     panic!("blake3-servil: call blake3_servil::initialize() once, before any other call: it runs the startup self-test and detects the CPU")
+ }
+ 
+ /// x86-64's kernels for a CPU with the given features: the widest it
+ /// runs, or None for a CPU without SSE4.1, which is not supported.
+ #[cfg(all(target_arch = "x86_64", blake3_sse41_ffi, blake3_avx2_ffi, blake3_avx512_ffi))]
+ const fn x86_platform(avx512: bool, avx2: bool, sse41: bool) -> Option<Platform> {
+-    if avx512 {
+-        Some(Platform::AVX512)
+-    } else if avx2 {
+-        Some(Platform::AVX2)
+-    } else if sse41 {
+-        Some(Platform::SSE41)
+-    } else {
+-        None
+-    }
++    None /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl Platform {
+     /// The platform [`initialize`](crate::initialize) detected for this
+     /// process. The caller must have called `initialize` (or
+     /// `initialize_multithreaded`) before: a call before it panics, in every
+     /// build. The check costs nothing extra: it is the load of the platform,
+     /// which every call makes anyway.

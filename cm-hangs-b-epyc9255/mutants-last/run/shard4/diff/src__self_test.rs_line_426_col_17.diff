@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace += with -= in run
+@@ -418,17 +418,17 @@
+             }
+         },
+     );
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     if crate::platform::wide_avx512() {
+         // Sound: the detected platform has the wide kernels' ISA, and
+         // hash_many dispatches to them (only then does startup check them). Their
+         // wrapper checks its bounds, and builds all arguments on the stack.
+-        checked += unsafe { crate::avx512_32::self_test(&previous) };
++        checked -= /* ~ changed by cargo-mutants ~ */ unsafe { crate::avx512_32::self_test(&previous) };
+     }
+     let _ = previous;
+     checked
+ }
+ 
+ /// Stop when this binary was compiled to assume an instruction that this
+ /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT
+ /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),

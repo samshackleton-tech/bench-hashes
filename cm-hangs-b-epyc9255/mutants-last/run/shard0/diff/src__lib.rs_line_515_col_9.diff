@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace <impl From<Hash> for [u8; OUT_LEN]>::from -> Self with Default::default()
+@@ -507,17 +507,17 @@
+     fn from(bytes: [u8; OUT_LEN]) -> Self {
+         Self::from_bytes(bytes)
+     }
+ }
+ 
+ impl From<Hash> for [u8; OUT_LEN] {
+     #[inline]
+     fn from(hash: Hash) -> Self {
+-        hash.0
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl core::str::FromStr for Hash {
+     type Err = HexError;
+ 
+     fn from_str(s: &str) -> Result<Self, Self::Err> {
+         Hash::from_hex(s)

@@ -1,0 +1,23 @@
+--- src/incremental.rs
++++ replace Hasher::reset -> &mut Self with Box::leak(Box::new(Default::default()))
+@@ -236,19 +236,17 @@
+         Self::from_core(HasherCore::new_internal(&key, flags))
+     }
+ 
+     /// Reset the `Hasher` to its initial state.
+     ///
+     /// This is functionally the same as overwriting the `Hasher` with a new
+     /// one, using the same key or context string if any.
+     pub fn reset(&mut self) -> &mut Self {
+-        self.core.reset();
+-        self.staged = 0;
+-        self
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Add the message's next piece, of any length, on the calling thread.
+     ///
+     /// **Speed**: pieces of any size hash at nearly the speed of whole
+     /// buffers: short pieces are copied into the `Hasher` until it holds
+     /// 16 KiB, which then hash at once. Pieces of 16 KiB and more, starting
+     /// at a multiple of 16 KiB of the message, skip the copy (about 5% of the

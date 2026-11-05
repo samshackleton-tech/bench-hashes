@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace + with *
+@@ -134,17 +134,17 @@
+ /// chunks and a partial one (ffi_partial: four lanes and eight), the tree,
+ /// the Hasher, a batch and its tail, and the three modes. The logic around
+ /// the kernels is the tests' and the proofs' to establish; this checks the
+ /// build and the machine running it.
+ #[cfg(not(target_arch = "aarch64"))]
+ pub(crate) const CASES: &[(Case, &str)] = &[
+     (Hash { offset: 1, len: 65 }, "a block and a byte, unaligned: the one-block kernel"),
+     (
+-        Keyed { len: KIB + 65 },
++        Keyed { len: KIB * /* ~ changed by cargo-mutants ~ */ 65 },
+         "keyed, a chunk and a block and a byte (the shortest the one-chunk pass takes): the four-lane pass with a partial chunk (AVX2, AVX-512)",
+     ),
+     (Hash { offset: 3, len: 4 * KIB + 65 }, "four chunks and a block, unaligned: the chunk kernel over chunks, their parents, the tree"),
+     (Hash { offset: 0, len: 3 * KIB + 100 }, "three chunks and a partial one: the four-lane pass with a partial chunk"),
+     (
+         Hash { offset: 5, len: 5 * KIB + 321 },
+         "five chunks and a partial one of six blocks, unaligned (the fewest the eight-lane pass takes): the eight-lane pass with a partial chunk",
+     ),

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace < with == in cut_items
+@@ -333,17 +333,17 @@
+ /// the end as subtree pieces do.
+ fn cut_items(items: &[&[u8]], threads: usize) -> Vec<Piece> {
+     let mut remaining: usize = items.iter().map(|i| i.len()).sum();
+     let mut pieces = Vec::with_capacity(64);
+     let mut start = 0;
+     while start < items.len() {
+         let want = next_piece_len(remaining, threads);
+         let (mut end, mut bytes) = (start, 0);
+-        while end < items.len() && (bytes < want || end == start) {
++        while end == /* ~ changed by cargo-mutants ~ */ items.len() && (bytes < want || end == start) {
+             bytes += items[end].len();
+             end += 1;
+         }
+         remaining -= bytes;
+         pieces.push(Piece { offset: start, len: end - start });
+         start = end;
+     }
+     pieces

@@ -1,0 +1,52 @@
+
+*** src/hasher.rs:244:9: replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::new_chunk -> ChunkState<P> with ChunkState::from(Default::default())
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::new_chunk -> ChunkState<P> with ChunkState::from(Default::default())
+@@ -236,17 +236,17 @@
+     fn parent(&self, left: &Cv, right: &Cv) -> Cv {
+         parent_output(left, right, self.key, self.flags, self.platform).chaining_value()
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H: Hooks> Feed<ChunkState<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn new_chunk(&self, counter: u64) -> ChunkState<P> {
+-        ChunkState::new(self.key, counter, self.flags, self.platform)
++        ChunkState::from(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn chunk_cv(&self, chunk: &ChunkState<P>) -> Cv {
+         chunk.output().chaining_value()
+     }
+ 
+     #[inline(always)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-fb6vadgh)
+error[E0277]: the trait bound `hasher::ChunkState<P>: Default` is not satisfied
+   --> src/hasher.rs:244:26
+    |
+244 |         ChunkState::from(Default::default()) /* ~ changed by cargo-mutants ~ */
+    |                          ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::ChunkState<P>`
+   --> src/hasher.rs:303:1
+    |
+303 | pub struct ChunkState<P> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

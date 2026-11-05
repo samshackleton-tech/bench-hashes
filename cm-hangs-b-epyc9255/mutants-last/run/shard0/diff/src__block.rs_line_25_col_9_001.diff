@@ -1,0 +1,21 @@
+--- src/block.rs
++++ replace Block::bytes -> &[u8] with Vec::leak(vec![0])
+@@ -17,17 +17,17 @@
+ 
+ impl Block {
+     /// A block of zeros.
+     pub const ZERO: Block = Block([0; BLOCK_LEN]);
+ 
+     /// The blocks' bytes, in order.
+     pub fn bytes(blocks: &[Block]) -> &[u8] {
+         // Sound: a Block is 64 bytes with no padding, and u8 needs no alignment.
+-        unsafe { core::slice::from_raw_parts(blocks.as_ptr().cast(), blocks.len() * BLOCK_LEN) }
++        Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The blocks' bytes, in order, for writing.
+     pub fn bytes_mut(blocks: &mut [Block]) -> &mut [u8] {
+         // Sound: as in bytes, and the borrow is exclusive.
+         unsafe { core::slice::from_raw_parts_mut(blocks.as_mut_ptr().cast(), blocks.len() * BLOCK_LEN) }
+     }
+ 

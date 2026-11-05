@@ -1,0 +1,34 @@
+--- src/platform.rs
++++ replace Platform::compress_xof -> [u8; 64] with [0; 64]
+@@ -283,30 +283,17 @@
+             for block in blocks[..count * BLOCK_LEN].chunks_exact(BLOCK_LEN) {
+                 self.compress_in_place(cv, block.try_into().unwrap(), BLOCK_LEN as u8, counter, block_flags);
+                 block_flags = flags;
+             }
+         }
+     }
+ 
+     pub fn compress_xof(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 | Platform::AVX2 => unsafe { crate::sse41::compress_xof(cv, block, block_len, counter, flags) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::compress_xof(cv, block, block_len, counter, flags) },
+-            // The one-block extended-output kernel (neon_hybrid::xof_block).
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => crate::neon_hybrid::xof_block(cv, block, block_len, counter, flags),
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => crate::neon_hybrid::xof_block(cv, block, block_len, counter, flags),
+-        }
++        [0; 64] /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     // IMPLEMENTATION NOTE
+     // ===================
+     // hash_many() applies two optimizations. The critically important
+     // optimization is the high-performance parallel SIMD hashing mode,
+     // described in detail in the spec. This more than doubles throughput per
+     // thread. Another optimization is keeping the state vectors transposed

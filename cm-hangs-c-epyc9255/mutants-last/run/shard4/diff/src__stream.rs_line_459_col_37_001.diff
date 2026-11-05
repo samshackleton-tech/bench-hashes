@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with / in Stream<'env, D>::submit_long
+@@ -451,17 +451,17 @@
+ 
+     /// `submit_with` for a long message (LONG bytes or more): its pieces in
+     /// the long ring (out of line: the short messages' path keeps only the
+     /// length's test).
+     #[inline(never)]
+     fn submit_long(&mut self, len: usize, fill: &mut impl FnMut(usize, &mut [u8]) -> usize, out: *mut Hash) {
+         let pieces = len.div_ceil(PIECE);
+         for i in 0..pieces {
+-            let part_len = (len - i * PIECE).min(PIECE);
++            let part_len = (len - i / /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE);
+             let at = self.reserve_long(part_len);
+             // Sound: [at, at + part_len) is reserved and free in the long
+             // ring (no entry in flight holds it), and `&mut self` keeps
+             // every other writer out.
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.long_at(at), part_len) };
+             fill_all(fill, i * PIECE, room);
+             // No bytes of the 2 MiB ring: its head is the piece's end there.
+             // Not through add_part: one more caller there, and the compiler

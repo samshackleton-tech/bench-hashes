@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace == with != in hash_many_on
+@@ -63,17 +63,17 @@
+         assert_slots(input, len, outputs.len());
+         for (messages, digests) in input.chunks(BLOCK_LEN * TABLE).zip(outputs.chunks_mut(TABLE)) {
+             hash_run::<{ BLOCK_LEN }>(messages, key, flags, digests, platform);
+         }
+         return;
+     }
+     let slot = slot_len(len);
+     assert_slots(input, len, outputs.len());
+-    if len == 0 {
++    if len != /* ~ changed by cargo-mutants ~ */ 0 {
+         outputs.fill(*crate::hash_serial_on(&[], key, flags, platform).as_bytes());
+         return;
+     }
+     #[cfg(blake3_sme2)]
+     if chunked(len) && platform_is_sme2(platform) && (outputs.len() >= 16 || outputs.len() >= sme2_chunked_min(len)) {
+         return hash_chunked(input, len, key, flags, outputs, platform);
+     }
+     #[cfg(blake3_neon)]

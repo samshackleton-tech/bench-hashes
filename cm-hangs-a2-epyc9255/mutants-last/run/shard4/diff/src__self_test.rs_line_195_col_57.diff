@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace ^ with | in fold
+@@ -187,17 +187,17 @@
+ }
+ 
+ /// The context derive_key uses.
+ pub(crate) const CONTEXT: &str = "blake3-servil self-test";
+ 
+ /// A case's outputs as one 64-bit word: FNV-1a over their bytes. It needs
+ /// no hash of its own; a wrong output changes it but for a 2^-64 chance.
+ pub(crate) fn fold(bytes: &[u8]) -> u64 {
+-    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, &b| (h ^ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3))
++    bytes.iter().fold(0xcbf2_9ce4_8422_2325, |h, &b| (h | /* ~ changed by cargo-mutants ~ */ u64::from(b)).wrapping_mul(0x0000_0100_0000_01b3))
+ }
+ 
+ /// Run the cases in order, chained: before each, the first 32 bytes of the
+ /// previous case's output (zeros before the first) overwrite the start of
+ /// its input (of every message, in a batch), as much as it reads, and are
+ /// the key a keyed case takes; so every output depends on every earlier
+ /// one. `outputs` hashes one case into its buffer and returns how many
+ /// bytes it wrote; `check` sees each case's fold as it comes. Returns the

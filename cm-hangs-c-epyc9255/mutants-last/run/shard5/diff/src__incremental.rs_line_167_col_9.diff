@@ -1,0 +1,49 @@
+--- src/incremental.rs
++++ replace Hasher::gather_part -> &'a[u8] with Vec::leak(Vec::new())
+@@ -159,45 +159,17 @@
+         self
+     }
+ 
+     /// [`gather`](Hasher::gather), but with `hold`, a stage that fills a
+     /// whole group (from offset zero) is kept for the caller to hash with
+     /// others' (`held_group`), and the rest of `input`
+     /// returned; else nothing is left.
+     pub(crate) fn gather_part<'a>(&mut self, mut input: &'a [u8], pooled: bool, hold: bool) -> &'a [u8] {
+-        self.core.assert_room(self.count(), input.len());
+-        while !input.is_empty() {
+-            // Whole groups, and a fresh hasher's first chunk (which hashes
+-            // serially either way), skip the stage.
+-            if self.staged == 0 && (input.len() >= STAGE_LEN || self.core.count() + input.len() as u64 <= CHUNK_LEN as u64) {
+-                self.core.update_pooled(input, pooled);
+-                return &[];
+-            }
+-            let at = (self.core.initial_chunk_counter * CHUNK_LEN as u64 + self.count()) % STAGE_LEN as u64;
+-            let to_boundary = STAGE_LEN - at as usize;
+-            let take = cmp::min(to_boundary, input.len());
+-            // The loop's variant: every pass stages at least one byte of
+-            // the input, which is not empty (`at` is below STAGE_LEN).
+-            assert!(take > 0, "the stage took nothing");
+-            self.stage(&input[..take]);
+-            input = &input[take..];
+-            if take < to_boundary {
+-                return &[];
+-            }
+-            if hold && self.held_group().is_some() {
+-                return input;
+-            }
+-            let staged = core::mem::replace(&mut self.staged, 0);
+-            // Sound: the first `staged` bytes were written; the core reads
+-            // them before the stage is written again.
+-            let bytes = unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, staged) };
+-            self.core.update_pooled(bytes, pooled);
+-        }
+-        &[]
++        Vec::leak(Vec::new()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// A whole group in the stage, from offset zero: its first chunk's
+     /// counter and its bytes.
+     #[cfg(feature = "std")]
+     pub(crate) fn held_group(&self) -> Option<(u64, &[u8; STAGE_LEN])> {
+         (self.staged == STAGE_LEN && self.core.initial_chunk_counter == 0)
+             .then(|| (self.core.count() / CHUNK_LEN as u64, self.staged_bytes().try_into().unwrap()))

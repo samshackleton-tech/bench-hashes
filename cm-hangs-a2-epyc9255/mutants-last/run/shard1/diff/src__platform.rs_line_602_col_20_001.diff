@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace & with ^ in sse41_detected
+@@ -594,17 +594,17 @@
+ pub fn sse41_detected() -> bool {
+     // A build for CPUs that have it (`-C target-cpu=...` or
+     // `-C target-feature=...`) needs no check: run elsewhere, it stops
+     // at its first such instruction (SIGILL), in the startup self-test.
+     if cfg!(target_feature = "sse4.1") {
+         return true;
+     }
+ 
+-    x86_features() & x86_bits::SSE41 != 0
++    x86_features() ^ /* ~ changed by cargo-mutants ~ */ x86_bits::SSE41 != 0
+ }
+ 
+ /// The core's virtual counter (CNTVCT_EL0, which user code reads
+ /// directly): control, not measurement.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ #[inline]
+ pub(crate) fn counter() -> u64 {
+     // The tests' clock, where a test set one: a pause is then exact, never

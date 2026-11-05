@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace == with != in hash_held
+@@ -143,17 +143,17 @@
+ /// Hash the whole groups `held` names, one in each of those hashers'
+ /// stages, together where they share a key and flags, and pass each
+ /// group's subtree to its hasher's core.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+     use crate::{BLOCK_LEN, PARENT};
+     let Some(&first) = held.first() else { return };
+     let (key, flags) = (hashers[first].core.key, hashers[first].core.chunk_state.flags);
+-    let (alike, others): (Vec<usize>, Vec<usize>) = held.iter().partition(|&&i| hashers[i].core.key == key && hashers[i].core.chunk_state.flags == flags);
++    let (alike, others): (Vec<usize>, Vec<usize>) = held.iter().partition(|&&i| hashers[i].core.key == key && hashers[i].core.chunk_state.flags != /* ~ changed by cargo-mutants ~ */ flags);
+     let turn = crate::platform::Sme2Turn::take(hashers[first].core.chunk_state.platform, true);
+     let platform = turn.platform();
+     let n = alike.len();
+     let per = crate::STAGE_LEN / CHUNK_LEN;
+     let chunks = n * per;
+     let mut level = vec![0u8; chunks * OUT_LEN];
+     let refs: Vec<&[u8; CHUNK_LEN]> =
+         alike.iter().flat_map(|&i| hashers[i].held_group().expect("a held group").1.chunks_exact(CHUNK_LEN)).map(|c| c.try_into().unwrap()).collect();

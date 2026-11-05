@@ -1,0 +1,27 @@
+--- src/tree.rs
++++ replace <impl Kernels for PlatformKernels<'_>>::children -> Option<[Cv; 2]> with None
+@@ -159,23 +159,17 @@
+         None
+     }
+ 
+     #[inline(always)]
+     #[allow(unused_variables)]
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> Option<[Cv; 2]> {
+         // Whole subtrees of 32 KiB to 1 MiB on SME2: the flat walk down to
+         // the two children, SME2 alone (see sme2::compress_subtree_flat_to_parent).
+-        #[cfg(blake3_sme2)]
+-        if matches!(self.platform, Platform::SME2) && crate::sme2::flat_takes(input.len()) {
+-            // Safe: the SME2 platform is selected only where the CPU has it.
+-            let block = unsafe { crate::sme2::compress_subtree_flat_to_parent(input, ahead, self.key, counter, self.flags) };
+-            return Some([block[..OUT_LEN].try_into().unwrap(), block[OUT_LEN..].try_into().unwrap()]);
+-        }
+-        None
++        None /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn chunk_root(&self, input: &[u8]) -> Cv {
+         // The scalar kernel, on every AArch64 core (crate::hash_one_chunk_root).
+         #[cfg(blake3_neon)]
+         return crate::hash_one_chunk_root(input, self.key, self.flags).0;
+         // One kernel call that keeps off the stack (src/ffi_chunk_root.rs):

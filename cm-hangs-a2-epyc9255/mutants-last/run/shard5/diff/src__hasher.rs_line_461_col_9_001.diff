@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace CvStack::array -> Option<&[Cv; DEPTH]> with Some(Box::leak(Box::new([Default::default(); DEPTH])))
+@@ -453,17 +453,17 @@
+         self.chunk_counter += chunks
+     }
+ }
+ 
+ #[cfg(all(test, feature = "zeroize"))]
+ impl CvStack {
+     /// The array, for the zeroize test.
+     pub fn array(&self) -> Option<&[Cv; DEPTH]> {
+-        self.cvs.as_ref()
++        Some(Box::leak(Box::new([Default::default(); DEPTH]))) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl zeroize::Zeroize for CvStack {
+     fn zeroize(&mut self) {
+         if let Some(cvs) = &mut self.cvs {
+             cvs.zeroize();

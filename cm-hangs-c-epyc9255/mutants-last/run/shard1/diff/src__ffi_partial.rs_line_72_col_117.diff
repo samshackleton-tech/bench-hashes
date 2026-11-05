@@ -1,0 +1,21 @@
+--- src/ffi_partial.rs
++++ replace >> with << in hash_chunks_with_partial
+@@ -64,17 +64,17 @@
+     let last_len = (partial.len() - 64 * last) as u32;
+     let flags = flags as u32;
+     let mut p = Params::<W> {
+         msg: [padded.as_ptr(); W],
+         key: core::array::from_fn(|i| [key[i]; W]),
+         iv: core::array::from_fn(|i| [IV[i]; W]),
+         rot16: rotation(2),
+         rot8: rotation(1),
+-        ctr: [core::array::from_fn(|j| (counter + j as u64) as u32), core::array::from_fn(|j| ((counter + j as u64) >> 32) as u32)],
++        ctr: [core::array::from_fn(|j| (counter + j as u64) as u32), core::array::from_fn(|j| ((counter + j as u64) << /* ~ changed by cargo-mutants ~ */ 32) as u32)],
+         lens: [[64; W]; 16],
+         flags: [[flags; W]; 16],
+         last: core::array::from_fn(|i| if i == 0 { 64 * last as u32 } else { 0 }),
+         h: [[0; W]; 8],
+         snap: [[0; W]; 8],
+     };
+     // Every block is whole and carries `flags`, but for three places: each
+     // lane's first block starts a chunk, its sixteenth ends one, and the

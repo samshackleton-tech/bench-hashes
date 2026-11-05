@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with + in initialize
+@@ -665,17 +665,17 @@
+     assert_eq!(unsafe { pthread_atfork(None, None, Some(mark_forked)) }, 0, "registering the fork handler");
+     if sme2 {
+         std::thread::Builder::new().name("blake3-sme2".into()).spawn(sme2_main).expect("spawning the SME2 thread");
+     }
+     std::thread::Builder::new()
+         .name("blake3-worker-1".into())
+         .spawn(move || {
+             for worker in 2..threads {
+-                std::thread::Builder::new().name(format!("blake3-worker-{worker}")).spawn(move || worker_main(worker - 1)).expect("spawning a BLAKE3 worker");
++                std::thread::Builder::new().name(format!("blake3-worker-{worker}")).spawn(move || worker_main(worker + /* ~ changed by cargo-mutants ~ */ 1)).expect("spawning a BLAKE3 worker");
+             }
+             worker_main(0)
+         })
+         .expect("spawning a BLAKE3 worker");
+ }
+ 
+ /// The contract's check at every multithreaded call and stream: a call
+ /// before [`crate::initialize_multithreaded`] panics, in every build. It

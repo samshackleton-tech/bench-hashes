@@ -1,0 +1,22 @@
+--- src/hasher.rs
++++ replace push with ()
+@@ -136,18 +136,17 @@
+         (len as u64).min(so_far & so_far.wrapping_neg()) as usize
+     }
+ }
+ 
+ /// `cv`, the subtree from chunk `counter`, onto the stack: the stack's
+ /// values merged to the subtrees before it first (lazily: the top value
+ /// may still merge with the next).
+ pub fn push<C: Chunk, K: Feed<C>>(k: &K, stack: &mut CvStack, initial: u64, cv: Cv, counter: u64) {
+-    stack.merge(k, ones(counter - initial));
+-    stack.push(cv);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The partial chunk filled from `input`; when more input follows, the full
+ /// chunk goes onto the stack and a new chunk begins. Returns the rest.
+ pub fn fill<'a, C: Chunk, K: Feed<C>>(k: &K, chunk: &mut C, stack: &mut CvStack, initial: u64, input: &'a [u8]) -> &'a [u8] {
+     if chunk.len() == 0 {
+         return input;
+     }

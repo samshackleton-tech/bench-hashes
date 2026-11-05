@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with & in subtree_across
+@@ -381,17 +381,17 @@
+     subtree_across(cvs, first, split, count, key, flags, platform, false);
+     subtree_across(cvs, first + split, n - split, count, key, flags, platform, false);
+     let mut blocks = [[0u8; BLOCK_LEN]; 16];
+     for m in 0..count {
+         blocks[m][..OUT_LEN].copy_from_slice(&cvs[first][m]);
+         blocks[m][OUT_LEN..].copy_from_slice(&cvs[first + split][m]);
+     }
+     let lanes: arrayvec::ArrayVec<&[u8; BLOCK_LEN], 16> = blocks[..count].iter().collect();
+-    let parent_flags = flags | crate::PARENT | if top { ROOT } else { 0 };
++    let parent_flags = flags | crate::PARENT & /* ~ changed by cargo-mutants ~ */ if top { ROOT } else { 0 };
+     platform.hash_many(&lanes, key, 0, IncrementCounter::No, parent_flags, 0, 0, cvs[first][..count].as_flattened_mut());
+ }
+ 
+ /// Whether a batch of `count` messages of `len` bytes runs SME2 kernels
+ /// (so takes the SME2 turn): sixteen messages or more; one-block messages
+ /// from ONE_BLOCK_PAD_MIN; messages of up to a chunk from SME2_TAIL_MIN;
+ /// messages of 2 to 15 chunks from sme2_chunked_min; and any message long
+ /// enough for hash() to take the turn itself.

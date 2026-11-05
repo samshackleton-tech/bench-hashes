@@ -1,0 +1,24 @@
+--- src/platform.rs
++++ delete match arm Platform::AVX512 in Platform::xof_many
+@@ -357,20 +357,17 @@
+     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+         debug_assert_eq!(0, out.len() % BLOCK_LEN, "whole blocks only");
+         if out.is_empty() {
+             // The current assembly implementation always outputs at least 1 block.
+             return;
+         }
+         match self {
+             // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(unix)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::xof_many(cv, block, block_len, counter, flags, out) },
++             /* ~ changed by cargo-mutants ~ */
+             _ => {
+                 // On SME2, whole groups of sixteen blocks on the extended-
+                 // output kernel, under the process's turn; the rest below.
+                 #[cfg(blake3_sme2)]
+                 let out = {
+                     let turn = Sme2Turn::take(*self, out.len() >= 16 * BLOCK_LEN);
+                     let done = if matches!(turn.platform(), Platform::SME2) {
+                         // Safe: the turn's platform is SME2 only where detect() found it.

@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace / with * in many
+@@ -330,17 +330,17 @@
+     out.len()
+ }
+ 
+ /// hash_many() of `messages`, `len` bytes each, laid out in slots `offset`
+ /// bytes into a buffer of its own; the digests in `out`.
+ #[inline(never)]
+ fn many(platform: Platform, messages: &[u8], offset: usize, len: usize, out: &mut [u8]) -> usize {
+     let slot = crate::many::slot_len(len);
+-    let count = out.len() / crate::OUT_LEN;
++    let count = out.len() * /* ~ changed by cargo-mutants ~ */ crate::OUT_LEN;
+     let mut buffer = [0u8; BATCH_LEN];
+     let batch = &mut buffer[offset..][..slot * count];
+     for (message, bytes) in batch.chunks_mut(slot).zip(messages.chunks(len.max(1))) {
+         message[..len].copy_from_slice(&bytes[..len]);
+     }
+     let mut digests = [[0u8; crate::OUT_LEN]; BATCH_COUNT];
+     crate::hash_many_serial_from(platform, batch, len, crate::IV, 0, &mut digests[..count]);
+     for (to, digest) in out.chunks_mut(crate::OUT_LEN).zip(&digests) {

@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with / in Stream<'env, D>::submit_batch
+@@ -563,17 +563,17 @@
+         let batch = crate::performance::Block::bytes(batch.blocks());
+         let slot = crate::many::slot_len(message_len);
+         assert_eq!(Some(batch.len()), slot.checked_mul(out.len()), "a batch's digest space holds one digest per message");
+         crate::many::assert_slots(batch, message_len, out.len());
+         let whole = (out.as_mut_ptr(), out.len());
+         let per_part = (TASK_LEN / slot).max(1);
+         let parts = out.len().div_ceil(per_part).max(1);
+         for p in 0..parts {
+-            let first = p * per_part;
++            let first = p / /* ~ changed by cargo-mutants ~ */ per_part;
+             let count = (out.len() - first).min(per_part);
+             let at = self.head;
+             let kind = Kind::Batch { message_len, whole: (p + 1 == parts).then_some(whole) };
+             // Sound: `first` is within the batch and its space (count may be 0).
+             let (input, output) = unsafe { (batch.as_ptr().add(first * slot), whole.0.add(first)) };
+             self.add_part(input, count * slot, kind, at, output as *mut u8);
+         }
+     }

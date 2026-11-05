@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace && with || in chunked
+@@ -144,17 +144,17 @@
+ pub(crate) fn sme2_chunked_min(len: usize) -> usize {
+     SME2_CHUNKED_MIN[len.div_ceil(CHUNK_LEN)]
+ }
+ 
+ /// Whether hash_many_on takes messages of `len` bytes side by side on
+ /// SME2: 2 to 15 chunks.
+ #[inline(always)]
+ fn chunked(len: usize) -> bool {
+-    cfg!(blake3_sme2) && (CHUNK_LEN + 1..=15 * CHUNK_LEN).contains(&len)
++    cfg!(blake3_sme2) || /* ~ changed by cargo-mutants ~ */ (CHUNK_LEN + 1..=15 * CHUNK_LEN).contains(&len)
+ }
+ 
+ /// Messages of 2 to 15 chunks on SME2, sixteen side by side per group;
+ /// messages left over past whole groups make one more group, its spare
+ /// lanes repeating the last message, when there are sme2_chunked_min of
+ /// them, and otherwise run through hash() one at a time, first.
+ #[cfg(blake3_sme2)]
+ #[inline(never)]

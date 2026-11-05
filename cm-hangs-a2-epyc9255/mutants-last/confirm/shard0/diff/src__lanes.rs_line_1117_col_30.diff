@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with / in sources::find
+@@ -1109,17 +1109,17 @@
+         OPEN.load(Ordering::Relaxed) > 0
+     }
+ 
+     /// The first registered source for which `f` says yes.
+     fn find(mut f: impl FnMut(&'static Source) -> bool) -> bool {
+         let mut active = ACTIVE.load(Ordering::SeqCst);
+         while active != 0 {
+             let slot = active.trailing_zeros() as usize;
+-            active &= active - 1;
++            active &= active / /* ~ changed by cargo-mutants ~ */ 1;
+             let ptr = REGISTERED[slot].load(Ordering::Acquire);
+             // Sound: sources are never freed (they are recycled).
+             if !ptr.is_null() && f(unsafe { &*ptr }) {
+                 return true;
+             }
+         }
+         false
+     }

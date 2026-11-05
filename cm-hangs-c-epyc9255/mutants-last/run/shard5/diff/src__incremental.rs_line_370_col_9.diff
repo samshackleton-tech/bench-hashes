@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace HasherCore::new_from -> Self with Default::default()
+@@ -362,17 +362,17 @@
+ impl HasherCore {
+     pub(crate) fn new_internal(key: &CVWords, flags: u8) -> Self {
+         Self::new_from(key, flags, Platform::detect())
+     }
+ 
+     /// [`HasherCore::new_internal`] on `platform` (the self-test's way in,
+     /// as [`hash_serial_from`]).
+     pub(crate) fn new_from(key: &CVWords, flags: u8, platform: Platform) -> Self {
+-        Self { key: *key, chunk_state: ChunkState::new(key, 0, flags, platform), initial_chunk_counter: 0, cv_stack: CvStack::new() }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Back to the empty message, with the same key, flags, and platform.
+     pub(crate) fn reset(&mut self) -> &mut Self {
+         self.chunk_state = ChunkState::new(&self.key, 0, self.chunk_state.flags, self.chunk_state.platform);
+         self.cv_stack.clear();
+         self
+     }

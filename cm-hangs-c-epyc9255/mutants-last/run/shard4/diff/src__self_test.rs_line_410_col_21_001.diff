@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace += with *= in run
+@@ -402,17 +402,17 @@
+         panic!("a kernel's panic, planted by a test");
+     }
+     compiled_features_present();
+     let platform = Platform::detect_unchecked();
+     let mut checked = 0;
+     let previous = chain(
+         |case, input, previous, out| outputs(platform, case, input, previous, out),
+         |index, folded| {
+-            checked += 1;
++            checked *= /* ~ changed by cargo-mutants ~ */ 1;
+             if folded != EXPECTED[index] {
+                 stop(format_args!(
+                     "blake3-servil startup self-test failed: case {index}, {} (platform {}): this build or this CPU \
+                      computes wrong BLAKE3 digests on that path",
+                     CASES[index].1,
+                     platform.name(),
+                 ));
+             }

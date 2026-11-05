@@ -1,0 +1,25 @@
+--- src/lanes.rs
++++ replace wake_sme2 with ()
+@@ -1456,21 +1456,17 @@
+     }
+ }
+ 
+ /// The SME2 thread, and whether it is parked: every publish wakes it first.
+ static SME2_THREAD: OnceLock<std::thread::Thread> = OnceLock::new();
+ static SME2_PARKED: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
+ 
+ fn wake_sme2() {
+-    if SME2_PARKED.swap(false, Ordering::SeqCst) {
+-        if let Some(thread) = SME2_THREAD.get() {
+-            thread.unpark();
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// For tests that must reach the pool: the call this thread made since
+ /// `RAN` was cleared went to the pool, or the process has one CPU and no
+ /// pool. (Each test runs alone in its process, so no other caller holds
+ /// the pool's CPUs.)
+ #[cfg(test)]
+ pub(crate) fn assert_past_the_split(what: &str) {

@@ -1,0 +1,49 @@
+
+*** src/lanes.rs:167:21: replace + with * in now
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace + with * in now
+@@ -159,17 +159,17 @@
+ /// passes ends when the test says (BLAKE3 #219: SPIN, SPIN_BEFORE_SLEEP
+ /// and YIELD_EVERY stay in microseconds, and their comparisons are
+ /// counted exactly).
+ #[inline(always)]
+ fn now() -> std::time::Instant {
+     #[cfg(test)]
+     if let Some((base, at, step)) = TEST_CLOCK.with(|c| c.get()) {
+         TEST_CLOCK.with(|c| c.set(Some((base, at + step, step))));
+-        return base + at;
++        return base * /* ~ changed by cargo-mutants ~ */ at;
+     }
+     std::time::Instant::now()
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The tests' clock for now(): a fixed instant, the time past it that
+     /// now() answers next, and its step at each read (None: the real
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-cgkmuykz)
+error[E0369]: cannot multiply `Instant` by `Duration`
+   --> src/lanes.rs:167:21
+    |
+167 |         return base * /* ~ changed by cargo-mutants ~ */ at;
+    |                ---- ^                                    -- Duration
+    |                |
+    |                Instant
+    |
+note: `Instant` does not implement `Mul<Duration>`
+   --> /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/std/src/time.rs:156:0
+    |
+    = note: `Instant` is defined in another crate
+
+For more information about this error, try `rustc --explain E0369`.
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

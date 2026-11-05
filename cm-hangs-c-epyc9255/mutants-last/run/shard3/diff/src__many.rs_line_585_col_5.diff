@@ -1,0 +1,47 @@
+--- src/many.rs
++++ replace hash_four_at_a_time with ()
+@@ -577,43 +577,17 @@
+ }
+ 
+ /// The arrangement for messages of whole blocks where the NEON plans are
+ /// absent: groups of four through the platform's `hash_many`, a fourth,
+ /// spare lane for three left over (its value kept in a scratch array), one
+ /// call each for one or two.
+ #[inline(never)]
+ fn hash_four_at_a_time<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+-    let (start, end) = (CHUNK_START, CHUNK_END | ROOT);
+-    // Keep the padded fourth lane for remainders of three. For other
+-    // x86 tails, the existing platform kernel avoids separate scalar hashes.
+-    if cfg!(target_arch = "x86_64") && lanes.len() % 4 != 3 {
+-        noted_lanes(lanes.len());
+-        platform.hash_many::<N>(lanes, key, 0, IncrementCounter::No, flags, start, end, outputs.as_flattened_mut());
+-        return;
+-    }
+-    let fours = lanes.len() / 4 * 4;
+-    if fours > 0 {
+-        noted_lanes(fours);
+-        platform.hash_many::<N>(&lanes[..fours], key, 0, IncrementCounter::No, flags, start, end, outputs[..fours].as_flattened_mut());
+-    }
+-    match lanes.len() - fours {
+-        3 => {
+-            let spare = [lanes[fours], lanes[fours + 1], lanes[fours + 2], lanes[fours + 2]];
+-            let mut digests = [[0u8; OUT_LEN]; 4];
+-            noted_lanes(4);
+-            platform.hash_many::<N>(&spare, key, 0, IncrementCounter::No, flags, start, end, digests.as_flattened_mut());
+-            outputs[fours..].copy_from_slice(&digests[..3]);
+-        }
+-        _ => {
+-            for (output, message) in outputs[fours..].iter_mut().zip(&lanes[fours..]) {
+-                *output = *crate::hash_serial_on(&message[..], key, flags, platform).as_bytes();
+-            }
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The lanes of each hash_many call hash_four_at_a_time made on this
+     /// thread, for the test of its arrangement (BLAKE3 #219).
+     pub(crate) static FOUR_AT_A_TIME_LANES: core::cell::RefCell<std::vec::Vec<usize>> = const { core::cell::RefCell::new(std::vec::Vec::new()) };
+ }

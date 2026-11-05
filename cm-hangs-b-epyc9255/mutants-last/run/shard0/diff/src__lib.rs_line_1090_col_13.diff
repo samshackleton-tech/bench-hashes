@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete match arm Mode::Plain in Mode<'_>::key
+@@ -1082,17 +1082,17 @@
+     /// The key words and flags this mode hashes with, the plain mode's IV
+     /// where it is: a public call's one way to its key. A copy of the IV
+     /// put 32 bytes of stores on the stack before the message's loads of
+     /// every call (October 24, the i7's disassembly of a caller); a
+     /// constant mode folds to its constants, inlined.
+     #[inline]
+     pub(crate) fn key(self, room: &mut core::mem::MaybeUninit<CVWords>) -> (&CVWords, u8) {
+         match self {
+-            Mode::Plain => (IV, 0),
++             /* ~ changed by cargo-mutants ~ */
+             _ => {
+                 let (key, flags) = self.key_and_flags();
+                 (room.write(key), flags)
+             }
+         }
+     }
+ 
+     /// The key words and flags this mode hashes with.

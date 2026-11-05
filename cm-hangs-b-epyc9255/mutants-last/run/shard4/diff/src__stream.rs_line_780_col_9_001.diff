@@ -1,0 +1,81 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::deliver -> usize with 1
+@@ -772,77 +772,17 @@
+             Some(_) => self.s.source.publish(task),
+             None => crate::lanes::run_task(task),
+         }
+     }
+ 
+     /// Hand back every finished entry's place from the oldest on (a
+     /// batch's once its last part is done); how many entries.
+     fn deliver(&mut self) -> usize {
+-        let mut count = 0;
+-        while self.delivered < self.next {
+-            let index = self.delivered % ENTRIES;
+-            let Entry { len, kind, first, ring_end } = self.s.entries[index];
+-            // An entry of no task (an empty batch's part, an abandoned
+-            // message) has its own `left`, zero.
+-            if self.s.lefts[first].load(Ordering::Acquire) != 0 {
+-                break;
+-            }
+-            self.delivered += 1;
+-            self.tail = ring_end;
+-            count += 1;
+-            // Sound, each place: the program lent it for 'env and the stream
+-            // hands it back once, after its task wrote it (the Acquire above).
+-            match kind {
+-                Kind::Message { out } => (self.done)(core::slice::from_mut(unsafe { &mut *out })),
+-                Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),
+-                Kind::Batch { whole: None, .. } => {}
+-                Kind::Abandoned => {
+-                    self.stack.clear();
+-                    self.pieces = 0;
+-                }
+-                Kind::Piece { counter, last, long, out } => {
+-                    if long {
+-                        self.long_tail += room(self.long_tail, LONG_RING_BYTES, len).1;
+-                    }
+-                    // Sound: the task wrote its out before counting `left` down.
+-                    let piece = unsafe { *self.s.pieces_out[index].0.0.get() };
+-                    let (key, flags, platform) = (self.key, self.flags, Platform::detect());
+-                    let parent = |left: &CVBytes, right: &CVBytes| crate::hasher::parent_output(left, right, &key, flags, platform);
+-                    // A piece at chunk 0 is a long message's first, a whole
+-                    // PIECE: it gave its two children.
+-                    debug_assert!(counter != 0 || len == PIECE, "a long message's first piece is whole");
+-                    let cv: CVBytes = if counter == 0 {
+-                        parent(piece[..OUT_LEN].try_into().unwrap(), piece[OUT_LEN..].try_into().unwrap()).chaining_value()
+-                    } else {
+-                        piece[..OUT_LEN].try_into().unwrap()
+-                    };
+-                    // As the Hasher's stack: before pushing piece n, merge
+-                    // down to as many values as n has 1 bits.
+-                    while self.stack.len() > self.pieces.count_ones() as usize {
+-                        let right = self.stack.pop().unwrap();
+-                        let left = self.stack.pop().unwrap();
+-                        self.stack.push(parent(&left, &right).chaining_value());
+-                    }
+-                    self.stack.push(cv);
+-                    self.pieces += 1;
+-                    if last {
+-                        let mut right = self.stack.pop().unwrap();
+-                        while self.stack.len() > 1 {
+-                            right = parent(&self.stack.pop().unwrap(), &right).chaining_value();
+-                        }
+-                        let place = unsafe { &mut *out };
+-                        *place = parent(&self.stack.pop().unwrap(), &right).root_hash();
+-                        self.pieces = 0;
+-                        (self.done)(core::slice::from_mut(place));
+-                    }
+-                }
+-            }
+-        }
+-        count
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl<D> Drop for Stream<'_, D> {
+     /// Keep the storage as the thread's spare. A stream drops finished,
+     /// every place handed back: one that unwinds ends the process first
+     /// ([`stream`]'s guard), and the C API finishes it before it drops.
+     fn drop(&mut self) {

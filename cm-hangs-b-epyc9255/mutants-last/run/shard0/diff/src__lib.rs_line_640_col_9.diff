@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace Output::root_output_block -> [u8; 2 *OUT_LEN] with [0; 2 *OUT_LEN]
+@@ -632,17 +632,17 @@
+ 
+ impl Output {
+     fn root_hash(&self) -> Hash {
+         debug_assert_eq!(self.counter, 0);
+         Hash(self.root_bytes())
+     }
+ 
+     fn root_output_block(&self) -> [u8; 2 * OUT_LEN] {
+-        self.platform.compress_xof(&self.input_chaining_value, &self.block, self.block_len, self.counter, self.flags | ROOT)
++        [0; 2 *OUT_LEN] /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Output {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+         let Self { input_chaining_value, block, block_len, counter, flags, platform: _ } = self;

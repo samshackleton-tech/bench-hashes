@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace > with < in OutputReader::fill
+@@ -1401,17 +1401,17 @@
+ 
+         // If we're partway through a block, try to get to a block boundary.
+         if self.position_within_block != 0 {
+             self.fill_one_block(&mut buf);
+         }
+ 
+         let full_blocks = buf.len() / BLOCK_LEN;
+         let full_blocks_len = full_blocks * BLOCK_LEN;
+-        if full_blocks > 0 {
++        if full_blocks < /* ~ changed by cargo-mutants ~ */ 0 {
+             debug_assert_eq!(0, self.position_within_block);
+             self.inner.platform.xof_many(
+                 &self.inner.input_chaining_value,
+                 &self.inner.block,
+                 self.inner.block_len,
+                 self.inner.counter,
+                 self.inner.flags | ROOT,
+                 &mut buf[..full_blocks_len],

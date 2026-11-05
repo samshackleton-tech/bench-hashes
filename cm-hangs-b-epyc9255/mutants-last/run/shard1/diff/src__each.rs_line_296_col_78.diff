@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace * with + in hash_each_on
+@@ -288,17 +288,17 @@
+     let mut refs: Vec<&[u8; CHUNK_LEN]> = Vec::with_capacity(shared.len());
+     let mut owners: Vec<usize> = Vec::with_capacity(shared.len());
+     let mut lane_out = vec![0u8; shared.len() * OUT_LEN];
+     for k in 0..most_full {
+         crate::counted(crate::Counted::EachRound);
+         refs.clear();
+         owners.clear();
+         for &(i, at) in &shared {
+-            if let Some(chunk) = items[i].bytes().get(k * CHUNK_LEN..(k + 1) * CHUNK_LEN) {
++            if let Some(chunk) = items[i].bytes().get(k * CHUNK_LEN..(k + 1) + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN) {
+                 refs.push(chunk.try_into().unwrap());
+                 owners.push(at + k);
+             }
+         }
+         let lanes = &mut lane_out[..refs.len() * OUT_LEN];
+         platform.hash_many(&refs, &key, k as u64, IncrementCounter::No, flags, CHUNK_START, CHUNK_END, lanes);
+         for (j, &slot) in owners.iter().enumerate() {
+             cvs[slot].copy_from_slice(&lanes[j * OUT_LEN..(j + 1) * OUT_LEN]);

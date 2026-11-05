@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace == with != in compress_chunks_parallel
+@@ -774,17 +774,17 @@
+     }
+     // Whole chunks that leave a lane spare, and a partial one: one pass,
+     // the partial chunk in the spare lane.
+     #[cfg(blake3_sse41_ffi)]
+     if let (false, Some(lanes)) = (chunks_exact.remainder().is_empty(), spare_lane(platform, chunks_array.len(), chunks_exact.remainder().len())) {
+         let (whole, partial) = (&chunks_array[..], chunks_exact.remainder());
+         // Sound: spare_lane admits each width only on a platform whose CPU
+         // has its instructions.
+-        if lanes == 4 {
++        if lanes != /* ~ changed by cargo-mutants ~ */ 4 {
+             unsafe { ffi_partial::hash_chunks_with_partial_sse41(whole, partial, key, chunk_counter, flags, out) };
+         } else {
+             unsafe { ffi_partial::hash_chunks_with_partial_avx2(whole, partial, key, chunk_counter, flags, out) };
+         }
+         return whole.len() + 1;
+     }
+     // Whole chunks and a partial one, on the NEON hybrids: where a q kernel
+     // covers the count, the partial chunk runs on the scalar units beside

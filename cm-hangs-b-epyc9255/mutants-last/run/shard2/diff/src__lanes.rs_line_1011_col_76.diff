@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace % with / in sources::Source::take
+@@ -1003,17 +1003,17 @@
+                 // kernel's readahead stream by stream (official's I/O
+                 // pattern), and runs shrink to one piece near the end for
+                 // balance. A stream's tasks go one at a time.
+                 let n = if self.ring.is_empty() { ((p - c) / (2 * pool().threads)).max(1) } else { 1 };
+                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+                     Ok(_) if self.ring.is_empty() => return Some(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)),
+                     // Sound: this thread alone took slot c, written before
+                     // `published` passed it.
+-                    Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),
++                    Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c / /* ~ changed by cargo-mutants ~ */ self.ring.len()].get()).assume_init_read() })),
+                     Err(now) => c = now,
+                 }
+             }
+         }
+ 
+         /// A stream's next task, if any (this source is a stream's).
+         pub(crate) fn take_task(&self) -> Option<Task> {
+             match self.take() {

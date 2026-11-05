@@ -1,0 +1,23 @@
+--- src/hasher.rs
++++ replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::whole_chunk_cv -> Cv with Default::default()
+@@ -246,19 +246,17 @@
+ 
+     #[inline(always)]
+     fn chunk_cv(&self, chunk: &ChunkState<P>) -> Cv {
+         chunk.output().chaining_value()
+     }
+ 
+     #[inline(always)]
+     fn whole_chunk_cv(&self, chunk: &[u8], counter: u64) -> Cv {
+-        let mut state = ChunkState::new(self.key, counter, self.flags, self.platform);
+-        state.absorb(chunk);
+-        state.output().chaining_value()
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn subtree_cv(&self, input: &[u8], ahead: usize, counter: u64) -> Option<Cv> {
+         self.hooks.subtree_cv(input, ahead, counter)
+     }
+ 
+     #[inline(always)]

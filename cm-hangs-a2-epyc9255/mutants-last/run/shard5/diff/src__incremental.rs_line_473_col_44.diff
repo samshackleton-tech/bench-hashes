@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace += with -= in HasherCore::update_part_with_results
+@@ -465,17 +465,17 @@
+             let result = results.next().expect("a result for every planned subtree");
+             let counter = self.chunk_state.chunk_counter;
+             if counter == 0 && len > CHUNK_LEN {
+                 self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+                 self.push_cv(result[OUT_LEN..].try_into().unwrap(), counter + chunks / 2);
+             } else {
+                 self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+             }
+-            self.chunk_state.chunk_counter += chunks;
++            self.chunk_state.chunk_counter -= /* ~ changed by cargo-mutants ~ */ chunks;
+             input = &input[len..];
+         }
+         if !input.is_empty() {
+             self.chunk_state.update(input);
+             self.merge_cv_stack(self.chunk_state.chunk_counter);
+         }
+     }
+ 

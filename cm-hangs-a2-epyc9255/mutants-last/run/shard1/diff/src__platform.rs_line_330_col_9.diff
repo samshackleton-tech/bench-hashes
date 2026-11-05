@@ -1,0 +1,45 @@
+--- src/platform.rs
++++ replace Platform::hash_many with ()
+@@ -322,41 +322,17 @@
+         increment_counter: IncrementCounter,
+         flags: u8,
+         flags_start: u8,
+         flags_end: u8,
+         out: &mut [u8],
+     ) {
+         // Every kernel hashes whole blocks: an input of another length
+         // would lose its tail, so it cannot compile.
+-        const { assert!(N > 0 && N % BLOCK_LEN == 0, "hash_many inputs are whole blocks") };
+-        // The shapes the crate makes, which every kernel takes: whole chunks
+-        // at counters counting up, or 1 to 16 whole blocks at one counter.
+-        assert!(
+-            if increment_counter.yes() { N == CHUNK_LEN } else { N <= CHUNK_LEN },
+-            "hash_many takes whole chunks at incrementing counters, or 1 to 16 blocks at one counter"
+-        );
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 => unsafe { crate::sse41::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx2_ffi)]
+-            Platform::AVX2 => unsafe { crate::avx2::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Assumed to be safe if the "neon" feature is on.
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => unsafe { crate::neon_hybrid::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for SME2 with a 512-bit vector length.
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => unsafe { crate::sme2::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+         debug_assert_eq!(0, out.len() % BLOCK_LEN, "whole blocks only");
+         if out.is_empty() {
+             // The current assembly implementation always outputs at least 1 block.
+             return;
+         }

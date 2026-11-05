@@ -1,0 +1,25 @@
+--- src/platform.rs
++++ replace words_from_le_bytes_32 -> [u32; 8] with [0; 8]
+@@ -694,21 +694,17 @@
+     pub(crate) static PREFETCHED: core::cell::RefCell<Option<std::vec::Vec<((usize, usize), usize)>>> = const { core::cell::RefCell::new(None) };
+ }
+ 
+ // The little-endian words of a block or a key, and back: 4-byte chunks
+ // (as_chunks), with no index arithmetic to get wrong (each unrolled form's
+ // 16 lines of `bytes[i * 4..]` were 16 places for a mutant; October 26).
+ #[inline(always)]
+ pub fn words_from_le_bytes_32(bytes: &[u8; 32]) -> [u32; 8] {
+-    let mut out = [0; 8];
+-    for (word, chunk) in out.iter_mut().zip(bytes.as_chunks::<4>().0) {
+-        *word = u32::from_le_bytes(*chunk);
+-    }
+-    out
++    [0; 8] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// True when the CPU reports SME2 and the streaming vector length is 512
+ /// bits, the only length the SME2 kernels support. Detection is per
+ /// platform: `hw.optional.arm.FEAT_SME2` on Apple systems and
+ /// `HWCAP2_SME2` on Linux.
+ ///
+ /// The answer is a property of the machine, so it is computed once and

@@ -1,0 +1,29 @@
+--- src/platform.rs
++++ replace x86_features -> u8 with 1
+@@ -467,25 +467,17 @@
+     pub const READ: u8 = 128;
+ }
+ 
+ #[cfg(target_arch = "x86_64")]
+ #[inline(always)]
+ // Read by the x86 kernels' dispatch and the tests.
+ #[cfg_attr(not(blake3_sse41_ffi), allow(dead_code))]
+ fn x86_features() -> u8 {
+-    use core::sync::atomic::{AtomicU8, Ordering};
+-    static FEATURES: AtomicU8 = AtomicU8::new(0);
+-    let features = FEATURES.load(Ordering::Relaxed);
+-    if features != 0 {
+-        return features;
+-    }
+-    let features = read_x86_features();
+-    FEATURES.store(features, Ordering::Relaxed);
+-    features
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`x86_features`] from CPUID: leaf 1, and, where the CPU has AVX and the
+ /// OS saves its registers (XSAVE, OSXSAVE, AVX, then XCR0), leaf 7. Every
+ /// CPU with AVX has leaf 7.
+ #[cfg(target_arch = "x86_64")]
+ #[cold]
+ // Read by the x86 kernels' dispatch and the tests.

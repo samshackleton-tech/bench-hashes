@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with / in hash_many_on
+@@ -81,17 +81,17 @@
+         return hash_two_chunks(input, len, key, flags, outputs);
+     }
+     if outputs.len() < 2 || len > CHUNK_LEN {
+         #[cfg(target_arch = "x86_64")]
+         return hash_long_or_single(input, len, key, flags, outputs, platform);
+         #[cfg(not(target_arch = "x86_64"))]
+         {
+             for (i, output) in outputs.iter_mut().enumerate() {
+-                *output = *crate::hash_serial_on(&input[i * slot..][..len], key, flags, platform).as_bytes();
++                *output = *crate::hash_serial_on(&input[i / /* ~ changed by cargo-mutants ~ */ slot..][..len], key, flags, platform).as_bytes();
+             }
+             return;
+         }
+     }
+     crate::ran(crate::Ran::ShortRun);
+     let plans = neon_plans();
+     let last_len = len - (slot - BLOCK_LEN);
+     for (messages, digests) in input.chunks(slot * TABLE).zip(outputs.chunks_mut(TABLE)) {

@@ -1,0 +1,2683 @@
+[
+  {
+    "diff": "--- src/finish.rs\n+++ replace <impl std::ops::Deref for Line<T>>::deref -> &T with Box::leak(Box::new(Default::default()))\n@@ -31,17 +31,17 @@\n \n /// Any value on a cache line of its own.\n #[repr(align(128))]\n pub(crate) struct Line<T>(pub(crate) T);\n \n impl<T> std::ops::Deref for Line<T> {\n     type Target = T;\n     fn deref(&self) -> &T {\n-        &self.0\n+        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n /// The top bit of `state`: the caller is parked, waiting.\n const SLEEPING: usize = 1 << (usize::BITS - 1);\n \n pub(crate) struct Finish {\n     /// The number past the last piece or task published.\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "<impl std::ops::Deref for Line<T>>::deref",
+      "return_type": "-> &T",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 40
+        },
+        "start": {
+          "column": 5,
+          "line": 38
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:39:9: replace <impl std::ops::Deref for Line<T>>::deref -> &T with Box::leak(Box::new(Default::default()))",
+    "package": "blake3-servil",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 39
+      },
+      "start": {
+        "column": 9,
+        "line": 39
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace << with >>\n@@ -36,17 +36,17 @@\n impl<T> std::ops::Deref for Line<T> {\n     type Target = T;\n     fn deref(&self) -> &T {\n         &self.0\n     }\n }\n \n /// The top bit of `state`: the caller is parked, waiting.\n-const SLEEPING: usize = 1 << (usize::BITS - 1);\n+const SLEEPING: usize = 1 >> /* ~ changed by cargo-mutants ~ */ (usize::BITS - 1);\n \n pub(crate) struct Finish {\n     /// The number past the last piece or task published.\n     pub(crate) published: Line<AtomicUsize>,\n     /// The pieces finished, all the source's jobs', and SLEEPING.\n     state: Line<AtomicUsize>,\n     /// The waiting thread: behind a lock, since the worker finishing the\n     /// last piece may read it as the source passes to another thread (an\n",
+    "file": "src/finish.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:44:27: replace << with >>",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 44
+      },
+      "start": {
+        "column": 27,
+        "line": 44
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace - with +\n@@ -36,17 +36,17 @@\n impl<T> std::ops::Deref for Line<T> {\n     type Target = T;\n     fn deref(&self) -> &T {\n         &self.0\n     }\n }\n \n /// The top bit of `state`: the caller is parked, waiting.\n-const SLEEPING: usize = 1 << (usize::BITS - 1);\n+const SLEEPING: usize = 1 << (usize::BITS + /* ~ changed by cargo-mutants ~ */ 1);\n \n pub(crate) struct Finish {\n     /// The number past the last piece or task published.\n     pub(crate) published: Line<AtomicUsize>,\n     /// The pieces finished, all the source's jobs', and SLEEPING.\n     state: Line<AtomicUsize>,\n     /// The waiting thread: behind a lock, since the worker finishing the\n     /// last piece may read it as the source passes to another thread (an\n",
+    "file": "src/finish.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:44:43: replace - with +",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 44
+      },
+      "start": {
+        "column": 43,
+        "line": 44
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace - with /\n@@ -36,17 +36,17 @@\n impl<T> std::ops::Deref for Line<T> {\n     type Target = T;\n     fn deref(&self) -> &T {\n         &self.0\n     }\n }\n \n /// The top bit of `state`: the caller is parked, waiting.\n-const SLEEPING: usize = 1 << (usize::BITS - 1);\n+const SLEEPING: usize = 1 << (usize::BITS / /* ~ changed by cargo-mutants ~ */ 1);\n \n pub(crate) struct Finish {\n     /// The number past the last piece or task published.\n     pub(crate) published: Line<AtomicUsize>,\n     /// The pieces finished, all the source's jobs', and SLEEPING.\n     state: Line<AtomicUsize>,\n     /// The waiting thread: behind a lock, since the worker finishing the\n     /// last piece may read it as the source passes to another thread (an\n",
+    "file": "src/finish.rs",
+    "function": null,
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:44:43: replace - with /",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 44
+      },
+      "start": {
+        "column": 43,
+        "line": 44
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace Finish::finished_count -> usize with 0\n@@ -56,17 +56,17 @@\n \n impl Finish {\n     pub(crate) fn new() -> Finish {\n         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }\n     }\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n-        self.state.load(Ordering::SeqCst) & !SLEEPING\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 65
+        },
+        "start": {
+          "column": 5,
+          "line": 62
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:64:9: replace Finish::finished_count -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 64
+      },
+      "start": {
+        "column": 9,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace Finish::finished_count -> usize with 1\n@@ -56,17 +56,17 @@\n \n impl Finish {\n     pub(crate) fn new() -> Finish {\n         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }\n     }\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n-        self.state.load(Ordering::SeqCst) & !SLEEPING\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 65
+        },
+        "start": {
+          "column": 5,
+          "line": 62
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:64:9: replace Finish::finished_count -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 64
+      },
+      "start": {
+        "column": 9,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with | in Finish::finished_count\n@@ -56,17 +56,17 @@\n \n impl Finish {\n     pub(crate) fn new() -> Finish {\n         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }\n     }\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n-        self.state.load(Ordering::SeqCst) & !SLEEPING\n+        self.state.load(Ordering::SeqCst) | /* ~ changed by cargo-mutants ~ */ !SLEEPING\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 65
+        },
+        "start": {
+          "column": 5,
+          "line": 62
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:64:43: replace & with | in Finish::finished_count",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 64
+      },
+      "start": {
+        "column": 43,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with ^ in Finish::finished_count\n@@ -56,17 +56,17 @@\n \n impl Finish {\n     pub(crate) fn new() -> Finish {\n         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }\n     }\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n-        self.state.load(Ordering::SeqCst) & !SLEEPING\n+        self.state.load(Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ !SLEEPING\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 65
+        },
+        "start": {
+          "column": 5,
+          "line": 62
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:64:43: replace & with ^ in Finish::finished_count",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 64
+      },
+      "start": {
+        "column": 43,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ delete ! in Finish::finished_count\n@@ -56,17 +56,17 @@\n \n impl Finish {\n     pub(crate) fn new() -> Finish {\n         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }\n     }\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n-        self.state.load(Ordering::SeqCst) & !SLEEPING\n+        self.state.load(Ordering::SeqCst) &  /* ~ changed by cargo-mutants ~ */SLEEPING\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 65
+        },
+        "start": {
+          "column": 5,
+          "line": 62
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/finish.rs:64:45: delete ! in Finish::finished_count",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 64
+      },
+      "start": {
+        "column": 45,
+        "line": 64
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace Finish::own with ()\n@@ -61,17 +61,17 @@\n \n     /// The pieces finished so far.\n     pub(crate) fn finished_count(&self) -> usize {\n         self.state.load(Ordering::SeqCst) & !SLEEPING\n     }\n \n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n-        *self.owner.lock().unwrap() = Some(thread::current());\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::own",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 70
+        },
+        "start": {
+          "column": 5,
+          "line": 67
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:69:9: replace Finish::own with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 69
+      },
+      "start": {
+        "column": 9,
+        "line": 69
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace Finish::finished with ()\n@@ -67,24 +67,17 @@\n     /// The thread that waits on this source from now on.\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n-        let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n-            if let Some(owner) = &*self.owner.lock().unwrap() {\n-                #[cfg(all(test, not(shuttle)))]\n-                tests::UNPARKS.with(|u| u.set(u.get() + 1));\n-                owner.unpark();\n-            }\n-        }\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {\n         loop {\n             if self.finished_count() >= target {\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:75:9: replace Finish::finished with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 10,
+        "line": 82
+      },
+      "start": {
+        "column": 9,
+        "line": 75
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace && with || in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 || /* ~ changed by cargo-mutants ~ */ (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:35: replace && with || in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 76
+      },
+      "start": {
+        "column": 35,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace != with == in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING == /* ~ changed by cargo-mutants ~ */ 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:30: replace != with == in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 76
+      },
+      "start": {
+        "column": 30,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with | in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before | /* ~ changed by cargo-mutants ~ */ SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:19: replace & with | in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 76
+      },
+      "start": {
+        "column": 19,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with ^ in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before ^ /* ~ changed by cargo-mutants ~ */ SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:19: replace & with ^ in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 76
+      },
+      "start": {
+        "column": 19,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace == with != in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before & !SLEEPING) + n != /* ~ changed by cargo-mutants ~ */ self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:63: replace == with != in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 76
+      },
+      "start": {
+        "column": 63,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace + with - in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before & !SLEEPING) - /* ~ changed by cargo-mutants ~ */ n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:59: replace + with - in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 76
+      },
+      "start": {
+        "column": 59,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace + with * in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before & !SLEEPING) * /* ~ changed by cargo-mutants ~ */ n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:59: replace + with * in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 60,
+        "line": 76
+      },
+      "start": {
+        "column": 59,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with | in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before | /* ~ changed by cargo-mutants ~ */ !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:46: replace & with | in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 76
+      },
+      "start": {
+        "column": 46,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with ^ in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before ^ /* ~ changed by cargo-mutants ~ */ !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:76:46: replace & with ^ in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 76
+      },
+      "start": {
+        "column": 46,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ delete ! in Finish::finished\n@@ -68,17 +68,17 @@\n     pub(crate) fn own(&self) {\n         *self.owner.lock().unwrap() = Some(thread::current());\n     }\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n+        if before & SLEEPING != 0 && (before &  /* ~ changed by cargo-mutants ~ */SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n                 tests::UNPARKS.with(|u| u.set(u.get() + 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/finish.rs:76:48: delete ! in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 49,
+        "line": 76
+      },
+      "start": {
+        "column": 48,
+        "line": 76
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace + with - in Finish::finished\n@@ -71,17 +71,17 @@\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n-                tests::UNPARKS.with(|u| u.set(u.get() + 1));\n+                tests::UNPARKS.with(|u| u.set(u.get() - /* ~ changed by cargo-mutants ~ */ 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:79:55: replace + with - in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 79
+      },
+      "start": {
+        "column": 55,
+        "line": 79
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace + with * in Finish::finished\n@@ -71,17 +71,17 @@\n \n     /// Count `n` pieces finished (their outputs written before); the last\n     /// one wakes a caller parked for it.\n     pub(crate) fn finished(&self, n: usize) {\n         let before = self.state.fetch_add(n, Ordering::SeqCst);\n         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {\n             if let Some(owner) = &*self.owner.lock().unwrap() {\n                 #[cfg(all(test, not(shuttle)))]\n-                tests::UNPARKS.with(|u| u.set(u.get() + 1));\n+                tests::UNPARKS.with(|u| u.set(u.get() * /* ~ changed by cargo-mutants ~ */ 1));\n                 owner.unpark();\n             }\n         }\n     }\n \n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::finished",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 72
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:79:55: replace + with * in Finish::finished",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 79
+      },
+      "start": {
+        "column": 55,
+        "line": 79
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace Finish::wait with ()\n@@ -81,32 +81,17 @@\n             }\n         }\n     }\n \n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {\n-        loop {\n-            if self.finished_count() >= target {\n-                return;\n-            }\n-            if !poll() {\n-                break;\n-            }\n-        }\n-        // The bit and the count in one read: a finisher after this sees\n-        // the bit; one before it left its count here.\n-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n-        while count < target {\n-            thread::park();\n-            count = self.finished_count();\n-        }\n-        self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)\n // the file compiles beside Shuttle's primitives, which have no sleep.\n #[cfg(all(test, not(shuttle)))]\n mod tests {\n     use super::*;\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/finish.rs:89:9: replace Finish::wait with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 104
+      },
+      "start": {
+        "column": 9,
+        "line": 89
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace >= with < in Finish::wait\n@@ -82,17 +82,17 @@\n         }\n     }\n \n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {\n         loop {\n-            if self.finished_count() >= target {\n+            if self.finished_count() < /* ~ changed by cargo-mutants ~ */ target {\n                 return;\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:90:38: replace >= with < in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 90
+      },
+      "start": {
+        "column": 38,
+        "line": 90
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ delete ! in Finish::wait\n@@ -85,17 +85,17 @@\n     /// Wait until the count reaches `target`: `poll` a while (it returns\n     /// false when the while is up), then parked until the worker finishing\n     /// the last piece unparks this thread.\n     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {\n         loop {\n             if self.finished_count() >= target {\n                 return;\n             }\n-            if !poll() {\n+            if  /* ~ changed by cargo-mutants ~ */poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n         while count < target {\n             thread::park();\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/finish.rs:93:16: delete ! in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 93
+      },
+      "start": {
+        "column": 16,
+        "line": 93
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with | in Finish::wait\n@@ -91,17 +91,17 @@\n                 return;\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n+        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) | /* ~ changed by cargo-mutants ~ */ !SLEEPING;\n         while count < target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:99:73: replace & with | in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 74,
+        "line": 99
+      },
+      "start": {
+        "column": 73,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace & with ^ in Finish::wait\n@@ -91,17 +91,17 @@\n                 return;\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n+        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ !SLEEPING;\n         while count < target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:99:73: replace & with ^ in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 74,
+        "line": 99
+      },
+      "start": {
+        "column": 73,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ delete ! in Finish::wait\n@@ -91,17 +91,17 @@\n                 return;\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n-        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n+        let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) &  /* ~ changed by cargo-mutants ~ */SLEEPING;\n         while count < target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/finish.rs:99:75: delete ! in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 76,
+        "line": 99
+      },
+      "start": {
+        "column": 75,
+        "line": 99
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace < with == in Finish::wait\n@@ -92,17 +92,17 @@\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n-        while count < target {\n+        while count == /* ~ changed by cargo-mutants ~ */ target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:100:21: replace < with == in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 100
+      },
+      "start": {
+        "column": 21,
+        "line": 100
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace < with > in Finish::wait\n@@ -92,17 +92,17 @@\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n-        while count < target {\n+        while count > /* ~ changed by cargo-mutants ~ */ target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:100:21: replace < with > in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 100
+      },
+      "start": {
+        "column": 21,
+        "line": 100
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ replace < with <= in Finish::wait\n@@ -92,17 +92,17 @@\n             }\n             if !poll() {\n                 break;\n             }\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n-        while count < target {\n+        while count <= /* ~ changed by cargo-mutants ~ */ target {\n             thread::park();\n             count = self.finished_count();\n         }\n         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n     }\n }\n \n // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/finish.rs:100:21: replace < with <= in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 100
+      },
+      "start": {
+        "column": 21,
+        "line": 100
+      }
+    }
+  },
+  {
+    "diff": "--- src/finish.rs\n+++ delete ! in Finish::wait\n@@ -96,17 +96,17 @@\n         }\n         // The bit and the count in one read: a finisher after this sees\n         // the bit; one before it left its count here.\n         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;\n         while count < target {\n             thread::park();\n             count = self.finished_count();\n         }\n-        self.state.fetch_and(!SLEEPING, Ordering::SeqCst);\n+        self.state.fetch_and( /* ~ changed by cargo-mutants ~ */SLEEPING, Ordering::SeqCst);\n     }\n }\n \n // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)\n // the file compiles beside Shuttle's primitives, which have no sleep.\n #[cfg(all(test, not(shuttle)))]\n mod tests {\n     use super::*;\n",
+    "file": "src/finish.rs",
+    "function": {
+      "function_name": "Finish::wait",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 105
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/finish.rs:104:30: delete ! in Finish::wait",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 104
+      },
+      "start": {
+        "column": 30,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace <impl std::ops::Deref for Line<T>>::deref -> &T with Box::leak(Box::new(Default::default()))\n@@ -19,17 +19,17 @@\n \n /// Any value on a cache line of its own.\n #[repr(align(128))]\n pub(crate) struct Line<T>(pub(crate) T);\n \n impl<T> std::ops::Deref for Line<T> {\n     type Target = T;\n     fn deref(&self) -> &T {\n-        &self.0\n+        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n pub(crate) struct Park {\n     /// Workers parked: bit w of word w / 64 for worker w. A worker sets its\n     /// own bit before it parks; a waker clears one (fetch_and), which makes\n     /// it the one to unpark that worker. Each worker parks on its own\n     /// thread's token (std's park), so no two share a lock or a futex word.\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "<impl std::ops::Deref for Line<T>>::deref",
+      "return_type": "-> &T",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 28
+        },
+        "start": {
+          "column": 5,
+          "line": 26
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:27:9: replace <impl std::ops::Deref for Line<T>>::deref -> &T with Box::leak(Box::new(Default::default()))",
+    "package": "blake3-servil",
+    "replacement": "Box::leak(Box::new(Default::default()))",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 27
+      },
+      "start": {
+        "column": 9,
+        "line": 27
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace split -> (usize, usize) with (0, 0)\n@@ -52,18 +52,17 @@\n /// (the i7-12700K's 1-2 MiB one-shots 16-25% slower); a publisher of 8 with\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n-    let now = need.min(fanout);\n-    (now, need - now)\n+    (0, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:60:5: replace split -> (usize, usize) with (0, 0)",
+    "package": "blake3-servil",
+    "replacement": "(0, 0)",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 61
+      },
+      "start": {
+        "column": 5,
+        "line": 60
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace split -> (usize, usize) with (0, 1)\n@@ -52,18 +52,17 @@\n /// (the i7-12700K's 1-2 MiB one-shots 16-25% slower); a publisher of 8 with\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n-    let now = need.min(fanout);\n-    (now, need - now)\n+    (0, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:60:5: replace split -> (usize, usize) with (0, 1)",
+    "package": "blake3-servil",
+    "replacement": "(0, 1)",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 61
+      },
+      "start": {
+        "column": 5,
+        "line": 60
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace split -> (usize, usize) with (1, 0)\n@@ -52,18 +52,17 @@\n /// (the i7-12700K's 1-2 MiB one-shots 16-25% slower); a publisher of 8 with\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n-    let now = need.min(fanout);\n-    (now, need - now)\n+    (1, 0) /* ~ changed by cargo-mutants ~ */\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:60:5: replace split -> (usize, usize) with (1, 0)",
+    "package": "blake3-servil",
+    "replacement": "(1, 0)",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 61
+      },
+      "start": {
+        "column": 5,
+        "line": 60
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace split -> (usize, usize) with (1, 1)\n@@ -52,18 +52,17 @@\n /// (the i7-12700K's 1-2 MiB one-shots 16-25% slower); a publisher of 8 with\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n-    let now = need.min(fanout);\n-    (now, need - now)\n+    (1, 1) /* ~ changed by cargo-mutants ~ */\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:60:5: replace split -> (usize, usize) with (1, 1)",
+    "package": "blake3-servil",
+    "replacement": "(1, 1)",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 61
+      },
+      "start": {
+        "column": 5,
+        "line": 60
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with + in split\n@@ -53,17 +53,17 @@\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n     let now = need.min(fanout);\n-    (now, need - now)\n+    (now, need + /* ~ changed by cargo-mutants ~ */ now)\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:61:16: replace - with + in split",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 61
+      },
+      "start": {
+        "column": 16,
+        "line": 61
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with / in split\n@@ -53,17 +53,17 @@\n /// workers paying the rest unbounded let one worker make every owed wake\n /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).\n pub(crate) const FANOUT: usize = 8;\n \n /// A waker's share of `need` wakes: the ones it makes now, at most\n /// `fanout`, and the ones it leaves owed.\n pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {\n     let now = need.min(fanout);\n-    (now, need - now)\n+    (now, need / /* ~ changed by cargo-mutants ~ */ now)\n }\n \n impl Park {\n     pub(crate) fn new(workers: usize, fanout: usize) -> Park {\n         assert!(fanout >= 1, \"a waker makes at least one wake\");\n         Park {\n             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "split",
+      "return_type": "-> (usize, usize)",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 62
+        },
+        "start": {
+          "column": 1,
+          "line": 57
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:61:16: replace - with / in split",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 61
+      },
+      "start": {
+        "column": 16,
+        "line": 61
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::register with ()\n@@ -69,17 +69,17 @@\n             handles: (0..workers).map(|_| OnceLock::new()).collect(),\n             owed: AtomicUsize::new(0),\n             fanout,\n         }\n     }\n \n     /// Worker `me` records its thread, once, as it starts.\n     pub(crate) fn register(&self, me: usize) {\n-        assert!(self.handles[me].set(thread::current()).is_ok(), \"each worker sets its thread once\");\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n         (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n     }\n \n     /// How many workers are parked.\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::register",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 78
+        },
+        "start": {
+          "column": 5,
+          "line": 75
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:77:9: replace Park::register with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 102,
+        "line": 77
+      },
+      "start": {
+        "column": 9,
+        "line": 77
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::place -> (&AtomicU64, u64) with (Box::leak(Box::new(Default::default())), 0)\n@@ -74,17 +74,17 @@\n \n     /// Worker `me` records its thread, once, as it starts.\n     pub(crate) fn register(&self, me: usize) {\n         assert!(self.handles[me].set(thread::current()).is_ok(), \"each worker sets its thread once\");\n     }\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n-        (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n+        (Box::leak(Box::new(Default::default())), 0) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::place",
+      "return_type": "-> (&AtomicU64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 80
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:82:9: replace Park::place -> (&AtomicU64, u64) with (Box::leak(Box::new(Default::default())), 0)",
+    "package": "blake3-servil",
+    "replacement": "(Box::leak(Box::new(Default::default())), 0)",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 82
+      },
+      "start": {
+        "column": 9,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::place -> (&AtomicU64, u64) with (Box::leak(Box::new(Default::default())), 1)\n@@ -74,17 +74,17 @@\n \n     /// Worker `me` records its thread, once, as it starts.\n     pub(crate) fn register(&self, me: usize) {\n         assert!(self.handles[me].set(thread::current()).is_ok(), \"each worker sets its thread once\");\n     }\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n-        (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n+        (Box::leak(Box::new(Default::default())), 1) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::place",
+      "return_type": "-> (&AtomicU64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 80
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:82:9: replace Park::place -> (&AtomicU64, u64) with (Box::leak(Box::new(Default::default())), 1)",
+    "package": "blake3-servil",
+    "replacement": "(Box::leak(Box::new(Default::default())), 1)",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 82
+      },
+      "start": {
+        "column": 9,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace / with % in Park::place\n@@ -74,17 +74,17 @@\n \n     /// Worker `me` records its thread, once, as it starts.\n     pub(crate) fn register(&self, me: usize) {\n         assert!(self.handles[me].set(thread::current()).is_ok(), \"each worker sets its thread once\");\n     }\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n-        (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n+        (&self.parked[me % /* ~ changed by cargo-mutants ~ */ 64], 1u64.wrapping_shl(me as u32))\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::place",
+      "return_type": "-> (&AtomicU64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 80
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:82:26: replace / with % in Park::place",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 82
+      },
+      "start": {
+        "column": 26,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace / with * in Park::place\n@@ -74,17 +74,17 @@\n \n     /// Worker `me` records its thread, once, as it starts.\n     pub(crate) fn register(&self, me: usize) {\n         assert!(self.handles[me].set(thread::current()).is_ok(), \"each worker sets its thread once\");\n     }\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n-        (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n+        (&self.parked[me * /* ~ changed by cargo-mutants ~ */ 64], 1u64.wrapping_shl(me as u32))\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::place",
+      "return_type": "-> (&AtomicU64, u64)",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 83
+        },
+        "start": {
+          "column": 5,
+          "line": 80
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:82:26: replace / with * in Park::place",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 82
+      },
+      "start": {
+        "column": 26,
+        "line": 82
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::parked_count -> usize with 0\n@@ -79,17 +79,17 @@\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n         (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n-        self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::parked_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 88
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:87:9: replace Park::parked_count -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 89,
+        "line": 87
+      },
+      "start": {
+        "column": 9,
+        "line": 87
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::parked_count -> usize with 1\n@@ -79,17 +79,17 @@\n \n     /// Worker `me`'s word and its bit in it.\n     fn place(&self, me: usize) -> (&AtomicU64, u64) {\n         (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))\n     }\n \n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n-        self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::parked_count",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 88
+        },
+        "start": {
+          "column": 5,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:87:9: replace Park::parked_count -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 89,
+        "line": 87
+      },
+      "start": {
+        "column": 9,
+        "line": 87
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::wake_one -> bool with true\n@@ -85,29 +85,17 @@\n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n-        for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n-            let mut bits = word.load(Ordering::SeqCst);\n-            while bits != 0 {\n-                let bit = 1u64 << bits.trailing_zeros();\n-                let before = word.fetch_and(!bit, Ordering::SeqCst);\n-                if before & bit != 0 {\n-                    handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n-                    return true;\n-                }\n-                bits = before & !bit;\n-            }\n-        }\n-        false\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:93:9: replace Park::wake_one -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 105
+      },
+      "start": {
+        "column": 9,
+        "line": 93
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::wake_one -> bool with false\n@@ -85,29 +85,17 @@\n     /// How many workers are parked.\n     pub(crate) fn parked_count(&self) -> usize {\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n-        for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n-            let mut bits = word.load(Ordering::SeqCst);\n-            while bits != 0 {\n-                let bit = 1u64 << bits.trailing_zeros();\n-                let before = word.fetch_and(!bit, Ordering::SeqCst);\n-                if before & bit != 0 {\n-                    handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n-                    return true;\n-                }\n-                bits = before & !bit;\n-            }\n-        }\n-        false\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:93:9: replace Park::wake_one -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 105
+      },
+      "start": {
+        "column": 9,
+        "line": 93
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace != with == in Park::wake_one\n@@ -87,17 +87,17 @@\n         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n-            while bits != 0 {\n+            while bits == /* ~ changed by cargo-mutants ~ */ 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:95:24: replace != with == in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 95
+      },
+      "start": {
+        "column": 24,
+        "line": 95
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace << with >> in Park::wake_one\n@@ -88,17 +88,17 @@\n     }\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n-                let bit = 1u64 << bits.trailing_zeros();\n+                let bit = 1u64 >> /* ~ changed by cargo-mutants ~ */ bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:96:32: replace << with >> in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": ">>",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 96
+      },
+      "start": {
+        "column": 32,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ delete ! in Park::wake_one\n@@ -89,17 +89,17 @@\n \n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n-                let before = word.fetch_and(!bit, Ordering::SeqCst);\n+                let before = word.fetch_and( /* ~ changed by cargo-mutants ~ */bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n         }\n         false\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/park.rs:97:45: delete ! in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 46,
+        "line": 97
+      },
+      "start": {
+        "column": 45,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace != with == in Park::wake_one\n@@ -90,17 +90,17 @@\n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n-                if before & bit != 0 {\n+                if before & bit == /* ~ changed by cargo-mutants ~ */ 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n         }\n         false\n     }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:98:33: replace != with == in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 98
+      },
+      "start": {
+        "column": 33,
+        "line": 98
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with | in Park::wake_one\n@@ -90,17 +90,17 @@\n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n-                if before & bit != 0 {\n+                if before | /* ~ changed by cargo-mutants ~ */ bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n         }\n         false\n     }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:98:27: replace & with | in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 98
+      },
+      "start": {
+        "column": 27,
+        "line": 98
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with ^ in Park::wake_one\n@@ -90,17 +90,17 @@\n     /// Wake one parked worker, if any: whether one was. With none parked,\n     /// one load a word.\n     pub(crate) fn wake_one(&self) -> bool {\n         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n-                if before & bit != 0 {\n+                if before ^ /* ~ changed by cargo-mutants ~ */ bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n                 bits = before & !bit;\n             }\n         }\n         false\n     }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:98:27: replace & with ^ in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 98
+      },
+      "start": {
+        "column": 27,
+        "line": 98
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with | in Park::wake_one\n@@ -94,17 +94,17 @@\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n-                bits = before & !bit;\n+                bits = before | /* ~ changed by cargo-mutants ~ */ !bit;\n             }\n         }\n         false\n     }\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:102:31: replace & with | in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 102
+      },
+      "start": {
+        "column": 31,
+        "line": 102
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with ^ in Park::wake_one\n@@ -94,17 +94,17 @@\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n-                bits = before & !bit;\n+                bits = before ^ /* ~ changed by cargo-mutants ~ */ !bit;\n             }\n         }\n         false\n     }\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:102:31: replace & with ^ in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 102
+      },
+      "start": {
+        "column": 31,
+        "line": 102
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ delete ! in Park::wake_one\n@@ -94,17 +94,17 @@\n             let mut bits = word.load(Ordering::SeqCst);\n             while bits != 0 {\n                 let bit = 1u64 << bits.trailing_zeros();\n                 let before = word.fetch_and(!bit, Ordering::SeqCst);\n                 if before & bit != 0 {\n                     handles[bit.trailing_zeros() as usize].get().expect(\"a parked worker has set its thread\").unpark();\n                     return true;\n                 }\n-                bits = before & !bit;\n+                bits = before &  /* ~ changed by cargo-mutants ~ */bit;\n             }\n         }\n         false\n     }\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_one",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 106
+        },
+        "start": {
+          "column": 5,
+          "line": 90
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/park.rs:102:33: delete ! in Park::wake_one",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 34,
+        "line": 102
+      },
+      "start": {
+        "column": 33,
+        "line": 102
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::wake_for -> usize with 0\n@@ -107,23 +107,17 @@\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n-        let parked = self.parked_count();\n-        // Nobody parked, or enough awake: nothing to wake.\n-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n-        if later > 0 {\n-            self.owed.fetch_add(later, Ordering::SeqCst);\n-        }\n-        (0..now).take_while(|_| self.wake_one()).count()\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n     /// token, until a waker clears the bit. Returns having found work\n     /// (false) or having been woken (true); a woken worker then pays the\n     /// wakes owed ([`Park::pay_owed`]).\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:115:9: replace Park::wake_for -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 121
+      },
+      "start": {
+        "column": 9,
+        "line": 115
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::wake_for -> usize with 1\n@@ -107,23 +107,17 @@\n \n     /// Wake workers for `wanted` pieces of new work, given `workers`\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n-        let parked = self.parked_count();\n-        // Nobody parked, or enough awake: nothing to wake.\n-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n-        if later > 0 {\n-            self.owed.fetch_add(later, Ordering::SeqCst);\n-        }\n-        (0..now).take_while(|_| self.wake_one()).count()\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n     /// token, until a waker clears the bit. Returns having found work\n     /// (false) or having been woken (true); a woken worker then pays the\n     /// wakes owed ([`Park::pay_owed`]).\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:115:9: replace Park::wake_for -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 57,
+        "line": 121
+      },
+      "start": {
+        "column": 9,
+        "line": 115
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with + in Park::wake_for\n@@ -109,17 +109,17 @@\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n         let parked = self.parked_count();\n         // Nobody parked, or enough awake: nothing to wake.\n-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n+        let (now, later) = split(wanted.saturating_sub(workers + /* ~ changed by cargo-mutants ~ */ parked).min(parked), self.fanout);\n         if later > 0 {\n             self.owed.fetch_add(later, Ordering::SeqCst);\n         }\n         (0..now).take_while(|_| self.wake_one()).count()\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:117:64: replace - with + in Park::wake_for",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 117
+      },
+      "start": {
+        "column": 64,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with / in Park::wake_for\n@@ -109,17 +109,17 @@\n     /// workers in all: up to `fanout` now, the rest owed, which the woken\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n         let parked = self.parked_count();\n         // Nobody parked, or enough awake: nothing to wake.\n-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n+        let (now, later) = split(wanted.saturating_sub(workers / /* ~ changed by cargo-mutants ~ */ parked).min(parked), self.fanout);\n         if later > 0 {\n             self.owed.fetch_add(later, Ordering::SeqCst);\n         }\n         (0..now).take_while(|_| self.wake_one()).count()\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:117:64: replace - with / in Park::wake_for",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 117
+      },
+      "start": {
+        "column": 64,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace > with == in Park::wake_for\n@@ -110,17 +110,17 @@\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n         let parked = self.parked_count();\n         // Nobody parked, or enough awake: nothing to wake.\n         let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n-        if later > 0 {\n+        if later == /* ~ changed by cargo-mutants ~ */ 0 {\n             self.owed.fetch_add(later, Ordering::SeqCst);\n         }\n         (0..now).take_while(|_| self.wake_one()).count()\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:118:18: replace > with == in Park::wake_for",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 118
+      },
+      "start": {
+        "column": 18,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace > with < in Park::wake_for\n@@ -110,17 +110,17 @@\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n         let parked = self.parked_count();\n         // Nobody parked, or enough awake: nothing to wake.\n         let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n-        if later > 0 {\n+        if later < /* ~ changed by cargo-mutants ~ */ 0 {\n             self.owed.fetch_add(later, Ordering::SeqCst);\n         }\n         (0..now).take_while(|_| self.wake_one()).count()\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:118:18: replace > with < in Park::wake_for",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 118
+      },
+      "start": {
+        "column": 18,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace > with >= in Park::wake_for\n@@ -110,17 +110,17 @@\n     /// workers pay, `fanout` each, before they work. How many it woke. A\n     /// publisher's read of `parked` follows its publication (a SeqCst store\n     /// or a fence), as a parking worker's re-check follows its bit: one of\n     /// the two sees the other.\n     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {\n         let parked = self.parked_count();\n         // Nobody parked, or enough awake: nothing to wake.\n         let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);\n-        if later > 0 {\n+        if later >= /* ~ changed by cargo-mutants ~ */ 0 {\n             self.owed.fetch_add(later, Ordering::SeqCst);\n         }\n         (0..now).take_while(|_| self.wake_one()).count()\n     }\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::wake_for",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 122
+        },
+        "start": {
+          "column": 5,
+          "line": 108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:118:18: replace > with >= in Park::wake_for",
+    "package": "blake3-servil",
+    "replacement": ">=",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 118
+      },
+      "start": {
+        "column": 18,
+        "line": 118
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::park_unless -> bool with true\n@@ -123,36 +123,17 @@\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n     /// token, until a waker clears the bit. Returns having found work\n     /// (false) or having been woken (true); a woken worker then pays the\n     /// wakes owed ([`Park::pay_owed`]).\n     pub(crate) fn park_unless(&self, me: usize, visible: impl Fn() -> bool) -> bool {\n-        let (word, bit) = self.place(me);\n-        word.fetch_or(bit, Ordering::SeqCst);\n-        if visible() {\n-            // Ours to clear, unless a waker cleared it first: then its wake\n-            // was spent on a worker that was leaving anyway (its unpark\n-            // leaves a token a later park returns from at once), and a\n-            // worker still parked may be the one it was for. Pass the wake\n-            // on, and return as woken so the caller pays what a woken\n-            // worker owes. Dropping it left a parked worker unwoken with\n-            // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n-                self.wake_one();\n-                return true;\n-            }\n-            return false;\n-        }\n-        while word.load(Ordering::SeqCst) & bit != 0 {\n-            thread::park();\n-        }\n-        true\n+        true /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:131:9: replace Park::park_unless -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 150
+      },
+      "start": {
+        "column": 9,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::park_unless -> bool with false\n@@ -123,36 +123,17 @@\n \n     /// Worker `me` parks unless `visible()` finds work: the bit first,\n     /// then one more look (a publisher stores, then reads `parked`; this\n     /// sets the bit, then looks: one of the two sees the other), then the\n     /// token, until a waker clears the bit. Returns having found work\n     /// (false) or having been woken (true); a woken worker then pays the\n     /// wakes owed ([`Park::pay_owed`]).\n     pub(crate) fn park_unless(&self, me: usize, visible: impl Fn() -> bool) -> bool {\n-        let (word, bit) = self.place(me);\n-        word.fetch_or(bit, Ordering::SeqCst);\n-        if visible() {\n-            // Ours to clear, unless a waker cleared it first: then its wake\n-            // was spent on a worker that was leaving anyway (its unpark\n-            // leaves a token a later park returns from at once), and a\n-            // worker still parked may be the one it was for. Pass the wake\n-            // on, and return as woken so the caller pays what a woken\n-            // worker owes. Dropping it left a parked worker unwoken with\n-            // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n-                self.wake_one();\n-                return true;\n-            }\n-            return false;\n-        }\n-        while word.load(Ordering::SeqCst) & bit != 0 {\n-            thread::park();\n-        }\n-        true\n+        false /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:131:9: replace Park::park_unless -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 150
+      },
+      "start": {
+        "column": 9,
+        "line": 131
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace == with != in Park::park_unless\n@@ -133,17 +133,17 @@\n         if visible() {\n             // Ours to clear, unless a waker cleared it first: then its wake\n             // was spent on a worker that was leaving anyway (its unpark\n             // leaves a token a later park returns from at once), and a\n             // worker still parked may be the one it was for. Pass the wake\n             // on, and return as woken so the caller pays what a woken\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n+            if word.fetch_and(!bit, Ordering::SeqCst) & bit != /* ~ changed by cargo-mutants ~ */ 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n         while word.load(Ordering::SeqCst) & bit != 0 {\n             thread::park();\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:141:61: replace == with != in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 141
+      },
+      "start": {
+        "column": 61,
+        "line": 141
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with | in Park::park_unless\n@@ -133,17 +133,17 @@\n         if visible() {\n             // Ours to clear, unless a waker cleared it first: then its wake\n             // was spent on a worker that was leaving anyway (its unpark\n             // leaves a token a later park returns from at once), and a\n             // worker still parked may be the one it was for. Pass the wake\n             // on, and return as woken so the caller pays what a woken\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n+            if word.fetch_and(!bit, Ordering::SeqCst) | /* ~ changed by cargo-mutants ~ */ bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n         while word.load(Ordering::SeqCst) & bit != 0 {\n             thread::park();\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:141:55: replace & with | in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 141
+      },
+      "start": {
+        "column": 55,
+        "line": 141
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with ^ in Park::park_unless\n@@ -133,17 +133,17 @@\n         if visible() {\n             // Ours to clear, unless a waker cleared it first: then its wake\n             // was spent on a worker that was leaving anyway (its unpark\n             // leaves a token a later park returns from at once), and a\n             // worker still parked may be the one it was for. Pass the wake\n             // on, and return as woken so the caller pays what a woken\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n+            if word.fetch_and(!bit, Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n         while word.load(Ordering::SeqCst) & bit != 0 {\n             thread::park();\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:141:55: replace & with ^ in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 56,
+        "line": 141
+      },
+      "start": {
+        "column": 55,
+        "line": 141
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ delete ! in Park::park_unless\n@@ -133,17 +133,17 @@\n         if visible() {\n             // Ours to clear, unless a waker cleared it first: then its wake\n             // was spent on a worker that was leaving anyway (its unpark\n             // leaves a token a later park returns from at once), and a\n             // worker still parked may be the one it was for. Pass the wake\n             // on, and return as woken so the caller pays what a woken\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n+            if word.fetch_and( /* ~ changed by cargo-mutants ~ */bit, Ordering::SeqCst) & bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n         while word.load(Ordering::SeqCst) & bit != 0 {\n             thread::park();\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/park.rs:141:31: delete ! in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 141
+      },
+      "start": {
+        "column": 31,
+        "line": 141
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace != with == in Park::park_unless\n@@ -139,17 +139,17 @@\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n             if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n-        while word.load(Ordering::SeqCst) & bit != 0 {\n+        while word.load(Ordering::SeqCst) & bit == /* ~ changed by cargo-mutants ~ */ 0 {\n             thread::park();\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:147:49: replace != with == in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 51,
+        "line": 147
+      },
+      "start": {
+        "column": 49,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with | in Park::park_unless\n@@ -139,17 +139,17 @@\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n             if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n-        while word.load(Ordering::SeqCst) & bit != 0 {\n+        while word.load(Ordering::SeqCst) | /* ~ changed by cargo-mutants ~ */ bit != 0 {\n             thread::park();\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:147:43: replace & with | in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "|",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 147
+      },
+      "start": {
+        "column": 43,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace & with ^ in Park::park_unless\n@@ -139,17 +139,17 @@\n             // worker owes. Dropping it left a parked worker unwoken with\n             // work published: Shuttle found both schedules (October 23).\n             if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {\n                 self.wake_one();\n                 return true;\n             }\n             return false;\n         }\n-        while word.load(Ordering::SeqCst) & bit != 0 {\n+        while word.load(Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ bit != 0 {\n             thread::park();\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::park_unless",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 151
+        },
+        "start": {
+          "column": 5,
+          "line": 124
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:147:43: replace & with ^ in Park::park_unless",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 147
+      },
+      "start": {
+        "column": 43,
+        "line": 147
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::pay_owed -> usize with 0\n@@ -148,32 +148,17 @@\n             thread::park();\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n-        let mut made = 0;\n-        while made < self.fanout {\n-            let owed = self.owed.load(Ordering::SeqCst);\n-            if owed == 0 {\n-                break;\n-            }\n-            if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n-                continue;\n-            }\n-            if !self.wake_one() {\n-                self.owed.store(0, Ordering::SeqCst);\n-                break;\n-            }\n-            made += 1;\n-        }\n-        made\n+        0 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n #[cfg(test)]\n mod test {\n     use super::{Park, split};\n     use std::sync::atomic::Ordering;\n \n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:156:9: replace Park::pay_owed -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 171
+      },
+      "start": {
+        "column": 9,
+        "line": 156
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace Park::pay_owed -> usize with 1\n@@ -148,32 +148,17 @@\n             thread::park();\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n-        let mut made = 0;\n-        while made < self.fanout {\n-            let owed = self.owed.load(Ordering::SeqCst);\n-            if owed == 0 {\n-                break;\n-            }\n-            if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n-                continue;\n-            }\n-            if !self.wake_one() {\n-                self.owed.store(0, Ordering::SeqCst);\n-                break;\n-            }\n-            made += 1;\n-        }\n-        made\n+        1 /* ~ changed by cargo-mutants ~ */\n     }\n }\n \n #[cfg(test)]\n mod test {\n     use super::{Park, split};\n     use std::sync::atomic::Ordering;\n \n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/park.rs:156:9: replace Park::pay_owed -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 13,
+        "line": 171
+      },
+      "start": {
+        "column": 9,
+        "line": 156
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace < with == in Park::pay_owed\n@@ -149,17 +149,17 @@\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n-        while made < self.fanout {\n+        while made == /* ~ changed by cargo-mutants ~ */ self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:157:20: replace < with == in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 157
+      },
+      "start": {
+        "column": 20,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace < with > in Park::pay_owed\n@@ -149,17 +149,17 @@\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n-        while made < self.fanout {\n+        while made > /* ~ changed by cargo-mutants ~ */ self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:157:20: replace < with > in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": ">",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 157
+      },
+      "start": {
+        "column": 20,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace < with <= in Park::pay_owed\n@@ -149,17 +149,17 @@\n         }\n         true\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n-        while made < self.fanout {\n+        while made <= /* ~ changed by cargo-mutants ~ */ self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:157:20: replace < with <= in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "<=",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 157
+      },
+      "start": {
+        "column": 20,
+        "line": 157
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace == with != in Park::pay_owed\n@@ -151,17 +151,17 @@\n     }\n \n     /// A woken worker pays up to `fanout` of the wakes owed before it\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n-            if owed == 0 {\n+            if owed != /* ~ changed by cargo-mutants ~ */ 0 {\n                 break;\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:159:21: replace == with != in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 23,
+        "line": 159
+      },
+      "start": {
+        "column": 21,
+        "line": 159
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with + in Park::pay_owed\n@@ -154,17 +154,17 @@\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n-            if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n+            if self.owed.compare_exchange(owed, owed + /* ~ changed by cargo-mutants ~ */ 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n             }\n             made += 1;\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:162:54: replace - with + in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 162
+      },
+      "start": {
+        "column": 54,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace - with / in Park::pay_owed\n@@ -154,17 +154,17 @@\n     /// works, each a worker that pays in turn: how many it woke.\n     pub(crate) fn pay_owed(&self) -> usize {\n         let mut made = 0;\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n-            if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n+            if self.owed.compare_exchange(owed, owed / /* ~ changed by cargo-mutants ~ */ 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n             }\n             made += 1;\n         }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:162:54: replace - with / in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 55,
+        "line": 162
+      },
+      "start": {
+        "column": 54,
+        "line": 162
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ delete ! in Park::pay_owed\n@@ -157,17 +157,17 @@\n         while made < self.fanout {\n             let owed = self.owed.load(Ordering::SeqCst);\n             if owed == 0 {\n                 break;\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n-            if !self.wake_one() {\n+            if  /* ~ changed by cargo-mutants ~ */self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n             }\n             made += 1;\n         }\n         made\n     }\n }\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "UnaryOperator",
+    "name": "src/park.rs:165:16: delete ! in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 165
+      },
+      "start": {
+        "column": 16,
+        "line": 165
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace += with -= in Park::pay_owed\n@@ -161,17 +161,17 @@\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n             }\n-            made += 1;\n+            made -= /* ~ changed by cargo-mutants ~ */ 1;\n         }\n         made\n     }\n }\n \n #[cfg(test)]\n mod test {\n     use super::{Park, split};\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:169:18: replace += with -= in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 169
+      },
+      "start": {
+        "column": 18,
+        "line": 169
+      }
+    }
+  },
+  {
+    "diff": "--- src/park.rs\n+++ replace += with *= in Park::pay_owed\n@@ -161,17 +161,17 @@\n             }\n             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {\n                 continue;\n             }\n             if !self.wake_one() {\n                 self.owed.store(0, Ordering::SeqCst);\n                 break;\n             }\n-            made += 1;\n+            made *= /* ~ changed by cargo-mutants ~ */ 1;\n         }\n         made\n     }\n }\n \n #[cfg(test)]\n mod test {\n     use super::{Park, split};\n",
+    "file": "src/park.rs",
+    "function": {
+      "function_name": "Park::pay_owed",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 172
+        },
+        "start": {
+          "column": 5,
+          "line": 153
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/park.rs:169:18: replace += with *= in Park::pay_owed",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 169
+      },
+      "start": {
+        "column": 18,
+        "line": 169
+      }
+    }
+  }
+]

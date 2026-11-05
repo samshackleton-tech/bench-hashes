@@ -1,0 +1,70 @@
+
+*** src/lib.rs:926:5: replace hash_all_at_once -> Output with Default::default()
+
+*** mutation diff:
+--- src/lib.rs
++++ replace hash_all_at_once -> Output with Default::default()
+@@ -918,34 +918,17 @@
+ // Unlike the wider helpers above, this also handles one chunk or less.
+ // The pool's pieces (lanes.rs) use it; the one-shot calls go through
+ // tree::hash.
+ #[cfg(feature = "std")]
+ #[inline]
+ fn hash_all_at_once(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> Output {
+     // The input is a complete subtree at chunk_counter, or the whole
+     // input (including empty) at counter zero. Its byte offset fits u64.
+-    debug_assert!(chunk_counter <= u64::MAX / CHUNK_LEN as u64);
+-    debug_assert!(chunk_counter == 0 || (!input.is_empty() && input.len() as u64 <= max_subtree_len(chunk_counter * CHUNK_LEN as u64).unwrap()));
+-
+-    // If the whole subtree is one chunk, hash it directly with a ChunkState.
+-    if input.len() <= CHUNK_LEN {
+-        return ChunkState::new(key, chunk_counter, flags, platform).update(input).output();
+-    }
+-
+-    // Otherwise construct an Output object from the parent node returned by
+-    // compress_subtree_to_parent_node().
+-    hasher::Output {
+-        input_chaining_value: *key,
+-        block: compress_subtree_to_parent_node(input, 0, key, chunk_counter, flags, platform),
+-        block_len: BLOCK_LEN as u8,
+-        counter: 0,
+-        flags: flags | PARENT,
+-        platform,
+-    }
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Run the startup self-test and detect the CPU: every program calls this
+ /// (or [`initialize_multithreaded`]) once, before any other call of this
+ /// crate, and a call before it panics. Under 0.2 ms, once per process
+ /// (see the crate's documentation); later calls return at once.
+ ///
+ /// ```
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ag8s7fg6)
+error[E0277]: the trait bound `hasher::Output<platform::Platform>: Default` is not satisfied
+   --> src/lib.rs:926:5
+    |
+926 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::Output<platform::Platform>`
+   --> src/hasher.rs:374:1
+    |
+374 | pub struct Output<P> {
+    | ^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

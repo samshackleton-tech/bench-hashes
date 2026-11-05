@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace Platform::sme2 -> Option<Self> with Some(Default::default())
+@@ -442,17 +442,17 @@
+     pub fn neon() -> Option<Self> {
+         // Assumed to be safe if the "neon" feature is on.
+         Some(Self::NEON)
+     }
+ 
+     #[cfg(blake3_sme2)]
+     #[cfg(all(test, feature = "std"))]
+     pub fn sme2() -> Option<Self> {
+-        if sme2_detected() { Some(Self::SME2) } else { None }
++        Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The x86-64 features the platforms check, as bits: [`SSE41`], [`AVX2`],
+ /// [`AVX512`] (F and VL, the two AVX-512 featuresets the kernels use), and
+ /// [`READ`] once the bits are read. Every check reads them from CPUID once
+ /// per process: CPUID costs about 640 ns (i7-12700K), and cpufeatures read
+ /// three leaves per feature checked, six on an AVX2 machine's first

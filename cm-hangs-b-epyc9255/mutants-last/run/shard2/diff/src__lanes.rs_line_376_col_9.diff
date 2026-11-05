@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace <impl Drop for AbortOnUnwind>::drop with ()
+@@ -368,17 +368,17 @@
+ /// Ends the process if dropped: held while a job is published, or while a
+ /// stream's body runs, and forgotten once the workers are done, so it drops
+ /// only when the caller unwinds with workers possibly still reading its
+ /// memory (the one mechanism for that: crash-only, Zooko, November 2).
+ pub(crate) struct AbortOnUnwind;
+ 
+ impl Drop for AbortOnUnwind {
+     fn drop(&mut self) {
+-        std::process::abort()
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// A counted call (spare_pool), until it returns, unwinding too.
+ struct Caller<'a>(&'a AtomicUsize);
+ 
+ impl Drop for Caller<'_> {
+     fn drop(&mut self) {

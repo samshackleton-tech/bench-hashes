@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace + with * in fill
+@@ -154,17 +154,17 @@
+     let take = if CHUNK_LEN - chunk.len() < input.len() { CHUNK_LEN - chunk.len() } else { input.len() };
+     chunk.update(&input[..take]);
+     let rest = &input[take..];
+     if rest.is_empty() {
+         return rest;
+     }
+     let counter = chunk.counter();
+     push(k, stack, initial, k.chunk_cv(chunk), counter);
+-    *chunk = k.new_chunk(counter + 1);
++    *chunk = k.new_chunk(counter * /* ~ changed by cargo-mutants ~ */ 1);
+     rest
+ }
+ 
+ /// `input` after an empty chunk: whole subtrees onto the stack, then at most
+ /// a chunk into the chunk, and the stack merged behind it.
+ pub fn feed<C: Chunk, K: Feed<C>>(k: &K, chunk: &mut C, stack: &mut CvStack, initial: u64, input: &[u8]) {
+     let mut input = input;
+     while input.len() > CHUNK_LEN {

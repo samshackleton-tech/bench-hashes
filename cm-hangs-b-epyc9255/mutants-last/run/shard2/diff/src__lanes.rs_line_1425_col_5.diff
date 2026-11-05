@@ -1,0 +1,22 @@
+--- src/lanes.rs
++++ replace sme2_main with ()
+@@ -1417,18 +1417,17 @@
+ /// SME unit hashes a 64 KiB piece in 14 us where a NEON worker takes 22,
+ /// Mac, probe/queue-timeline), under the process's turn so that a caller of
+ /// hash() elsewhere keeps the unit; without the turn, on NEON. It takes
+ /// streams' tasks while any wait, and parks as soon as none does; every
+ /// publish wakes it first.
+ fn sme2_main() {
+     // As for a worker: a panic here ends the process rather than hanging
+     // the callers waiting on it.
+-    let _ = std::panic::catch_unwind(sme2_serve);
+-    std::process::abort()
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ fn sme2_serve() -> ! {
+     assert!(SME2_THREAD.set(std::thread::current()).is_ok(), "one SME2 thread");
+     loop {
+         if let Some(task) = sources::take_stream_task() {
+             if task.members > 0 {
+                 // Short messages and small batches, gathered, run faster

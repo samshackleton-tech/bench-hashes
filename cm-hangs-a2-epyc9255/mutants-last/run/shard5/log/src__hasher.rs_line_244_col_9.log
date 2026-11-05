@@ -1,0 +1,53 @@
+
+*** src/hasher.rs:244:9: replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::new_chunk -> ChunkState<P> with ChunkState::new()
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace <impl Feed<ChunkState<P>> for Kernels<'_, P, H>>::new_chunk -> ChunkState<P> with ChunkState::new()
+@@ -236,17 +236,17 @@
+     fn parent(&self, left: &Cv, right: &Cv) -> Cv {
+         parent_output(left, right, self.key, self.flags, self.platform).chaining_value()
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H: Hooks> Feed<ChunkState<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn new_chunk(&self, counter: u64) -> ChunkState<P> {
+-        ChunkState::new(self.key, counter, self.flags, self.platform)
++        ChunkState::new() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn chunk_cv(&self, chunk: &ChunkState<P>) -> Cv {
+         chunk.output().chaining_value()
+     }
+ 
+     #[inline(always)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-fb6vadgh)
+error[E0061]: this function takes 4 arguments but 0 arguments were supplied
+   --> src/hasher.rs:244:9
+    |
+244 |         ChunkState::new() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^-- multiple arguments are missing
+    |
+note: associated function defined here
+   --> src/hasher.rs:314:12
+    |
+314 |     pub fn new(key: &[u32; 8], chunk_counter: u64, flags: u8, platform: P) -> Self {
+    |            ^^^ --------------  ------------------  ---------  -----------
+help: provide the arguments
+    |
+244 |         ChunkState::new(/* &[u32; 8] */, /* u64 */, /* u8 */, /* P */) /* ~ changed by cargo-mutants ~ */
+    |                         +++++++++++++++++++++++++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0061`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

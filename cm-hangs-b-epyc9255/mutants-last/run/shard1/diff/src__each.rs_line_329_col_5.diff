@@ -1,0 +1,27 @@
+--- src/each.rs
++++ replace subtree -> CVBytes with Default::default()
+@@ -321,23 +321,17 @@
+     let split = left_len(cvs.len());
+     let left = subtree(&cvs[..split], key, flags, platform);
+     let right = subtree(&cvs[split..], key, flags, platform);
+     crate::hasher::parent_output(&left, &right, key, flags, platform).root_hash()
+ }
+ 
+ /// A non-root subtree's chaining value.
+ fn subtree(cvs: &[CVBytes], key: &CVWords, flags: u8, platform: Platform) -> CVBytes {
+-    if cvs.len() == 1 {
+-        return cvs[0];
+-    }
+-    let split = left_len(cvs.len());
+-    let left = subtree(&cvs[..split], key, flags, platform);
+-    let right = subtree(&cvs[split..], key, flags, platform);
+-    crate::hasher::parent_output(&left, &right, key, flags, platform).chaining_value()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The largest power of two below `n` (n of 2 or more).
+ fn left_len(n: usize) -> usize {
+     debug_assert!(n >= 2);
+     1 << (usize::BITS - 1 - (n - 1).leading_zeros())
+ }
+ 

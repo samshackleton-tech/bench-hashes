@@ -1,0 +1,50 @@
+--- src/self_test.rs
++++ replace run -> usize with 0
+@@ -392,46 +392,17 @@
+     out.len()
+ }
+ 
+ /// Run every case and panic on the first that differs from the reference;
+ /// how many cases ran (CASES and the selected platform's extra entries).
+ fn run() -> usize {
+     // A kernel's panic, as a test plants it: the guard in ensure_slow
+     // stops the process for it.
+-    #[cfg(test)]
+-    if PLANTED_FAILURE.load(core::sync::atomic::Ordering::Relaxed) {
+-        panic!("a kernel's panic, planted by a test");
+-    }
+-    compiled_features_present();
+-    let platform = Platform::detect_unchecked();
+-    let mut checked = 0;
+-    let previous = chain(
+-        |case, input, previous, out| outputs(platform, case, input, previous, out),
+-        |index, folded| {
+-            checked += 1;
+-            if folded != EXPECTED[index] {
+-                stop(format_args!(
+-                    "blake3-servil startup self-test failed: case {index}, {} (platform {}): this build or this CPU \
+-                     computes wrong BLAKE3 digests on that path",
+-                    CASES[index].1,
+-                    platform.name(),
+-                ));
+-            }
+-        },
+-    );
+-    #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+-    if crate::platform::wide_avx512() {
+-        // Sound: the detected platform has the wide kernels' ISA, and
+-        // hash_many dispatches to them (only then does startup check them). Their
+-        // wrapper checks its bounds, and builds all arguments on the stack.
+-        checked += unsafe { crate::avx512_32::self_test(&previous) };
+-    }
+-    let _ = previous;
+-    checked
++    0 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Stop when this binary was compiled to assume an instruction that this
+ /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT
+ /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),
+ /// silently giving other values (QEMU's Ivy Bridge: leading_zeros(1 << 20)
+ /// is 20, not 43). Every other instruction the compiler could assume traps
+ /// on a CPU without it (SIGILL), which already stops the program. The

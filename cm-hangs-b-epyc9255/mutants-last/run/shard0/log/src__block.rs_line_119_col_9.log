@@ -1,0 +1,65 @@
+
+*** src/block.rs:119:9: replace Batch<'a>::from_blocks -> Self with Default::default()
+
+*** mutation diff:
+--- src/block.rs
++++ replace Batch<'a>::from_blocks -> Self with Default::default()
+@@ -111,21 +111,17 @@
+     /// The messages of `message_len` bytes that `blocks` holds, borrowed
+     /// with no copy, where they fill their blocks: `message_len` a
+     /// multiple of 64 (no byte past a message's end to keep zero; an empty
+     /// message's block, which nothing reads, counts as one), and `blocks`
+     /// whole messages, which each call that hashes it checks against its
+     /// digests by a multiplication: a borrow costs a bit test.
+     #[inline]
+     pub fn from_blocks(blocks: &'a [Block], message_len: usize) -> Self {
+-        assert!(
+-            message_len % BLOCK_LEN == 0,
+-            "Batch::from_blocks takes messages that fill their blocks, not {message_len} B (Batch::new makes one for any length)"
+-        );
+-        Batch { blocks: blocks.into(), message_len }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// For the crate's own tests: `blocks` as a batch of `message_len`-byte
+     /// messages in place, whatever their length, each at the start of its
+     /// blocks and every byte past it zero (checked): the tests' layouts,
+     /// batches beside guard pages among them.
+     #[cfg(test)]
+     pub(crate) fn in_place(blocks: &'a [Block], message_len: usize) -> Self {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-kbhabccz)
+error[E0277]: the trait bound `Batch<'_>: Default` is not satisfied
+   --> src/block.rs:119:9
+    |
+119 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Batch<'_>`
+    |
+help: consider annotating `Batch<'_>` with `#[derive(Default)]`
+    |
+ 84 + #[derive(Default)]
+ 85 | pub struct Batch<'a> {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `block::Batch<'_>: Default` is not satisfied
+   --> src/block.rs:119:9
+    |
+119 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `block::Batch<'_>`
+    |
+help: consider annotating `block::Batch<'_>` with `#[derive(Default)]`
+    |
+ 84 + #[derive(Default)]
+ 85 | pub struct Batch<'a> {
+    |
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

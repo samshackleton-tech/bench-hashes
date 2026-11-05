@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace >= with < in Platform::xof_many
+@@ -366,17 +366,17 @@
+             #[cfg(unix)]
+             #[cfg(target_arch = "x86_64")]
+             Platform::AVX512 => unsafe { crate::avx512::xof_many(cv, block, block_len, counter, flags, out) },
+             _ => {
+                 // On SME2, whole groups of sixteen blocks on the extended-
+                 // output kernel, under the process's turn; the rest below.
+                 #[cfg(blake3_sme2)]
+                 let out = {
+-                    let turn = Sme2Turn::take(*self, out.len() >= 16 * BLOCK_LEN);
++                    let turn = Sme2Turn::take(*self, out.len() < /* ~ changed by cargo-mutants ~ */ 16 * BLOCK_LEN);
+                     let done = if matches!(turn.platform(), Platform::SME2) {
+                         // Safe: the turn's platform is SME2 only where detect() found it.
+                         unsafe { crate::sme2::xof_many(cv, block, block_len, counter, flags, out) }
+                     } else {
+                         0
+                     };
+                     counter += (done / BLOCK_LEN) as u64;
+                     &mut out[done..]

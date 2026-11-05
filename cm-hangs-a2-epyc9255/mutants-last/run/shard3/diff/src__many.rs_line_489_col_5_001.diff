@@ -1,0 +1,31 @@
+--- src/many.rs
++++ replace fill_table -> &'s[&'a[u8; N]] with Vec::leak(vec![Box::leak(Box::new([0; N]))])
+@@ -481,27 +481,17 @@
+ /// lanes, uninitialised on the caller's stack.
+ type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE + 16];
+ 
+ /// Fill `slots` with pointers to the first `count` slots of N bytes in
+ /// `messages`, then spare lanes repeating the last up to `lanes`; the
+ /// table's filled part.
+ #[inline(always)]
+ fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8; N]] {
+-    assert!(0 < count && count <= lanes && lanes <= TABLE + 16 && messages.len() >= count * N, "a table of 1 to TABLE + 16 lanes over the messages");
+-    let mut last: &[u8; N] = &[0; N];
+-    for (slot, message) in slots[..count].iter_mut().zip(messages.chunks_exact(N)) {
+-        last = message.try_into().expect("slots of N bytes");
+-        slot.write(last);
+-    }
+-    for slot in &mut slots[count..lanes] {
+-        slot.write(last);
+-    }
+-    // Sound: the first `lanes` slots were written just above.
+-    unsafe { core::slice::from_raw_parts(slots.as_ptr() as *const &[u8; N], lanes) }
++    Vec::leak(vec![Box::leak(Box::new([0; N]))]) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The integer + NEON parent plans over `lanes`, each message's last block
+ /// `last_len` bytes.
+ #[inline(always)]
+ fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+     #[cfg(blake3_neon)]
+     // Sound: every AArch64 CPU has NEON.

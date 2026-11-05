@@ -1,0 +1,76 @@
+
+*** src/lanes.rs:253:5: replace spare_pool -> Option<(&'static Pool, Caller<'static>)> with Some((Box::leak(Box::new(Default::default())), Default::default()))
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace spare_pool -> Option<(&'static Pool, Caller<'static>)> with Some((Box::leak(Box::new(Default::default())), Default::default()))
+@@ -245,20 +245,17 @@
+ /// maximum-sized piece per participant, at least two participants when
+ /// available; the same budget cuts the pieces and asks for the wakes.
+ /// Other kernels and work kinds keep their policy (experiment, #125).
+ fn tree_threads(len: usize, available: usize, degree: usize) -> usize {
+     if cfg!(all(target_arch = "x86_64", target_os = "linux")) && degree >= 16 { len.div_ceil(MAX_PIECE_LEN).max(2).min(available) } else { available }
+ }
+ 
+ fn spare_pool() -> Option<(&'static Pool, Caller<'static>)> {
+-    let pool = pool();
+-    let callers = pool.callers.fetch_add(1, Ordering::SeqCst) + 1;
+-    let caller = Caller(&pool.callers);
+-    (callers < pool.threads).then_some((pool, caller))
++    Some((Box::leak(Box::new(Default::default())), Default::default())) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The subtree pieces of `input` at chunk `counter` and their chaining
+ /// values, hashed over the pool (the SME2 thread's prefix first, where it
+ /// takes one).
+ fn tree_cvs(pool: &Pool, input: &[u8], key: &crate::CVWords, counter: u64, flags: u8) -> (Vec<Piece>, Vec<ChainingValue>) {
+     let turn = crate::platform::Sme2Turn::take(Platform::detect(), true);
+     let threads = tree_threads(input.len(), pool.threads, turn.platform().simd_degree());
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-klfllb68)
+error[E0277]: the trait bound `Pool: Default` is not satisfied
+   --> src/lanes.rs:253:30
+    |
+253 |     Some((Box::leak(Box::new(Default::default())), Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                              ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Pool`
+   --> src/lanes.rs:631:1
+    |
+631 | struct Pool {
+    | ^^^^^^^^^^^
+
+error[E0277]: the trait bound `Caller<'_>: Default` is not satisfied
+   --> src/lanes.rs:253:52
+    |
+253 |     Some((Box::leak(Box::new(Default::default())), Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                                                    ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Caller<'_>`
+   --> src/lanes.rs:378:1
+    |
+378 | struct Caller<'a>(&'a AtomicUsize);
+    | ^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::Pool: Default` is not satisfied
+   --> src/lanes.rs:253:30
+    |
+253 |     Some((Box::leak(Box::new(Default::default())), Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                              ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `lanes::Pool`
+   --> src/lanes.rs:631:1
+    |
+631 | struct Pool {
+    | ^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

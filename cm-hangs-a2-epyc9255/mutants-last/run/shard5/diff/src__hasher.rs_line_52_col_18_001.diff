@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace += with *= in CvStack::push
+@@ -44,17 +44,17 @@
+     /// `cv` on top; the stack holds fewer than DEPTH values.
+     pub fn push(&mut self, cv: Cv) {
+         if self.cvs.is_none() {
+             self.cvs = Some([[0; 32]; DEPTH]);
+         }
+         if let Some(cvs) = &mut self.cvs {
+             cvs[self.len] = cv;
+         }
+-        self.len += 1;
++        self.len *= /* ~ changed by cargo-mutants ~ */ 1;
+     }
+ 
+     pub fn clear(&mut self) {
+         self.len = 0;
+     }
+ 
+     /// While the stack holds more than `target` values, its top two become
+     /// their parent (merge_cv_stack). Two are there to merge whenever

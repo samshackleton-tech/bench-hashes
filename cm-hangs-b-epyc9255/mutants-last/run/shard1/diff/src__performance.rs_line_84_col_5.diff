@@ -1,0 +1,23 @@
+--- src/performance.rs
++++ replace hash_many with ()
+@@ -76,19 +76,17 @@
+ /// loop of [`hash`]: on an Apple M4 Max, 64-byte messages take about 10 to
+ /// 20 ns each in batches of 16 or more, against about 50 for one [`hash`]
+ /// each. Messages longer than 15 KiB cost what [`hash`] costs. For the
+ /// same hashes over several cores, see [`hash_many_multithreaded`].
+ // Inlined, so a constant mode folds to its constants (as
+ // convenience::hash is: no mode stored for the call to read).
+ #[inline(always)]
+ pub fn hash_many(mode: Mode, batch: &Batch, out: &mut [[u8; OUT_LEN]]) {
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    crate::hash_many_serial(Block::bytes(batch.blocks()), batch.message_len(), key, flags, out);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`hash_many`], using other CPU cores where that is faster: the same
+ /// hashes, never slower.
+ ///
+ /// ```
+ /// # blake3_servil::initialize_multithreaded(None);
+ /// use blake3_servil::Mode;

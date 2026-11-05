@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace * with + in wide
+@@ -44,17 +44,17 @@
+     (1usize << (usize::BITS - 1 - chunks.leading_zeros())) * CHUNK_LEN
+ }
+ 
+ /// The chaining values of a cut through the subtree over `input` (at least
+ /// one byte), its first chunk numbered `counter`, into `out[..n]`; returns
+ /// n, between 1 and degree. `out` holds at least that many.
+ /// `ahead` bytes of the caller's input follow `input`.
+ pub fn wide<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64, out: &mut [Cv]) -> usize {
+-    if input.len() <= k.degree() * CHUNK_LEN {
++    if input.len() <= k.degree() + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN {
+         return k.chunks(input, counter, out);
+     }
+     if let Some(n) = k.subtree(input, ahead, counter, out) {
+         return n;
+     }
+     let l = left_len(input.len());
+     let (a, b) = input.split_at(l);
+     // More than degree chunks (2 or more), so the left half holds two

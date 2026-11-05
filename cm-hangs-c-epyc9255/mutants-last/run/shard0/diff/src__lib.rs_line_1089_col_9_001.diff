@@ -1,0 +1,27 @@
+--- src/lib.rs
++++ replace Mode<'_>::key -> (&CVWords, u8) with (Box::leak(Box::new(Default::default())), 1)
+@@ -1081,23 +1081,17 @@
+ impl Mode<'_> {
+     /// The key words and flags this mode hashes with, the plain mode's IV
+     /// where it is: a public call's one way to its key. A copy of the IV
+     /// put 32 bytes of stores on the stack before the message's loads of
+     /// every call (October 24, the i7's disassembly of a caller); a
+     /// constant mode folds to its constants, inlined.
+     #[inline]
+     pub(crate) fn key(self, room: &mut core::mem::MaybeUninit<CVWords>) -> (&CVWords, u8) {
+-        match self {
+-            Mode::Plain => (IV, 0),
+-            _ => {
+-                let (key, flags) = self.key_and_flags();
+-                (room.write(key), flags)
+-            }
+-        }
++        (Box::leak(Box::new(Default::default())), 1) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The key words and flags this mode hashes with.
+     #[inline]
+     fn key_and_flags(self) -> (CVWords, u8) {
+         match self {
+             Mode::Plain => (*IV, 0),
+             Mode::Keyed(key) => (platform::words_from_le_bytes_32(key), KEYED_HASH),

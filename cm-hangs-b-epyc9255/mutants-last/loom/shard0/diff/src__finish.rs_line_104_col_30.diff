@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ delete ! in Finish::wait
+@@ -96,17 +96,17 @@
+         }
+         // The bit and the count in one read: a finisher after this sees
+         // the bit; one before it left its count here.
+         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+         while count < target {
+             thread::park();
+             count = self.finished_count();
+         }
+-        self.state.fetch_and(!SLEEPING, Ordering::SeqCst);
++        self.state.fetch_and( /* ~ changed by cargo-mutants ~ */SLEEPING, Ordering::SeqCst);
+     }
+ }
+ 
+ // The standard library's test alone: under Shuttle (tests/shuttle_finish.rs)
+ // the file compiles beside Shuttle's primitives, which have no sleep.
+ #[cfg(all(test, not(shuttle)))]
+ mod tests {
+     use super::*;

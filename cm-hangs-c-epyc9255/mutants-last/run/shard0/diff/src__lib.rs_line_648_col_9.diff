@@ -1,0 +1,27 @@
+--- src/lib.rs
++++ replace <impl Zeroize for Output>::zeroize with ()
+@@ -640,23 +640,17 @@
+         self.platform.compress_xof(&self.input_chaining_value, &self.block, self.block_len, self.counter, self.flags | ROOT)
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Output {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+-        let Self { input_chaining_value, block, block_len, counter, flags, platform: _ } = self;
+-
+-        input_chaining_value.zeroize();
+-        block.zeroize();
+-        block_len.zeroize();
+-        counter.zeroize();
+-        flags.zeroize();
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ type ChunkState = hasher::ChunkState<Platform>;
+ 
+ impl hasher::Blocks for Platform {
+     #[inline(always)]
+     fn compress_in_place(&self, cv: &mut CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) {

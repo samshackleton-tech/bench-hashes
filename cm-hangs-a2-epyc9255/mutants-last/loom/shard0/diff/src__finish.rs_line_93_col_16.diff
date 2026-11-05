@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ delete ! in Finish::wait
+@@ -85,17 +85,17 @@
+     /// Wait until the count reaches `target`: `poll` a while (it returns
+     /// false when the while is up), then parked until the worker finishing
+     /// the last piece unparks this thread.
+     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {
+         loop {
+             if self.finished_count() >= target {
+                 return;
+             }
+-            if !poll() {
++            if  /* ~ changed by cargo-mutants ~ */poll() {
+                 break;
+             }
+         }
+         // The bit and the count in one read: a finisher after this sees
+         // the bit; one before it left its count here.
+         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+         while count < target {
+             thread::park();

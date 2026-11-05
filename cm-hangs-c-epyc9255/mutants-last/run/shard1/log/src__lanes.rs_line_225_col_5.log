@@ -1,0 +1,54 @@
+
+*** src/lanes.rs:225:5: replace hash_with_key -> Hash with Default::default()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace hash_with_key -> Hash with Default::default()
+@@ -217,20 +217,17 @@
+ }
+ 
+ /// Hash `input` over the machine's threads in the mode of `key` and
+ /// `flags` (IV and 0 for plain hashing).
+ #[inline]
+ pub(crate) fn hash_with_key(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+     // The short path first and inline, so a small input costs what hash()
+     // costs; everything the pool needs is behind the call below.
+-    if input.len() < MIN_SPLIT_LEN {
+-        return crate::hash_serial(input, key, flags);
+-    }
+-    hash_over_pool(input, key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[inline(never)]
+ fn hash_over_pool(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+     let Some((pool, _caller)) = spare_pool() else {
+         return crate::hash_serial(input, key, flags);
+     };
+     let (pieces, mut cvs) = tree_cvs(pool, input, key, 0, flags);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-klfllb68)
+error[E0277]: the trait bound `Hash: Default` is not satisfied
+   --> src/lanes.rs:225:5
+    |
+225 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Hash`
+    |
+help: consider annotating `Hash` with `#[derive(Default)]`
+   --> src/lib.rs:426:1
+    |
+426 + #[derive(Default)]
+427 | pub struct Hash([u8; OUT_LEN]);
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

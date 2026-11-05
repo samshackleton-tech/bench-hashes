@@ -1,0 +1,25 @@
+--- src/many.rs
++++ replace sme2_sized -> bool with true
+@@ -391,21 +391,17 @@
+ }
+ 
+ /// Whether a batch of `count` messages of `len` bytes runs SME2 kernels
+ /// (so takes the SME2 turn): sixteen messages or more; one-block messages
+ /// from ONE_BLOCK_PAD_MIN; messages of up to a chunk from SME2_TAIL_MIN;
+ /// messages of 2 to 15 chunks from sme2_chunked_min; and any message long
+ /// enough for hash() to take the turn itself.
+ pub(crate) fn sme2_sized(len: usize, count: usize) -> bool {
+-    count >= crate::SME2_SIZED_BATCH
+-        || (len > 0 && len <= BLOCK_LEN && count >= ONE_BLOCK_PAD_MIN)
+-        || (len > BLOCK_LEN && len <= CHUNK_LEN && count >= SME2_TAIL_MIN)
+-        || (chunked(len) && count >= sme2_chunked_min(len))
+-        || (len >= crate::SME2_SIZED_LEN && count >= 1)
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Up to TABLE one-block messages (N = BLOCK_LEN, whole blocks) in
+ /// `messages`: whole SME2 groups on the message kernel, the last padded,
+ /// where the count calls for it; otherwise the platform's `hash_many` (the
+ /// parent kernels and the NEON plans). Kept out of line:
+ /// with all sixteen lengths inlined into hash_many_on, batches of two
+ /// 64-byte messages took 30% longer (VM, bench-hashes); out of line they

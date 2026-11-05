@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace < with > in hash_with_key
+@@ -217,17 +217,17 @@
+ }
+ 
+ /// Hash `input` over the machine's threads in the mode of `key` and
+ /// `flags` (IV and 0 for plain hashing).
+ #[inline]
+ pub(crate) fn hash_with_key(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+     // The short path first and inline, so a small input costs what hash()
+     // costs; everything the pool needs is behind the call below.
+-    if input.len() < MIN_SPLIT_LEN {
++    if input.len() > /* ~ changed by cargo-mutants ~ */ MIN_SPLIT_LEN {
+         return crate::hash_serial(input, key, flags);
+     }
+     hash_over_pool(input, key, flags)
+ }
+ 
+ #[inline(never)]
+ fn hash_over_pool(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+     let Some((pool, _caller)) = spare_pool() else {

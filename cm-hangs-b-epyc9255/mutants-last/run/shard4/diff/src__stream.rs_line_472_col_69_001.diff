@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with / in Stream<'env, D>::submit_long
+@@ -464,17 +464,17 @@
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.long_at(at), part_len) };
+             fill_all(fill, i * PIECE, room);
+             // No bytes of the 2 MiB ring: its head is the piece's end there.
+             // Not through add_part: one more caller there, and the compiler
+             // stopped inlining it into submit_with (multithreaded 64 B and
+             // 256 B continuous messages 3.4-4.1% slower, the VM's check).
+             let end = self.head;
+             let entry = self.add_entry(part_len, part_kind(i, pieces, out, true), end);
+-            self.hand_over_piece(entry, room.as_ptr(), part_len, (i * PIECE / CHUNK_LEN) as u64);
++            self.hand_over_piece(entry, room.as_ptr(), part_len, (i / /* ~ changed by cargo-mutants ~ */ PIECE / CHUNK_LEN) as u64);
+         }
+     }
+ 
+     /// Hash the message `reader` yields, to its end, read straight into the
+     /// stream's own bytes in pieces of up to 64 KiB (a file or socket read
+     /// into the stream, overlapping the hashing of earlier pieces), its
+     /// digest into `out`: the message's length on success. On a read error
+     /// (other than an interruption, which reads again) the error returns,

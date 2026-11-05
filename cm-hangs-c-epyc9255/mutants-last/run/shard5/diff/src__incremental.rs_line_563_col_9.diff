@@ -1,0 +1,23 @@
+--- src/incremental.rs
++++ replace <impl Zeroize for Hasher>::zeroize with ()
+@@ -555,19 +555,17 @@
+     fn flush(&mut self) -> std::io::Result<()> {
+         Ok(())
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Hasher {
+     fn zeroize(&mut self) {
+-        self.core.zeroize();
+-        self.stage.fill(core::mem::MaybeUninit::new(0));
+-        self.staged = 0;
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for HasherCore {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+         let Self { key, chunk_state, initial_chunk_counter, cv_stack } = self;

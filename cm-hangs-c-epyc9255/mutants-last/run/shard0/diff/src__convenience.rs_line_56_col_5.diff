@@ -1,0 +1,23 @@
+--- src/convenience.rs
++++ replace hash_with -> Hash with Default::default()
+@@ -48,19 +48,17 @@
+ /// # blake3_servil::initialize();
+ /// use blake3_servil::{Mode, convenience};
+ /// let key = [7u8; 32];
+ /// let mac = convenience::hash_with(Mode::Keyed(&key), b"foo");
+ /// assert_eq!(mac, blake3_servil::performance::Hasher::new(Mode::Keyed(&key)).update(b"foo").finalize());
+ /// ```
+ #[inline]
+ pub fn hash_with(mode: Mode, input: &[u8]) -> Hash {
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    crate::hash_serial(input, key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The extended output of `input` in `mode`: an [`OutputReader`] that
+ /// gives as many bytes as the program reads (the first 32 are
+ /// [`hash_with`]'s).
+ ///
+ /// ```
+ /// # blake3_servil::initialize();

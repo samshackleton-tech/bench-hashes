@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ delete field flags from struct Task expression in Stream<'env, D>::hand_over_piece
+@@ -662,17 +662,17 @@
+     /// offset, handed over.
+     #[inline(always)]
+     fn hand_over_piece(&mut self, entry: usize, input: *const u8, len: usize, counter: u64) {
+         self.s.lefts[entry].store(1, Ordering::Relaxed);
+         // Sound: the bytes stay in place until the entry is handed back.
+         let bytes = unsafe { core::slice::from_raw_parts(input, len) };
+         let task = Task {
+             key: self.key,
+-            flags: self.flags,
++             /* ~ changed by cargo-mutants ~ */
+             out: self.s.pieces_out[entry].0.0.get() as *mut u8,
+             left: &*self.s.lefts[entry],
+             ..Task::of(bytes, counter)
+         };
+         self.hand_over(task);
+     }
+ 
+     /// The ring offset of `len` free bytes at a 64-byte boundary (whole,

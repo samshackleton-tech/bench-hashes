@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace > with >= in Stream<'env, D>::deliver
+@@ -812,17 +812,17 @@
+                     debug_assert!(counter != 0 || len == PIECE, "a long message's first piece is whole");
+                     let cv: CVBytes = if counter == 0 {
+                         parent(piece[..OUT_LEN].try_into().unwrap(), piece[OUT_LEN..].try_into().unwrap()).chaining_value()
+                     } else {
+                         piece[..OUT_LEN].try_into().unwrap()
+                     };
+                     // As the Hasher's stack: before pushing piece n, merge
+                     // down to as many values as n has 1 bits.
+-                    while self.stack.len() > self.pieces.count_ones() as usize {
++                    while self.stack.len() >= /* ~ changed by cargo-mutants ~ */ self.pieces.count_ones() as usize {
+                         let right = self.stack.pop().unwrap();
+                         let left = self.stack.pop().unwrap();
+                         self.stack.push(parent(&left, &right).chaining_value());
+                     }
+                     self.stack.push(cv);
+                     self.pieces += 1;
+                     if last {
+                         let mut right = self.stack.pop().unwrap();

@@ -1,0 +1,49 @@
+
+*** src/platform.rs:101:9: replace Sme2Turn::platform -> Platform with Default::default()
+
+*** mutation diff:
+--- src/platform.rs
++++ replace Sme2Turn::platform -> Platform with Default::default()
+@@ -93,17 +93,17 @@
+             platform,
+             #[cfg(blake3_sme2)]
+             held: false,
+         }
+     }
+ 
+     #[inline]
+     pub(crate) fn platform(&self) -> Platform {
+-        self.platform
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Drop for Sme2Turn {
+     #[inline]
+     fn drop(&mut self) {
+         #[cfg(blake3_sme2)]
+         if self.held {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-klfllb68)
+error[E0277]: the trait bound `platform::Platform: Default` is not satisfied
+   --> src/platform.rs:101:9
+    |
+101 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `platform::Platform`
+    |
+help: consider annotating `platform::Platform` with `#[derive(Default)]`
+    |
+ 23 + #[derive(Default)]
+ 24 | pub enum Platform {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

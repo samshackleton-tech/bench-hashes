@@ -1,0 +1,42 @@
+--- src/lib.rs
++++ replace prefetch_update_kernels with ()
+@@ -1257,38 +1257,17 @@
+     }
+ }
+ 
+ /// Prefetch the code a fresh Hasher's update of `len` bytes runs: the
+ /// subtrees its loop cuts (hasher::subtree_len from counter 0, up to the last
+ /// chunk, which waits in the chunk state), each one's kernels.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ fn prefetch_update_kernels(len: usize, platform: Platform) {
+-    if !neon_hybrid::sha3_detected() {
+-        return;
+-    }
+-    let (mut counter, mut left) = (0u64, len);
+-    while left > CHUNK_LEN {
+-        let subtree = hasher::subtree_len(counter, left);
+-        let chunks = subtree / CHUNK_LEN;
+-        #[cfg(blake3_sme2)]
+-        if matches!(platform, Platform::SME2) && chunks >= 16 {
+-            sme2::prefetch_code();
+-            if !sme2::flat_takes(subtree) {
+-                neon_hybrid::prefetch_parent_code(16);
+-            }
+-            counter += chunks as u64;
+-            left -= subtree;
+-            continue;
+-        }
+-        neon_hybrid::prefetch_tree_code(chunks.min(16), 0);
+-        counter += chunks as u64;
+-        left -= subtree;
+-    }
+-    let _ = platform;
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The smallest input the SME2 kernels take part in: one group of sixteen
+ /// chunks. Below it the SME2 platform runs the NEON hybrids.
+ pub(crate) const SME2_SIZED_LEN: usize = 16 * CHUNK_LEN;
+ 
+ /// The fewest messages a batch has when the SME2 kernels take part: one
+ /// group of sixteen messages.

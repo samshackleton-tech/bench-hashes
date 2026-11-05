@@ -1,0 +1,58 @@
+
+*** src/lib.rs:447:9: replace Hash::as_slice -> &[u8] with Vec::leak(vec![0])
+
+*** mutation diff:
+--- src/lib.rs
++++ replace Hash::as_slice -> &[u8] with Vec::leak(vec![0])
+@@ -439,17 +439,17 @@
+         Self(bytes)
+     }
+ 
+     /// The raw bytes of the `Hash`, as a slice. Useful for serialization. Note that byte arrays
+     /// don't provide constant-time equality checking, so if you need to compare hashes, prefer
+     /// the `Hash` type.
+     #[inline]
+     pub const fn as_slice(&self) -> &[u8] {
+-        self.0.as_slice()
++        Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Create a `Hash` from its raw bytes representation as a slice.
+     ///
+     /// Returns an error if the slice is not exactly 32 bytes long.
+     pub fn from_slice(bytes: &[u8]) -> Result<Self, core::array::TryFromSliceError> {
+         Ok(Self::from_bytes(bytes.try_into()?))
+     }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ag8s7fg6)
+error: `Box::<T>::new_uninit` is not yet stable as a const fn
+   --> src/lib.rs:447:19
+    |
+447 |         Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+    |                   ^^^^^^^
+
+error: `std::boxed::box_assume_init_into_vec_unsafe` is not yet stable as a const fn
+   --> src/lib.rs:447:19
+    |
+447 |         Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+    |                   ^^^^^^^
+
+error[E0015]: cannot call non-const method `Vec::<u8>::leak::<'_>` in constant functions
+   --> src/lib.rs:447:9
+    |
+447 |         Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^
+    |
+    = note: calls in constant functions are limited to constant functions, tuple structs and tuple variants
+
+For more information about this error, try `rustc --explain E0015`.
+error: could not compile `blake3-servil` (lib) due to 3 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 3 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

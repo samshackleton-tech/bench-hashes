@@ -1,0 +1,24 @@
+--- src/platform.rs
++++ replace sme2_reported -> bool with false
+@@ -754,20 +754,17 @@
+         unsafe { libc::sysctlbyname(c"hw.optional.arm.FEAT_SME2".as_ptr(), &mut value as *mut u32 as *mut libc::c_void, &mut size, core::ptr::null_mut(), 0) };
+     rc == 0 && value != 0
+ }
+ 
+ #[cfg(all(blake3_sme2, target_os = "linux"))]
+ fn sme2_reported() -> bool {
+     // AT_HWCAP2 from <elf.h> and HWCAP2_SME2 from <asm/hwcap.h> (Linux 6.4+).
+     // The libc crate doesn't expose either for glibc targets yet.
+-    const AT_HWCAP2: libc::c_ulong = 26;
+-    const HWCAP2_SME2: libc::c_ulong = 1 << 37;
+-    let hwcap2 = unsafe { libc::getauxval(AT_HWCAP2) };
+-    hwcap2 & HWCAP2_SME2 != 0
++    false /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(all(test, target_arch = "x86_64"))]
+ mod x86_degree_test {
+     use super::*;
+ 
+     /// The detected platform hashes as many chunks at once as the widest
+     /// kernel this build and CPU have (the standard library's detection, an

@@ -1,0 +1,22 @@
+--- src/incremental.rs
++++ replace Hasher::finalize_xof -> OutputReader with Default::default()
+@@ -302,18 +302,17 @@
+     /// Finalize the hash state and return an [`OutputReader`], which can
+     /// supply any number of output bytes.
+     ///
+     /// This method is idempotent. Calling it twice will give the same result.
+     /// You can also add more input and finalize again.
+     ///
+     /// [`OutputReader`]: struct.OutputReader.html
+     pub fn finalize_xof(&self) -> OutputReader {
+-        assert_eq!(self.core.initial_chunk_counter, 0, "set_input_offset must be used with finalize_non_root",);
+-        OutputReader::new(self.final_output())
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The number of bytes passed to [`update`](Hasher::update) so far.
+     pub fn count(&self) -> u64 {
+         self.core.count() + self.staged as u64
+     }
+ 
+     /// As [`update`](Hasher::update), but reading from a

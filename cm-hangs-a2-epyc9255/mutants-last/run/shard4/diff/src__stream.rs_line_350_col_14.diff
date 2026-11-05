@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with -= in fill_all
+@@ -342,17 +342,17 @@
+ /// digest with no error (BLAKE3 #204).
+ fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {
+     let mut done = 0;
+     while done < room.len() {
+         let left = room.len() - done;
+         let n = fill(at + done, &mut room[done..]);
+         assert!(n != 0, "fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length", room.len());
+         assert!(n <= left, "fill says it wrote {n} bytes into a room of {left}");
+-        done += n;
++        done -= /* ~ changed by cargo-mutants ~ */ n;
+     }
+ }
+ 
+ /// Part `i` of a message in `pieces` parts, its digest at `out`: the
+ /// message whole, or a piece.
+ fn part_kind(i: usize, pieces: usize, out: *mut Hash, long: bool) -> Kind {
+     if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, long, out } }
+ }

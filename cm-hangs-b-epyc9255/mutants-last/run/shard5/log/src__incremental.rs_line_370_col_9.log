@@ -1,0 +1,49 @@
+
+*** src/incremental.rs:370:9: replace HasherCore::new_from -> Self with Default::default()
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace HasherCore::new_from -> Self with Default::default()
+@@ -362,17 +362,17 @@
+ impl HasherCore {
+     pub(crate) fn new_internal(key: &CVWords, flags: u8) -> Self {
+         Self::new_from(key, flags, Platform::detect())
+     }
+ 
+     /// [`HasherCore::new_internal`] on `platform` (the self-test's way in,
+     /// as [`hash_serial_from`]).
+     pub(crate) fn new_from(key: &CVWords, flags: u8, platform: Platform) -> Self {
+-        Self { key: *key, chunk_state: ChunkState::new(key, 0, flags, platform), initial_chunk_counter: 0, cv_stack: CvStack::new() }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Back to the empty message, with the same key, flags, and platform.
+     pub(crate) fn reset(&mut self) -> &mut Self {
+         self.chunk_state = ChunkState::new(&self.key, 0, self.chunk_state.flags, self.chunk_state.platform);
+         self.cv_stack.clear();
+         self
+     }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-k3a4o1du)
+error[E0277]: the trait bound `incremental::HasherCore: Default` is not satisfied
+   --> src/incremental.rs:370:9
+    |
+370 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `incremental::HasherCore`
+   --> src/incremental.rs:51:1
+    |
+ 51 | pub(crate) struct HasherCore {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

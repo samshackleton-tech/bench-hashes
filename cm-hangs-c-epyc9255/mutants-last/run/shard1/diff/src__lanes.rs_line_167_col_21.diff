@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with - in now
+@@ -159,17 +159,17 @@
+ /// passes ends when the test says (BLAKE3 #219: SPIN, SPIN_BEFORE_SLEEP
+ /// and YIELD_EVERY stay in microseconds, and their comparisons are
+ /// counted exactly).
+ #[inline(always)]
+ fn now() -> std::time::Instant {
+     #[cfg(test)]
+     if let Some((base, at, step)) = TEST_CLOCK.with(|c| c.get()) {
+         TEST_CLOCK.with(|c| c.set(Some((base, at + step, step))));
+-        return base + at;
++        return base - /* ~ changed by cargo-mutants ~ */ at;
+     }
+     std::time::Instant::now()
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// The tests' clock for now(): a fixed instant, the time past it that
+     /// now() answers next, and its step at each read (None: the real

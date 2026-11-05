@@ -1,0 +1,28 @@
+--- src/hasher.rs
++++ replace CvStack::merge with ()
+@@ -58,24 +58,17 @@
+ 
+     /// While the stack holds more than `target` values, its top two become
+     /// their parent (merge_cv_stack). Two are there to merge whenever
+     /// `target` is at least 1, as the Hasher's are.
+     /// A loop of a count fixed at its start (no condition a change could
+     /// keep true forever: a mutation test's endless loop, which only a clock
+     /// stops, becomes a wrong value a test catches).
+     pub fn merge<P: Parent>(&mut self, p: &P, target: usize) {
+-        for _ in target..self.len {
+-            assert!(self.len >= 2, "two values to merge");
+-            if let Some(cvs) = &mut self.cvs {
+-                let parent = p.parent(&cvs[self.len - 2], &cvs[self.len - 1]);
+-                cvs[self.len - 2] = parent;
+-            }
+-            self.len -= 1;
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// A chunk's state: its number and the bytes it has so far (at most
+ /// CHUNK_LEN).
+ pub trait Chunk {
+     fn counter(&self) -> u64;
+     fn len(&self) -> usize;

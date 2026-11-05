@@ -1,0 +1,40 @@
+--- src/lanes.rs
++++ replace Task::run with ()
+@@ -1314,36 +1314,17 @@
+         Task { key: *key, flags, batch, ..Task::of(&[], 0) }
+     }
+ 
+     /// Hash on `platform` into `out`: for a subtree of two chunks or more at
+     /// chunk zero (it may be the whole message), its pair of child chaining
+     /// values; for any other, its chaining value (first 32 bytes). Then
+     /// count down.
+     pub(crate) fn run(self, platform: Platform) {
+-        if self.members > 0 {
+-            self.run_members(platform);
+-            // Sound: the stream keeps `left` in place until it is zero.
+-            unsafe { &*self.left }.fetch_sub(self.members, Ordering::Release);
+-            return;
+-        }
+-        // A task without members is a piece of a long message: a stream's
+-        // batch parts are always members (Stream::add_part adds one to the
+-        // task it opens, and only an opened task is handed over).
+-        assert!(self.batch.is_none(), "a task of batch parts has members");
+-        // Sound: the stream keeps these in place until `left` is zero.
+-        let bytes = unsafe { core::slice::from_raw_parts(self.input, self.len) };
+-        // Sound: a subtree's `out` is one 64-byte block.
+-        let out = unsafe { &mut *(self.out as *mut [u8; crate::BLOCK_LEN]) };
+-        if self.counter == 0 && self.len > CHUNK_LEN {
+-            *out = crate::compress_subtree_to_parent_node(bytes, 0, &self.key, 0, self.flags, platform);
+-        } else {
+-            out[..crate::OUT_LEN].copy_from_slice(&crate::hash_all_at_once(bytes, &self.key, self.counter, self.flags, platform).chaining_value());
+-        }
+-        unsafe { &*self.left }.fetch_sub(1, Ordering::Release);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Task {
+     /// The members' digests: messages of one length side by side on the
+     /// multi-lane kernels (`hash_many`'s, from a table of pointers) where
+     /// that length is one block, or on x86 two to sixteen blocks of a power
+     /// of two (128 B to 1 KiB); any others one at a time.

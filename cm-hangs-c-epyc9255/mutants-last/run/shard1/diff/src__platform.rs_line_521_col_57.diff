@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace == with != in read_x86_features
+@@ -513,17 +513,17 @@
+             features |= AVX2;
+         }
+         let f_vl = (1 << 16) | (1 << 31);
+         if xcr0 & zmm == zmm && leaf7.ebx & f_vl == f_vl {
+             features |= AVX512;
+             // Sound: as leaf 1; leaf 0 names the vendor.
+             #[allow(unused_unsafe)]
+             let leaf0 = unsafe { arch::__cpuid(0) };
+-            let amd = (leaf0.ebx, leaf0.edx, leaf0.ecx) == (0x6874_7541, 0x6974_6e65, 0x444d_4163); // "AuthenticAMD"
++            let amd = (leaf0.ebx, leaf0.edx, leaf0.ecx) != /* ~ changed by cargo-mutants ~ */ (0x6874_7541, 0x6974_6e65, 0x444d_4163); // "AuthenticAMD"
+             if wide_cpu(amd, family(leaf1.eax)) {
+                 features |= WIDE;
+             }
+         }
+     }
+     features
+ }
+ 

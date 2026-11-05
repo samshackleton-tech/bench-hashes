@@ -1,0 +1,21 @@
+--- src/each.rs
++++ delete ! in update_turn
+@@ -111,17 +111,17 @@
+             // groups are hashed: its pieces wait, in order.
+             if hashers[i].held_group().is_some() {
+                 waiting.push((i, bytes));
+                 continue;
+             }
+             let rest = hashers[i].gather_part(bytes, pooled, true);
+             if hashers[i].held_group().is_some() {
+                 held.push(i);
+-                if !rest.is_empty() {
++                if  /* ~ changed by cargo-mutants ~ */rest.is_empty() {
+                     waiting.push((i, rest));
+                 }
+             }
+         }
+         hash_held(hashers, &held);
+         // The loop's variant: every held group was hashed, so each waiting
+         // piece gathers on the next pass, and the bytes in play shrink on
+         // every pass (a change that kept them would spin here forever;

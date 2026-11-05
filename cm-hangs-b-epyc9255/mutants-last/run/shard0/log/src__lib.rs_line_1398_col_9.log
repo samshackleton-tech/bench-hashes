@@ -1,0 +1,385 @@
+
+*** src/lib.rs:1398:9: replace OutputReader::fill with ()
+
+*** mutation diff:
+--- src/lib.rs
++++ replace OutputReader::fill with ()
+@@ -1390,46 +1390,17 @@
+     /// [`BLOCK_LEN`] (64 bytes).
+     ///
+     /// The maximum output size of BLAKE3 is 2<sup>64</sup>-1 bytes. If you try
+     /// to extract more than that, for example by seeking near the end and
+     /// reading further, the behavior is unspecified.
+     ///
+     /// [`Read::read`]: #method.read
+     pub fn fill(&mut self, mut buf: &mut [u8]) {
+-        if buf.is_empty() {
+-            return;
+-        }
+-
+-        // If we're partway through a block, try to get to a block boundary.
+-        if self.position_within_block != 0 {
+-            self.fill_one_block(&mut buf);
+-        }
+-
+-        let full_blocks = buf.len() / BLOCK_LEN;
+-        let full_blocks_len = full_blocks * BLOCK_LEN;
+-        if full_blocks > 0 {
+-            debug_assert_eq!(0, self.position_within_block);
+-            self.inner.platform.xof_many(
+-                &self.inner.input_chaining_value,
+-                &self.inner.block,
+-                self.inner.block_len,
+-                self.inner.counter,
+-                self.inner.flags | ROOT,
+-                &mut buf[..full_blocks_len],
+-            );
+-            self.inner.counter += full_blocks as u64;
+-            buf = &mut buf[full_blocks * BLOCK_LEN..];
+-        }
+-
+-        if !buf.is_empty() {
+-            debug_assert!(buf.len() < BLOCK_LEN);
+-            self.fill_one_block(&mut buf);
+-            debug_assert!(buf.is_empty());
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Return the current read position in the output stream. This is
+     /// equivalent to [`Seek::stream_position`], except that it doesn't return
+     /// a `Result`. The position of a new `OutputReader` starts at 0, and each
+     /// call to [`fill`] or [`Read::read`] moves the position forward by the
+     /// number of bytes read.
+     ///
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-kbhabccz)
+warning: variable does not need to be mutable
+    --> src/lib.rs:1397:28
+     |
+1397 |     pub fn fill(&mut self, mut buf: &mut [u8]) {
+     |                            ----^^^
+     |                            |
+     |                            help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `buf`
+    --> src/lib.rs:1397:28
+     |
+1397 |     pub fn fill(&mut self, mut buf: &mut [u8]) {
+     |                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `root_output_block` is never used
+   --> src/lib.rs:639:8
+    |
+633 | impl Output {
+    | ----------- method in this implementation
+...
+639 |     fn root_output_block(&self) -> [u8; 2 * OUT_LEN] {
+    |        ^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `fill_one_block` is never used
+    --> src/lib.rs:1368:8
+     |
+1360 | impl OutputReader {
+     | ----------------- method in this implementation
+...
+1368 |     fn fill_one_block(&mut self, buf: &mut &mut [u8]) {
+     |        ^^^^^^^^^^^^^^
+
+warning: methods `compress_xof` and `xof_many` are never used
+   --> src/platform.rs:290:12
+    |
+148 | impl Platform {
+    | ------------- methods in this implementation
+...
+290 |     pub fn compress_xof(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+    |            ^^^^^^^^^^^^
+...
+357 |     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+    |            ^^^^^^^^
+
+warning: function `compress_xof` is never used
+ --> src/ffi_avx512.rs:9:15
+  |
+9 | pub unsafe fn compress_xof(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+  |               ^^^^^^^^^^^^
+
+warning: constant `XOF_PROVED_BLOCKS` is never used
+   --> src/ffi_avx512.rs:101:11
+    |
+101 | pub const XOF_PROVED_BLOCKS: usize = 32;
+    |           ^^^^^^^^^^^^^^^^^
+
+warning: function `xof_many` is never used
+   --> src/ffi_avx512.rs:105:15
+    |
+105 | pub unsafe fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {
+    |               ^^^^^^^^
+
+warning: function `blake3_servil_compress_xof_avx512` is never used
+   --> src/ffi_avx512.rs:118:16
+    |
+118 | ...   pub fn blake3_servil_compress_xof_avx512(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut ...
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_xof_many_avx512` is never used
+   --> src/ffi_avx512.rs:132:16
+    |
+132 | ...   pub fn blake3_servil_xof_many_avx512(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut u8, ...
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compress_xof` is never used
+ --> src/ffi_sse41.rs:9:15
+  |
+9 | pub unsafe fn compress_xof(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+  |               ^^^^^^^^^^^^
+
+warning: function `blake3_servil_compress_xof_sse41` is never used
+  --> src/ffi_sse41.rs:51:16
+   |
+51 | ...   pub fn blake3_servil_compress_xof_sse41(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut u8);
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 12 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: `blake3-servil` (lib test) generated 4 warnings (4 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 1.22s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+warning: variable does not need to be mutable
+    --> src/lib.rs:1397:28
+     |
+1397 |     pub fn fill(&mut self, mut buf: &mut [u8]) {
+     |                            ----^^^
+     |                            |
+     |                            help: remove this `mut`
+     |
+     = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `buf`
+    --> src/lib.rs:1397:28
+     |
+1397 |     pub fn fill(&mut self, mut buf: &mut [u8]) {
+     |                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_buf`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `root_output_block` is never used
+   --> src/lib.rs:639:8
+    |
+633 | impl Output {
+    | ----------- method in this implementation
+...
+639 |     fn root_output_block(&self) -> [u8; 2 * OUT_LEN] {
+    |        ^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `fill_one_block` is never used
+    --> src/lib.rs:1368:8
+     |
+1360 | impl OutputReader {
+     | ----------------- method in this implementation
+...
+1368 |     fn fill_one_block(&mut self, buf: &mut &mut [u8]) {
+     |        ^^^^^^^^^^^^^^
+
+warning: methods `compress_xof` and `xof_many` are never used
+   --> src/platform.rs:290:12
+    |
+148 | impl Platform {
+    | ------------- methods in this implementation
+...
+290 |     pub fn compress_xof(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+    |            ^^^^^^^^^^^^
+...
+357 |     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+    |            ^^^^^^^^
+
+warning: function `compress_xof` is never used
+ --> src/ffi_avx512.rs:9:15
+  |
+9 | pub unsafe fn compress_xof(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+  |               ^^^^^^^^^^^^
+
+warning: constant `XOF_PROVED_BLOCKS` is never used
+   --> src/ffi_avx512.rs:101:11
+    |
+101 | pub const XOF_PROVED_BLOCKS: usize = 32;
+    |           ^^^^^^^^^^^^^^^^^
+
+warning: function `xof_many` is never used
+   --> src/ffi_avx512.rs:105:15
+    |
+105 | pub unsafe fn xof_many(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8, out: &mut [u8]) {
+    |               ^^^^^^^^
+
+warning: function `blake3_servil_compress_xof_avx512` is never used
+   --> src/ffi_avx512.rs:118:16
+    |
+118 | ...   pub fn blake3_servil_compress_xof_avx512(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut ...
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `blake3_servil_xof_many_avx512` is never used
+   --> src/ffi_avx512.rs:132:16
+    |
+132 | ...   pub fn blake3_servil_xof_many_avx512(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut u8, ...
+    |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `compress_xof` is never used
+ --> src/ffi_sse41.rs:9:15
+  |
+9 | pub unsafe fn compress_xof(cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {
+  |               ^^^^^^^^^^^^
+
+warning: function `blake3_servil_compress_xof_sse41` is never used
+  --> src/ffi_sse41.rs:51:16
+   |
+51 | ...   pub fn blake3_servil_compress_xof_sse41(cv: *const u32, block: *const u8, block_len: u8, counter: u64, flags: u8, out: *mut u8);
+   |              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 12 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: `blake3-servil` (lib test) generated 4 warnings (4 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.03s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 5c6260df-8eff-469c-a54f-596eaeb2307e with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.041s] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.048s] (  2/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.049s] (  3/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.057s] (  4/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  5/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.062s] (  5/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  6/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.065s] (  6/168) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  7/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.072s] (  7/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  8/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.035s] (  8/168) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  9/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.031s] (  9/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 10/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.090s] ( 10/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 11/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.029s] ( 11/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 12/168) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.027s] ( 12/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 13/168) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.028s] ( 13/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 14/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-kbhabccz/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+     SIGABRT [   0.118s] ( 14/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGTERM [   0.080s] ( 15/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGKILL [   0.104s] ( 16/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.077s] ( 17/168) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.079s] ( 18/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.121s] ( 19/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.065s] ( 20/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.073s] ( 21/168) blake3-servil each::test::test_hash_each_multithreaded
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 7, seventeen blocks and more of extended output, from an unaligned position, through a Hasher: the extended-output kernels (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+────────────
+     Summary [   0.173s] 21/168 tests run: 13 passed, 8 failed, 0 skipped
+warning: 147/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

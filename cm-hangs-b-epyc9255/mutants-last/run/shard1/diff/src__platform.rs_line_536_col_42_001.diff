@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace & with ^ in family
+@@ -528,17 +528,17 @@
+ }
+ 
+ /// The display family of CPUID leaf 1's EAX: the base family, plus the
+ /// extended family where the base is 0xF.
+ #[cfg(target_arch = "x86_64")]
+ #[cfg_attr(not(blake3_sse41_ffi), allow(dead_code))]
+ fn family(eax: u32) -> u32 {
+     let base = (eax >> 8) & 0xF;
+-    if base == 0xF { base + ((eax >> 20) & 0xFF) } else { base }
++    if base == 0xF { base + ((eax >> 20) ^ /* ~ changed by cargo-mutants ~ */ 0xFF) } else { base }
+ }
+ 
+ /// Whether the 32-input AVX-512 kernels pay on this CPU: AMD from family
+ /// 0x1A (Zen 5). Measured against the 16-input kernel for one thread on
+ /// inputs of 32 KiB and more (BLAKE3 #125): about 20% less time on Zen 5
+ /// (EPYC 9255), but on Zen 4 (EPYC 9124, family 0x19) 4-5% more from
+ /// memory, and on Intel Ice Lake (Xeon Gold 6330) 3-4.5% more. Other
+ /// CPUs join the list when measured.

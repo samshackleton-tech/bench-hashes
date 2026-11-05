@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace + with - in hash_each_on
+@@ -306,17 +306,17 @@
+     }
+     for &(i, at) in &shared {
+         let item = items[i].bytes();
+         let chunks = item.len().div_ceil(CHUNK_LEN);
+         let full = item.len() / CHUNK_LEN;
+         if full < chunks {
+             cvs[at + full] = ChunkState::new(&key, full as u64, flags, platform).update(&item[full * CHUNK_LEN..]).output().chaining_value();
+         }
+-        out[i] = *root(&cvs[at..at + chunks], &key, flags, platform).as_bytes();
++        out[i] = *root(&cvs[at..at - /* ~ changed by cargo-mutants ~ */ chunks], &key, flags, platform).as_bytes();
+     }
+ }
+ 
+ /// The root of a message of two or more chunks, from its chunk values: the
+ /// left subtree takes the largest power of two of chunks below the count.
+ fn root(cvs: &[CVBytes], key: &CVWords, flags: u8, platform: Platform) -> Hash {
+     let split = left_len(cvs.len());
+     let left = subtree(&cvs[..split], key, flags, platform);

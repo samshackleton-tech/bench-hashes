@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with + in hash_two_chunks
+@@ -198,17 +198,17 @@
+ fn hash_two_chunks(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]]) {
+     use crate::PARENT;
+     let slot = slot_len(len);
+     let second = len - CHUNK_LEN;
+     let second_blocks = second.div_ceil(BLOCK_LEN);
+     let last_len = second - (second_blocks - 1) * BLOCK_LEN;
+     // Sixteen at a time, as the plans take them: small arrays to zero.
+     const GROUP: usize = 16;
+-    for (messages, digests) in input.chunks(slot * GROUP).zip(outputs.chunks_mut(GROUP)) {
++    for (messages, digests) in input.chunks(slot + /* ~ changed by cargo-mutants ~ */ GROUP).zip(outputs.chunks_mut(GROUP)) {
+         let count = digests.len();
+         let mut firsts: [core::mem::MaybeUninit<&[u8; CHUNK_LEN]>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];
+         let mut seconds: [core::mem::MaybeUninit<*const u8>; GROUP] = [core::mem::MaybeUninit::uninit(); GROUP];
+         for (i, message) in messages.chunks_exact(slot).enumerate() {
+             firsts[i].write(message[..CHUNK_LEN].try_into().expect("a whole first chunk"));
+             seconds[i].write(message[CHUNK_LEN..].as_ptr());
+         }
+         let mut cvs = [[0u8; OUT_LEN]; 2 * GROUP];

@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ delete ! in HasherCore::update_part_with_results
+@@ -468,17 +468,17 @@
+                 self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+                 self.push_cv(result[OUT_LEN..].try_into().unwrap(), counter + chunks / 2);
+             } else {
+                 self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+             }
+             self.chunk_state.chunk_counter += chunks;
+             input = &input[len..];
+         }
+-        if !input.is_empty() {
++        if  /* ~ changed by cargo-mutants ~ */input.is_empty() {
+             self.chunk_state.update(input);
+             self.merge_cv_stack(self.chunk_state.chunk_counter);
+         }
+     }
+ 
+     /// `update`'s loop; with `pooled`, whole subtrees of
+     /// `lanes::MIN_SPLIT_LEN` and more go to the pool.
+     pub(crate) fn update_pooled(&mut self, input: &[u8], pooled: bool) -> &mut Self {

@@ -1,0 +1,25 @@
+--- src/self_test.rs
++++ replace xof -> usize with 1
+@@ -318,21 +318,17 @@
+         hasher.update(part);
+     }
+     hasher.finalize()
+ }
+ 
+ /// Extended output of `input` from position `skip`, into `out`.
+ #[inline(never)]
+ fn xof(platform: Platform, input: &[u8], skip: u64, out: &mut [u8]) -> usize {
+-    let mut hasher = crate::Hasher::from_core(crate::HasherCore::new_from(crate::IV, 0, platform));
+-    let mut reader = hasher.update(input).finalize_xof();
+-    reader.set_position(skip);
+-    reader.fill(out);
+-    out.len()
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// hash_many() of `messages`, `len` bytes each, laid out in slots `offset`
+ /// bytes into a buffer of its own; the digests in `out`.
+ #[inline(never)]
+ fn many(platform: Platform, messages: &[u8], offset: usize, len: usize, out: &mut [u8]) -> usize {
+     let slot = crate::many::slot_len(len);
+     let count = out.len() / crate::OUT_LEN;

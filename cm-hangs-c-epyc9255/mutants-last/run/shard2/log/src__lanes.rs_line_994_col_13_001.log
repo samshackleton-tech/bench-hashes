@@ -1,0 +1,81 @@
+
+*** src/lanes.rs:994:13: replace sources::Source::take -> Option<Item> with Some(Default::default())
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::Source::take -> Option<Item> with Some(Default::default())
+@@ -986,37 +986,17 @@
+             self.claimed.store(base + own, Ordering::Relaxed);
+             self.finish.published.store(base + pieces, Ordering::Release);
+             core::sync::atomic::fence(Ordering::SeqCst);
+             base + pieces
+         }
+ 
+         /// Claim the next published item, if any.
+         pub(crate) fn take(&self) -> Option<Item> {
+-            let mut c = self.claimed.load(Ordering::Acquire);
+-            loop {
+-                let p = self.finish.published.load(Ordering::Acquire);
+-                if c >= p {
+-                    return None;
+-                }
+-                // A job's pieces go in runs, consecutive, sized to the work
+-                // left (guided self-scheduling): each worker reads its input
+-                // front to back, so a mapped file from storage meets the
+-                // kernel's readahead stream by stream (official's I/O
+-                // pattern), and runs shrink to one piece near the end for
+-                // balance. A stream's tasks go one at a time.
+-                let n = if self.ring.is_empty() { ((p - c) / (2 * pool().threads)).max(1) } else { 1 };
+-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+-                    Ok(_) if self.ring.is_empty() => return Some(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)),
+-                    // Sound: this thread alone took slot c, written before
+-                    // `published` passed it.
+-                    Ok(_) => return Some(Item::Task(unsafe { (*self.ring[c % self.ring.len()].get()).assume_init_read() })),
+-                    Err(now) => c = now,
+-                }
+-            }
++            Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// A stream's next task, if any (this source is a stream's).
+         pub(crate) fn take_task(&self) -> Option<Task> {
+             match self.take() {
+                 Some(Item::Task(task)) => Some(task),
+                 Some(Item::Pieces(..)) => unreachable!("a stream's source carries tasks"),
+                 None => None,
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0277]: the trait bound `sources::Item: Default` is not satisfied
+   --> src/lanes.rs:994:18
+    |
+994 |             Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+    |                  ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `sources::Item`
+   --> src/lanes.rs:926:5
+    |
+926 |     pub(crate) enum Item {
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::sources::Item: Default` is not satisfied
+   --> src/lanes.rs:994:18
+    |
+994 |             Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+    |                  ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `lanes::sources::Item`
+   --> src/lanes.rs:926:5
+    |
+926 |     pub(crate) enum Item {
+    |     ^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

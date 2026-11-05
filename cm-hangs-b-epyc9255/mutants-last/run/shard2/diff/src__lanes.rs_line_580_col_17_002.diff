@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace > with >= in merge_to_children
+@@ -572,17 +572,17 @@
+     debug_assert_eq!(pieces[0].offset, 0);
+     debug_assert!(pieces.last().unwrap().len > 0);
+     debug_assert!(pieces[..pieces.len() - 1].iter().all(|p| p.len >= MIN_PIECE_LEN));
+     debug_assert!(pieces.windows(2).all(|w| w[0].len.is_power_of_two() && w[0].len >= w[1].len && w[0].offset + w[0].len == w[1].offset));
+     let platform = pool_platform();
+     let mut count = cvs.len();
+     let mut width = MIN_PIECE_LEN;
+     let mut out = [0u8; crate::MAX_SIMD_DEGREE * crate::OUT_LEN];
+-    while count > 2 {
++    while count >= /* ~ changed by cargo-mutants ~ */ 2 {
+         let prefix = pieces.partition_point(|p| p.len > width);
+         debug_assert!(prefix < count);
+         let mut read = prefix;
+         let mut write = prefix;
+         while read + 1 < count {
+             let children = (count - read).min(2 * crate::MAX_SIMD_DEGREE);
+             // The inner loop's variant: each call merges at least one pair.
+             assert!(children >= 2, "a parents call with under two children");

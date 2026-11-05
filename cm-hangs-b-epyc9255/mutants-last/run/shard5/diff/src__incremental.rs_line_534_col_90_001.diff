@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace + with * in HasherCore::count
+@@ -526,17 +526,17 @@
+         let counter = offset / CHUNK_LEN as u64;
+         self.chunk_state.chunk_counter = counter;
+         self.initial_chunk_counter = counter;
+         self
+     }
+ 
+     /// Bytes so far, counted from the input offset.
+     pub(crate) fn count(&self) -> u64 {
+-        (self.chunk_state.chunk_counter - self.initial_chunk_counter) * CHUNK_LEN as u64 + self.chunk_state.count() as u64
++        (self.chunk_state.chunk_counter - self.initial_chunk_counter) * CHUNK_LEN as u64 * /* ~ changed by cargo-mutants ~ */ self.chunk_state.count() as u64
+     }
+ }
+ 
+ // Don't derive(Debug), because the state may be secret.
+ impl fmt::Debug for Hasher {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         f.debug_struct("Hasher").field("flags", &self.core.chunk_state.flags).field("platform", &self.core.chunk_state.platform).finish()
+     }

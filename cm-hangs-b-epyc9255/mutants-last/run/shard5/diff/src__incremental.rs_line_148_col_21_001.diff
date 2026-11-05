@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace += with *= in Hasher::stage
+@@ -140,17 +140,17 @@
+         unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, self.staged) }
+     }
+ 
+     /// Copy `bytes` into the stage after what it holds.
+     pub(crate) fn stage(&mut self, bytes: &[u8]) {
+         // Sound: MaybeUninit<u8> has u8's layout, and the bytes fit (gather).
+         let room = unsafe { core::slice::from_raw_parts_mut(self.stage.as_mut_ptr().add(self.staged) as *mut u8, bytes.len()) };
+         room.copy_from_slice(bytes);
+-        self.staged += bytes.len();
++        self.staged *= /* ~ changed by cargo-mutants ~ */ bytes.len();
+     }
+ 
+     /// `update`'s gathering: an update of STAGE_LEN or more from a 16 KiB
+     /// boundary of the message (or an empty stage) goes to the core whole;
+     /// shorter ones gather in the stage until it reaches the next boundary
+     /// (but a fresh hasher's first chunk goes to the core),
+     /// and the stage goes to the core as one update, its chunks side by
+     /// side in the lanes.

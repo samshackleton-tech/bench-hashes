@@ -1,0 +1,61 @@
+
+*** src/many.rs:482:78: replace + with -
+
+*** mutation diff:
+--- src/many.rs
++++ replace + with -
+@@ -474,17 +474,17 @@
+ /// the plans' fast state, 22, 24, 26 12-16% slower (their slow state is
+ /// twice as slow). The worst case halves; the fast case pays up to 25%.
+ pub(crate) const ONE_BLOCK_PAD_MIN: usize = 11;
+ #[cfg_attr(not(blake3_sme2), allow(dead_code))]
+ pub(crate) const ONE_BLOCK_PAD_AFTER_GROUPS: usize = 5;
+ 
+ /// Room for a pointer table: TABLE messages and a padded group's spare
+ /// lanes, uninitialised on the caller's stack.
+-type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE + 16];
++type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE - /* ~ changed by cargo-mutants ~ */ 16];
+ 
+ /// Fill `slots` with pointers to the first `count` slots of N bytes in
+ /// `messages`, then spare lanes repeating the last up to `lanes`; the
+ /// table's filled part.
+ #[inline(always)]
+ fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8; N]] {
+     assert!(0 < count && count <= lanes && lanes <= TABLE + 16 && messages.len() >= count * N, "a table of 1 to TABLE + 16 lanes over the messages");
+     let mut last: &[u8; N] = &[0; N];
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-k_70ykn4)
+error[E0308]: mismatched types
+   --> src/many.rs:450:35
+    |
+450 |         let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
+    |                        --------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a size of 112, found one with a size of 144
+    |                        |
+    |                        expected due to this
+    |
+    = note: expected array `[MaybeUninit<&[u8; N]>; 112]`
+               found array `[MaybeUninit<&[u8; N]>; 144]`
+
+error[E0308]: mismatched types
+   --> src/many.rs:553:31
+    |
+553 |     let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
+    |                    --------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a size of 112, found one with a size of 144
+    |                    |
+    |                    expected due to this
+    |
+    = note: expected array `[MaybeUninit<&[u8; N]>; 112]`
+               found array `[MaybeUninit<&[u8; N]>; 144]`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

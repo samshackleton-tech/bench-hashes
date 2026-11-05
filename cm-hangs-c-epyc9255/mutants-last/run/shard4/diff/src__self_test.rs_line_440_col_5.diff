@@ -1,0 +1,37 @@
+--- src/self_test.rs
++++ replace compiled_features_present with ()
+@@ -432,33 +432,17 @@
+ /// Stop when this binary was compiled to assume an instruction that this
+ /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT
+ /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),
+ /// silently giving other values (QEMU's Ivy Bridge: leading_zeros(1 << 20)
+ /// is 20, not 43). Every other instruction the compiler could assume traps
+ /// on a CPU without it (SIGILL), which already stops the program. The
+ /// check reads the CPU (CPUID) only in a build that assumes them.
+ fn compiled_features_present() {
+-    #[cfg(target_arch = "x86_64")]
+-    {
+-        #[cfg(target_arch = "x86_64")]
+-        use core::arch::x86_64::__cpuid_count;
+-        let cpuid = |leaf, sub| __cpuid_count(leaf, sub);
+-        let lacks = |feature: &str| -> ! {
+-            stop(format_args!(
+-                "blake3-servil: this binary was compiled for CPUs with {feature}, which this CPU lacks, and here it would compute wrong digests; build it for this CPU"
+-            ))
+-        };
+-        if cfg!(target_feature = "lzcnt") && cpuid(0x8000_0001, 0).ecx & (1 << 5) == 0 {
+-            lacks("LZCNT");
+-        }
+-        if cfg!(target_feature = "bmi1") && cpuid(7, 0).ebx & (1 << 3) == 0 {
+-            lacks("BMI1 (TZCNT)");
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Stop the process: this build or this CPU computes wrong digests, and
+ /// nothing may hash on. No caller can catch it; a panic can be caught
+ /// (catch_unwind, a thread's join, an FFI boundary), and the program
+ /// would go on hashing wrong digests (Zooko, October 24). With std, the
+ /// reason to stderr, then abort (SIGABRT). Without std, the CPU's trap
+ /// instruction (an illegal-instruction fault, SIGILL where there are

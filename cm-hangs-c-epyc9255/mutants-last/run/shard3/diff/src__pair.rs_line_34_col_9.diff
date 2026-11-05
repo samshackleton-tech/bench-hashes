@@ -1,0 +1,22 @@
+--- src/pair.rs
++++ delete match arm Platform::AVX2 in takes_platform
+@@ -26,18 +26,17 @@
+     takes_platform(platform) && (CHUNK_LEN + BLOCK_LEN + 1..2 * CHUNK_LEN).contains(&len)
+ }
+ 
+ /// Whether [`hash_many_blocks`] runs on `platform`: AVX2 or AVX-512, whose
+ /// assembly is in this build.
+ #[inline]
+ pub(crate) fn takes_platform(platform: Platform) -> bool {
+     match platform {
+-        #[cfg(blake3_avx2_ffi)]
+-        Platform::AVX2 => true,
++         /* ~ changed by cargo-mutants ~ */
+         #[cfg(blake3_avx512_ffi)]
+         Platform::AVX512 => true,
+         _ => false,
+     }
+ }
+ 
+ /// The chaining values of `input`'s two chunks, at `chunk_counter` and the
+ /// one after, as `compress_chunks_parallel` returns them. `takes(platform, input.len())` must hold.

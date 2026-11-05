@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace > with >= in Task::run
+@@ -1328,17 +1328,17 @@
+         // A task without members is a piece of a long message: a stream's
+         // batch parts are always members (Stream::add_part adds one to the
+         // task it opens, and only an opened task is handed over).
+         assert!(self.batch.is_none(), "a task of batch parts has members");
+         // Sound: the stream keeps these in place until `left` is zero.
+         let bytes = unsafe { core::slice::from_raw_parts(self.input, self.len) };
+         // Sound: a subtree's `out` is one 64-byte block.
+         let out = unsafe { &mut *(self.out as *mut [u8; crate::BLOCK_LEN]) };
+-        if self.counter == 0 && self.len > CHUNK_LEN {
++        if self.counter == 0 && self.len >= /* ~ changed by cargo-mutants ~ */ CHUNK_LEN {
+             *out = crate::compress_subtree_to_parent_node(bytes, 0, &self.key, 0, self.flags, platform);
+         } else {
+             out[..crate::OUT_LEN].copy_from_slice(&crate::hash_all_at_once(bytes, &self.key, self.counter, self.flags, platform).chaining_value());
+         }
+         unsafe { &*self.left }.fetch_sub(1, Ordering::Release);
+     }
+ }
+ 

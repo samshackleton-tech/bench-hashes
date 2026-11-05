@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace + with * in ChunkState<P>::fill_buf
+@@ -320,17 +320,17 @@
+         BLOCK_LEN * self.blocks_compressed as usize + self.buf_len as usize
+     }
+ 
+     /// As much of `input` as `buf` has room for, into it; returns how much.
+     fn fill_buf(&mut self, input: &[u8]) -> usize {
+         let want = BLOCK_LEN - self.buf_len as usize;
+         let take = if want < input.len() { want } else { input.len() };
+         let start = self.buf_len as usize;
+-        self.buf[start..start + take].copy_from_slice(&input[..take]);
++        self.buf[start..start * /* ~ changed by cargo-mutants ~ */ take].copy_from_slice(&input[..take]);
+         self.buf_len += take as u8;
+         take
+     }
+ 
+     pub fn start_flag(&self) -> u8 {
+         if self.blocks_compressed == 0 { CHUNK_START } else { 0 }
+     }
+ 

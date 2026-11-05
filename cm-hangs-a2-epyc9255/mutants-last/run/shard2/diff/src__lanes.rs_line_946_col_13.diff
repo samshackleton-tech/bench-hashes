@@ -1,0 +1,24 @@
+--- src/lanes.rs
++++ replace sources::Source::register -> Option<usize> with None
+@@ -938,20 +938,17 @@
+                 job: AtomicPtr::new(core::ptr::null_mut()),
+                 base: AtomicUsize::new(0),
+                 finish: crate::finish::Finish::new(),
+             }
+         }
+ 
+         /// Register for the workers: the slot, or None when all are taken.
+         pub(crate) fn register(&'static self) -> Option<usize> {
+-            let ptr = self as *const Source as *mut Source;
+-            let slot = (0..SLOTS).find(|&i| REGISTERED[i].compare_exchange(core::ptr::null_mut(), ptr, Ordering::SeqCst, Ordering::Relaxed).is_ok())?;
+-            ACTIVE.fetch_or(1 << slot, Ordering::SeqCst);
+-            Some(slot)
++            None /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         pub(crate) fn unregister(slot: usize) {
+             ACTIVE.fetch_and(!(1 << slot), Ordering::SeqCst);
+             REGISTERED[slot].store(core::ptr::null_mut(), Ordering::SeqCst);
+         }
+ 
+         /// A stream's task to the workers: one write, one Release store;

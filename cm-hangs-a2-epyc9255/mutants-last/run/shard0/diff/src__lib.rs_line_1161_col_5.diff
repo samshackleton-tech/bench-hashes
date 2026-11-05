@@ -1,0 +1,27 @@
+--- src/lib.rs
++++ replace prefetch_after_pause with ()
+@@ -1153,23 +1153,17 @@
+ /// bytes runs: a one-shot call's (prefetch_kernels), or with `fresh_hasher`
+ /// a fresh Hasher's first update's (prefetch_update_kernels).
+ #[cfg(all(blake3_neon, feature = "std"))]
+ // Cold for layout: the path of a chunk or less falls through past its
+ // call, on the lines it had before the call existed.
+ #[cold]
+ #[inline(never)]
+ fn prefetch_after_pause(len: usize, platform: Platform, fresh_hasher: bool) {
+-    if code_may_be_cold() {
+-        if fresh_hasher {
+-            prefetch_update_kernels(len, platform);
+-        } else {
+-            prefetch_kernels(len, platform);
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Whether this thread's last call in the prefetching range was over
+ /// 100 us ago (or never). Calls back to back find their code near, where
+ /// the prefetch would cost them 2-4% (jobs 972-975); one that follows a
+ /// pause is the one other work may have taken the code from.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ #[inline]

@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ replace << with >>
+@@ -36,17 +36,17 @@
+ impl<T> std::ops::Deref for Line<T> {
+     type Target = T;
+     fn deref(&self) -> &T {
+         &self.0
+     }
+ }
+ 
+ /// The top bit of `state`: the caller is parked, waiting.
+-const SLEEPING: usize = 1 << (usize::BITS - 1);
++const SLEEPING: usize = 1 >> /* ~ changed by cargo-mutants ~ */ (usize::BITS - 1);
+ 
+ pub(crate) struct Finish {
+     /// The number past the last piece or task published.
+     pub(crate) published: Line<AtomicUsize>,
+     /// The pieces finished, all the source's jobs', and SLEEPING.
+     state: Line<AtomicUsize>,
+     /// The waiting thread: behind a lock, since the worker finishing the
+     /// last piece may read it as the source passes to another thread (an

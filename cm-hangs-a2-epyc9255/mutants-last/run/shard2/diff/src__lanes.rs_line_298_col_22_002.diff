@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace < with <= in hash_many
+@@ -290,17 +290,17 @@
+ }
+ 
+ /// [`crate::hash_many`] over the machine's threads: below MIN_SPLIT_LEN
+ /// of input, or with one message, on this thread.
+ #[inline]
+ pub(crate) fn hash_many(input: &[u8], message_len: usize, key: &crate::CVWords, flags: u8, outputs: &mut [[u8; crate::OUT_LEN]]) {
+     // The short path first and inline, so a small batch costs what
+     // crate::hash_many costs; everything the pool needs is behind the call.
+-    if outputs.len() < 2 || input.len() < MIN_SPLIT_LEN {
++    if outputs.len() <= /* ~ changed by cargo-mutants ~ */ 2 || input.len() < MIN_SPLIT_LEN {
+         return crate::hash_many_serial(input, message_len, key, flags, outputs);
+     }
+     hash_many_over_pool(input, message_len, key, flags, outputs)
+ }
+ 
+ #[inline(never)]
+ fn hash_many_over_pool(input: &[u8], message_len: usize, key: &crate::CVWords, flags: u8, outputs: &mut [[u8; crate::OUT_LEN]]) {
+     let slot = crate::many::slot_len(message_len);

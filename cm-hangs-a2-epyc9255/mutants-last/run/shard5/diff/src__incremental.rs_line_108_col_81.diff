@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace >= with < in <impl hasher::Hooks for HasherHooks<'_>>::children
+@@ -100,17 +100,17 @@
+             {
+                 lanes::subtree_children(input, self.key, counter, self.flags)
+             }
+             #[cfg(not(feature = "std"))]
+             unreachable!()
+         } else if self.pooled {
+             // Pooled, the subtrees below take the lock one at a time, and
+             // the pool's own never use SME2.
+-            let own = platform::Sme2Turn::take(self.chunk_platform, input.len() >= SME2_SIZED_LEN);
++            let own = platform::Sme2Turn::take(self.chunk_platform, input.len() < /* ~ changed by cargo-mutants ~ */ SME2_SIZED_LEN);
+             compress_subtree_to_parent_node(input, ahead, self.key, counter, self.flags, own.platform())
+         } else {
+             compress_subtree_to_parent_node(input, ahead, self.key, counter, self.flags, self.platform)
+         };
+         [pair[..OUT_LEN].try_into().unwrap(), pair[OUT_LEN..].try_into().unwrap()]
+     }
+ }
+ 

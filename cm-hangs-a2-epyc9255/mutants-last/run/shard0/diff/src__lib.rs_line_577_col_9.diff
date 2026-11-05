@@ -1,0 +1,24 @@
+--- src/lib.rs
++++ replace <impl fmt::Debug for Hash>::fmt -> fmt::Result with Ok(Default::default())
+@@ -569,20 +569,17 @@
+     }
+ }
+ 
+ impl fmt::Debug for Hash {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         // Formatting field as `&str` to reduce code size since the `Debug`
+         // dynamic dispatch table for `&str` is likely needed elsewhere already,
+         // but that for `ArrayString<[u8; 64]>` is not.
+-        let hex = self.to_hex();
+-        let hex: &str = hex.as_str();
+-
+-        f.debug_tuple("Hash").field(&hex).finish()
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The error type for [`Hash::from_hex`].
+ ///
+ /// The `.to_string()` representation of this error currently distinguishes between bad length
+ /// errors and bad character errors. This is to help with logging and debugging, but it isn't a
+ /// stable API detail, and it may change at any time.

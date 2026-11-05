@@ -1,0 +1,24 @@
+--- src/incremental.rs
++++ replace HasherCore::merge_cv_stack with ()
+@@ -387,20 +387,17 @@
+     // at a time), we use a "count the total number of 1-bits" variant (which
+     // doesn't assume that). The principle is the same: each CV that should
+     // remain in the stack is represented by a 1-bit in the total number of
+     // chunks (or bytes) so far.
+     #[cfg(feature = "std")]
+     fn merge_cv_stack(&mut self, chunk_counter: u64) {
+         // Its callers (the queue's hashers, and a Hasher's held group) start
+         // at offset zero; a positioned subtree's offset takes the core's path.
+-        debug_assert_eq!(self.initial_chunk_counter, 0, "a hasher at offset zero");
+-        let post_merge_stack_len = hasher::ones(chunk_counter);
+-        let kernels = kernels_on(&self.key, &self.chunk_state, self.chunk_state.platform, false);
+-        self.cv_stack.merge(&kernels, post_merge_stack_len);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The kernels on this Hasher's key and flags (see HasherKernels).
+     #[inline(always)]
+     fn kernels(&self, platform: Platform, pooled: bool) -> HasherKernels<'_> {
+         kernels_on(&self.key, &self.chunk_state, platform, pooled)
+     }
+ 

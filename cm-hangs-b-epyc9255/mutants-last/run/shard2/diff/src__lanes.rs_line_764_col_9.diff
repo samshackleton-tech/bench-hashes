@@ -1,0 +1,63 @@
+--- src/lanes.rs
++++ replace Pool::run_job with ()
+@@ -756,59 +756,17 @@
+ impl Pool {
+     /// Publish `work` of `pieces` pieces as this thread's job source, take
+     /// pieces on this thread until none remain, and return once every
+     /// piece is finished, on whichever thread took it. The caller first
+     /// hashes pieces `0..own` on `own_platform`, back to back (the SME2
+     /// thread's prefix; the workers' pieces start after it). A caller that
+     /// finds no source slot free hashes every piece itself.
+     fn run_job(&self, work: Work, pieces: usize, own: usize, own_platform: Platform) {
+-        crate::ran(crate::Ran::Pool);
+-        #[cfg(test)]
+-        WAKES_WANTED.with(|w| w.set(None));
+-        let job = Job { work };
+-        let source = sources::job_source();
+-        let slot = source.register();
+-        // Sound: the caller's frame outlives every access: it waits below,
+-        // and should it unwind before that (a bug in this crate), the
+-        // process ends rather than leaving workers reading a gone frame and
+-        // the next call waiting forever (the guard is forgotten once the
+-        // wait is over: nothing runs on the normal path).
+-        let ptr = &job as *const Job as *mut Job<'static>;
+-        let published = AbortOnUnwind;
+-        let target = source.publish_job(ptr, pieces, own);
+-        if slot.is_some() {
+-            // A worker for each piece past the caller's first (none for a
+-            // job of one past its own: a wake for none is nothing); for a
+-            // tree, within the wide kernel's thread budget.
+-            let wanted = match &job.work {
+-                Work::Tree { input, .. } => (pieces - own - 1).min(tree_threads(input.len(), self.threads, own_platform.simd_degree()).saturating_sub(1)),
+-                _ => pieces - own - 1,
+-            };
+-            #[cfg(test)]
+-            WAKES_WANTED.with(|w| w.set(Some(wanted)));
+-            self.wake_for(wanted);
+-        }
+-        for index in 0..own {
+-            // Sound: the workers' pieces start past these.
+-            unsafe { job.hash_piece(index, own_platform) };
+-        }
+-        source.finished(own);
+-        while let Some(sources::Item::Pieces(_, index, n)) = source.take() {
+-            // Sound: this thread took these, so it alone writes their slots.
+-            for i in index..index + n {
+-                unsafe { job.hash_piece(i, pool_platform()) };
+-            }
+-            source.finished(n);
+-        }
+-        source.wait(target);
+-        core::mem::forget(published);
+-        if let Some(slot) = slot {
+-            sources::Source::unregister(slot);
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Wake workers for `wanted` pieces of new work (crate::park).
+     pub(crate) fn wake_for(&self, wanted: usize) {
+         self.park.wake_for(wanted, self.workers());
+     }
+ 
+     /// The pool's workers: every thread but the calling one.

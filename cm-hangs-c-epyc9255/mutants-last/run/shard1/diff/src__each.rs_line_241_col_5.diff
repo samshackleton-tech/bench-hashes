@@ -1,0 +1,24 @@
+--- src/each.rs
++++ replace hash_each with ()
+@@ -233,20 +233,17 @@
+ /// use blake3_servil::{Mode, convenience, performance::{self, Block}};
+ /// let blocks: Vec<Vec<Block>> = (0..100).map(|i| vec![Block([i as u8; 64]); (100 * i as usize).div_ceil(64)]).collect();
+ /// let items: Vec<(&[Block], usize)> = blocks.iter().enumerate().map(|(i, b)| (&b[..], 100 * i)).collect();
+ /// let mut out = vec![[0u8; 32]; items.len()];
+ /// performance::hash_each(Mode::Plain, &items, &mut out);
+ /// assert_eq!(&out[42], convenience::hash(&[42u8; 4200]).as_bytes());
+ /// ```
+ pub fn hash_each(mode: Mode, items: &[(&[Block], usize)], out: &mut [[u8; OUT_LEN]]) {
+-    assert_eq!(items.len(), out.len(), "one digest per item");
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    hash_each_on(key, flags, items, out, Platform::detect(), |item| crate::hash_serial(item, key, flags));
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// An item of a collection, as hash_each_on reads it: its bytes. The
+ /// public calls' items are messages in blocks; the pool's ranges, bytes.
+ pub(crate) trait Item {
+     fn bytes(&self) -> &[u8];
+ }
+ 

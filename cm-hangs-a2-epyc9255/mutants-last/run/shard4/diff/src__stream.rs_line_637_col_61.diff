@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace != with == in Stream<'env, D>::add_part
+@@ -629,17 +629,17 @@
+             Kind::Abandoned => unreachable!("an abandoned message adds no part"),
+             Kind::Batch { .. } if len == 0 => return,
+             Kind::Batch { message_len, .. } => Some(message_len),
+             Kind::Piece { counter, .. } => {
+                 self.hand_over_piece(entry, input, len, counter);
+                 return;
+             }
+         };
+-        if self.open.as_ref().is_some_and(|open| open.batch != batch) {
++        if self.open.as_ref().is_some_and(|open| open.batch == /* ~ changed by cargo-mutants ~ */ batch) {
+             self.publish();
+         }
+         let (key, flags) = (self.key, self.flags);
+         let open = self.open.get_or_insert_with(|| Task::members(&key, flags, batch));
+         // The task's first member's `left` counts all of its members (set
+         // as the task is handed over).
+         if open.members == 0 {
+             self.open_first = entry;

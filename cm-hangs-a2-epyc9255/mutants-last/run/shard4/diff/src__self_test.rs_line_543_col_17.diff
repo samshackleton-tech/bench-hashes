@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace ensure_slow::<impl Drop for Failed>::drop with ()
+@@ -535,17 +535,17 @@
+ fn ensure_slow() {
+     use core::sync::atomic::Ordering::Relaxed;
+     if STATE.compare_exchange(UNTESTED, RUNNING, Relaxed, Relaxed).is_ok() {
+         /// A kernel that panics during the test stops the process too:
+         /// its unwind passes here.
+         struct Failed;
+         impl Drop for Failed {
+             fn drop(&mut self) {
+-                stop(format_args!("blake3-servil startup self-test failed: a kernel panicked on this build or this CPU"));
++                () /* ~ changed by cargo-mutants ~ */
+             }
+         }
+         let failed = Failed;
+         run();
+         core::mem::forget(failed);
+         STATE.store(PASSED, Relaxed);
+         return;
+     }

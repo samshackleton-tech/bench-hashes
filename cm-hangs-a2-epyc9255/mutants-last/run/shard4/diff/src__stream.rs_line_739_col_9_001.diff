@@ -1,0 +1,27 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::add_entry -> usize with 1
+@@ -731,23 +731,17 @@
+             core::hint::spin_loop();
+         }
+     }
+ 
+     /// A new entry of `len` bytes, waiting for room when every entry is in
+     /// flight.
+     #[inline(always)]
+     fn add_entry(&mut self, len: usize, kind: Kind, ring_end: usize) -> usize {
+-        if self.next - self.delivered == ENTRIES {
+-            self.wait_for_room();
+-        }
+-        let index = self.next % ENTRIES;
+-        self.s.entries[index] = Entry { len, kind, first: index, ring_end };
+-        self.next += 1;
+-        index
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Hand back places, and hash tasks, until an entry is free (out of
+     /// line: a frame of its own, set up only when the stream is full).
+     #[cold]
+     #[inline(never)]
+     fn wait_for_room(&mut self) {
+         self.publish();

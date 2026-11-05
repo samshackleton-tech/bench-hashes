@@ -1,0 +1,47 @@
+--- src/hasher.rs
++++ replace feed with ()
+@@ -161,43 +161,17 @@
+     push(k, stack, initial, k.chunk_cv(chunk), counter);
+     *chunk = k.new_chunk(counter + 1);
+     rest
+ }
+ 
+ /// `input` after an empty chunk: whole subtrees onto the stack, then at most
+ /// a chunk into the chunk, and the stack merged behind it.
+ pub fn feed<C: Chunk, K: Feed<C>>(k: &K, chunk: &mut C, stack: &mut CvStack, initial: u64, input: &[u8]) {
+-    let mut input = input;
+-    while input.len() > CHUNK_LEN {
+-        let counter = chunk.counter();
+-        let len = subtree_len(counter, input.len());
+-        let chunks = (len / CHUNK_LEN) as u64;
+-        let ahead = input.len() - len;
+-        let sub = &input[..len];
+-        let flat = if counter > initial { k.subtree_cv(sub, ahead, counter) } else { None };
+-        match flat {
+-            Some(cv) => push(k, stack, initial, cv, counter),
+-            None => {
+-                if len <= CHUNK_LEN {
+-                    push(k, stack, initial, k.whole_chunk_cv(sub, counter), counter);
+-                } else {
+-                    let [left, right] = k.children(sub, ahead, counter);
+-                    push(k, stack, initial, left, counter);
+-                    push(k, stack, initial, right, counter + chunks / 2);
+-                }
+-            }
+-        }
+-        chunk.advance(chunks);
+-        input = &input[len..];
+-    }
+-    if !input.is_empty() {
+-        chunk.update(input);
+-        stack.merge(k, ones(chunk.counter() - initial));
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The root's node: the last chunk's (or the top two values' parent),
+ /// folded into the stack's values from the top.
+ pub fn final_node<C: Chunk, N, K: Nodes<C, N>>(k: &K, chunk: &C, stack: &CvStack) -> N {
+     if stack.len() == 0 {
+         return k.chunk_node(chunk);
+     }

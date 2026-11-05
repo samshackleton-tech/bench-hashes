@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace >= with < in hash_serial_from
+@@ -1115,17 +1115,17 @@
+ fn hash_serial(input: &[u8], key: &CVWords, flags: u8) -> Hash {
+     hash_serial_from(Platform::detect(), input, key, flags)
+ }
+ 
+ /// [`hash_serial`] from `platform`: the startup self-test's way in, which
+ /// has not run `Platform::detect`'s check (it is that check).
+ #[inline]
+ fn hash_serial_from(platform: Platform, input: &[u8], key: &CVWords, flags: u8) -> Hash {
+-    let turn = platform::Sme2Turn::take(platform, input.len() >= SME2_SIZED_LEN);
++    let turn = platform::Sme2Turn::take(platform, input.len() < /* ~ changed by cargo-mutants ~ */ SME2_SIZED_LEN);
+     // One comparison on the path of a chunk or less: everything else is
+     // out of line, so that path's code stays as small as it was (a call
+     // after other work fetches every line of it from DRAM).
+     #[cfg(all(blake3_neon, feature = "std"))]
+     if (CHUNK_LEN + 1..PREFETCH_BELOW).contains(&input.len()) {
+         prefetch_after_pause(input.len(), turn.platform(), false);
+     }
+     hash_serial_on(input, key, flags, turn.platform())

@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace | with & in Platform::compress_blocks
+@@ -274,17 +274,17 @@
+         {
+             unsafe {
+                 crate::neon_hybrid::compress_blocks(cv, blocks.as_ptr(), count, counter, flags, flags_start);
+             }
+             return;
+         }
+         #[allow(unreachable_code)]
+         {
+-            let mut block_flags = flags | flags_start;
++            let mut block_flags = flags & /* ~ changed by cargo-mutants ~ */ flags_start;
+             for block in blocks[..count * BLOCK_LEN].chunks_exact(BLOCK_LEN) {
+                 self.compress_in_place(cv, block.try_into().unwrap(), BLOCK_LEN as u8, counter, block_flags);
+                 block_flags = flags;
+             }
+         }
+     }
+ 
+     pub fn compress_xof(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8) -> [u8; 64] {

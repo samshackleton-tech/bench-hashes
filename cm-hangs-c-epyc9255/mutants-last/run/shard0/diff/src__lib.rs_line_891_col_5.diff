@@ -1,0 +1,44 @@
+--- src/lib.rs
++++ replace hash_one_chunk_root -> Hash with Default::default()
+@@ -883,40 +883,17 @@
+ // whole blocks are read in place, the final one too when it is full; a
+ // short final block (and the empty block for the empty input) is copied
+ // into a zero-padded buffer, which is the copy ChunkState::update() makes
+ // too. The scalar kernel runs on every AArch64 core, so this path needs no
+ // platform check.
+ #[cfg(blake3_neon)]
+ #[inline]
+ fn hash_one_chunk_root(input: &[u8], key: &CVWords, flags: u8) -> Hash {
+-    debug_assert!(input.len() <= CHUNK_LEN);
+-    let blocks = cmp::max(1, input.len().div_ceil(BLOCK_LEN));
+-    let whole = (blocks - 1) * BLOCK_LEN;
+-    let tail = &input[whole..];
+-    /// The padded last block, 64-byte aligned as hasher::Output's is
+-    /// (src/hasher.rs explains).
+-    #[repr(align(64))]
+-    struct Aligned64([u8; BLOCK_LEN]);
+-    let padded;
+-    let last: &[u8; BLOCK_LEN] = match tail.try_into() {
+-        Ok(full) => full,
+-        Err(_) => {
+-            let mut block = Aligned64([0; BLOCK_LEN]);
+-            block.0[..tail.len()].copy_from_slice(tail);
+-            padded = block;
+-            &padded.0
+-        }
+-    };
+-    let mut out = [0u8; OUT_LEN];
+-    // Safe: `input` holds `whole` bytes before `tail`, and blocks is 1..=16.
+-    unsafe {
+-        neon_hybrid::hash_chunk(input.as_ptr(), blocks, last, tail.len() as u8, key, 0, flags, CHUNK_START, CHUNK_END | ROOT, &mut out);
+-    }
+-    Hash(out)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ // Hash a whole subtree at its chunk counter (or the whole input at zero).
+ // Unlike the wider helpers above, this also handles one chunk or less.
+ // The pool's pieces (lanes.rs) use it; the one-shot calls go through
+ // tree::hash.
+ #[cfg(feature = "std")]
+ #[inline]

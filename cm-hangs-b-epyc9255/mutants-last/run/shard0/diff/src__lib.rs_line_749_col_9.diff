@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete match arm (Platform::SSE41 | Platform::AVX2, 3) in spare_lane
+@@ -741,17 +741,17 @@
+ /// core). AVX-512 otherwise keeps its own widths (unmeasured).
+ #[cfg(blake3_sse41_ffi)]
+ #[inline]
+ fn spare_lane(platform: Platform, whole: usize, partial: usize) -> Option<usize> {
+     match (platform, whole) {
+         (Platform::AVX2, 1) if partial > BLOCK_LEN => Some(4),
+         #[cfg(blake3_avx512_ffi)]
+         (Platform::AVX512, 1) if partial > BLOCK_LEN => Some(4),
+-        (Platform::SSE41 | Platform::AVX2, 3) => Some(4),
++         /* ~ changed by cargo-mutants ~ */
+         (Platform::AVX2, 6..=7) => Some(8),
+         (Platform::AVX2, 5) if partial > 5 * BLOCK_LEN => Some(8),
+         _ => None,
+     }
+ }
+ 
+ // Use SIMD parallelism to hash up to MAX_SIMD_DEGREE chunks at the same time
+ // on a single thread. Write out the chunk chaining values and return the

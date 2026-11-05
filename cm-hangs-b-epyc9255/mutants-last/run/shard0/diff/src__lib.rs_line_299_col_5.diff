@@ -1,0 +1,23 @@
+--- src/lib.rs
++++ replace ran with ()
+@@ -291,19 +291,17 @@
+     pub(crate) static RAN: core::cell::Cell<u32> = const { core::cell::Cell::new(0) };
+ }
+ 
+ /// Note that `kind` happened: in the tests' record, and nothing in any
+ /// other build (some of which have no kernel to note).
+ #[inline(always)]
+ #[allow(dead_code)]
+ pub(crate) fn ran(kind: Ran) {
+-    #[cfg(all(test, feature = "std"))]
+-    RAN.with(|r| r.set(r.get() | kind as u32));
+-    let _ = kind;
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The work the tests count, for a mutant that only costs work (BLAKE3
+ /// #219): an exact count on the calling thread, the same on every machine,
+ /// where the digests are the same either way.
+ #[derive(Clone, Copy)]
+ #[allow(dead_code)]
+ pub(crate) enum Counted {

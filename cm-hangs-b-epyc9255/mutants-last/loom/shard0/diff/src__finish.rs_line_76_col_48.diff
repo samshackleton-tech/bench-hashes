@@ -1,0 +1,21 @@
+--- src/finish.rs
++++ delete ! in Finish::finished
+@@ -68,17 +68,17 @@
+     pub(crate) fn own(&self) {
+         *self.owner.lock().unwrap() = Some(thread::current());
+     }
+ 
+     /// Count `n` pieces finished (their outputs written before); the last
+     /// one wakes a caller parked for it.
+     pub(crate) fn finished(&self, n: usize) {
+         let before = self.state.fetch_add(n, Ordering::SeqCst);
+-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
++        if before & SLEEPING != 0 && (before &  /* ~ changed by cargo-mutants ~ */SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+             if let Some(owner) = &*self.owner.lock().unwrap() {
+                 #[cfg(all(test, not(shuttle)))]
+                 tests::UNPARKS.with(|u| u.set(u.get() + 1));
+                 owner.unpark();
+             }
+         }
+     }
+ 

@@ -1,0 +1,44 @@
+--- src/pair.rs
++++ replace parent -> [u8; BLOCK_LEN] with [1; BLOCK_LEN]
+@@ -37,40 +37,17 @@
+         Platform::AVX512 => true,
+         _ => false,
+     }
+ }
+ 
+ /// The chaining values of `input`'s two chunks, at `chunk_counter` and the
+ /// one after, as `compress_chunks_parallel` returns them. `takes(platform, input.len())` must hold.
+ pub(crate) fn parent(input: &[u8], key: &CVWords, chunk_counter: u64, flags: u8, platform: Platform) -> [u8; BLOCK_LEN] {
+-    assert!(takes(platform, input.len()), "a whole chunk and a partial one of two blocks or more, on AVX2 or AVX-512");
+-    let (whole, partial) = input.split_at(CHUNK_LEN);
+-    let paired = partial.len().div_ceil(BLOCK_LEN) - 1;
+-    let mut out = [0u8; BLOCK_LEN];
+-    // Sound: each pointer reaches `blocks` whole blocks (the whole chunk's
+-    // 16; the partial chunk's `paired`, all but its last), `out` has room
+-    // for the values, and `takes` admitted only a platform the CPU has.
+-    unsafe {
+-        // The first `paired` blocks of both chunks, side by side.
+-        let mut halfway = [0u8; 2 * OUT_LEN];
+-        hash_many_blocks(platform, &[whole.as_ptr(), partial.as_ptr()], paired, key, chunk_counter, true, flags, CHUNK_START, 0, &mut halfway);
+-        // The whole chunk's other blocks, from its chaining value so far.
+-        let cv = words_from_le_bytes_32(halfway[..OUT_LEN].try_into().unwrap());
+-        let rest = whole[paired * BLOCK_LEN..].as_ptr();
+-        hash_many_blocks(platform, &[rest], CHUNK_LEN / BLOCK_LEN - paired, &cv, chunk_counter, false, flags, 0, CHUNK_END, &mut out[..OUT_LEN]);
+-        // The partial chunk's last block, zero-padded.
+-        let mut cv = words_from_le_bytes_32(halfway[OUT_LEN..].try_into().unwrap());
+-        let last = &partial[paired * BLOCK_LEN..];
+-        let mut block = [0u8; BLOCK_LEN];
+-        block[..last.len()].copy_from_slice(last);
+-        platform.compress_in_place(&mut cv, &block, last.len() as u8, chunk_counter + 1, flags | CHUNK_END);
+-        out[OUT_LEN..].copy_from_slice(&crate::hasher::le_bytes(&cv));
+-    }
+-    out
++    [1; BLOCK_LEN] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The platform's assembly `hash_many`, with the block count at run time
+ /// (AVX2 and AVX-512; elsewhere each input in turn). Unsafe: each of `inputs` reaches `blocks`
+ /// blocks, and the CPU has the platform.
+ #[allow(clippy::too_many_arguments)]
+ // Out of line: inlined into Platform::hash_many once its portable arm went,
+ // batches of one to three 64 B messages after other work ran 5-12% slower on

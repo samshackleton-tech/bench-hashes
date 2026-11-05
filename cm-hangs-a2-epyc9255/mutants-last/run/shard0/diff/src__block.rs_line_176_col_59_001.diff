@@ -1,0 +1,21 @@
+--- src/block.rs
++++ replace * with / in Batch<'_>::message_mut
+@@ -168,17 +168,17 @@
+ #[cfg(feature = "std")]
+ impl Batch<'_> {
+     /// Message `i`'s bytes, for writing: `message_len` of them, no more (a
+     /// borrowed batch copies its blocks first).
+     pub fn message_mut(&mut self, i: usize) -> &mut [u8] {
+         let per = blocks_per(self.message_len);
+         assert!((i + 1) * per <= self.blocks.len(), "message {i} of a batch of {}", self.len());
+         let len = self.message_len;
+-        &mut Block::bytes_mut(&mut self.blocks.to_mut()[i * per..][..per])[..len]
++        &mut Block::bytes_mut(&mut self.blocks.to_mut()[i / /* ~ changed by cargo-mutants ~ */ per..][..per])[..len]
+     }
+ 
+     /// Message `i` becomes `message`, `message_len` bytes.
+     pub fn set(&mut self, i: usize, message: &[u8]) {
+         self.message_mut(i).copy_from_slice(message);
+     }
+ 
+     /// Every byte for writing, where no message has bytes past its end to

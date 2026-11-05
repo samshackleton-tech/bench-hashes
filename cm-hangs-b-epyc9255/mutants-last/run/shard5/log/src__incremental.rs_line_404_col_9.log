@@ -1,0 +1,49 @@
+
+*** src/incremental.rs:404:9: replace HasherCore::kernels -> HasherKernels<'_> with Default::default()
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace HasherCore::kernels -> HasherKernels<'_> with Default::default()
+@@ -396,17 +396,17 @@
+         let post_merge_stack_len = hasher::ones(chunk_counter);
+         let kernels = kernels_on(&self.key, &self.chunk_state, self.chunk_state.platform, false);
+         self.cv_stack.merge(&kernels, post_merge_stack_len);
+     }
+ 
+     /// The kernels on this Hasher's key and flags (see HasherKernels).
+     #[inline(always)]
+     fn kernels(&self, platform: Platform, pooled: bool) -> HasherKernels<'_> {
+-        kernels_on(&self.key, &self.chunk_state, platform, pooled)
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     // Official BLAKE3's reference implementation (reference_impl.rs) merges
+     // the new CV with existing CVs from the stack before pushing it. It can,
+     // because it knows more input is coming, so none of the merges are root.
+     //
+     // This setting is different. We want to feed as much input as possible to
+     // the walk (`tree::wide`), without setting aside anything for the
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-k3a4o1du)
+error[E0277]: the trait bound `hasher::Kernels<'_, platform::Platform, HasherHooks<'_>>: Default` is not satisfied
+   --> src/incremental.rs:404:9
+    |
+404 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::Kernels<'_, platform::Platform, HasherHooks<'_>>`
+   --> src/hasher.rs:227:1
+    |
+227 | pub struct Kernels<'a, P, H> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

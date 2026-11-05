@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace + with * in hash_run_short
+@@ -442,17 +442,17 @@
+ /// without them.
+ #[inline(never)]
+ fn hash_run_short<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans: bool, last_len: usize) {
+     #[cfg(blake3_sme2)]
+     if platform_is_sme2(platform) && outputs.len() >= ONE_BLOCK_PAD_MIN {
+         return hash_run_padded::<N>(messages, key, flags, outputs, last_len);
+     }
+     if plans {
+-        let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
++        let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE * /* ~ changed by cargo-mutants ~ */ 16];
+         let lanes = fill_table(&mut slots, messages, outputs.len(), outputs.len());
+         neon_plans_last_len::<N>(lanes, key, flags, last_len, outputs);
+     } else {
+         for (output, message) in outputs.iter_mut().zip(messages.chunks_exact(N)) {
+             *output = *crate::hash_serial_on(&message[..last_len], key, flags, platform).as_bytes();
+         }
+     }
+ }

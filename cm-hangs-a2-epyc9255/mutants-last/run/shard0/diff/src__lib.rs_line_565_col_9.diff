@@ -1,0 +1,24 @@
+--- src/lib.rs
++++ replace <impl fmt::Display for Hash>::fmt -> fmt::Result with Ok(Default::default())
+@@ -557,20 +557,17 @@
+     }
+ }
+ 
+ impl fmt::Display for Hash {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         // Formatting field as `&str` to reduce code size since the `Debug`
+         // dynamic dispatch table for `&str` is likely needed elsewhere already,
+         // but that for `ArrayString<[u8; 64]>` is not.
+-        let hex = self.to_hex();
+-        let hex: &str = hex.as_str();
+-
+-        f.write_str(hex)
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl fmt::Debug for Hash {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+         // Formatting field as `&str` to reduce code size since the `Debug`
+         // dynamic dispatch table for `&str` is likely needed elsewhere already,
+         // but that for `ArrayString<[u8; 64]>` is not.

@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace && with || in Sme2Turn::take
+@@ -65,17 +65,17 @@
+ 
+ #[cfg(blake3_sme2)]
+ static SME2_BUSY: Busy = Busy(core::sync::atomic::AtomicBool::new(false));
+ 
+ impl Sme2Turn {
+     #[inline]
+     pub(crate) fn take(platform: Platform, sme2_sized: bool) -> Self {
+         #[cfg(blake3_sme2)]
+-        if sme2_sized && matches!(platform, Platform::SME2) {
++        if sme2_sized || /* ~ changed by cargo-mutants ~ */ matches!(platform, Platform::SME2) {
+             use core::sync::atomic::Ordering;
+             // A load, and a store when the turn is free: two calls that
+             // look at the same instant can both take it, which costs what
+             // running SME2 at once always did, and nothing else depends on
+             // the flag. An atomic swap cost 3-9% for a batch of 24
+             // messages (on the VM, 282 ns against 273, and 9-10% in the
+             // regression check); acquire and release ordering about 1 µs
+             // per call beside the SME2 kernels (256 one-block messages:

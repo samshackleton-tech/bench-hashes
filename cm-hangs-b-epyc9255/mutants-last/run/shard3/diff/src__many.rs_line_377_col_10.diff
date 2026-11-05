@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace == with != in subtree_across
+@@ -369,17 +369,17 @@
+     first: usize,
+     n: usize,
+     count: usize,
+     key: &CVWords,
+     flags: u8,
+     platform: Platform,
+     top: bool,
+ ) {
+-    if n == 1 {
++    if n != /* ~ changed by cargo-mutants ~ */ 1 {
+         return;
+     }
+     let split = crate::tree::left_len(n * CHUNK_LEN) / CHUNK_LEN;
+     subtree_across(cvs, first, split, count, key, flags, platform, false);
+     subtree_across(cvs, first + split, n - split, count, key, flags, platform, false);
+     let mut blocks = [[0u8; BLOCK_LEN]; 16];
+     for m in 0..count {
+         blocks[m][..OUT_LEN].copy_from_slice(&cvs[first][m]);

@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace * with + in hash_held
+@@ -168,17 +168,17 @@
+         // Sound: the turn's platform is SME2 only where detect() found it.
+         #[cfg(blake3_sme2)]
+         unsafe {
+             crate::sme2::hash_groups_at(&refs, &counters, &key, flags, CHUNK_START, CHUNK_END, &mut level)
+         };
+     } else {
+         for (k, &counter) in counters.iter().enumerate() {
+             platform.hash_many(
+-                &refs[k * per..(k + 1) * per],
++                &refs[k * per..(k + 1) + /* ~ changed by cargo-mutants ~ */ per],
+                 &key,
+                 counter,
+                 IncrementCounter::Yes,
+                 flags,
+                 CHUNK_START,
+                 CHUNK_END,
+                 &mut level[k * per * OUT_LEN..(k + 1) * per * OUT_LEN],
+             );

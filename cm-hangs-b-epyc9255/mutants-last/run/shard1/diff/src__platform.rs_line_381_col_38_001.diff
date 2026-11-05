@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace / with * in Platform::xof_many
+@@ -373,17 +373,17 @@
+                 let out = {
+                     let turn = Sme2Turn::take(*self, out.len() >= 16 * BLOCK_LEN);
+                     let done = if matches!(turn.platform(), Platform::SME2) {
+                         // Safe: the turn's platform is SME2 only where detect() found it.
+                         unsafe { crate::sme2::xof_many(cv, block, block_len, counter, flags, out) }
+                     } else {
+                         0
+                     };
+-                    counter += (done / BLOCK_LEN) as u64;
++                    counter += (done * /* ~ changed by cargo-mutants ~ */ BLOCK_LEN) as u64;
+                     &mut out[done..]
+                 };
+                 // Then four or eight at a time on NEON (AArch64): CPUs
+                 // without SME2, and SME2's leftovers; the last one to three
+                 // blocks after them (neon_hybrid::xof_tail).
+                 #[cfg(blake3_neon)]
+                 {
+                     let done = crate::neon_hybrid::xof_many(cv, block, block_len, counter, flags, out);

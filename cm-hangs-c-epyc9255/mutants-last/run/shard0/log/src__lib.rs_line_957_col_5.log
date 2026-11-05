@@ -1,0 +1,697 @@
+
+*** src/lib.rs:957:5: replace initialize with ()
+
+*** mutation diff:
+--- src/lib.rs
++++ replace initialize with ()
+@@ -949,18 +949,17 @@
+ /// (see the crate's documentation); later calls return at once.
+ ///
+ /// ```
+ /// blake3_servil::initialize();
+ /// let hash = blake3_servil::convenience::hash(b"foo");
+ /// # assert_eq!(hash, blake3_servil::performance::Hasher::new(blake3_servil::Mode::Plain).update(b"foo").finalize());
+ /// ```
+ pub fn initialize() {
+-    self_test::ensure();
+-    platform::Platform::detect_unchecked().record();
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`initialize`], and start the threads that the multithreaded calls and
+ /// [`stream`](performance::stream) use: every program that makes such calls calls this once,
+ /// before them, in place of `initialize`. It starts `threads - 1` workers,
+ /// and each multithreaded call hashes on its calling thread and the
+ /// workers (calls made at once share the workers), and on CPUs with SME2
+ /// (Apple M4) the SME2 thread too; `None` means one thread
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ag8s7fg6)
+warning: variants `SSE41`, `AVX2`, and `AVX512` are never constructed
+  --> src/platform.rs:25:5
+   |
+23 | pub enum Platform {
+   |          -------- variants in this enum
+24 |     #[cfg(blake3_sse41_ffi)]
+25 |     SSE41 = 3,
+   |     ^^^^^
+26 |     #[cfg(blake3_avx2_ffi)]
+27 |     AVX2 = 4,
+   |     ^^^^
+...
+30 |     AVX512 = 5,
+   |     ^^^^^^
+   |
+   = note: `Platform` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `x86_platform` is never used
+   --> src/platform.rs:136:10
+    |
+136 | const fn x86_platform(avx512: bool, avx2: bool, sse41: bool) -> Option<Platform> {
+    |          ^^^^^^^^^^^^
+
+warning: associated items `record`, `detect_unchecked`, and `name` are never used
+   --> src/platform.rs:166:19
+    |
+148 | impl Platform {
+    | ------------- associated items in this implementation
+...
+166 |     pub(crate) fn record(self) {
+    |                   ^^^^^^
+...
+173 |     pub(crate) fn detect_unchecked() -> Self {
+    |                   ^^^^^^^^^^^^^^^^
+...
+206 |     pub fn name(&self) -> &'static str {
+    |            ^^^^
+
+warning: function `avx512_detected` is never used
+   --> src/platform.rs:564:8
+    |
+564 | pub fn avx512_detected() -> bool {
+    |        ^^^^^^^^^^^^^^^
+
+warning: function `avx2_detected` is never used
+   --> src/platform.rs:579:8
+    |
+579 | pub fn avx2_detected() -> bool {
+    |        ^^^^^^^^^^^^^
+
+warning: function `sse41_detected` is never used
+   --> src/platform.rs:594:8
+    |
+594 | pub fn sse41_detected() -> bool {
+    |        ^^^^^^^^^^^^^^
+
+warning: constant `SELF_TEST_EXPECTED` is never used
+  --> src/ffi_avx512_32.rs:57:18
+   |
+57 | pub(crate) const SELF_TEST_EXPECTED: [u64; 3] = [0x8418db51e3b4a019, 0x675dde19182e7dd6, 0xc1b6cd25e25d91f8];
+   |                  ^^^^^^^^^^^^^^^^^^
+
+warning: function `check_self_test` is never used
+  --> src/ffi_avx512_32.rs:59:15
+   |
+59 | pub(crate) fn check_self_test(index: usize, folded: u64) {
+   |               ^^^^^^^^^^^^^^^
+
+warning: function `self_test_chain` is never used
+  --> src/ffi_avx512_32.rs:67:15
+   |
+67 | pub(crate) fn self_test_chain(
+   |               ^^^^^^^^^^^^^^^
+
+warning: function `self_test` is never used
+  --> src/ffi_avx512_32.rs:90:22
+   |
+90 | pub(crate) unsafe fn self_test(previous: &[u8; 32]) -> usize {
+   |                      ^^^^^^^^^
+
+warning: enum `Case` is never used
+  --> src/self_test.rs:42:17
+   |
+42 | pub(crate) enum Case {
+   |                 ^^^^
+
+warning: constant `KIB` is never used
+  --> src/self_test.rs:72:7
+   |
+72 | const KIB: usize = 1024;
+   |       ^^^
+
+warning: constant `CASES` is never used
+   --> src/self_test.rs:139:18
+    |
+139 | pub(crate) const CASES: &[(Case, &str)] = &[
+    |                  ^^^^^
+
+warning: constant `INPUT_LEN` is never used
+   --> src/self_test.rs:163:18
+    |
+163 | pub(crate) const INPUT_LEN: usize = 5 * KIB + 512;
+    |                  ^^^^^^^^^
+
+warning: constant `OUTPUT_LEN` is never used
+   --> src/self_test.rs:166:18
+    |
+166 | pub(crate) const OUTPUT_LEN: usize = 1600;
+    |                  ^^^^^^^^^^
+
+warning: constant `BATCH_LEN` is never used
+   --> src/self_test.rs:173:7
+    |
+173 | const BATCH_LEN: usize = 17 * 64 + 1;
+    |       ^^^^^^^^^
+
+warning: constant `BATCH_COUNT` is never used
+   --> src/self_test.rs:179:7
+    |
+179 | const BATCH_COUNT: usize = 17;
+    |       ^^^^^^^^^^^
+
+warning: function `fill` is never used
+   --> src/self_test.rs:182:15
+    |
+182 | pub(crate) fn fill(input: &mut [u8]) {
+    |               ^^^^
+
+warning: constant `CONTEXT` is never used
+   --> src/self_test.rs:190:18
+    |
+190 | pub(crate) const CONTEXT: &str = "blake3-servil self-test";
+    |                  ^^^^^^^
+
+warning: function `fold` is never used
+   --> src/self_test.rs:194:15
+    |
+194 | pub(crate) fn fold(bytes: &[u8]) -> u64 {
+    |               ^^^^
+
+warning: function `chain` is never used
+   --> src/self_test.rs:205:15
+    |
+205 | pub(crate) fn chain(mut outputs: impl FnMut(Case, &[u8], &[u8; 32], &mut [u8]) -> usize, mut check: impl FnMut(usize, u64)) -> [u8;...
+    |               ^^^^^
+
+warning: constant `EXPECTED` is never used
+   --> src/self_test.rs:279:7
+    |
+279 | const EXPECTED: [u64; 8] = [
+    |       ^^^^^^^^
+
+warning: function `outputs` is never used
+   --> src/self_test.rs:292:15
+    |
+292 | pub(crate) fn outputs(platform: Platform, case: Case, input: &[u8], previous: &[u8; 32], out: &mut [u8]) -> usize {
+    |               ^^^^^^^
+
+warning: function `incremental` is never used
+   --> src/self_test.rs:315:4
+    |
+315 | fn incremental(platform: Platform, input: &[u8], piece: usize) -> crate::Hash {
+    |    ^^^^^^^^^^^
+
+warning: function `xof` is never used
+   --> src/self_test.rs:325:4
+    |
+325 | fn xof(platform: Platform, input: &[u8], skip: u64, out: &mut [u8]) -> usize {
+    |    ^^^
+
+warning: function `many` is never used
+   --> src/self_test.rs:336:4
+    |
+336 | fn many(platform: Platform, messages: &[u8], offset: usize, len: usize, out: &mut [u8]) -> usize {
+    |    ^^^^
+
+warning: function `chunk_values` is never used
+   --> src/self_test.rs:354:4
+    |
+354 | fn chunk_values(platform: Platform, input: &[u8], key: &[u8; 32], out: &mut [u8]) -> usize {
+    |    ^^^^^^^^^^^^
+
+warning: function `run` is never used
+   --> src/self_test.rs:397:4
+    |
+397 | fn run() -> usize {
+    |    ^^^
+
+warning: function `compiled_features_present` is never used
+   --> src/self_test.rs:439:4
+    |
+439 | fn compiled_features_present() {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `unsupported` is never used
+   --> src/self_test.rs:471:15
+    |
+471 | pub(crate) fn unsupported(why: core::fmt::Arguments) -> ! {
+    |               ^^^^^^^^^^^
+
+warning: function `stop` is never used
+   --> src/self_test.rs:476:4
+    |
+476 | fn stop(why: core::fmt::Arguments) -> ! {
+    |    ^^^^
+
+warning: constant `UNTESTED` is never used
+   --> src/self_test.rs:507:7
+    |
+507 | const UNTESTED: u8 = 0;
+    |       ^^^^^^^^
+
+warning: constant `RUNNING` is never used
+   --> src/self_test.rs:508:7
+    |
+508 | const RUNNING: u8 = 1;
+    |       ^^^^^^^
+
+warning: constant `PASSED` is never used
+   --> src/self_test.rs:509:7
+    |
+509 | const PASSED: u8 = 2;
+    |       ^^^^^^
+
+warning: static `STATE` is never used
+   --> src/self_test.rs:510:8
+    |
+510 | static STATE: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(UNTESTED);
+    |        ^^^^^
+
+warning: function `ensure` is never used
+   --> src/self_test.rs:527:15
+    |
+527 | pub(crate) fn ensure() {
+    |               ^^^^^^
+
+warning: function `ensure_slow` is never used
+   --> src/self_test.rs:535:4
+    |
+535 | fn ensure_slow() {
+    |    ^^^^^^^^^^^
+
+warning: method `record` is never used
+   --> src/platform.rs:166:19
+    |
+148 | impl Platform {
+    | ------------- method in this implementation
+...
+166 |     pub(crate) fn record(self) {
+    |                   ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 37 warnings
+warning: `blake3-servil` (lib test) generated 2 warnings (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 1.73s
+info: using target runner `sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+warning: variants `SSE41`, `AVX2`, and `AVX512` are never constructed
+  --> src/platform.rs:25:5
+   |
+23 | pub enum Platform {
+   |          -------- variants in this enum
+24 |     #[cfg(blake3_sse41_ffi)]
+25 |     SSE41 = 3,
+   |     ^^^^^
+26 |     #[cfg(blake3_avx2_ffi)]
+27 |     AVX2 = 4,
+   |     ^^^^
+...
+30 |     AVX512 = 5,
+   |     ^^^^^^
+   |
+   = note: `Platform` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `x86_platform` is never used
+   --> src/platform.rs:136:10
+    |
+136 | const fn x86_platform(avx512: bool, avx2: bool, sse41: bool) -> Option<Platform> {
+    |          ^^^^^^^^^^^^
+
+warning: associated items `record`, `detect_unchecked`, and `name` are never used
+   --> src/platform.rs:166:19
+    |
+148 | impl Platform {
+    | ------------- associated items in this implementation
+...
+166 |     pub(crate) fn record(self) {
+    |                   ^^^^^^
+...
+173 |     pub(crate) fn detect_unchecked() -> Self {
+    |                   ^^^^^^^^^^^^^^^^
+...
+206 |     pub fn name(&self) -> &'static str {
+    |            ^^^^
+
+warning: function `avx512_detected` is never used
+   --> src/platform.rs:564:8
+    |
+564 | pub fn avx512_detected() -> bool {
+    |        ^^^^^^^^^^^^^^^
+
+warning: function `avx2_detected` is never used
+   --> src/platform.rs:579:8
+    |
+579 | pub fn avx2_detected() -> bool {
+    |        ^^^^^^^^^^^^^
+
+warning: function `sse41_detected` is never used
+   --> src/platform.rs:594:8
+    |
+594 | pub fn sse41_detected() -> bool {
+    |        ^^^^^^^^^^^^^^
+
+warning: constant `SELF_TEST_EXPECTED` is never used
+  --> src/ffi_avx512_32.rs:57:18
+   |
+57 | pub(crate) const SELF_TEST_EXPECTED: [u64; 3] = [0x8418db51e3b4a019, 0x675dde19182e7dd6, 0xc1b6cd25e25d91f8];
+   |                  ^^^^^^^^^^^^^^^^^^
+
+warning: function `check_self_test` is never used
+  --> src/ffi_avx512_32.rs:59:15
+   |
+59 | pub(crate) fn check_self_test(index: usize, folded: u64) {
+   |               ^^^^^^^^^^^^^^^
+
+warning: function `self_test_chain` is never used
+  --> src/ffi_avx512_32.rs:67:15
+   |
+67 | pub(crate) fn self_test_chain(
+   |               ^^^^^^^^^^^^^^^
+
+warning: function `self_test` is never used
+  --> src/ffi_avx512_32.rs:90:22
+   |
+90 | pub(crate) unsafe fn self_test(previous: &[u8; 32]) -> usize {
+   |                      ^^^^^^^^^
+
+warning: enum `Case` is never used
+  --> src/self_test.rs:42:17
+   |
+42 | pub(crate) enum Case {
+   |                 ^^^^
+
+warning: constant `KIB` is never used
+  --> src/self_test.rs:72:7
+   |
+72 | const KIB: usize = 1024;
+   |       ^^^
+
+warning: constant `CASES` is never used
+   --> src/self_test.rs:139:18
+    |
+139 | pub(crate) const CASES: &[(Case, &str)] = &[
+    |                  ^^^^^
+
+warning: constant `INPUT_LEN` is never used
+   --> src/self_test.rs:163:18
+    |
+163 | pub(crate) const INPUT_LEN: usize = 5 * KIB + 512;
+    |                  ^^^^^^^^^
+
+warning: constant `OUTPUT_LEN` is never used
+   --> src/self_test.rs:166:18
+    |
+166 | pub(crate) const OUTPUT_LEN: usize = 1600;
+    |                  ^^^^^^^^^^
+
+warning: constant `BATCH_LEN` is never used
+   --> src/self_test.rs:173:7
+    |
+173 | const BATCH_LEN: usize = 17 * 64 + 1;
+    |       ^^^^^^^^^
+
+warning: constant `BATCH_COUNT` is never used
+   --> src/self_test.rs:179:7
+    |
+179 | const BATCH_COUNT: usize = 17;
+    |       ^^^^^^^^^^^
+
+warning: function `fill` is never used
+   --> src/self_test.rs:182:15
+    |
+182 | pub(crate) fn fill(input: &mut [u8]) {
+    |               ^^^^
+
+warning: constant `CONTEXT` is never used
+   --> src/self_test.rs:190:18
+    |
+190 | pub(crate) const CONTEXT: &str = "blake3-servil self-test";
+    |                  ^^^^^^^
+
+warning: function `fold` is never used
+   --> src/self_test.rs:194:15
+    |
+194 | pub(crate) fn fold(bytes: &[u8]) -> u64 {
+    |               ^^^^
+
+warning: function `chain` is never used
+   --> src/self_test.rs:205:15
+    |
+205 | pub(crate) fn chain(mut outputs: impl FnMut(Case, &[u8], &[u8; 32], &mut [u8]) -> usize, mut check: impl FnMut(usize, u64)) -> [u8;...
+    |               ^^^^^
+
+warning: constant `EXPECTED` is never used
+   --> src/self_test.rs:279:7
+    |
+279 | const EXPECTED: [u64; 8] = [
+    |       ^^^^^^^^
+
+warning: function `outputs` is never used
+   --> src/self_test.rs:292:15
+    |
+292 | pub(crate) fn outputs(platform: Platform, case: Case, input: &[u8], previous: &[u8; 32], out: &mut [u8]) -> usize {
+    |               ^^^^^^^
+
+warning: function `incremental` is never used
+   --> src/self_test.rs:315:4
+    |
+315 | fn incremental(platform: Platform, input: &[u8], piece: usize) -> crate::Hash {
+    |    ^^^^^^^^^^^
+
+warning: function `xof` is never used
+   --> src/self_test.rs:325:4
+    |
+325 | fn xof(platform: Platform, input: &[u8], skip: u64, out: &mut [u8]) -> usize {
+    |    ^^^
+
+warning: function `many` is never used
+   --> src/self_test.rs:336:4
+    |
+336 | fn many(platform: Platform, messages: &[u8], offset: usize, len: usize, out: &mut [u8]) -> usize {
+    |    ^^^^
+
+warning: function `chunk_values` is never used
+   --> src/self_test.rs:354:4
+    |
+354 | fn chunk_values(platform: Platform, input: &[u8], key: &[u8; 32], out: &mut [u8]) -> usize {
+    |    ^^^^^^^^^^^^
+
+warning: function `run` is never used
+   --> src/self_test.rs:397:4
+    |
+397 | fn run() -> usize {
+    |    ^^^
+
+warning: function `compiled_features_present` is never used
+   --> src/self_test.rs:439:4
+    |
+439 | fn compiled_features_present() {
+    |    ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `unsupported` is never used
+   --> src/self_test.rs:471:15
+    |
+471 | pub(crate) fn unsupported(why: core::fmt::Arguments) -> ! {
+    |               ^^^^^^^^^^^
+
+warning: function `stop` is never used
+   --> src/self_test.rs:476:4
+    |
+476 | fn stop(why: core::fmt::Arguments) -> ! {
+    |    ^^^^
+
+warning: constant `UNTESTED` is never used
+   --> src/self_test.rs:507:7
+    |
+507 | const UNTESTED: u8 = 0;
+    |       ^^^^^^^^
+
+warning: constant `RUNNING` is never used
+   --> src/self_test.rs:508:7
+    |
+508 | const RUNNING: u8 = 1;
+    |       ^^^^^^^
+
+warning: constant `PASSED` is never used
+   --> src/self_test.rs:509:7
+    |
+509 | const PASSED: u8 = 2;
+    |       ^^^^^^
+
+warning: static `STATE` is never used
+   --> src/self_test.rs:510:8
+    |
+510 | static STATE: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(UNTESTED);
+    |        ^^^^^
+
+warning: function `ensure` is never used
+   --> src/self_test.rs:527:15
+    |
+527 | pub(crate) fn ensure() {
+    |               ^^^^^^
+
+warning: function `ensure_slow` is never used
+   --> src/self_test.rs:535:4
+    |
+535 | fn ensure_slow() {
+    |    ^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 37 warnings
+warning: method `record` is never used
+   --> src/platform.rs:166:19
+    |
+148 | impl Platform {
+    | ------------- method in this implementation
+...
+166 |     pub(crate) fn record(self) {
+    |                   ^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib test) generated 2 warnings (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 24912c50-e757-467e-b3c4-c62140f9d221 with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.040s] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.043s] (  2/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.050s] (  3/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.050s] (  4/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  5/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.061s] (  5/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  6/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.065s] (  6/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  7/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.067s] (  7/168) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  8/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.029s] (  8/168) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  9/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.027s] (  9/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 10/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.080s] ( 10/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 11/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.030s] ( 11/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 12/168) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.023s] ( 12/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 13/168) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.022s] ( 13/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] ( 14/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.024s] ( 14/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 15/168) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.026s] ( 15/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 16/168) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.030s] ( 16/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 17/168) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_update_each --nocapture
+        PASS [   0.073s] ( 17/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 18/168) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-ag8s7fg6/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_update_each_at_offsets --nocapture
+     SIGABRT [   0.140s] ( 18/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero' (461852) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGTERM [   0.108s] ( 19/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGTERM [   0.032s] ( 20/168) blake3-servil each::test::test_update_each_at_offsets
+     SIGKILL [   0.090s] ( 21/168) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_on_counts_its_alone_messages_and_rounds' (462283) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.105s] ( 22/168) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_matches_hash_with' (462098) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.068s] ( 23/168) blake3-servil each::test::test_update_each
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_update_each' (462442) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.095s] ( 24/168) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly' (462229) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.111s] ( 25/168) blake3-servil each::test::test_hash_each_multithreaded
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded' (462132) has overflowed its stack
+    fatal runtime error: stack overflow, aborting
+
+    (test aborted with signal 9: SIGKILL)
+
+────────────
+     Summary [   0.195s] 25/168 tests run: 17 passed, 8 failed, 0 skipped
+warning: 143/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

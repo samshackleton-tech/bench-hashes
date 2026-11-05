@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ delete match arm 1 in sme2_detected
+@@ -720,17 +720,17 @@
+ pub fn sme2_detected() -> bool {
+     use core::sync::atomic::{AtomicU8, Ordering};
+ 
+     // 0 = unknown, 1 = no, 2 = yes.
+     static CACHE: AtomicU8 = AtomicU8::new(0);
+ 
+     match CACHE.load(Ordering::Relaxed) {
+         2 => return true,
+-        1 => return false,
++         /* ~ changed by cargo-mutants ~ */
+         _ => {}
+     }
+ 
+     let detected = sme2_detect_uncached();
+     CACHE.store(if detected { 2 } else { 1 }, Ordering::Relaxed);
+     detected
+ }
+ 

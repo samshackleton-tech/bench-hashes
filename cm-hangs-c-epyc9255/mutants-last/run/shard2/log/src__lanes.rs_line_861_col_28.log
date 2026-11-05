@@ -1,0 +1,57 @@
+
+*** src/lanes.rs:861:28: replace - with + in spin_for_work
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace - with + in spin_for_work
+@@ -853,17 +853,17 @@
+     loop {
+         for _ in 0..16 {
+             noted(Noted::Poll);
+             if sources::visible(false) {
+                 return true;
+             }
+             core::hint::spin_loop();
+         }
+-        if spin_ends(now() - started, sources::open) {
++        if spin_ends(now() + /* ~ changed by cargo-mutants ~ */ started, sources::open) {
+             return false;
+         }
+     }
+ }
+ 
+ /// Whether a worker's look for work ends, `elapsed` into it: once SPIN has
+ /// passed, or when no stream is open (asked only before SPIN, as the
+ /// look's own code would). Its own function so a test holds it
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0308]: mismatched types
+   --> src/lanes.rs:861:65
+    |
+861 |         if spin_ends(now() + /* ~ changed by cargo-mutants ~ */ started, sources::open) {
+    |                                                                 ^^^^^^^ expected `Duration`, found `Instant`
+
+error[E0308]: mismatched types
+   --> src/lanes.rs:861:22
+    |
+861 |         if spin_ends(now() + /* ~ changed by cargo-mutants ~ */ started, sources::open) {
+    |            --------- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected `Duration`, found `Instant`
+    |            |
+    |            arguments to this function are incorrect
+    |
+note: function defined here
+   --> src/lanes.rs:874:4
+    |
+874 | fn spin_ends(elapsed: std::time::Duration, open: impl FnOnce() -> bool) -> bool {
+    |    ^^^^^^^^^ ----------------------------
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace <impl fmt::Debug for Hasher>::fmt -> fmt::Result with Ok(Default::default())
+@@ -533,17 +533,17 @@
+     pub(crate) fn count(&self) -> u64 {
+         (self.chunk_state.chunk_counter - self.initial_chunk_counter) * CHUNK_LEN as u64 + self.chunk_state.count() as u64
+     }
+ }
+ 
+ // Don't derive(Debug), because the state may be secret.
+ impl fmt::Debug for Hasher {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+-        f.debug_struct("Hasher").field("flags", &self.core.chunk_state.flags).field("platform", &self.core.chunk_state.platform).finish()
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ impl std::io::Write for Hasher {
+     /// This is equivalent to [`update`](#method.update).
+     #[inline]
+     fn write(&mut self, input: &[u8]) -> std::io::Result<usize> {

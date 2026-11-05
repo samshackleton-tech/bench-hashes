@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace - with / in hash_one_chunk_root
+@@ -885,17 +885,17 @@
+ // into a zero-padded buffer, which is the copy ChunkState::update() makes
+ // too. The scalar kernel runs on every AArch64 core, so this path needs no
+ // platform check.
+ #[cfg(blake3_neon)]
+ #[inline]
+ fn hash_one_chunk_root(input: &[u8], key: &CVWords, flags: u8) -> Hash {
+     debug_assert!(input.len() <= CHUNK_LEN);
+     let blocks = cmp::max(1, input.len().div_ceil(BLOCK_LEN));
+-    let whole = (blocks - 1) * BLOCK_LEN;
++    let whole = (blocks / /* ~ changed by cargo-mutants ~ */ 1) * BLOCK_LEN;
+     let tail = &input[whole..];
+     /// The padded last block, 64-byte aligned as hasher::Output's is
+     /// (src/hasher.rs explains).
+     #[repr(align(64))]
+     struct Aligned64([u8; BLOCK_LEN]);
+     let padded;
+     let last: &[u8; BLOCK_LEN] = match tail.try_into() {
+         Ok(full) => full,

@@ -1,0 +1,62 @@
+
+*** src/hasher.rs:201:5: replace final_node -> N with Default::default()
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace final_node -> N with Default::default()
+@@ -193,31 +193,17 @@
+         chunk.update(input);
+         stack.merge(k, ones(chunk.counter() - initial));
+     }
+ }
+ 
+ /// The root's node: the last chunk's (or the top two values' parent),
+ /// folded into the stack's values from the top.
+ pub fn final_node<C: Chunk, N, K: Nodes<C, N>>(k: &K, chunk: &C, stack: &CvStack) -> N {
+-    if stack.len() == 0 {
+-        return k.chunk_node(chunk);
+-    }
+-    let mut n = stack.len();
+-    let mut out = if chunk.len() > 0 {
+-        k.chunk_node(chunk)
+-    } else {
+-        n -= 2;
+-        k.parent_node(&stack.get(n), &stack.get(n + 1))
+-    };
+-    while n > 0 {
+-        n -= 1;
+-        out = k.parent_node(&stack.get(n), &k.node_cv(&out));
+-    }
+-    out
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// What the Hasher's kernels take from the library beyond the compression
+ /// function: Feed's methods of those names, as Feed describes them.
+ pub trait Hooks {
+     fn subtree_cv(&self, input: &[u8], ahead: usize, counter: u64) -> Option<Cv>;
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> [Cv; 2];
+ }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-js0xhh98)
+error[E0277]: the trait bound `N: Default` is not satisfied
+   --> src/hasher.rs:201:5
+    |
+201 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `N`
+    |
+help: consider restricting type parameter `N` with trait `Default`
+    |
+200 | pub fn final_node<C: Chunk, N: std::default::Default, K: Nodes<C, N>>(k: &K, chunk: &C, stack: &CvStack) -> N {
+    |                              +++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

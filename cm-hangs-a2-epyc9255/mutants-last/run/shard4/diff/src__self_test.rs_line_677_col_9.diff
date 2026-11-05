@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace test::ours -> usize with 0
+@@ -669,17 +669,17 @@
+         }
+     }
+ 
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     /// The chain's outputs from this crate's own kernels (the production
+     /// self-test's), for the tests that need a correct chain to start from:
+     /// every process checks those kernels against EXPECTED at startup.
+     fn ours(case: Case, input: &[u8], previous: &[u8; 32], out: &mut [u8]) -> usize {
+-        outputs(Platform::detect_unchecked(), case, input, previous, out)
++        0 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     fn wide_reference(inputs: &[&[u8; 192]], key: &crate::CVWords, counter: u64, increment: crate::IncrementCounter, out: &mut [u8]) {
+         for (i, &input) in inputs.iter().enumerate() {
+             // hash_many's increment is not wrapping; exercise the
+             // explicitly wrapping raw ABI with individual calls.
+             let c = counter.wrapping_add(if increment.yes() { i as u64 } else { 0 });

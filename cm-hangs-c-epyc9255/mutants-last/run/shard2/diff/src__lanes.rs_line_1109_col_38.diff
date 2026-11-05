@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace > with == in sources::open
+@@ -1101,17 +1101,17 @@
+         OPEN.fetch_add(1, Ordering::SeqCst);
+     }
+ 
+     pub(crate) fn closed() {
+         OPEN.fetch_sub(1, Ordering::SeqCst);
+     }
+ 
+     pub(crate) fn open() -> bool {
+-        OPEN.load(Ordering::Relaxed) > 0
++        OPEN.load(Ordering::Relaxed) == /* ~ changed by cargo-mutants ~ */ 0
+     }
+ 
+     /// The first registered source for which `f` says yes.
+     fn find(mut f: impl FnMut(&'static Source) -> bool) -> bool {
+         let mut active = ACTIVE.load(Ordering::SeqCst);
+         while active != 0 {
+             let slot = active.trailing_zeros() as usize;
+             active &= active - 1;

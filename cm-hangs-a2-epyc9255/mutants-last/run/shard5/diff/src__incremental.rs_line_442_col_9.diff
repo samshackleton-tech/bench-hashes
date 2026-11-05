@@ -1,0 +1,22 @@
+--- src/incremental.rs
++++ replace HasherCore::push_cv with ()
+@@ -434,18 +434,17 @@
+     // Solving the first problem requires an additional tool,
+     // compress_subtree_to_parent_node(). That function always returns the top
+     // *two* chaining values of the subtree it's compressing. We then do lazy
+     // merging with each of them separately, so that the second CV will always
+     // remain unmerged. (That also helps us support extendable output when
+     // we're hashing an input all-at-once.)
+     #[cfg(feature = "std")]
+     fn push_cv(&mut self, new_cv: &CVBytes, chunk_counter: u64) {
+-        self.merge_cv_stack(chunk_counter);
+-        self.cv_stack.push(*new_cv);
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// [`update`](Hasher::update) with every whole subtree's result taken
+     /// from `results`, one a whole subtree in order (in parts of
+     /// [`lanes::TASK_LEN`], as [`hasher::subtree_len`] cuts them), as
+     /// [`lanes::Task`] computes them.
+     #[cfg(feature = "std")]
+     pub(crate) fn update_with_results<'a>(&mut self, input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {

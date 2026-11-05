@@ -1,0 +1,25 @@
+--- src/hasher.rs
++++ replace CvStack::get -> Cv with Default::default()
+@@ -29,21 +29,17 @@
+     }
+ 
+     pub fn len(&self) -> usize {
+         self.len
+     }
+ 
+     /// Value `i`, below the length.
+     pub fn get(&self, i: usize) -> Cv {
+-        assert!(i < self.len, "a value below the stack's length");
+-        match &self.cvs {
+-            Some(cvs) => cvs[i],
+-            None => panic!("a stack with values has its array"),
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// `cv` on top; the stack holds fewer than DEPTH values.
+     pub fn push(&mut self, cv: Cv) {
+         if self.cvs.is_none() {
+             self.cvs = Some([[0; 32]; DEPTH]);
+         }
+         if let Some(cvs) = &mut self.cvs {

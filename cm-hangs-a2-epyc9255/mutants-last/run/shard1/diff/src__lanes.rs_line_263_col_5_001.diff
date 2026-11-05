@@ -1,0 +1,28 @@
+--- src/lanes.rs
++++ replace tree_cvs -> (Vec<Piece>, Vec<ChainingValue>) with (vec![], vec![Default::default()])
+@@ -255,24 +255,17 @@
+     let caller = Caller(&pool.callers);
+     (callers < pool.threads).then_some((pool, caller))
+ }
+ 
+ /// The subtree pieces of `input` at chunk `counter` and their chaining
+ /// values, hashed over the pool (the SME2 thread's prefix first, where it
+ /// takes one).
+ fn tree_cvs(pool: &Pool, input: &[u8], key: &crate::CVWords, counter: u64, flags: u8) -> (Vec<Piece>, Vec<ChainingValue>) {
+-    let turn = crate::platform::Sme2Turn::take(Platform::detect(), true);
+-    let threads = tree_threads(input.len(), pool.threads, turn.platform().simd_degree());
+-    let (pieces, own) = cut_with_prefix(input.len(), threads, prefix_for(&turn, input.len(), threads));
+-    let mut cvs = vec![ChainingValue::default(); pieces.len()];
+-    let work = Work::Tree { input, pieces: &pieces, cvs: cvs.as_mut_ptr(), key: *key, counter, flags };
+-    pool.run_job(work, pieces.len(), own, turn.platform());
+-    drop(turn);
+-    (pieces, cvs)
++    (vec![], vec![Default::default()]) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The two child chaining values of the subtree `input` at chunk
+ /// `counter`, over the machine's threads: what
+ /// `compress_subtree_to_parent_node` returns for a whole subtree.
+ /// Requires a power-of-two number of chunks, at least MIN_SPLIT_LEN
+ /// bytes, and `counter` a multiple
+ /// of that number, as `Hasher::update` hands out.

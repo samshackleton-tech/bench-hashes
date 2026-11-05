@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace != with == in read_x86_features
+@@ -504,17 +504,17 @@
+     let avx = (1 << 26) | (1 << 27) | (1 << 28);
+     if leaf1.ecx & avx == avx {
+         // Sound: OSXSAVE (bit 27) says the OS enabled XGETBV.
+         let xcr0 = unsafe { arch::_xgetbv(0) };
+         // Sound: as leaf 1; leaf 7 exists where AVX does.
+         #[allow(unused_unsafe)]
+         let leaf7 = unsafe { arch::__cpuid_count(7, 0) };
+         let (ymm, zmm) = (0b110, 0b1110_0110);
+-        if xcr0 & ymm == ymm && leaf7.ebx & (1 << 5) != 0 {
++        if xcr0 & ymm == ymm && leaf7.ebx & (1 << 5) == /* ~ changed by cargo-mutants ~ */ 0 {
+             features |= AVX2;
+         }
+         let f_vl = (1 << 16) | (1 << 31);
+         if xcr0 & zmm == zmm && leaf7.ebx & f_vl == f_vl {
+             features |= AVX512;
+             // Sound: as leaf 1; leaf 0 names the vendor.
+             #[allow(unused_unsafe)]
+             let leaf0 = unsafe { arch::__cpuid(0) };

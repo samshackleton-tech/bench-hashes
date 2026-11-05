@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace HasherCore::new_internal -> Self with Default::default()
+@@ -356,17 +356,17 @@
+     pub fn update_reader(&mut self, reader: impl std::io::Read) -> std::io::Result<&mut Self> {
+         io::copy_wide(reader, self)?;
+         Ok(self)
+     }
+ }
+ 
+ impl HasherCore {
+     pub(crate) fn new_internal(key: &CVWords, flags: u8) -> Self {
+-        Self::new_from(key, flags, Platform::detect())
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// [`HasherCore::new_internal`] on `platform` (the self-test's way in,
+     /// as [`hash_serial_from`]).
+     pub(crate) fn new_from(key: &CVWords, flags: u8, platform: Platform) -> Self {
+         Self { key: *key, chunk_state: ChunkState::new(key, 0, flags, platform), initial_chunk_counter: 0, cv_stack: CvStack::new() }
+     }
+ 

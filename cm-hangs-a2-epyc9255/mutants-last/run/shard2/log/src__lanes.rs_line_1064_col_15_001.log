@@ -1,0 +1,50 @@
+
+*** src/lanes.rs:1064:15: replace - with / in sources::keeps_polling
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace - with / in sources::keeps_polling
+@@ -1056,17 +1056,17 @@
+         }
+     }
+ 
+     /// One poll of a caller waiting for its pieces: a pause (yielding the
+     /// CPU every YIELD_EVERY), and whether to poll on, which it does for
+     /// SPIN_BEFORE_SLEEP from `started` before it sleeps.
+     fn keeps_polling(started: std::time::Instant, yielded: &mut std::time::Instant) -> bool {
+         poll_pause(yielded);
+-        now() - started < SPIN_BEFORE_SLEEP
++        now() / /* ~ changed by cargo-mutants ~ */ started < SPIN_BEFORE_SLEEP
+     }
+ 
+     #[cfg(test)]
+     pub(crate) fn keeps_polling_for_tests(started: std::time::Instant, yielded: &mut std::time::Instant) -> bool {
+         keeps_polling(started, yielded)
+     }
+ 
+     /// Callers' job sources no thread holds.
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-nntved6z)
+error[E0369]: cannot divide `Instant` by `Instant`
+    --> src/lanes.rs:1064:15
+     |
+1064 |         now() / /* ~ changed by cargo-mutants ~ */ started < SPIN_BEFORE_SLEEP
+     |         ----- ^                                    ------- Instant
+     |         |
+     |         Instant
+     |
+note: `Instant` does not implement `Div`
+    --> /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/std/src/time.rs:156:0
+     |
+     = note: `Instant` is defined in another crate
+
+For more information about this error, try `rustc --explain E0369`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace <= with > in hash_each_on
+@@ -271,17 +271,17 @@
+     let key = *key;
+     // The messages whose full chunks share the lanes: each one's index, and
+     // where its chunk values start in `cvs`.
+     let mut shared: Vec<(usize, usize)> = Vec::new();
+     let mut slots = 0;
+     let mut most_full = 0;
+     for (i, item) in items.iter().map(Item::bytes).enumerate() {
+         let chunks = item.len().div_ceil(CHUNK_LEN);
+-        if chunks <= 1 || chunks >= ALONE_CHUNKS {
++        if chunks > /* ~ changed by cargo-mutants ~ */ 1 || chunks >= ALONE_CHUNKS {
+             out[i] = *alone(item).as_bytes();
+         } else {
+             most_full = most_full.max(item.len() / CHUNK_LEN);
+             shared.push((i, slots));
+             slots += chunks;
+         }
+     }
+     let mut cvs = vec![[0u8; OUT_LEN]; slots];

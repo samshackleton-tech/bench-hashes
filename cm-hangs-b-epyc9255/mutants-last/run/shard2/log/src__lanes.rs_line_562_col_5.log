@@ -1,0 +1,52 @@
+
+*** src/lanes.rs:562:5: replace merge_root -> Hash with Default::default()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace merge_root -> Hash with Default::default()
+@@ -554,19 +554,17 @@
+ /// hashes its corresponding piece. Two or more pieces are required.
+ ///
+ /// At each level the longer pieces form an untouched prefix; the suffix
+ /// contains the children of this level. Hash adjacent pairs together with
+ /// the platform's SIMD parent kernel, carrying an odd final child upward.
+ /// The final two CVs belong to the root's children, including a short right
+ /// subtree, on the pool's platform like the pieces.
+ fn merge_root(pieces: &[Piece], cvs: &mut [ChainingValue], key: &crate::CVWords, flags: u8) -> Hash {
+-    let count = merge_to_children(pieces, cvs, key, flags);
+-    debug_assert_eq!(count, 2);
+-    crate::hasher::parent_output(&cvs[0], &cvs[1], key, flags, pool_platform()).root_hash()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`merge_root`] up to the root's two children, left in `cvs[0]` and
+ /// `cvs[1]`; returns 2.
+ fn merge_to_children(pieces: &[Piece], cvs: &mut [ChainingValue], key: &crate::CVWords, flags: u8) -> usize {
+     debug_assert_eq!(pieces.len(), cvs.len());
+     debug_assert!(pieces.len() >= 2);
+     debug_assert_eq!(pieces[0].offset, 0);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-016fck5s)
+error[E0277]: the trait bound `Hash: Default` is not satisfied
+   --> src/lanes.rs:562:5
+    |
+562 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Hash`
+    |
+help: consider annotating `Hash` with `#[derive(Default)]`
+   --> src/lib.rs:426:1
+    |
+426 + #[derive(Default)]
+427 | pub struct Hash([u8; OUT_LEN]);
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace / with % in root_children
+@@ -90,17 +90,17 @@
+ /// fewer gets arrays of that size.
+ #[inline(never)]
+ pub fn root_children<K: Kernels>(k: &K, input: &[u8], ahead: usize, counter: u64) -> [Cv; 2] {
+     if let Some(c) = k.children(input, ahead, counter) {
+         return c;
+     }
+     if input.len() <= SMALL * CHUNK_LEN {
+         let mut cvs = [[0u8; OUT_LEN]; SMALL];
+-        let mut next = [[0u8; OUT_LEN]; SMALL / 2];
++        let mut next = [[0u8; OUT_LEN]; SMALL % /* ~ changed by cargo-mutants ~ */ 2];
+         children(k, input, ahead, counter, &mut cvs, &mut next)
+     } else {
+         let mut cvs = [[0u8; OUT_LEN]; MAX];
+         let mut next = [[0u8; OUT_LEN]; MAX / 2];
+         children(k, input, ahead, counter, &mut cvs, &mut next)
+     }
+ }
+ 

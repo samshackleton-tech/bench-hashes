@@ -1,0 +1,50 @@
+--- src/lib.rs
++++ replace OutputReader::fill with ()
+@@ -1390,46 +1390,17 @@
+     /// [`BLOCK_LEN`] (64 bytes).
+     ///
+     /// The maximum output size of BLAKE3 is 2<sup>64</sup>-1 bytes. If you try
+     /// to extract more than that, for example by seeking near the end and
+     /// reading further, the behavior is unspecified.
+     ///
+     /// [`Read::read`]: #method.read
+     pub fn fill(&mut self, mut buf: &mut [u8]) {
+-        if buf.is_empty() {
+-            return;
+-        }
+-
+-        // If we're partway through a block, try to get to a block boundary.
+-        if self.position_within_block != 0 {
+-            self.fill_one_block(&mut buf);
+-        }
+-
+-        let full_blocks = buf.len() / BLOCK_LEN;
+-        let full_blocks_len = full_blocks * BLOCK_LEN;
+-        if full_blocks > 0 {
+-            debug_assert_eq!(0, self.position_within_block);
+-            self.inner.platform.xof_many(
+-                &self.inner.input_chaining_value,
+-                &self.inner.block,
+-                self.inner.block_len,
+-                self.inner.counter,
+-                self.inner.flags | ROOT,
+-                &mut buf[..full_blocks_len],
+-            );
+-            self.inner.counter += full_blocks as u64;
+-            buf = &mut buf[full_blocks * BLOCK_LEN..];
+-        }
+-
+-        if !buf.is_empty() {
+-            debug_assert!(buf.len() < BLOCK_LEN);
+-            self.fill_one_block(&mut buf);
+-            debug_assert!(buf.is_empty());
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Return the current read position in the output stream. This is
+     /// equivalent to [`Seek::stream_position`], except that it doesn't return
+     /// a `Result`. The position of a new `OutputReader` starts at 0, and each
+     /// call to [`fill`] or [`Read::read`] moves the position forward by the
+     /// number of bytes read.
+     ///

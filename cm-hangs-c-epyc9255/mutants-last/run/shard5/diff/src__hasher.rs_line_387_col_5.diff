@@ -1,0 +1,25 @@
+--- src/hasher.rs
++++ replace le_bytes -> [u8; 32] with [0; 32]
+@@ -379,21 +379,17 @@
+     pub flags: u8,
+     pub platform: P,
+ }
+ 
+ /// The bytes of `words`, least significant first.
+ pub fn le_bytes(words: &[u32; 8]) -> [u8; 32] {
+     // Each word into its four bytes' slot: no index or count to get wrong
+     // (a counted loop, changed, could run forever).
+-    let mut out = [0u8; 32];
+-    for (bytes, word) in out.chunks_exact_mut(4).zip(words) {
+-        bytes.copy_from_slice(&word.to_le_bytes());
+-    }
+-    out
++    [0; 32] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl<P: Blocks> Output<P> {
+     /// The node's chaining value.
+     pub fn chaining_value(&self) -> [u8; 32] {
+         let mut cv = self.input_chaining_value;
+         self.platform.compress_in_place(&mut cv, &self.block, self.block_len, self.counter, self.flags);
+         le_bytes(&cv)

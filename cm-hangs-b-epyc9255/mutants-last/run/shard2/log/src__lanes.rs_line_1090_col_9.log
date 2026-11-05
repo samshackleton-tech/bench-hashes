@@ -1,0 +1,68 @@
+
+*** src/lanes.rs:1090:9: replace sources::job_source -> &'static Source with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::job_source -> &'static Source with Box::leak(Box::new(Default::default()))
+@@ -1082,24 +1082,17 @@
+     }
+ 
+     std::thread_local! {
+         static MINE: std::cell::OnceCell<Held> = const { std::cell::OnceCell::new() };
+     }
+ 
+     /// This thread's source for its one-shot jobs.
+     pub(crate) fn job_source() -> &'static Source {
+-        MINE.with(|mine| {
+-            mine.get_or_init(|| {
+-                let source = FREE_JOBS.lock().unwrap().pop().unwrap_or_else(|| Box::leak(Box::new(Source::new(0))));
+-                source.finish.own();
+-                Held(source)
+-            })
+-            .0
+-        })
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub(crate) fn opened() {
+         OPEN.fetch_add(1, Ordering::SeqCst);
+     }
+ 
+     pub(crate) fn closed() {
+         OPEN.fetch_sub(1, Ordering::SeqCst);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-016fck5s)
+error[E0277]: the trait bound `sources::Source: Default` is not satisfied
+    --> src/lanes.rs:1090:28
+     |
+1090 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `sources::Source`
+    --> src/lanes.rs:903:5
+     |
+ 903 |     pub(crate) struct Source {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::sources::Source: Default` is not satisfied
+    --> src/lanes.rs:1090:28
+     |
+1090 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `lanes::sources::Source`
+    --> src/lanes.rs:903:5
+     |
+ 903 |     pub(crate) struct Source {
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

@@ -1,0 +1,85 @@
+
+*** src/finish.rs:44:43: replace - with +
+
+*** mutation diff:
+--- src/finish.rs
++++ replace - with +
+@@ -36,17 +36,17 @@
+ impl<T> std::ops::Deref for Line<T> {
+     type Target = T;
+     fn deref(&self) -> &T {
+         &self.0
+     }
+ }
+ 
+ /// The top bit of `state`: the caller is parked, waiting.
+-const SLEEPING: usize = 1 << (usize::BITS - 1);
++const SLEEPING: usize = 1 << (usize::BITS + /* ~ changed by cargo-mutants ~ */ 1);
+ 
+ pub(crate) struct Finish {
+     /// The number past the last piece or task published.
+     pub(crate) published: Line<AtomicUsize>,
+     /// The pieces finished, all the source's jobs', and SLEEPING.
+     state: Line<AtomicUsize>,
+     /// The waiting thread: behind a lock, since the worker finishing the
+     /// last piece may read it as the source passes to another thread (an
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-cgkmuykz)
+error[E0080]: attempt to shift left by `65_u32`, which would overflow
+  --> src/finish.rs:44:25
+   |
+44 | const SLEEPING: usize = 1 << (usize::BITS + /* ~ changed by cargo-mutants ~ */ 1);
+   |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ evaluation of `finish::SLEEPING` failed here
+
+note: erroneous constant encountered
+  --> src/finish.rs:64:46
+   |
+64 |         self.state.load(Ordering::SeqCst) & !SLEEPING
+   |                                              ^^^^^^^^
+
+note: erroneous constant encountered
+  --> src/finish.rs:76:21
+   |
+76 |         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+   |                     ^^^^^^^^
+
+note: erroneous constant encountered
+  --> src/finish.rs:76:49
+   |
+76 |         if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+   |                                                 ^^^^^^^^
+
+note: erroneous constant encountered
+  --> src/finish.rs:99:45
+   |
+99 |         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+   |                                             ^^^^^^^^
+
+note: erroneous constant encountered
+  --> src/finish.rs:99:76
+   |
+99 |         let mut count = self.state.fetch_or(SLEEPING, Ordering::SeqCst) & !SLEEPING;
+   |                                                                            ^^^^^^^^
+
+note: erroneous constant encountered
+   --> src/finish.rs:104:31
+    |
+104 |         self.state.fetch_and(!SLEEPING, Ordering::SeqCst);
+    |                               ^^^^^^^^
+
+For more information about this error, try `rustc --explain E0080`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+note: erroneous constant encountered
+   --> src/finish.rs:137:31
+    |
+137 |         finish.state.fetch_or(SLEEPING, Ordering::SeqCst);
+    |                               ^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

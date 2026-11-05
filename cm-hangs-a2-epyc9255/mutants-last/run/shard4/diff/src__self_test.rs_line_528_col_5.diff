@@ -1,0 +1,23 @@
+--- src/self_test.rs
++++ replace ensure with ()
+@@ -520,19 +520,17 @@
+ #[cfg(test)]
+ static PLANTED_FAILURE: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
+ 
+ /// Run the self-test unless it has passed: once per process, the first
+ /// caller running it and any other waiting. It publishes no data, so a
+ /// relaxed load suffices on the fast path.
+ #[inline]
+ pub(crate) fn ensure() {
+-    if STATE.load(core::sync::atomic::Ordering::Relaxed) != PASSED {
+-        ensure_slow();
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cold]
+ #[inline(never)]
+ fn ensure_slow() {
+     use core::sync::atomic::Ordering::Relaxed;
+     if STATE.compare_exchange(UNTESTED, RUNNING, Relaxed, Relaxed).is_ok() {
+         /// A kernel that panics during the test stops the process too:

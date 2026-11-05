@@ -1,0 +1,21 @@
+--- src/block.rs
++++ replace <impl core::fmt::Debug for Block>::fmt -> core::fmt::Result with Ok(Default::default())
+@@ -44,17 +44,17 @@
+         }
+         // Sound: aligned and whole blocks, just checked; Block has no padding.
+         Some(unsafe { core::slice::from_raw_parts(bytes.as_ptr().cast(), bytes.len() / BLOCK_LEN) })
+     }
+ }
+ 
+ impl core::fmt::Debug for Block {
+     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+-        write!(f, "Block({:02x?})", &self.0[..])
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// Messages of one length in [`Block`]s, the batch calls' input: each
+ /// message starts a block, and every byte past each message's end is zero,
+ /// since a `Batch` lets the program write only the messages' own bytes (so
+ /// the bytes the batch kernels read in place, past a message, can never be
+ /// wrong). It owns its blocks ([`Batch::new`]), or borrows blocks already in

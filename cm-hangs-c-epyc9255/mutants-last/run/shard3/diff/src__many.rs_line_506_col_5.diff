@@ -1,0 +1,30 @@
+--- src/many.rs
++++ replace neon_plans_last_len with ()
+@@ -498,26 +498,17 @@
+     // Sound: the first `lanes` slots were written just above.
+     unsafe { core::slice::from_raw_parts(slots.as_ptr() as *const &[u8; N], lanes) }
+ }
+ 
+ /// The integer + NEON parent plans over `lanes`, each message's last block
+ /// `last_len` bytes.
+ #[inline(always)]
+ fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+-    #[cfg(blake3_neon)]
+-    // Sound: every AArch64 CPU has NEON.
+-    unsafe {
+-        crate::neon_hybrid::hash_many_last_len(lanes, key, 0, IncrementCounter::No, flags, CHUNK_START, CHUNK_END | ROOT, last_len, outputs.as_flattened_mut())
+-    };
+-    #[cfg(not(blake3_neon))]
+-    {
+-        let _ = (lanes, key, flags, last_len, outputs);
+-        unreachable!("the NEON plans exist on AArch64 alone");
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`hash_run`] for messages of 2 to 16 blocks (N), the last block
+ /// `last_len` bytes, on one of four plans:
+ ///
+ /// - SME2, SME2_TAIL_MIN or more messages in all (below sixteen) or
+ ///   SME2_TAIL_MIN_AFTER_GROUPS or more past the groups of sixteen: whole
+ ///   groups, the last one padded, its spare lanes pointing at the last

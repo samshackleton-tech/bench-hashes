@@ -1,0 +1,23 @@
+--- src/hasher.rs
++++ replace Output<P>::chaining_value -> [u8; 32] with [0; 32]
+@@ -389,19 +389,17 @@
+         bytes.copy_from_slice(&word.to_le_bytes());
+     }
+     out
+ }
+ 
+ impl<P: Blocks> Output<P> {
+     /// The node's chaining value.
+     pub fn chaining_value(&self) -> [u8; 32] {
+-        let mut cv = self.input_chaining_value;
+-        self.platform.compress_in_place(&mut cv, &self.block, self.block_len, self.counter, self.flags);
+-        le_bytes(&cv)
++        [0; 32] /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The first 32 bytes of the root's output (the node the root, its
+     /// counter 0).
+     #[inline]
+     pub fn root_bytes(&self) -> [u8; 32] {
+         let mut cv = self.input_chaining_value;
+         self.platform.compress_in_place(&mut cv, &self.block, self.block_len, 0, self.flags | ROOT);

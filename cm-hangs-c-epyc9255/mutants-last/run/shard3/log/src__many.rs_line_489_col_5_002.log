@@ -1,0 +1,65 @@
+
+*** src/many.rs:489:5: replace fill_table -> &'s[&'a[u8; N]] with Vec::leak(vec![Box::leak(Box::new([1; N]))])
+
+*** mutation diff:
+--- src/many.rs
++++ replace fill_table -> &'s[&'a[u8; N]] with Vec::leak(vec![Box::leak(Box::new([1; N]))])
+@@ -481,27 +481,17 @@
+ /// lanes, uninitialised on the caller's stack.
+ type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE + 16];
+ 
+ /// Fill `slots` with pointers to the first `count` slots of N bytes in
+ /// `messages`, then spare lanes repeating the last up to `lanes`; the
+ /// table's filled part.
+ #[inline(always)]
+ fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8; N]] {
+-    assert!(0 < count && count <= lanes && lanes <= TABLE + 16 && messages.len() >= count * N, "a table of 1 to TABLE + 16 lanes over the messages");
+-    let mut last: &[u8; N] = &[0; N];
+-    for (slot, message) in slots[..count].iter_mut().zip(messages.chunks_exact(N)) {
+-        last = message.try_into().expect("slots of N bytes");
+-        slot.write(last);
+-    }
+-    for slot in &mut slots[count..lanes] {
+-        slot.write(last);
+-    }
+-    // Sound: the first `lanes` slots were written just above.
+-    unsafe { core::slice::from_raw_parts(slots.as_ptr() as *const &[u8; N], lanes) }
++    Vec::leak(vec![Box::leak(Box::new([1; N]))]) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The integer + NEON parent plans over `lanes`, each message's last block
+ /// `last_len` bytes.
+ #[inline(always)]
+ fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+     #[cfg(blake3_neon)]
+     // Sound: every AArch64 CPU has NEON.
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-k_70ykn4)
+error[E0308]: mismatched types
+   --> src/many.rs:489:5
+    |
+488 | fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8; N]] {
+    |                                                                                                                       ----------------- expected `&'s [&'a [u8; N]]` because of return type
+489 |     Vec::leak(vec![Box::leak(Box::new([1; N]))]) /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ types differ in mutability
+    |
+    = note:      expected reference `&'s [&'a [u8; N]]`
+            found mutable reference `&mut [&mut [{integer}; N]]`
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

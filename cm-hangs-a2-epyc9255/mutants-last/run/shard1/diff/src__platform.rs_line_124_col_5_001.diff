@@ -1,0 +1,27 @@
+--- src/platform.rs
++++ replace not_initialized -> u8 with 1
+@@ -116,23 +116,17 @@
+ /// before `initialize` has run.
+ static DETECTED: core::sync::atomic::AtomicU8 = core::sync::atomic::AtomicU8::new(0);
+ 
+ /// A call before `initialize`: the caller broke the contract. The crate's
+ /// own unit tests, many small programs in one, initialize here instead.
+ #[cold]
+ #[inline(never)]
+ fn not_initialized() -> u8 {
+-    #[cfg(test)]
+-    {
+-        crate::initialize();
+-        DETECTED.load(core::sync::atomic::Ordering::Relaxed)
+-    }
+-    #[cfg(not(test))]
+-    panic!("blake3-servil: call blake3_servil::initialize() once, before any other call: it runs the startup self-test and detects the CPU")
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// x86-64's kernels for a CPU with the given features: the widest it
+ /// runs, or None for a CPU without SSE4.1, which is not supported.
+ #[cfg(all(target_arch = "x86_64", blake3_sse41_ffi, blake3_avx2_ffi, blake3_avx512_ffi))]
+ const fn x86_platform(avx512: bool, avx2: bool, sse41: bool) -> Option<Platform> {
+     if avx512 {
+         Some(Platform::AVX512)

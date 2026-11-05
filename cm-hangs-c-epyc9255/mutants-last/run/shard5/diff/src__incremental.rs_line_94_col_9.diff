@@ -1,0 +1,40 @@
+--- src/incremental.rs
++++ replace <impl hasher::Hooks for HasherHooks<'_>>::children -> [CVBytes; 2] with [Default::default(); 2]
+@@ -86,36 +86,17 @@
+             // Safe: the SME2 platform is selected only where the CPU has it.
+             return Some(unsafe { sme2::compress_subtree_flat_to_cv(input, ahead, self.key, counter, self.flags) });
+         }
+         None
+     }
+ 
+     #[inline(always)]
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> [CVBytes; 2] {
+-        #[cfg(feature = "std")]
+-        let pool_takes = self.pooled && input.len() >= lanes::MIN_SPLIT_LEN;
+-        #[cfg(not(feature = "std"))]
+-        let pool_takes = false;
+-        let pair = if pool_takes {
+-            #[cfg(feature = "std")]
+-            {
+-                lanes::subtree_children(input, self.key, counter, self.flags)
+-            }
+-            #[cfg(not(feature = "std"))]
+-            unreachable!()
+-        } else if self.pooled {
+-            // Pooled, the subtrees below take the lock one at a time, and
+-            // the pool's own never use SME2.
+-            let own = platform::Sme2Turn::take(self.chunk_platform, input.len() >= SME2_SIZED_LEN);
+-            compress_subtree_to_parent_node(input, ahead, self.key, counter, self.flags, own.platform())
+-        } else {
+-            compress_subtree_to_parent_node(input, ahead, self.key, counter, self.flags, self.platform)
+-        };
+-        [pair[..OUT_LEN].try_into().unwrap(), pair[OUT_LEN..].try_into().unwrap()]
++        [Default::default(); 2] /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The Hasher's kernels: chunks, nodes, and parents on the chunk state's
+ /// platform, the rest from `hooks`.
+ type HasherKernels<'a> = hasher::Kernels<'a, Platform, HasherHooks<'a>>;
+ 
+ /// A Hasher's kernels on its key and chunk state (see HasherHooks).

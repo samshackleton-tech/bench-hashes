@@ -1,0 +1,21 @@
+--- src/ffi_partial.rs
++++ replace |= with &= in hash_chunks_with_partial
+@@ -79,17 +79,17 @@
+     // Every block is whole and carries `flags`, but for three places: each
+     // lane's first block starts a chunk, its sixteenth ends one, and the
+     // partial lane's last block holds `last_len` bytes and ends its chunk.
+     // Filled whole and patched, not entry by entry: built entry by entry,
+     // the 16-by-4 tables unrolled into 20 KB of code that a cold call
+     // fetches (#119).
+     for lane in 0..W {
+         p.flags[0][lane] |= CHUNK_START as u32;
+-        p.flags[15][lane] |= CHUNK_END as u32;
++        p.flags[15][lane] &= /* ~ changed by cargo-mutants ~ */ CHUNK_END as u32;
+     }
+     p.lens[last][n] = last_len;
+     p.flags[last][n] |= CHUNK_END as u32;
+     for (lane, chunk) in whole.iter().enumerate() {
+         p.msg[lane] = chunk.as_ptr();
+     }
+     // Sound: every lane's pointer reaches 16 blocks (a whole chunk, or the
+     // padded copy), and the caller's CPU has the kernel's instructions.

@@ -1,0 +1,23 @@
+--- src/stream.rs
++++ replace ring -> *mut u8 with Default::default()
+@@ -315,19 +315,17 @@
+ }
+ 
+ /// A ring of `len` bytes, kept for good, as the storage is: zeroed,
+ /// untouched pages (only the bytes used are faulted in: calloc maps them
+ /// lazily, where an aligned allocation would write them all), starting at
+ /// the first 64-byte boundary, as each room's offset is, so every room
+ /// starts a cache line (glibc puts a 2 MiB block 16 bytes into one).
+ fn ring(len: usize) -> *mut u8 {
+-    let block = Box::leak(std::vec![0u8; len + 64].into_boxed_slice());
+-    let start = block.as_ptr().align_offset(64);
+-    block[start..].as_mut_ptr()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Where `len` bytes go in a ring of `ring` bytes whose head is at `head`
+ /// (counting on), at a 64-byte boundary, whole before its end: their
+ /// offset, and the bytes they take from the head (a room that would cross
+ /// the end starts the next lap, the rest of this one skipped).
+ fn room(head: usize, ring: usize, len: usize) -> (usize, usize) {
+     let slot = len.div_ceil(64) * 64;

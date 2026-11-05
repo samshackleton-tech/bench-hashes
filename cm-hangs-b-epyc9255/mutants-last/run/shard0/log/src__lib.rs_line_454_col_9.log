@@ -1,0 +1,53 @@
+
+*** src/lib.rs:454:9: replace Hash::from_slice -> Result<Self, core::array::TryFromSliceError> with Ok(Default::default())
+
+*** mutation diff:
+--- src/lib.rs
++++ replace Hash::from_slice -> Result<Self, core::array::TryFromSliceError> with Ok(Default::default())
+@@ -446,17 +446,17 @@
+     pub const fn as_slice(&self) -> &[u8] {
+         self.0.as_slice()
+     }
+ 
+     /// Create a `Hash` from its raw bytes representation as a slice.
+     ///
+     /// Returns an error if the slice is not exactly 32 bytes long.
+     pub fn from_slice(bytes: &[u8]) -> Result<Self, core::array::TryFromSliceError> {
+-        Ok(Self::from_bytes(bytes.try_into()?))
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Encode a `Hash` in lowercase hexadecimal.
+     ///
+     /// The returned [`ArrayString`] is a fixed size and doesn't allocate memory
+     /// on the heap. Note that [`ArrayString`] doesn't provide constant-time
+     /// equality checking, so if you need to compare hashes, prefer the `Hash`
+     /// type.
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-kbhabccz)
+error[E0277]: the trait bound `Hash: Default` is not satisfied
+   --> src/lib.rs:454:12
+    |
+454 |         Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+    |            ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `Hash`
+    |
+help: consider annotating `Hash` with `#[derive(Default)]`
+    |
+426 + #[derive(Default)]
+427 | pub struct Hash([u8; OUT_LEN]);
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

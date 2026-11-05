@@ -1,0 +1,45 @@
+--- src/platform.rs
++++ replace Platform::detect_unchecked -> Self with Default::default()
+@@ -170,41 +170,17 @@
+     /// [`Platform::detect`] without the startup self-test: an assembly
+     /// platform on every supported machine, or the process stops.
+     #[allow(unreachable_code)]
+     pub(crate) fn detect_unchecked() -> Self {
+         // Every x86-64 build assembles every kernel (build.rs), so a CPU
+         // runs the widest it has; one without SSE4.1 is not supported, and
+         // the process stops here, in the startup self-test, as a build for
+         // an unsupported target stops (official BLAKE3 runs there).
+-        #[cfg(all(target_arch = "x86_64", blake3_sse41_ffi, blake3_avx2_ffi, blake3_avx512_ffi))]
+-        match x86_platform(avx512_detected(), avx2_detected(), sse41_detected()) {
+-            Some(platform) => return platform,
+-            None => crate::self_test::unsupported(format_args!(
+-                "blake3-servil runs on x86-64 CPUs with SSE4.1 (Intel since 2008, AMD since 2011); this CPU lacks it: use official BLAKE3 (https://github.com/BLAKE3-team/BLAKE3)"
+-            )),
+-        }
+-        // SME2 is detected at runtime; the kernels also require a 512-bit
+-        // streaming vector length, which sme2_detected() checks. Without
+-        // SME2 the NEON backend (integer + vector hybrid kernels) is the
+-        // selection, and it is a real result in its own right; a benchmark
+-        // that cares which one ran reads it back from detect().
+-        #[cfg(blake3_sme2)]
+-        {
+-            if sme2_detected() {
+-                return Platform::SME2;
+-            }
+-        }
+-        // We don't use dynamic feature detection for NEON. If the "neon"
+-        // feature is on, NEON is assumed to be supported.
+-        #[cfg(blake3_neon)]
+-        {
+-            return Platform::NEON;
+-        }
+-        unreachable!("build.rs builds for x86-64 and AArch64 alone")
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The selection's name, for reports.
+     pub fn name(&self) -> &'static str {
+         match self {
+             #[cfg(blake3_sse41_ffi)]
+             Platform::SSE41 => "SSE4.1",
+             #[cfg(blake3_avx2_ffi)]

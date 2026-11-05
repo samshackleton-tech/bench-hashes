@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in compress_chunks_parallel
+@@ -805,17 +805,17 @@
+         }
+         return chunks_array.len() + 1;
+     }
+     platform.hash_many(&chunks_array, key, chunk_counter, IncrementCounter::Yes, flags, CHUNK_START, CHUNK_END, out);
+ 
+     // Hash the remaining partial chunk, if there is one. Note that the empty
+     // chunk (meaning the empty message) is a different codepath.
+     let chunks_so_far = chunks_array.len();
+-    if !chunks_exact.remainder().is_empty() {
++    if  /* ~ changed by cargo-mutants ~ */chunks_exact.remainder().is_empty() {
+         let counter = chunk_counter + chunks_so_far as u64;
+         let mut chunk_state = ChunkState::new(key, counter, flags, platform);
+         chunk_state.update(chunks_exact.remainder());
+         *<&mut [u8; OUT_LEN]>::try_from(&mut out[chunks_so_far * OUT_LEN..][..OUT_LEN]).unwrap() = chunk_state.output().chaining_value();
+         chunks_so_far + 1
+     } else {
+         chunks_so_far
+     }

@@ -1,0 +1,25 @@
+--- src/lanes.rs
++++ replace hash_over_pool -> Hash with Default::default()
+@@ -225,21 +225,17 @@
+     if input.len() < MIN_SPLIT_LEN {
+         return crate::hash_serial(input, key, flags);
+     }
+     hash_over_pool(input, key, flags)
+ }
+ 
+ #[inline(never)]
+ fn hash_over_pool(input: &[u8], key: &crate::CVWords, flags: u8) -> Hash {
+-    let Some((pool, _caller)) = spare_pool() else {
+-        return crate::hash_serial(input, key, flags);
+-    };
+-    let (pieces, mut cvs) = tree_cvs(pool, input, key, 0, flags);
+-    merge_root(&pieces, &mut cvs, key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The pool, this caller counted until the guard drops; or None with no
+ /// CPU to spare (every one has a caller, or the process has one CPU), when
+ /// the call hashes on its own thread. The count lets concurrent callers
+ /// see that this CPU already has work.
+ /// The wide AVX-512 kernel's budget for whole-message trees (Linux): one
+ /// maximum-sized piece per participant, at least two participants when

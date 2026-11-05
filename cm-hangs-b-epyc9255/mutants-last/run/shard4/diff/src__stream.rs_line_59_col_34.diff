@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace << with >>
+@@ -51,17 +51,17 @@
+ /// writing them runs ahead of the threads hashing them. In the 2 MiB ring,
+ /// 32 pieces in flight, the program waits for the oldest piece to come
+ /// back: streams of 4 and 16 MiB messages took 0.71-0.82 of the time with
+ /// this ring (Apple M4 Max, job 1896, three rounds). 64 MiB did no better
+ /// alone, and with two of a program's threads streaming at once its
+ /// footprint cost what the depth gave (4 and 16 MiB messages, 16 a stream:
+ /// 1.01-1.02 of the 2 MiB ring's time, where 8 MiB took 0.93; Mac check
+ /// 1895: shared-os continuous 4 MiB +19.3%).
+-const LONG_RING_BYTES: usize = 8 << 20;
++const LONG_RING_BYTES: usize = 8 >> /* ~ changed by cargo-mutants ~ */ 20;
+ 
+ /// The shortest message whose pieces go to the long ring: 4 MiB, past the
+ /// caches where the 2 MiB ring is kept hot.
+ const LONG: usize = 4 << 20;
+ 
+ /// The most entries (messages and pieces) in flight in one stream (1024:
+ /// 4 KiB to 16 KiB messages 8-9% faster than at 8192, i7-12700K; 256 lost
+ /// 26-130% at 64 and 256 B).

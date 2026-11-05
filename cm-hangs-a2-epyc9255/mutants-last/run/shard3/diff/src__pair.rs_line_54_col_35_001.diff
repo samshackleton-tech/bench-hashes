@@ -1,0 +1,21 @@
+--- src/pair.rs
++++ replace * with / in parent
+@@ -46,17 +46,17 @@
+     let (whole, partial) = input.split_at(CHUNK_LEN);
+     let paired = partial.len().div_ceil(BLOCK_LEN) - 1;
+     let mut out = [0u8; BLOCK_LEN];
+     // Sound: each pointer reaches `blocks` whole blocks (the whole chunk's
+     // 16; the partial chunk's `paired`, all but its last), `out` has room
+     // for the values, and `takes` admitted only a platform the CPU has.
+     unsafe {
+         // The first `paired` blocks of both chunks, side by side.
+-        let mut halfway = [0u8; 2 * OUT_LEN];
++        let mut halfway = [0u8; 2 / /* ~ changed by cargo-mutants ~ */ OUT_LEN];
+         hash_many_blocks(platform, &[whole.as_ptr(), partial.as_ptr()], paired, key, chunk_counter, true, flags, CHUNK_START, 0, &mut halfway);
+         // The whole chunk's other blocks, from its chaining value so far.
+         let cv = words_from_le_bytes_32(halfway[..OUT_LEN].try_into().unwrap());
+         let rest = whole[paired * BLOCK_LEN..].as_ptr();
+         hash_many_blocks(platform, &[rest], CHUNK_LEN / BLOCK_LEN - paired, &cv, chunk_counter, false, flags, 0, CHUNK_END, &mut out[..OUT_LEN]);
+         // The partial chunk's last block, zero-padded.
+         let mut cv = words_from_le_bytes_32(halfway[OUT_LEN..].try_into().unwrap());
+         let last = &partial[paired * BLOCK_LEN..];

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace match guard FORKED.load(Ordering::Relaxed) with false in pool
+@@ -720,17 +720,17 @@
+ }
+ 
+ /// The pool. The caller must have called
+ /// [`crate::initialize_multithreaded`] before; a call before it panics. The
+ /// check is the load of the pool, which every call makes anyway.
+ #[inline]
+ fn pool() -> &'static Pool {
+     match POOL.get() {
+-        Some(_) if FORKED.load(Ordering::Relaxed) => forked(),
++        Some(_) if false /* ~ changed by cargo-mutants ~ */ => forked(),
+         Some(pool) => pool,
+         None => no_pool(),
+     }
+ }
+ 
+ /// A multithreaded call before `initialize_multithreaded`: the caller broke
+ /// the contract. The crate's own unit tests, many small programs in one,
+ /// initialize here instead.

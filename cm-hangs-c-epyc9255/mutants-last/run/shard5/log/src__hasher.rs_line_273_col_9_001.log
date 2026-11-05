@@ -1,0 +1,53 @@
+
+*** src/hasher.rs:273:9: replace <impl Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H>>::chunk_node -> Output<P> with Output::from_iter([Default::default()])
+
+*** mutation diff:
+--- src/hasher.rs
++++ replace <impl Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H>>::chunk_node -> Output<P> with Output::from_iter([Default::default()])
+@@ -265,17 +265,17 @@
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> [Cv; 2] {
+         self.hooks.children(input, ahead, counter)
+     }
+ }
+ 
+ impl<P: Blocks + Copy, H> Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H> {
+     #[inline(always)]
+     fn chunk_node(&self, chunk: &ChunkState<P>) -> Output<P> {
+-        chunk.output()
++        Output::from_iter([Default::default()]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[inline(always)]
+     fn parent_node(&self, left: &Cv, right: &Cv) -> Output<P> {
+         parent_output(left, right, self.key, self.flags, self.platform)
+     }
+ 
+     #[inline(always)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-js0xhh98)
+error[E0599]: no associated function or constant named `from_iter` found for struct `hasher::Output<P>` in the current scope
+   --> src/hasher.rs:273:17
+    |
+273 |         Output::from_iter([Default::default()]) /* ~ changed by cargo-mutants ~ */
+    |                 ^^^^^^^^^ associated function or constant not found in `hasher::Output<_>`
+...
+374 | pub struct Output<P> {
+    | -------------------- associated function or constant `from_iter` not found for this struct
+    |
+    = help: items from traits can only be used if the trait is implemented and in scope
+    = note: the following trait defines an item `from_iter`, perhaps you need to implement it:
+            candidate #1: `FromIterator`
+
+For more information about this error, try `rustc --explain E0599`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

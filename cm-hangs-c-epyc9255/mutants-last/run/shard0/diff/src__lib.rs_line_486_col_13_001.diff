@@ -1,0 +1,26 @@
+--- src/lib.rs
++++ replace Hash::from_hex::hex_val -> Result<u8, HexError> with Ok(1)
+@@ -478,22 +478,17 @@
+     /// Any byte outside the ranges `'0'...'9'`, `'a'...'f'`, and `'A'...'F'`
+     /// results in an error. An input length other than 64 also results in an
+     /// error.
+     ///
+     /// Note that `Hash` also implements `FromStr`, so `Hash::from_hex("...")`
+     /// is equivalent to `"...".parse()`.
+     pub fn from_hex(hex: impl AsRef<[u8]>) -> Result<Self, HexError> {
+         fn hex_val(byte: u8) -> Result<u8, HexError> {
+-            match byte {
+-                b'A'..=b'F' => Ok(byte - b'A' + 10),
+-                b'a'..=b'f' => Ok(byte - b'a' + 10),
+-                b'0'..=b'9' => Ok(byte - b'0'),
+-                _ => Err(HexError(HexErrorInner::InvalidByte(byte))),
+-            }
++            Ok(1) /* ~ changed by cargo-mutants ~ */
+         }
+         let hex_bytes: &[u8] = hex.as_ref();
+         if hex_bytes.len() != OUT_LEN * 2 {
+             return Err(HexError(HexErrorInner::InvalidLen(hex_bytes.len())));
+         }
+         let mut hash_bytes: [u8; OUT_LEN] = [0; OUT_LEN];
+         for i in 0..OUT_LEN {
+             hash_bytes[i] = 16 * hex_val(hex_bytes[2 * i])? + hex_val(hex_bytes[2 * i + 1])?;

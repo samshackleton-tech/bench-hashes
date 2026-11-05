@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace * with + in chain
+@@ -206,17 +206,17 @@
+     let mut input = [0u8; INPUT_LEN];
+     fill(&mut input);
+     let mut out = [0u8; OUTPUT_LEN];
+     let mut previous = [0u8; 32];
+     for (index, &(case, _)) in CASES.iter().enumerate() {
+         let (start, len, count) = match case {
+             Hash { offset, len } => (offset, len, 1),
+             Many { len, count, .. } => (0, len, count),
+-            ChunkValues { chunks } => (0, chunks * crate::CHUNK_LEN, 1),
++            ChunkValues { chunks } => (0, chunks + /* ~ changed by cargo-mutants ~ */ crate::CHUNK_LEN, 1),
+             Keyed { len } | Derive { len } | Incremental { len, .. } | Xof { len, .. } => (0, len, 1),
+         };
+         let n = len.min(32);
+         for message in 0..count {
+             input[start + message * len..][..n].copy_from_slice(&previous[..n]);
+         }
+         let written = outputs(case, &input, &previous, &mut out);
+         let output = &out[..written];

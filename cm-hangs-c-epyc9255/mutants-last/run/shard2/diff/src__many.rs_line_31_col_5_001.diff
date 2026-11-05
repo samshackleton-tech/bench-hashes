@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace slot_len -> usize with 1
+@@ -23,17 +23,17 @@
+ /// M4 the entry into streaming mode costs about a microsecond, so a longer
+ /// run may pay there; measure before changing this.
+ pub(crate) const TABLE: usize = 128;
+ 
+ /// The bytes each message of `len` bytes takes in a batch: `len` rounded up
+ /// to whole blocks, one block for an empty message.
+ #[inline(always)]
+ pub(crate) fn slot_len(len: usize) -> usize {
+-    len.next_multiple_of(BLOCK_LEN).max(BLOCK_LEN)
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// hash_many's contract on its input: `count` slots of whole blocks for
+ /// messages of `len` bytes (checked in every build: the kernels read
+ /// them), each slot's bytes past its message zero (checked in debug
+ /// builds: a Batch keeps them so).
+ #[inline]
+ pub(crate) fn assert_slots(input: &[u8], len: usize, count: usize) {

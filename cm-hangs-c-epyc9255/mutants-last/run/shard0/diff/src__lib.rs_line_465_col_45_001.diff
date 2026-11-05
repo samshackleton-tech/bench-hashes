@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace * with / in Hash::to_hex
+@@ -457,17 +457,17 @@
+     /// Encode a `Hash` in lowercase hexadecimal.
+     ///
+     /// The returned [`ArrayString`] is a fixed size and doesn't allocate memory
+     /// on the heap. Note that [`ArrayString`] doesn't provide constant-time
+     /// equality checking, so if you need to compare hashes, prefer the `Hash`
+     /// type.
+     ///
+     /// [`ArrayString`]: https://docs.rs/arrayvec/0.5.1/arrayvec/struct.ArrayString.html
+-    pub fn to_hex(&self) -> ArrayString<{ 2 * OUT_LEN }> {
++    pub fn to_hex(&self) -> ArrayString<{ 2 / /* ~ changed by cargo-mutants ~ */ OUT_LEN }> {
+         let mut s = ArrayString::new();
+         let table = b"0123456789abcdef";
+         for &b in self.0.iter() {
+             s.push(table[(b >> 4) as usize] as char);
+             s.push(table[(b & 0xf) as usize] as char);
+         }
+         s
+     }

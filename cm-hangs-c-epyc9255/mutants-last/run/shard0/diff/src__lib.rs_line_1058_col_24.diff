@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace << with >> in max_subtree_len
+@@ -1050,17 +1050,17 @@
+ /// whole-chunk offset.
+ #[inline(always)]
+ pub(crate) fn max_subtree_len(input_offset: u64) -> Option<u64> {
+     if input_offset == 0 {
+         return None;
+     }
+     assert_eq!(input_offset % CHUNK_LEN as u64, 0);
+     let counter = input_offset / CHUNK_LEN as u64;
+-    let max_chunks = 1 << counter.trailing_zeros();
++    let max_chunks = 1 >> /* ~ changed by cargo-mutants ~ */ counter.trailing_zeros();
+     Some(max_chunks * CHUNK_LEN as u64)
+ }
+ 
+ /// Which of BLAKE3's three functions a call computes: the plain hash
+ /// ([`hash`](convenience::hash)), the keyed hash, or key derivation. Every call that takes a mode runs each one at the same
+ /// speed, but for `DeriveKey`, which first hashes its context string (once
+ /// per call; [`DeriveKeyWith`](Mode::DeriveKeyWith) takes it hashed
+ /// once for many calls).

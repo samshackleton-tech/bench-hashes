@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace <impl std::ops::Deref for Line<T>>::deref -> &T with Box::leak(Box::new(Default::default()))
+@@ -19,17 +19,17 @@
+ 
+ /// Any value on a cache line of its own.
+ #[repr(align(128))]
+ pub(crate) struct Line<T>(pub(crate) T);
+ 
+ impl<T> std::ops::Deref for Line<T> {
+     type Target = T;
+     fn deref(&self) -> &T {
+-        &self.0
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ pub(crate) struct Park {
+     /// Workers parked: bit w of word w / 64 for worker w. A worker sets its
+     /// own bit before it parks; a waker clears one (fetch_and), which makes
+     /// it the one to unpark that worker. Each worker parks on its own
+     /// thread's token (std's park), so no two share a lock or a futex word.

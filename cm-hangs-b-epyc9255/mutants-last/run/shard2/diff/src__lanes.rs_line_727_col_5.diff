@@ -1,0 +1,25 @@
+--- src/lanes.rs
++++ replace pool -> &'static Pool with Box::leak(Box::new(Default::default()))
+@@ -719,21 +719,17 @@
+     POOL.get().is_some_and(|pool| pool.park.parked_count() == pool.workers())
+ }
+ 
+ /// The pool. The caller must have called
+ /// [`crate::initialize_multithreaded`] before; a call before it panics. The
+ /// check is the load of the pool, which every call makes anyway.
+ #[inline]
+ fn pool() -> &'static Pool {
+-    match POOL.get() {
+-        Some(_) if FORKED.load(Ordering::Relaxed) => forked(),
+-        Some(pool) => pool,
+-        None => no_pool(),
+-    }
++    Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// A multithreaded call before `initialize_multithreaded`: the caller broke
+ /// the contract. The crate's own unit tests, many small programs in one,
+ /// initialize here instead.
+ #[cold]
+ #[inline(never)]
+ fn no_pool() -> &'static Pool {

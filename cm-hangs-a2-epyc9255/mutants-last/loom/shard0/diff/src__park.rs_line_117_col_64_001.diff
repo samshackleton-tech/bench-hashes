@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace - with / in Park::wake_for
+@@ -109,17 +109,17 @@
+     /// workers in all: up to `fanout` now, the rest owed, which the woken
+     /// workers pay, `fanout` each, before they work. How many it woke. A
+     /// publisher's read of `parked` follows its publication (a SeqCst store
+     /// or a fence), as a parking worker's re-check follows its bit: one of
+     /// the two sees the other.
+     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+         let parked = self.parked_count();
+         // Nobody parked, or enough awake: nothing to wake.
+-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);
++        let (now, later) = split(wanted.saturating_sub(workers / /* ~ changed by cargo-mutants ~ */ parked).min(parked), self.fanout);
+         if later > 0 {
+             self.owed.fetch_add(later, Ordering::SeqCst);
+         }
+         (0..now).take_while(|_| self.wake_one()).count()
+     }
+ 
+     /// Worker `me` parks unless `visible()` finds work: the bit first,
+     /// then one more look (a publisher stores, then reads `parked`; this

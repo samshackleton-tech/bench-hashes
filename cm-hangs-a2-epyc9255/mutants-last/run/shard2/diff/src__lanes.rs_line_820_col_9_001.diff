@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace Pool::workers_of -> usize with 1
+@@ -812,17 +812,17 @@
+     }
+ 
+     /// The pool's workers: every thread but the calling one.
+     pub(crate) fn workers(&self) -> usize {
+         Self::workers_of(self.threads)
+     }
+ 
+     fn workers_of(threads: usize) -> usize {
+-        threads - 1
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Worker `me`'s loop: the sources' tasks and pieces; spinning a while
+     /// when a stream is open (more is coming), else parked, whenever it
+     /// finds nothing.
+     fn serve(&self, me: usize) -> ! {
+         loop {
+             if sources::run_one() {

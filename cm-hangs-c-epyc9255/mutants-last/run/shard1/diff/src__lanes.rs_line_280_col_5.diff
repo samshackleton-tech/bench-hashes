@@ -1,0 +1,30 @@
+--- src/lanes.rs
++++ replace subtree_children -> [u8; 2 *crate::OUT_LEN] with [0; 2 *crate::OUT_LEN]
+@@ -272,26 +272,17 @@
+ 
+ /// The two child chaining values of the subtree `input` at chunk
+ /// `counter`, over the machine's threads: what
+ /// `compress_subtree_to_parent_node` returns for a whole subtree.
+ /// Requires a power-of-two number of chunks, at least MIN_SPLIT_LEN
+ /// bytes, and `counter` a multiple
+ /// of that number, as `Hasher::update` hands out.
+ pub(crate) fn subtree_children(input: &[u8], key: &crate::CVWords, counter: u64, flags: u8) -> [u8; 2 * crate::OUT_LEN] {
+-    assert!(input.len().is_power_of_two() && input.len() >= MIN_SPLIT_LEN, "a whole subtree of at least MIN_SPLIT_LEN bytes");
+-    assert_eq!(counter % (input.len() / CHUNK_LEN) as u64, 0, "a subtree starts at a multiple of its chunk count");
+-    let Some((pool, _caller)) = spare_pool() else { return crate::compress_subtree_to_parent_node(input, 0, key, counter, flags, pool_platform()) };
+-    let (pieces, mut cvs) = tree_cvs(pool, input, key, counter, flags);
+-    let count = merge_to_children(&pieces, &mut cvs, key, flags);
+-    debug_assert_eq!(count, 2);
+-    let mut children = [0u8; 2 * crate::OUT_LEN];
+-    children[..crate::OUT_LEN].copy_from_slice(&cvs[0]);
+-    children[crate::OUT_LEN..].copy_from_slice(&cvs[1]);
+-    children
++    [0; 2 *crate::OUT_LEN] /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`crate::hash_many`] over the machine's threads: below MIN_SPLIT_LEN
+ /// of input, or with one message, on this thread.
+ #[inline]
+ pub(crate) fn hash_many(input: &[u8], message_len: usize, key: &crate::CVWords, flags: u8, outputs: &mut [[u8; crate::OUT_LEN]]) {
+     // The short path first and inline, so a small batch costs what
+     // crate::hash_many costs; everything the pool needs is behind the call.

@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace / with % in Park::place
+@@ -74,17 +74,17 @@
+ 
+     /// Worker `me` records its thread, once, as it starts.
+     pub(crate) fn register(&self, me: usize) {
+         assert!(self.handles[me].set(thread::current()).is_ok(), "each worker sets its thread once");
+     }
+ 
+     /// Worker `me`'s word and its bit in it.
+     fn place(&self, me: usize) -> (&AtomicU64, u64) {
+-        (&self.parked[me / 64], 1u64.wrapping_shl(me as u32))
++        (&self.parked[me % /* ~ changed by cargo-mutants ~ */ 64], 1u64.wrapping_shl(me as u32))
+     }
+ 
+     /// How many workers are parked.
+     pub(crate) fn parked_count(&self) -> usize {
+         self.parked.iter().map(|w| w.load(Ordering::SeqCst).count_ones() as usize).sum()
+     }
+ 
+     /// Wake one parked worker, if any: whether one was. With none parked,

@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with + in cut_items
+@@ -338,17 +338,17 @@
+     while start < items.len() {
+         let want = next_piece_len(remaining, threads);
+         let (mut end, mut bytes) = (start, 0);
+         while end < items.len() && (bytes < want || end == start) {
+             bytes += items[end].len();
+             end += 1;
+         }
+         remaining -= bytes;
+-        pieces.push(Piece { offset: start, len: end - start });
++        pieces.push(Piece { offset: start, len: end + /* ~ changed by cargo-mutants ~ */ start });
+         start = end;
+     }
+     pieces
+ }
+ 
+ /// Cut `count` messages in slots of `message_len` bytes into ranges for `threads`
+ /// threads, in order: each range holds about [`next_piece_len`] of the
+ /// bytes that remain, at least one message, so ranges shrink toward the

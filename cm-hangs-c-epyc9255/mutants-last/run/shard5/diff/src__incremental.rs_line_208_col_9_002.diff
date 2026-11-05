@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace Hasher::held_group -> Option<(u64, &[u8; STAGE_LEN])> with Some((1, Box::leak(Box::new([0; STAGE_LEN]))))
+@@ -200,17 +200,17 @@
+     #[cfg(feature = "std")]
+     pub(crate) fn held_group(&self) -> Option<(u64, &[u8; STAGE_LEN])> {
+         (self.staged == STAGE_LEN && self.core.initial_chunk_counter == 0)
+             .then(|| (self.core.count() / CHUNK_LEN as u64, self.staged_bytes().try_into().unwrap()))
+     }
+ 
+     #[cfg(not(feature = "std"))]
+     pub(crate) fn held_group(&self) -> Option<(u64, &[u8; STAGE_LEN])> {
+-        None
++        Some((1, Box::leak(Box::new([0; STAGE_LEN])))) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The held group's subtree, as [`HasherCore::update_with_results`]
+     /// takes it (its two halves' values at chunk zero, else its own), into
+     /// the core; the stage empty again.
+     #[cfg(feature = "std")]
+     pub(crate) fn take_held(&mut self, result: &[u8; BLOCK_LEN]) {
+         let staged = core::mem::replace(&mut self.staged, 0);

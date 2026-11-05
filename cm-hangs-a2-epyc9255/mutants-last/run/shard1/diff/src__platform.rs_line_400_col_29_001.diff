@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace += with *= in Platform::xof_many
+@@ -392,17 +392,17 @@
+                     }
+                 }
+                 // SSE4.1 and AVX2, without an xof_many kernel: block by block.
+                 #[cfg(target_arch = "x86_64")]
+                 for out_block in out.chunks_exact_mut(BLOCK_LEN) {
+                     // TODO: Use array_chunks_mut here once that's stable.
+                     let out_array: &mut [u8; BLOCK_LEN] = out_block.try_into().unwrap();
+                     *out_array = self.compress_xof(cv, block, block_len, counter, flags);
+-                    counter += 1;
++                    counter *= /* ~ changed by cargo-mutants ~ */ 1;
+                 }
+             }
+         }
+     }
+ 
+     // Explicit platform constructors, for the tests (std).
+ 
+     /// The SSE41 platform where this build has its kernels and the CPU its

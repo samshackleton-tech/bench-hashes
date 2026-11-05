@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace * with + in ChunkState<P>::absorb
+@@ -349,17 +349,17 @@
+                 self.blocks_compressed += 1;
+             }
+         }
+         if input.len() > BLOCK_LEN {
+             let count = (input.len() - 1) / BLOCK_LEN;
+             let start_flag = self.start_flag();
+             self.platform.compress_blocks(&mut self.cv, input, count, self.chunk_counter, self.flags, start_flag);
+             self.blocks_compressed += count as u8;
+-            input = &input[count * BLOCK_LEN..];
++            input = &input[count + /* ~ changed by cargo-mutants ~ */ BLOCK_LEN..];
+         }
+         self.fill_buf(input);
+     }
+ }
+ 
+ /// A node: the inputs of its last compression. `block` comes first and the
+ /// node is 64-byte aligned: glibc's AVX-512 memcpy writes a 64-byte copy
+ /// with a pair of overlapping unaligned 64-byte vector stores, and the

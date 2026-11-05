@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace | with ^ in hash_held
+@@ -189,17 +189,17 @@
+     let mut values = chunks;
+     let mut next = vec![0u8; chunks / 2 * OUT_LEN];
+     let mut halves = vec![0u8; 2 * n * OUT_LEN];
+     for depth in 0..4 {
+         if depth == 3 {
+             halves.copy_from_slice(&level[..2 * n * OUT_LEN]);
+         }
+         let blocks: Vec<&[u8; BLOCK_LEN]> = level[..values * OUT_LEN].chunks_exact(BLOCK_LEN).map(|b| b.try_into().unwrap()).collect();
+-        platform.hash_many(&blocks, &key, 0, IncrementCounter::No, flags | PARENT, 0, 0, &mut next[..values / 2 * OUT_LEN]);
++        platform.hash_many(&blocks, &key, 0, IncrementCounter::No, flags ^ /* ~ changed by cargo-mutants ~ */ PARENT, 0, 0, &mut next[..values / 2 * OUT_LEN]);
+         values /= 2;
+         level[..values * OUT_LEN].copy_from_slice(&next[..values * OUT_LEN]);
+     }
+     drop(turn);
+     for (k, &i) in alike.iter().enumerate() {
+         let (counter, _) = hashers[i].held_group().unwrap();
+         let mut result = [0u8; BLOCK_LEN];
+         if counter == 0 {

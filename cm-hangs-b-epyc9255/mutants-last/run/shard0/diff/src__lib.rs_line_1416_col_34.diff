@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace | with & in OutputReader::fill
+@@ -1408,17 +1408,17 @@
+         let full_blocks_len = full_blocks * BLOCK_LEN;
+         if full_blocks > 0 {
+             debug_assert_eq!(0, self.position_within_block);
+             self.inner.platform.xof_many(
+                 &self.inner.input_chaining_value,
+                 &self.inner.block,
+                 self.inner.block_len,
+                 self.inner.counter,
+-                self.inner.flags | ROOT,
++                self.inner.flags & /* ~ changed by cargo-mutants ~ */ ROOT,
+                 &mut buf[..full_blocks_len],
+             );
+             self.inner.counter += full_blocks as u64;
+             buf = &mut buf[full_blocks * BLOCK_LEN..];
+         }
+ 
+         if !buf.is_empty() {
+             debug_assert!(buf.len() < BLOCK_LEN);

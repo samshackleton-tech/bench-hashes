@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace += with *= in OutputReader::fill_one_block
+@@ -1365,17 +1365,17 @@
+     // This helper function handles both the case where the output buffer is
+     // shorter than one block, and the case where our position_within_block is
+     // non-zero.
+     fn fill_one_block(&mut self, buf: &mut &mut [u8]) {
+         let output_block: [u8; BLOCK_LEN] = self.inner.root_output_block();
+         let output_bytes = &output_block[self.position_within_block as usize..];
+         let take = cmp::min(buf.len(), output_bytes.len());
+         buf[..take].copy_from_slice(&output_bytes[..take]);
+-        self.position_within_block += take as u8;
++        self.position_within_block *= /* ~ changed by cargo-mutants ~ */ take as u8;
+         if self.position_within_block == BLOCK_LEN as u8 {
+             self.inner.counter += 1;
+             self.position_within_block = 0;
+         }
+         // Advance the dest buffer. mem::take() is a borrowck workaround.
+         *buf = &mut core::mem::take(buf)[take..];
+     }
+ 

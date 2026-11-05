@@ -1,0 +1,54 @@
+
+*** src/incremental.rs:224:9: replace Hasher::final_output -> Output with Default::default()
+
+*** mutation diff:
+--- src/incremental.rs
++++ replace Hasher::final_output -> Output with Default::default()
+@@ -216,22 +216,17 @@
+         let staged = core::mem::replace(&mut self.staged, 0);
+         // Sound: as in gather_part.
+         let bytes = unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, staged) };
+         self.core.update_with_results(bytes, &mut core::iter::once(result));
+     }
+ 
+     /// The root's output: the core's, after the stage's bytes.
+     pub(crate) fn final_output(&self) -> Output {
+-        if self.staged == 0 {
+-            return self.core.final_output();
+-        }
+-        let mut core = self.core.clone();
+-        core.update(self.staged_bytes());
+-        core.final_output()
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Construct a new `Hasher` in a [`Mode`]: the plain hash, the keyed
+     /// hash, or key derivation with a context string or a context key.
+     pub fn new(mode: Mode) -> Self {
+         let (key, flags) = mode.key_and_flags();
+         Self::from_core(HasherCore::new_internal(&key, flags))
+     }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-fb6vadgh)
+error[E0277]: the trait bound `hasher::Output<platform::Platform>: Default` is not satisfied
+   --> src/incremental.rs:224:9
+    |
+224 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::Output<platform::Platform>`
+   --> src/hasher.rs:374:1
+    |
+374 | pub struct Output<P> {
+    | ^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

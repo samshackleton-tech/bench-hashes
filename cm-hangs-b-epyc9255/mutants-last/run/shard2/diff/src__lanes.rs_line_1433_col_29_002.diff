@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace > with >= in sme2_serve
+@@ -1425,17 +1425,17 @@
+     let _ = std::panic::catch_unwind(sme2_serve);
+     std::process::abort()
+ }
+ 
+ fn sme2_serve() -> ! {
+     assert!(SME2_THREAD.set(std::thread::current()).is_ok(), "one SME2 thread");
+     loop {
+         if let Some(task) = sources::take_stream_task() {
+-            if task.members > 0 {
++            if task.members >= /* ~ changed by cargo-mutants ~ */ 0 {
+                 // Short messages and small batches, gathered, run faster
+                 // on NEON than through an SME2 session per task (Mac:
+                 // 64-byte messages 14-15% faster, batches of 16 and 64
+                 // 10-15%); below 16 KiB the other members run the NEON
+                 // kernels on either platform.
+                 task.run(pool_platform());
+             } else {
+                 let turn = crate::platform::Sme2Turn::take(Platform::detect(), true);

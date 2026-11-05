@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace sources::<impl Drop for Held>::drop with ()
+@@ -1072,17 +1072,17 @@
+     /// Callers' job sources no thread holds.
+     static FREE_JOBS: Mutex<std::vec::Vec<&'static Source>> = Mutex::new(std::vec::Vec::new());
+ 
+     struct Held(&'static Source);
+ 
+     impl Drop for Held {
+         /// A thread's exit gives its source back, never freed.
+         fn drop(&mut self) {
+-            FREE_JOBS.lock().unwrap().push(self.0);
++            () /* ~ changed by cargo-mutants ~ */
+         }
+     }
+ 
+     std::thread_local! {
+         static MINE: std::cell::OnceCell<Held> = const { std::cell::OnceCell::new() };
+     }
+ 
+     /// This thread's source for its one-shot jobs.

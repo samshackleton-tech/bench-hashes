@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace - with + in Stream<'env, D>::reserve_long
+@@ -686,17 +686,17 @@
+         }
+         self.head += taken;
+         at
+     }
+ 
+     /// `reserve`, in the long ring.
+     fn reserve_long(&mut self, len: usize) -> usize {
+         let (at, taken) = room(self.long_head, LONG_RING_BYTES, len);
+-        while LONG_RING_BYTES - (self.long_head - self.long_tail) < taken {
++        while LONG_RING_BYTES + /* ~ changed by cargo-mutants ~ */ (self.long_head - self.long_tail) < taken {
+             self.publish();
+             self.help();
+         }
+         self.long_head += taken;
+         at
+     }
+ 
+     /// Hand back every place whose digests are done, in order, without

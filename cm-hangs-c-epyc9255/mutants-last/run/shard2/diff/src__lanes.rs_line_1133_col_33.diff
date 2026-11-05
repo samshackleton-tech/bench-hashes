@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace >= with < in sources::run_one
+@@ -1125,17 +1125,17 @@
+     }
+ 
+     /// Run one item from any source: whether there was one. When two or
+     /// more wait and a worker is parked, this one wakes the next first
+     /// (the chain).
+     pub(crate) fn run_one() -> bool {
+         find(|source| {
+             let Some(item) = source.take() else { return false };
+-            if source.waiting() >= 2 {
++            if source.waiting() < /* ~ changed by cargo-mutants ~ */ 2 {
+                 pool().park.wake_one();
+             }
+             match item {
+                 Item::Task(task) => task.run(pool_platform()),
+                 Item::Pieces(job, index, n) => {
+                     // Sound: the job lives until its pieces are finished,
+                     // these among them; this thread alone took them.
+                     for i in index..index + n {

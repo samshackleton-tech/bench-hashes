@@ -1,0 +1,23 @@
+--- src/incremental.rs
++++ replace HasherCore::update_with_results with ()
+@@ -444,19 +444,17 @@
+     }
+ 
+     /// [`update`](Hasher::update) with every whole subtree's result taken
+     /// from `results`, one a whole subtree in order (in parts of
+     /// [`lanes::TASK_LEN`], as [`hasher::subtree_len`] cuts them), as
+     /// [`lanes::Task`] computes them.
+     #[cfg(feature = "std")]
+     pub(crate) fn update_with_results<'a>(&mut self, input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+-        for part in input.chunks(lanes::TASK_LEN) {
+-            self.update_part_with_results(part, results);
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[cfg(feature = "std")]
+     fn update_part_with_results<'a>(&mut self, mut input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+         // Its one caller hands it a whole held group, from a group boundary,
+         // where the core's chunk is empty (Hasher::take_held).
+         debug_assert_eq!(self.chunk_state.count(), 0, "a held group starts where the core's chunk is empty");
+         while input.len() > CHUNK_LEN {

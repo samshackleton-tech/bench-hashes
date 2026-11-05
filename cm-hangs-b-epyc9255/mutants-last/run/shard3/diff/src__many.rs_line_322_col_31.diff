@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace / with % in hash_group_across
+@@ -314,17 +314,17 @@
+ #[cfg(target_arch = "x86_64")]
+ pub(crate) const ACROSS_GROUP: usize = 16;
+ 
+ /// [`hash_across`] for up to ACROSS_GROUP messages of `len` bytes each,
+ /// wherever each lies (a batch's slots, or a queue's members).
+ #[cfg(target_arch = "x86_64")]
+ pub(crate) fn hash_group_across(messages: &[&[u8]], len: usize, key: &CVWords, flags: u8, digests: &mut [[u8; OUT_LEN]], platform: Platform) {
+     const GROUP: usize = ACROSS_GROUP;
+-    let (full, chunks) = (len / CHUNK_LEN, len.div_ceil(CHUNK_LEN));
++    let (full, chunks) = (len % /* ~ changed by cargo-mutants ~ */ CHUNK_LEN, len.div_ceil(CHUNK_LEN));
+     assert!(full >= 1 && chunks >= 2 && chunks < ACROSS_CHUNKS, "messages of 2 chunks to under ACROSS_CHUNKS");
+     assert!(
+         messages.len() <= GROUP && messages.len() == digests.len() && messages.iter().all(|m| m.len() == len),
+         "up to ACROSS_GROUP messages of len bytes, a digest each"
+     );
+     {
+         let count = digests.len();
+         let message = |m: usize| messages[m];

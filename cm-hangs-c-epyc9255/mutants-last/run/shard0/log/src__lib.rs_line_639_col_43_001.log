@@ -1,0 +1,53 @@
+
+*** src/lib.rs:639:43: replace * with / in Output::root_output_block
+
+*** mutation diff:
+--- src/lib.rs
++++ replace * with / in Output::root_output_block
+@@ -631,17 +631,17 @@
+ }
+ 
+ impl Output {
+     fn root_hash(&self) -> Hash {
+         debug_assert_eq!(self.counter, 0);
+         Hash(self.root_bytes())
+     }
+ 
+-    fn root_output_block(&self) -> [u8; 2 * OUT_LEN] {
++    fn root_output_block(&self) -> [u8; 2 / /* ~ changed by cargo-mutants ~ */ OUT_LEN] {
+         self.platform.compress_xof(&self.input_chaining_value, &self.block, self.block_len, self.counter, self.flags | ROOT)
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for Output {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ag8s7fg6)
+error[E0308]: mismatched types
+   --> src/lib.rs:640:9
+    |
+639 |     fn root_output_block(&self) -> [u8; 2 / /* ~ changed by cargo-mutants ~ */ OUT_LEN] {
+    |                                    ---------------------------------------------------- expected `[u8; 0]` because of return type
+640 |         self.platform.compress_xof(&self.input_chaining_value, &self.block, self.block_len, self.counter, self.flags | ROOT)
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a size of 0, found one with a size of 64
+
+error[E0308]: mismatched types
+    --> src/lib.rs:1369:45
+     |
+1369 |         let output_block: [u8; BLOCK_LEN] = self.inner.root_output_block();
+     |                           ---------------   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ expected an array with a size of 64, found one with a size of 0
+     |                           |
+     |                           expected due to this
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `blake3-servil` (lib) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 2 previous errors
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

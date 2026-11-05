@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace + with - in hash_held
+@@ -200,17 +200,17 @@
+     }
+     drop(turn);
+     for (k, &i) in alike.iter().enumerate() {
+         let (counter, _) = hashers[i].held_group().unwrap();
+         let mut result = [0u8; BLOCK_LEN];
+         if counter == 0 {
+             result.copy_from_slice(&halves[k * BLOCK_LEN..(k + 1) * BLOCK_LEN]);
+         } else {
+-            result[..OUT_LEN].copy_from_slice(&level[k * OUT_LEN..(k + 1) * OUT_LEN]);
++            result[..OUT_LEN].copy_from_slice(&level[k * OUT_LEN..(k - /* ~ changed by cargo-mutants ~ */ 1) * OUT_LEN]);
+         }
+         hashers[i].take_held(&result);
+     }
+     hash_held(hashers, &others);
+ }
+ 
+ #[cfg(not(feature = "std"))]
+ fn hash_held(_: &mut [Hasher], held: &[usize]) {

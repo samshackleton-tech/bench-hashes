@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace + with -
+@@ -379,17 +379,17 @@
+     tail: usize,
+     /// The long ring's bytes reserved, and freed, as `head` and `tail`.
+     long_head: usize,
+     long_tail: usize,
+     /// Short messages gathered, not yet handed to the pool.
+     open: Option<Task>,
+     /// A long message being handed back: its pieces' chaining values so
+     /// far (merged as the Hasher's stack merges), and how many.
+-    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH + 1 }>,
++    stack: arrayvec::ArrayVec<CVBytes, { crate::MAX_DEPTH - /* ~ changed by cargo-mutants ~ */ 1 }>,
+     pieces: u64,
+     /// Invariant in 'env, as std::thread::Scope is: the messages' and the
+     /// places' lifetime.
+     env: PhantomData<&'env mut &'env ()>,
+ }
+ 
+ // Sound: the entries are reached by the program's thread through `&mut
+ // self`, and by the pool's threads only for entries in tasks in flight,

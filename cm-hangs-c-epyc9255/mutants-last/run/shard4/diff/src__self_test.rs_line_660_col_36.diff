@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace * with + in test::reference
+@@ -652,17 +652,17 @@
+         use crate::Mode;
+         use crate::test::official;
+         match case {
+             Hash { offset, len } => official::hash(Mode::Plain, &input[offset..][..len]).to_vec(),
+             Many { len, count, .. } => (0..count).flat_map(|i| official::hash(Mode::Plain, &input[i * len..][..len])).collect(),
+             ChunkValues { chunks } => {
+                 let key = crate::platform::words_from_le_bytes_32(previous);
+                 let table: std::vec::Vec<&[u8; crate::CHUNK_LEN]> =
+-                    input[..chunks * crate::CHUNK_LEN].chunks_exact(crate::CHUNK_LEN).map(|c| c.try_into().unwrap()).collect();
++                    input[..chunks + /* ~ changed by cargo-mutants ~ */ crate::CHUNK_LEN].chunks_exact(crate::CHUNK_LEN).map(|c| c.try_into().unwrap()).collect();
+                 let mut out = std::vec![0u8; chunks * crate::OUT_LEN];
+                 official::hash_many(&table, &key, 1, true, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, &mut out);
+                 out
+             }
+             Keyed { len } => official::hash(Mode::Keyed(previous), &input[..len]).to_vec(),
+             Derive { len } => official::hash(Mode::DeriveKey(CONTEXT), &input[..len]).to_vec(),
+             Incremental { len, .. } => official::hash(Mode::Plain, &input[..len]).to_vec(),
+             Xof { len, skip, out } => official::xof(Mode::Plain, &input[..len], skip as u64, out),

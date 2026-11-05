@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace && with || in Hasher::gather_part
+@@ -178,17 +178,17 @@
+             // The loop's variant: every pass stages at least one byte of
+             // the input, which is not empty (`at` is below STAGE_LEN).
+             assert!(take > 0, "the stage took nothing");
+             self.stage(&input[..take]);
+             input = &input[take..];
+             if take < to_boundary {
+                 return &[];
+             }
+-            if hold && self.held_group().is_some() {
++            if hold || /* ~ changed by cargo-mutants ~ */ self.held_group().is_some() {
+                 return input;
+             }
+             let staged = core::mem::replace(&mut self.staged, 0);
+             // Sound: the first `staged` bytes were written; the core reads
+             // them before the stage is written again.
+             let bytes = unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, staged) };
+             self.core.update_pooled(bytes, pooled);
+         }

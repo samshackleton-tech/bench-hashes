@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace | with ^ in hash_run_padded
+@@ -428,17 +428,17 @@
+ /// One-block messages on SME2, every group on the message kernel, the
+ /// last one padded, their last block `last_len` bytes.
+ #[cfg(blake3_sme2)]
+ #[inline(never)]
+ fn hash_run_padded<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], last_len: usize) {
+     let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
+     let lanes = fill_table(&mut slots, messages, outputs.len(), outputs.len().next_multiple_of(16));
+     // Sound: the caller found SME2 (platform_is_sme2).
+-    unsafe { crate::sme2::hash_messages::<N>(lanes, key, flags, CHUNK_START, CHUNK_END | ROOT, last_len, outputs.as_flattened_mut()) };
++    unsafe { crate::sme2::hash_messages::<N>(lanes, key, flags, CHUNK_START, CHUNK_END ^ /* ~ changed by cargo-mutants ~ */ ROOT, last_len, outputs.as_flattened_mut()) };
+ }
+ 
+ /// [`hash_run`] for messages of 1 to 63 bytes (one short block): on SME2
+ /// the message kernel from ONE_BLOCK_PAD_MIN messages (the parent kernel
+ /// records 64 for every block), else the NEON plans, or one call each
+ /// without them.
+ #[inline(never)]
+ fn hash_run_short<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans: bool, last_len: usize) {

@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace += with *= in Park::pay_owed
+@@ -161,17 +161,17 @@
+             }
+             if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {
+                 continue;
+             }
+             if !self.wake_one() {
+                 self.owed.store(0, Ordering::SeqCst);
+                 break;
+             }
+-            made += 1;
++            made *= /* ~ changed by cargo-mutants ~ */ 1;
+         }
+         made
+     }
+ }
+ 
+ #[cfg(test)]
+ mod test {
+     use super::{Park, split};

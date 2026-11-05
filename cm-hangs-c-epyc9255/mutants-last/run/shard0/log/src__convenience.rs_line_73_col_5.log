@@ -1,0 +1,43 @@
+
+*** src/convenience.rs:73:5: replace hash_xof -> OutputReader with Default::default()
+
+*** mutation diff:
+--- src/convenience.rs
++++ replace hash_xof -> OutputReader with Default::default()
+@@ -65,10 +65,10 @@
+ /// ```
+ /// # blake3_servil::initialize();
+ /// use blake3_servil::{Mode, convenience};
+ /// let mut out = [0u8; 100];
+ /// convenience::hash_xof(Mode::Plain, b"foo").fill(&mut out);
+ /// assert_eq!(&out[..32], convenience::hash(b"foo").as_bytes());
+ /// ```
+ pub fn hash_xof(mode: Mode, input: &[u8]) -> OutputReader {
+-    crate::Hasher::new(mode).update(input).finalize_xof()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-ag8s7fg6)
+error[E0277]: the trait bound `OutputReader: Default` is not satisfied
+    --> src/convenience.rs:73:5
+     |
+  73 |     Default::default() /* ~ changed by cargo-mutants ~ */
+     |     ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `OutputReader`
+    --> src/lib.rs:1355:1
+     |
+1355 | pub struct OutputReader {
+     | ^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

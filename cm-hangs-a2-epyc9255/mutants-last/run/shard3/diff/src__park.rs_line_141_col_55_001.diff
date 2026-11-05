@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace & with ^ in Park::park_unless
+@@ -133,17 +133,17 @@
+         if visible() {
+             // Ours to clear, unless a waker cleared it first: then its wake
+             // was spent on a worker that was leaving anyway (its unpark
+             // leaves a token a later park returns from at once), and a
+             // worker still parked may be the one it was for. Pass the wake
+             // on, and return as woken so the caller pays what a woken
+             // worker owes. Dropping it left a parked worker unwoken with
+             // work published: Shuttle found both schedules (October 23).
+-            if word.fetch_and(!bit, Ordering::SeqCst) & bit == 0 {
++            if word.fetch_and(!bit, Ordering::SeqCst) ^ /* ~ changed by cargo-mutants ~ */ bit == 0 {
+                 self.wake_one();
+                 return true;
+             }
+             return false;
+         }
+         while word.load(Ordering::SeqCst) & bit != 0 {
+             thread::park();
+         }

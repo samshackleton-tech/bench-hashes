@@ -1,0 +1,335 @@
+
+*** src/platform.rs:330:9: replace Platform::hash_many with ()
+
+*** mutation diff:
+--- src/platform.rs
++++ replace Platform::hash_many with ()
+@@ -322,41 +322,17 @@
+         increment_counter: IncrementCounter,
+         flags: u8,
+         flags_start: u8,
+         flags_end: u8,
+         out: &mut [u8],
+     ) {
+         // Every kernel hashes whole blocks: an input of another length
+         // would lose its tail, so it cannot compile.
+-        const { assert!(N > 0 && N % BLOCK_LEN == 0, "hash_many inputs are whole blocks") };
+-        // The shapes the crate makes, which every kernel takes: whole chunks
+-        // at counters counting up, or 1 to 16 whole blocks at one counter.
+-        assert!(
+-            if increment_counter.yes() { N == CHUNK_LEN } else { N <= CHUNK_LEN },
+-            "hash_many takes whole chunks at incrementing counters, or 1 to 16 blocks at one counter"
+-        );
+-        match self {
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_sse41_ffi)]
+-            Platform::SSE41 => unsafe { crate::sse41::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx2_ffi)]
+-            Platform::AVX2 => unsafe { crate::avx2::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for platform support.
+-            #[cfg(blake3_avx512_ffi)]
+-            #[cfg(target_arch = "x86_64")]
+-            Platform::AVX512 => unsafe { crate::avx512::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Assumed to be safe if the "neon" feature is on.
+-            #[cfg(blake3_neon)]
+-            Platform::NEON => unsafe { crate::neon_hybrid::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-            // Safe because detect() checked for SME2 with a 512-bit vector length.
+-            #[cfg(blake3_sme2)]
+-            Platform::SME2 => unsafe { crate::sme2::hash_many(inputs, key, counter, increment_counter, flags, flags_start, flags_end, out) },
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     pub fn xof_many(&self, cv: &CVWords, block: &[u8; BLOCK_LEN], block_len: u8, mut counter: u64, flags: u8, out: &mut [u8]) {
+         debug_assert_eq!(0, out.len() % BLOCK_LEN, "whole blocks only");
+         if out.is_empty() {
+             // The current assembly implementation always outputs at least 1 block.
+             return;
+         }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-0orjaq00)
+warning: unused import: `CHUNK_LEN`
+ --> src/platform.rs:1:24
+  |
+1 | use crate::{BLOCK_LEN, CHUNK_LEN, CVWords, IncrementCounter};
+  |                        ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `inputs`
+   --> src/platform.rs:319:9
+    |
+319 |         inputs: &[&[u8; N]],
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_inputs`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `key`
+   --> src/platform.rs:320:9
+    |
+320 |         key: &CVWords,
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `counter`
+   --> src/platform.rs:321:9
+    |
+321 |         counter: u64,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `increment_counter`
+   --> src/platform.rs:322:9
+    |
+322 |         increment_counter: IncrementCounter,
+    |         ^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_increment_counter`
+
+warning: unused variable: `flags`
+   --> src/platform.rs:323:9
+    |
+323 |         flags: u8,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/platform.rs:324:9
+    |
+324 |         flags_start: u8,
+    |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/platform.rs:325:9
+    |
+325 |         flags_end: u8,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `out`
+   --> src/platform.rs:326:9
+    |
+326 |         out: &mut [u8],
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `hash_many` is never used
+ --> src/ffi_avx2.rs:7:15
+  |
+7 | pub unsafe fn hash_many<const N: usize>(
+  |               ^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `hash_many` is never used
+  --> src/ffi_avx512.rs:18:15
+   |
+18 | pub unsafe fn hash_many<const N: usize>(
+   |               ^^^^^^^^^
+
+warning: function `hash_many` is never used
+  --> src/ffi_sse41.rs:18:15
+   |
+18 | pub unsafe fn hash_many<const N: usize>(
+   |               ^^^^^^^^^
+
+warning: function `blake3_servil_hash_many_sse41` is never used
+  --> src/ffi_sse41.rs:52:16
+   |
+52 |         pub fn blake3_servil_hash_many_sse41(
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 13 warnings (run `cargo fix --lib -p blake3-servil` to apply 9 suggestions)
+warning: `blake3-servil` (lib test) generated 11 warnings (11 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 1.87s
+info: using target runner `sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: unused import: `CHUNK_LEN`
+ --> src/platform.rs:1:24
+  |
+1 | use crate::{BLOCK_LEN, CHUNK_LEN, CVWords, IncrementCounter};
+  |                        ^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `inputs`
+   --> src/platform.rs:319:9
+    |
+319 |         inputs: &[&[u8; N]],
+    |         ^^^^^^ help: if this is intentional, prefix it with an underscore: `_inputs`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `key`
+   --> src/platform.rs:320:9
+    |
+320 |         key: &CVWords,
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `counter`
+   --> src/platform.rs:321:9
+    |
+321 |         counter: u64,
+    |         ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_counter`
+
+warning: unused variable: `increment_counter`
+   --> src/platform.rs:322:9
+    |
+322 |         increment_counter: IncrementCounter,
+    |         ^^^^^^^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_increment_counter`
+
+warning: unused variable: `flags`
+   --> src/platform.rs:323:9
+    |
+323 |         flags: u8,
+    |         ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `flags_start`
+   --> src/platform.rs:324:9
+    |
+324 |         flags_start: u8,
+    |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_start`
+
+warning: unused variable: `flags_end`
+   --> src/platform.rs:325:9
+    |
+325 |         flags_end: u8,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_flags_end`
+
+warning: unused variable: `out`
+   --> src/platform.rs:326:9
+    |
+326 |         out: &mut [u8],
+    |         ^^^ help: if this is intentional, prefix it with an underscore: `_out`
+
+warning: function `hash_many` is never used
+ --> src/ffi_avx2.rs:7:15
+  |
+7 | pub unsafe fn hash_many<const N: usize>(
+  |               ^^^^^^^^^
+  |
+  = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `hash_many` is never used
+  --> src/ffi_avx512.rs:18:15
+   |
+18 | pub unsafe fn hash_many<const N: usize>(
+   |               ^^^^^^^^^
+
+warning: function `hash_many` is never used
+  --> src/ffi_sse41.rs:18:15
+   |
+18 | pub unsafe fn hash_many<const N: usize>(
+   |               ^^^^^^^^^
+
+warning: function `blake3_servil_hash_many_sse41` is never used
+  --> src/ffi_sse41.rs:52:16
+   |
+52 |         pub fn blake3_servil_hash_many_sse41(
+   |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 13 warnings (run `cargo fix --lib -p blake3-servil` to apply 9 suggestions)
+warning: `blake3-servil` (lib test) generated 11 warnings (11 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.03s
+info: using target runner `sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 6b1402c8-c767-4647-a40d-208ec7f500a6 with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.038s] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.045s] (  2/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.045s] (  3/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-0orjaq00/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        FAIL [   0.048s] (  4/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+  stdout ───
+
+    running 1 test
+    test avx512::test::test_wide_dispatch_groups_tails_and_bounds ... FAILED
+
+    failures:
+
+    failures:
+        avx512::test::test_wide_dispatch_groups_tails_and_bounds
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'avx512::test::test_wide_dispatch_groups_tails_and_bounds' (3772101) panicked at src/ffi_avx512.rs:179:21:
+    assertion `left == right` failed
+      left: [159, 63, 16, 22, 147, 40, 234, 246, 134, 163, 81, 68, 240, 3, 71, 24, 145, 12, 151, 252, 93, 37, 253, 12, 97, 195, 45, 180, 106, 195, 8, 252]
+     right: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 7 tests still running
+        FAIL [   0.055s] (  5/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+  stdout ───
+
+    running 1 test
+    test avx512::test::test_parent16_dispatch_and_legacy_incrementing_route ... FAILED
+
+    failures:
+
+    failures:
+        avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 146 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'avx512::test::test_parent16_dispatch_and_legacy_incrementing_route' (3772126) panicked at src/ffi_avx512.rs:260:21:
+    assertion `left == right` failed
+      left: [237, 198, 175, 1, 115, 72, 153, 172, 71, 145, 169, 106, 161, 224, 180, 202, 43, 188, 180, 2, 136, 80, 123, 208, 103, 145, 59, 74, 51, 206, 34, 37]
+     right: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.056s] (  6/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+        PASS [   0.060s] (  7/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+        PASS [   0.024s] (  8/168) blake3-servil block::test::test_a_batch_describes_itself
+        PASS [   0.063s] (  9/168) blake3-servil avx512_32::tests::generated_assembly_matches
+     SIGABRT [   0.109s] ( 10/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 2, four chunks and a block, unaligned: the chunk kernel over chunks, their parents, the tree (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+     SIGABRT [   0.135s] ( 11/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 2, four chunks and a block, unaligned: the chunk kernel over chunks, their parents, the tree (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+────────────
+     Summary [   0.181s] 11/168 tests run: 7 passed, 4 failed, 0 skipped
+warning: 157/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

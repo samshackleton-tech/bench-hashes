@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace && with || in hash_many_on
+@@ -68,17 +68,17 @@
+     }
+     let slot = slot_len(len);
+     assert_slots(input, len, outputs.len());
+     if len == 0 {
+         outputs.fill(*crate::hash_serial_on(&[], key, flags, platform).as_bytes());
+         return;
+     }
+     #[cfg(blake3_sme2)]
+-    if chunked(len) && platform_is_sme2(platform) && (outputs.len() >= 16 || outputs.len() >= sme2_chunked_min(len)) {
++    if chunked(len) && platform_is_sme2(platform) || /* ~ changed by cargo-mutants ~ */ (outputs.len() >= 16 || outputs.len() >= sme2_chunked_min(len)) {
+         return hash_chunked(input, len, key, flags, outputs, platform);
+     }
+     #[cfg(blake3_neon)]
+     if (CHUNK_LEN + 1..=2 * CHUNK_LEN).contains(&len) && outputs.len() >= 2 && neon_plans() {
+         return hash_two_chunks(input, len, key, flags, outputs);
+     }
+     if outputs.len() < 2 || len > CHUNK_LEN {
+         #[cfg(target_arch = "x86_64")]

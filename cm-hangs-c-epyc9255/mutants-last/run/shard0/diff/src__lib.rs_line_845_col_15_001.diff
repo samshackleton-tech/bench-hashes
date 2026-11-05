@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace | with ^ in compress_parents_parallel
+@@ -837,17 +837,17 @@
+     for parent in &mut parents_exact {
+         parents_array.push(parent.try_into().unwrap());
+     }
+     platform.hash_many(
+         &parents_array,
+         key,
+         0, // Parents always use counter 0.
+         IncrementCounter::No,
+-        flags | PARENT,
++        flags ^ /* ~ changed by cargo-mutants ~ */ PARENT,
+         0, // Parents have no start flags.
+         0, // Parents have no end flags.
+         out,
+     );
+ 
+     // If there's an odd child left over, it becomes an output.
+     let parents_so_far = parents_array.len();
+     if !parents_exact.remainder().is_empty() {

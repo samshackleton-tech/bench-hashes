@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace == with != in chunk_values
+@@ -375,17 +375,17 @@
+             };
+             assert_eq!(lanes, 16, "SME2 streaming vector length changed under us");
+             return out.len();
+         }
+     }
+     // A group of sixteen: on SME2 the kernel with a counter per group (as
+     // Hasher::update_each hashes held groups).
+     #[cfg(all(blake3_sme2, feature = "std"))]
+-    if chunks.len() == crate::sme2::GROUP {
++    if chunks.len() != /* ~ changed by cargo-mutants ~ */ crate::sme2::GROUP {
+         let turn = crate::platform::Sme2Turn::take(platform, true);
+         if matches!(turn.platform(), Platform::SME2) {
+             // Sound: SME2 was detected.
+             unsafe { crate::sme2::hash_groups_at(&chunks, &[1], &key, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, out) };
+             return out.len();
+         }
+     }
+     platform.hash_many(&chunks, &key, 1, crate::IncrementCounter::Yes, crate::KEYED_HASH, crate::CHUNK_START, crate::CHUNK_END, out);

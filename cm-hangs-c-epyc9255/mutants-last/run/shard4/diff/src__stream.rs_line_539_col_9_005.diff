@@ -1,0 +1,35 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::read_piece -> (usize, usize, usize, std::io::Result<()>) with (1, 0, 1, Ok(()))
+@@ -531,31 +531,17 @@
+             i += 1;
+         }
+     }
+ 
+     /// A piece's room (PIECE bytes, reserved), read into from `reader` until
+     /// it is full, the reader ends, or a read fails: its offset, the ring's
+     /// head after its reservation, the bytes read, and the read's result.
+     fn read_piece(&mut self, reader: &mut impl std::io::Read) -> (usize, usize, usize, std::io::Result<()>) {
+-        let at = self.reserve(PIECE);
+-        let end = self.head;
+-        // Sound: [at, at + PIECE) is reserved and free, and `&mut self`
+-        // keeps every other writer out.
+-        let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), PIECE) };
+-        let mut n = 0;
+-        while n < PIECE {
+-            match reader.read(&mut room[n..]) {
+-                Ok(0) => break,
+-                Ok(k) => n += k,
+-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {}
+-                Err(e) => return (at, end, n, Err(e)),
+-            }
+-        }
+-        (at, end, n, Ok(()))
++        (1, 0, 1, Ok(())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Hash a [`Batch`](crate::performance::Batch) where it is, as
+     /// [`hash_many`](crate::performance::hash_many) takes it, a digest per
+     /// message into `out`, in the messages' order: `out` holds one per
+     /// message. The batch goes in parts of up to 64 KiB, each one entry;
+     /// `out` comes back whole.
+     pub fn submit_batch(&mut self, batch: &'env crate::performance::Batch<'_>, out: &'env mut [Hash]) {

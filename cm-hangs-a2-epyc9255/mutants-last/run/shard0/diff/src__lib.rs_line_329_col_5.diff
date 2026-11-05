@@ -1,0 +1,23 @@
+--- src/lib.rs
++++ replace counted with ()
+@@ -321,19 +321,17 @@
+     pub(crate) static COUNTED: [core::cell::Cell<u64>; 2] = const { [core::cell::Cell::new(0), core::cell::Cell::new(0)] };
+ }
+ 
+ /// Count one of `what`: in the tests' record, and nothing in any other
+ /// build.
+ #[inline(always)]
+ #[allow(dead_code)]
+ pub(crate) fn counted(what: Counted) {
+-    #[cfg(all(test, feature = "std"))]
+-    COUNTED.with(|c| c[what as usize].set(c[what as usize].get() + 1));
+-    let _ = what;
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(all(test, feature = "std"))]
+ std::thread_local! {
+     /// The assembly entry points this thread's calls ran since the test
+     /// last cleared it, by address.
+     pub(crate) static RAN_ENTRIES: core::cell::RefCell<std::collections::BTreeSet<usize>> = const { core::cell::RefCell::new(std::collections::BTreeSet::new()) };
+ }

@@ -1,0 +1,21 @@
+--- src/pair.rs
++++ replace | with & in parent
+@@ -57,17 +57,17 @@
+         let cv = words_from_le_bytes_32(halfway[..OUT_LEN].try_into().unwrap());
+         let rest = whole[paired * BLOCK_LEN..].as_ptr();
+         hash_many_blocks(platform, &[rest], CHUNK_LEN / BLOCK_LEN - paired, &cv, chunk_counter, false, flags, 0, CHUNK_END, &mut out[..OUT_LEN]);
+         // The partial chunk's last block, zero-padded.
+         let mut cv = words_from_le_bytes_32(halfway[OUT_LEN..].try_into().unwrap());
+         let last = &partial[paired * BLOCK_LEN..];
+         let mut block = [0u8; BLOCK_LEN];
+         block[..last.len()].copy_from_slice(last);
+-        platform.compress_in_place(&mut cv, &block, last.len() as u8, chunk_counter + 1, flags | CHUNK_END);
++        platform.compress_in_place(&mut cv, &block, last.len() as u8, chunk_counter + 1, flags & /* ~ changed by cargo-mutants ~ */ CHUNK_END);
+         out[OUT_LEN..].copy_from_slice(&crate::hasher::le_bytes(&cv));
+     }
+     out
+ }
+ 
+ /// The platform's assembly `hash_many`, with the block count at run time
+ /// (AVX2 and AVX-512; elsewhere each input in turn). Unsafe: each of `inputs` reaches `blocks`
+ /// blocks, and the CPU has the platform.

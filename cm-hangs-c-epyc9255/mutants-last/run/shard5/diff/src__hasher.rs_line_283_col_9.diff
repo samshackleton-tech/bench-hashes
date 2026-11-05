@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace <impl Nodes<ChunkState<P>, Output<P>> for Kernels<'_, P, H>>::node_cv -> Cv with Default::default()
+@@ -275,17 +275,17 @@
+ 
+     #[inline(always)]
+     fn parent_node(&self, left: &Cv, right: &Cv) -> Output<P> {
+         parent_output(left, right, self.key, self.flags, self.platform)
+     }
+ 
+     #[inline(always)]
+     fn node_cv(&self, node: &Output<P>) -> Cv {
+-        node.chaining_value()
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The compression kernels a chunk's state calls.
+ pub trait Blocks {
+     /// `cv` compressed with `block`, its first `block_len` bytes the
+     /// message's and the rest zero.
+     fn compress_in_place(&self, cv: &mut [u32; 8], block: &[u8; BLOCK_LEN], block_len: u8, counter: u64, flags: u8);

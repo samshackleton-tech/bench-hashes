@@ -1,0 +1,28 @@
+--- src/hasher.rs
++++ replace ChunkState<P>::output -> Output<P> with Output::new(Default::default())
+@@ -407,24 +407,17 @@
+         self.platform.compress_in_place(&mut cv, &self.block, self.block_len, 0, self.flags | ROOT);
+         le_bytes(&cv)
+     }
+ }
+ 
+ impl<P: Blocks + Copy> ChunkState<P> {
+     /// The chunk's node.
+     pub fn output(&self) -> Output<P> {
+-        Output {
+-            block: self.buf,
+-            input_chaining_value: self.cv,
+-            block_len: self.buf_len,
+-            counter: self.chunk_counter,
+-            flags: self.flags | self.start_flag() | CHUNK_END,
+-            platform: self.platform,
+-        }
++        Output::new(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// The parent node of two chaining values.
+ pub fn parent_output<P>(left: &[u8; 32], right: &[u8; 32], key: &[u32; 8], flags: u8, platform: P) -> Output<P> {
+     let mut block = [0u8; BLOCK_LEN];
+     block[..32].copy_from_slice(left);
+     block[32..].copy_from_slice(right);

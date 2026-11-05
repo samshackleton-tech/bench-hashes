@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace Hasher::from_core -> Self with Default::default()
+@@ -126,17 +126,17 @@
+         flags: chunk_state.flags,
+         platform: chunk_state.platform,
+         hooks: HasherHooks { key, flags: chunk_state.flags, chunk_platform: chunk_state.platform, platform, pooled },
+     }
+ }
+ 
+ impl Hasher {
+     pub(crate) fn from_core(core: HasherCore) -> Self {
+-        Self { core, staged: 0, stage: [core::mem::MaybeUninit::uninit(); STAGE_LEN] }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The bytes gathered in the stage.
+     fn staged_bytes(&self) -> &[u8] {
+         // Sound: the first `staged` bytes of the stage were written (gather).
+         unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, self.staged) }
+     }
+ 

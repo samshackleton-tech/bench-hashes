@@ -1,0 +1,25 @@
+--- src/self_test.rs
++++ replace incremental -> crate::Hash with Default::default()
+@@ -308,21 +308,17 @@
+         Xof { len, skip, out: n } => xof(platform, &input[..len], skip, &mut out[..n]),
+     }
+ }
+ 
+ /// A Hasher on `platform` fed `input` in pieces of `piece` bytes (out of
+ /// line, as `xof` and `many`: their buffers take the stack only in turn).
+ #[inline(never)]
+ fn incremental(platform: Platform, input: &[u8], piece: usize) -> crate::Hash {
+-    let mut hasher = crate::Hasher::from_core(crate::HasherCore::new_from(crate::IV, 0, platform));
+-    for part in input.chunks(piece) {
+-        hasher.update(part);
+-    }
+-    hasher.finalize()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Extended output of `input` from position `skip`, into `out`.
+ #[inline(never)]
+ fn xof(platform: Platform, input: &[u8], skip: u64, out: &mut [u8]) -> usize {
+     let mut hasher = crate::Hasher::from_core(crate::HasherCore::new_from(crate::IV, 0, platform));
+     let mut reader = hasher.update(input).finalize_xof();
+     reader.set_position(skip);

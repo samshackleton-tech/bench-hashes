@@ -1,0 +1,26 @@
+--- src/lib.rs
++++ replace code_may_be_cold -> bool with true
+@@ -1169,22 +1169,17 @@
+ 
+ /// Whether this thread's last call in the prefetching range was over
+ /// 100 us ago (or never). Calls back to back find their code near, where
+ /// the prefetch would cost them 2-4% (jobs 972-975); one that follows a
+ /// pause is the one other work may have taken the code from.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ #[inline]
+ fn code_may_be_cold() -> bool {
+-    std::thread_local! {
+-        static LAST_CALL: core::cell::Cell<u64> = const { core::cell::Cell::new(0) };
+-    }
+-    let now = platform::counter();
+-    let last = LAST_CALL.with(|last| last.replace(now));
+-    now.wrapping_sub(last) > platform::ticks_in_100_us()
++    true /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Batches of one-block messages up to this many prefetch their code after
+ /// a pause: past it the hashing's own time dwarfs a cold kernel's.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ const PREFETCH_BATCH_BELOW: usize = 64;
+ 
+ /// Batches of 1 to this many one-block messages run on the pair kernel

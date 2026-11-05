@@ -1,0 +1,575 @@
+
+*** src/many.rs:61:5: replace hash_many_on with ()
+
+*** mutation diff:
+--- src/many.rs
++++ replace hash_many_on with ()
+@@ -53,73 +53,17 @@
+ /// plain hashing), on `platform`: messages of up to a chunk go to
+ /// the kernels TABLE at a time, 2 to 15 chunks side by side on SME2, others
+ /// through the one-message path. Requires `input.len() == slot *
+ /// outputs.len()` and every slot's bytes past `len` zero (a Batch's, or
+ /// the crate's own).
+ pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     // One-block messages first, on the path they took before slots (a
+     // shared entry cost 64 B x 3 7% in the regression check).
+-    if len == BLOCK_LEN && outputs.len() >= 2 {
+-        crate::ran(crate::Ran::BlockRun);
+-        assert_slots(input, len, outputs.len());
+-        for (messages, digests) in input.chunks(BLOCK_LEN * TABLE).zip(outputs.chunks_mut(TABLE)) {
+-            hash_run::<{ BLOCK_LEN }>(messages, key, flags, digests, platform);
+-        }
+-        return;
+-    }
+-    let slot = slot_len(len);
+-    assert_slots(input, len, outputs.len());
+-    if len == 0 {
+-        outputs.fill(*crate::hash_serial_on(&[], key, flags, platform).as_bytes());
+-        return;
+-    }
+-    #[cfg(blake3_sme2)]
+-    if chunked(len) && platform_is_sme2(platform) && (outputs.len() >= 16 || outputs.len() >= sme2_chunked_min(len)) {
+-        return hash_chunked(input, len, key, flags, outputs, platform);
+-    }
+-    #[cfg(blake3_neon)]
+-    if (CHUNK_LEN + 1..=2 * CHUNK_LEN).contains(&len) && outputs.len() >= 2 && neon_plans() {
+-        return hash_two_chunks(input, len, key, flags, outputs);
+-    }
+-    if outputs.len() < 2 || len > CHUNK_LEN {
+-        #[cfg(target_arch = "x86_64")]
+-        return hash_long_or_single(input, len, key, flags, outputs, platform);
+-        #[cfg(not(target_arch = "x86_64"))]
+-        {
+-            for (i, output) in outputs.iter_mut().enumerate() {
+-                *output = *crate::hash_serial_on(&input[i * slot..][..len], key, flags, platform).as_bytes();
+-            }
+-            return;
+-        }
+-    }
+-    crate::ran(crate::Ran::ShortRun);
+-    let plans = neon_plans();
+-    let last_len = len - (slot - BLOCK_LEN);
+-    for (messages, digests) in input.chunks(slot * TABLE).zip(outputs.chunks_mut(TABLE)) {
+-        match slot / BLOCK_LEN {
+-            1 => hash_run_short::<{ BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            2 => hash_blocks::<{ 2 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            3 => hash_blocks::<{ 3 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            4 => hash_blocks::<{ 4 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            5 => hash_blocks::<{ 5 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            6 => hash_blocks::<{ 6 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            7 => hash_blocks::<{ 7 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            8 => hash_blocks::<{ 8 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            9 => hash_blocks::<{ 9 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            10 => hash_blocks::<{ 10 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            11 => hash_blocks::<{ 11 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            12 => hash_blocks::<{ 12 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            13 => hash_blocks::<{ 13 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            14 => hash_blocks::<{ 14 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            15 => hash_blocks::<{ 15 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            16 => hash_blocks::<{ 16 * BLOCK_LEN }>(messages, key, flags, digests, platform, plans, last_len),
+-            _ => unreachable!("messages of up to a chunk"),
+-        }
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Fewest messages of 2 to 16 blocks that go to SME2 as one more group of
+ /// sixteen, its spare lanes reading the last message again: 10 in a batch
+ /// of fewer than sixteen, 5 left over after the SME2 groups (where NEON
+ /// work beside the SME2 kernels pays the SME unit's slow state as well).
+ /// Fewer run on the integer + NEON parent plans. ns per message, the plans
+ /// against the extra group: VM 256 B, 9 messages 60 / 69, 10 68 / 62, 12
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+warning: unused variable: `input`
+  --> src/many.rs:58:28
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                            ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `len`
+  --> src/many.rs:58:42
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                          ^^^ help: if this is intentional, prefix it with an underscore: `_len`
+
+warning: unused variable: `key`
+  --> src/many.rs:58:54
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                      ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `flags`
+  --> src/many.rs:58:69
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `outputs`
+  --> src/many.rs:58:80
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                                ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_outputs`
+
+warning: unused variable: `platform`
+  --> src/many.rs:58:111
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                                                               ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_platform`
+
+warning: constant `TABLE` is never used
+  --> src/many.rs:25:18
+   |
+25 | pub(crate) const TABLE: usize = 128;
+   |                  ^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `SME2_TAIL_MIN_AFTER_GROUPS` is never used
+  --> src/many.rs:77:18
+   |
+77 | pub(crate) const SME2_TAIL_MIN_AFTER_GROUPS: usize = 5;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_long_or_single` is never used
+   --> src/many.rs:205:4
+    |
+205 | fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `ACROSS_CHUNKS` is never used
+   --> src/many.rs:221:7
+    |
+221 | const ACROSS_CHUNKS: usize = 16;
+    |       ^^^^^^^^^^^^^
+
+warning: function `across_from` is never used
+   --> src/many.rs:231:15
+    |
+231 | pub(crate) fn across_from(len: usize, platform: Platform) -> Option<usize> {
+    |               ^^^^^^^^^^^
+
+warning: function `hash_across` is never used
+   --> src/many.rs:249:4
+    |
+249 | fn hash_across(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^
+
+warning: constant `ACROSS_GROUP` is never used
+   --> src/many.rs:259:18
+    |
+259 | pub(crate) const ACROSS_GROUP: usize = 16;
+    |                  ^^^^^^^^^^^^
+
+warning: function `hash_group_across` is never used
+   --> src/many.rs:264:15
+    |
+264 | pub(crate) fn hash_group_across(messages: &[&[u8]], len: usize, key: &CVWords, flags: u8, digests: &mut [[u8; OUT_LEN]], platform: ...
+    |               ^^^^^^^^^^^^^^^^^
+
+warning: function `subtree_across` is never used
+   --> src/many.rs:311:4
+    |
+311 | fn subtree_across(
+    |    ^^^^^^^^^^^^^^
+
+warning: function `hash_run` is never used
+   --> src/many.rs:358:4
+    |
+358 | fn hash_run<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^
+
+warning: function `hash_run_short` is never used
+   --> src/many.rs:388:4
+    |
+388 | fn hash_run_short<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, pla...
+    |    ^^^^^^^^^^^^^^
+
+warning: type alias `Slots` is never used
+   --> src/many.rs:426:6
+    |
+426 | type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE + 16];
+    |      ^^^^^
+
+warning: function `fill_table` is never used
+   --> src/many.rs:432:4
+    |
+432 | fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8;...
+    |    ^^^^^^^^^^
+
+warning: function `neon_plans_last_len` is never used
+   --> src/many.rs:449:4
+    |
+449 | fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_blocks` is never used
+   --> src/many.rs:479:4
+    |
+479 | fn hash_blocks<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans:...
+    |    ^^^^^^^^^^^
+
+warning: function `hash_four_at_a_time` is never used
+   --> src/many.rs:528:4
+    |
+528 | fn hash_four_at_a_time<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platf...
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `noted_lanes` is never used
+   --> src/many.rs:568:4
+    |
+568 | fn noted_lanes(lanes: usize) {
+    |    ^^^^^^^^^^^
+
+warning: function `neon_plans` is never used
+   --> src/many.rs:578:4
+    |
+578 | fn neon_plans() -> bool {
+    |    ^^^^^^^^^^
+
+warning: function `platform_is_sme2` is never used
+   --> src/many.rs:583:4
+    |
+583 | fn platform_is_sme2(platform: Platform) -> bool {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `takes_platform` is never used
+   --> src/many.rs:601:4
+    |
+601 | fn takes_platform(platform: Platform) -> bool {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `hash_many_blocks` is never used
+   --> src/many.rs:617:11
+    |
+617 | unsafe fn hash_many_blocks(
+    |           ^^^^^^^^^^^^^^^^
+
+warning: function `hash_long_or_single` is never used
+   --> src/many.rs:205:4
+    |
+205 | fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 27 warnings (run `cargo fix --lib -p blake3-servil` to apply 6 suggestions)
+warning: `blake3-servil` (lib test) generated 10 warnings (9 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 1.32s
+info: using target runner `sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+warning: unused variable: `input`
+  --> src/many.rs:58:28
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                            ^^^^^ help: if this is intentional, prefix it with an underscore: `_input`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `len`
+  --> src/many.rs:58:42
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                          ^^^ help: if this is intentional, prefix it with an underscore: `_len`
+
+warning: unused variable: `key`
+  --> src/many.rs:58:54
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                      ^^^ help: if this is intentional, prefix it with an underscore: `_key`
+
+warning: unused variable: `flags`
+  --> src/many.rs:58:69
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                     ^^^^^ help: if this is intentional, prefix it with an underscore: `_flags`
+
+warning: unused variable: `outputs`
+  --> src/many.rs:58:80
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                                ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_outputs`
+
+warning: unused variable: `platform`
+  --> src/many.rs:58:111
+   |
+58 | pub(crate) fn hash_many_on(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+   |                                                                                                               ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_platform`
+
+warning: constant `TABLE` is never used
+  --> src/many.rs:25:18
+   |
+25 | pub(crate) const TABLE: usize = 128;
+   |                  ^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `SME2_TAIL_MIN_AFTER_GROUPS` is never used
+  --> src/many.rs:77:18
+   |
+77 | pub(crate) const SME2_TAIL_MIN_AFTER_GROUPS: usize = 5;
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_long_or_single` is never used
+   --> src/many.rs:205:4
+    |
+205 | fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: constant `ACROSS_CHUNKS` is never used
+   --> src/many.rs:221:7
+    |
+221 | const ACROSS_CHUNKS: usize = 16;
+    |       ^^^^^^^^^^^^^
+
+warning: function `across_from` is never used
+   --> src/many.rs:231:15
+    |
+231 | pub(crate) fn across_from(len: usize, platform: Platform) -> Option<usize> {
+    |               ^^^^^^^^^^^
+
+warning: function `hash_across` is never used
+   --> src/many.rs:249:4
+    |
+249 | fn hash_across(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^
+
+warning: constant `ACROSS_GROUP` is never used
+   --> src/many.rs:259:18
+    |
+259 | pub(crate) const ACROSS_GROUP: usize = 16;
+    |                  ^^^^^^^^^^^^
+
+warning: function `hash_group_across` is never used
+   --> src/many.rs:264:15
+    |
+264 | pub(crate) fn hash_group_across(messages: &[&[u8]], len: usize, key: &CVWords, flags: u8, digests: &mut [[u8; OUT_LEN]], platform: ...
+    |               ^^^^^^^^^^^^^^^^^
+
+warning: function `subtree_across` is never used
+   --> src/many.rs:311:4
+    |
+311 | fn subtree_across(
+    |    ^^^^^^^^^^^^^^
+
+warning: function `hash_run` is never used
+   --> src/many.rs:358:4
+    |
+358 | fn hash_run<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^
+
+warning: function `hash_run_short` is never used
+   --> src/many.rs:388:4
+    |
+388 | fn hash_run_short<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, pla...
+    |    ^^^^^^^^^^^^^^
+
+warning: type alias `Slots` is never used
+   --> src/many.rs:426:6
+    |
+426 | type Slots<'a, const N: usize> = [core::mem::MaybeUninit<&'a [u8; N]>; TABLE + 16];
+    |      ^^^^^
+
+warning: function `fill_table` is never used
+   --> src/many.rs:432:4
+    |
+432 | fn fill_table<'a, 's, const N: usize>(slots: &'s mut Slots<'a, N>, messages: &'a [u8], count: usize, lanes: usize) -> &'s [&'a [u8;...
+    |    ^^^^^^^^^^
+
+warning: function `neon_plans_last_len` is never used
+   --> src/many.rs:449:4
+    |
+449 | fn neon_plans_last_len<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, last_len: usize, outputs: &mut [[u8; OUT_LEN]]) {
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `hash_blocks` is never used
+   --> src/many.rs:479:4
+    |
+479 | fn hash_blocks<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans:...
+    |    ^^^^^^^^^^^
+
+warning: function `hash_four_at_a_time` is never used
+   --> src/many.rs:528:4
+    |
+528 | fn hash_four_at_a_time<const N: usize>(lanes: &[&[u8; N]], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platf...
+    |    ^^^^^^^^^^^^^^^^^^^
+
+warning: function `noted_lanes` is never used
+   --> src/many.rs:568:4
+    |
+568 | fn noted_lanes(lanes: usize) {
+    |    ^^^^^^^^^^^
+
+warning: function `neon_plans` is never used
+   --> src/many.rs:578:4
+    |
+578 | fn neon_plans() -> bool {
+    |    ^^^^^^^^^^
+
+warning: function `platform_is_sme2` is never used
+   --> src/many.rs:583:4
+    |
+583 | fn platform_is_sme2(platform: Platform) -> bool {
+    |    ^^^^^^^^^^^^^^^^
+
+warning: function `takes_platform` is never used
+   --> src/many.rs:601:4
+    |
+601 | fn takes_platform(platform: Platform) -> bool {
+    |    ^^^^^^^^^^^^^^
+
+warning: function `hash_many_blocks` is never used
+   --> src/many.rs:617:11
+    |
+617 | unsafe fn hash_many_blocks(
+    |           ^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 27 warnings (run `cargo fix --lib -p blake3-servil` to apply 6 suggestions)
+warning: function `hash_long_or_single` is never used
+   --> src/many.rs:205:4
+    |
+205 | fn hash_long_or_single(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+    |    ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib test) generated 10 warnings (9 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 6e83a3be-6d9b-42ab-b58b-805456407cf0 with nextest profile: mutants
+    Starting 168 tests across 15 binaries
+       START [         ] (  1/168) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.037s] (  1/168) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  2/168) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.038s] (  2/168) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  3/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.040s] (  3/168) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  4/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.042s] (  4/168) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  5/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.047s] (  5/168) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  6/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.049s] (  6/168) blake3-servil avx512::test::test_xof_many
+       START [         ] (  7/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.053s] (  7/168) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  8/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.018s] (  8/168) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  9/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.064s] (  9/168) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 10/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.022s] ( 10/168) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 11/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.020s] ( 11/168) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 12/168) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.020s] ( 12/168) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 13/168) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.021s] ( 13/168) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 14/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-c-epyc9255-20261105T055348-3870fe55/fork/target/mutants/mutants-80wx_26p/mutants/deps/blake3_servil-4f6e61fe2dac4957 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+     SIGABRT [   0.086s] ( 14/168) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGTERM [   0.060s] ( 15/168) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGKILL [   0.057s] ( 16/168) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.085s] ( 17/168) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.048s] ( 18/168) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.075s] ( 19/168) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.060s] ( 20/168) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.057s] ( 21/168) blake3-servil each::test::test_hash_each_multithreaded
+  stdout ───
+
+    running 1 test
+  stderr ───
+    blake3-servil startup self-test failed: case 5, seventeen 64-byte messages: the batch kernel, full groups and a tail (platform AVX-512): this build or this CPU computes wrong BLAKE3 digests on that path
+
+    (test aborted with signal 9: SIGKILL)
+
+────────────
+     Summary [   0.130s] 21/168 tests run: 13 passed, 8 failed, 0 skipped
+warning: 147/168 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

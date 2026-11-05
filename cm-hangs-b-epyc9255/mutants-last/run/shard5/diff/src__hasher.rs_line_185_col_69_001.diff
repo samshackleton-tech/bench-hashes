@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace / with * in feed
+@@ -177,17 +177,17 @@
+         match flat {
+             Some(cv) => push(k, stack, initial, cv, counter),
+             None => {
+                 if len <= CHUNK_LEN {
+                     push(k, stack, initial, k.whole_chunk_cv(sub, counter), counter);
+                 } else {
+                     let [left, right] = k.children(sub, ahead, counter);
+                     push(k, stack, initial, left, counter);
+-                    push(k, stack, initial, right, counter + chunks / 2);
++                    push(k, stack, initial, right, counter + chunks * /* ~ changed by cargo-mutants ~ */ 2);
+                 }
+             }
+         }
+         chunk.advance(chunks);
+         input = &input[len..];
+     }
+     if !input.is_empty() {
+         chunk.update(input);

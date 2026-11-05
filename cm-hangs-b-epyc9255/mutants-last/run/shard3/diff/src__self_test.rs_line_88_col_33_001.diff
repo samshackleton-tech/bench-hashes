@@ -1,0 +1,21 @@
+--- src/self_test.rs
++++ replace + with *
+@@ -80,17 +80,17 @@
+ /// rising counters, so only whole inputs reach them; batches of one-chunk
+ /// messages, all at counter 0, take the parent plans (p).
+ #[cfg(target_arch = "aarch64")]
+ pub(crate) const CASES: &[(Case, &str)] = &[
+     (Hash { offset: 0, len: 0 }, "the empty input"),
+     (Hash { offset: 1, len: 63 }, "one partial block, unaligned"),
+     (Hash { offset: 3, len: 65 }, "a block and a byte, unaligned"),
+     (Hash { offset: 5, len: KIB }, "one whole chunk, unaligned"),
+-    (Hash { offset: 0, len: KIB + 300 }, "a chunk and a partial one: q1"),
++    (Hash { offset: 0, len: KIB * /* ~ changed by cargo-mutants ~ */ 300 }, "a chunk and a partial one: q1"),
+     (Hash { offset: 7, len: 2 * KIB }, "two chunks, unaligned: k2"),
+     (Derive { len: 3 * KIB - 1 }, "key derivation, two chunks and a partial one: q2"),
+     (Hash { offset: 0, len: 3 * KIB + 100 }, "three chunks and a partial one: q3"),
+     (Hash { offset: 1, len: 4 * KIB + 65 }, "four chunks and a partial one, unaligned: q4"),
+     (Hash { offset: 0, len: 5 * KIB + 1000 }, "five chunks and a partial one: q5"),
+     (Hash { offset: 3, len: 6 * KIB + 129 }, "six chunks and a partial one, unaligned: q6"),
+     (Hash { offset: 0, len: 8 * KIB - 1 }, "seven chunks and a partial one: q7"),
+     (Hash { offset: 5, len: 8 * KIB + 200 }, "eight chunks and a partial one, unaligned: q8"),

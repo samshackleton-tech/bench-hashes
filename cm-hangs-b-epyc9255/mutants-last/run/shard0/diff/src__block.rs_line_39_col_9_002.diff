@@ -1,0 +1,28 @@
+--- src/block.rs
++++ replace Block::from_bytes -> Option<&[Block]> with Some(Vec::leak(vec![Default::default()]))
+@@ -31,24 +31,17 @@
+         unsafe { core::slice::from_raw_parts_mut(blocks.as_mut_ptr().cast(), blocks.len() * BLOCK_LEN) }
+     }
+ 
+     /// `bytes` as blocks, without a copy, when they start on a 64-byte
+     /// boundary and are whole blocks (bytes already in place, such as a
+     /// mapped file's records), or are empty: `None` otherwise.
+     pub fn from_bytes(bytes: &[u8]) -> Option<&[Block]> {
+         // An empty slice's pointer says nothing of placement.
+-        if bytes.is_empty() {
+-            return Some(&[]);
+-        }
+-        if bytes.as_ptr().align_offset(BLOCK_LEN) != 0 || bytes.len() % BLOCK_LEN != 0 {
+-            return None;
+-        }
+-        // Sound: aligned and whole blocks, just checked; Block has no padding.
+-        Some(unsafe { core::slice::from_raw_parts(bytes.as_ptr().cast(), bytes.len() / BLOCK_LEN) })
++        Some(Vec::leak(vec![Default::default()])) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl core::fmt::Debug for Block {
+     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+         write!(f, "Block({:02x?})", &self.0[..])
+     }
+ }

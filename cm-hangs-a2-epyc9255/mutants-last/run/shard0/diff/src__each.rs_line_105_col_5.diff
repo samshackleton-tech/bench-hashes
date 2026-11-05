@@ -1,0 +1,56 @@
+--- src/each.rs
++++ replace update_turn with ()
+@@ -97,52 +97,17 @@
+ /// A turn of pieces for many hashers: each piece gathered into its
+ /// hasher's stage, and every stage that fills a whole group held, its
+ /// hasher's later pieces waiting, until the turn's held groups hash
+ /// together: their chunks back to back, a group per call with nothing in
+ /// between (the SME unit stays in its fast state), then each level of
+ /// their parents in one call. Then the waiting pieces, the same way, until
+ /// none is left.
+ fn update_turn(hashers: &mut [Hasher], pieces: &[(usize, &[u8])], pooled: bool) {
+-    let mut turn: Vec<(usize, &[u8])> = pieces.to_vec();
+-    let mut waiting: Vec<(usize, &[u8])> = Vec::new();
+-    let mut held: Vec<usize> = Vec::new();
+-    while !turn.is_empty() {
+-        for &(i, bytes) in &turn {
+-            // A hasher holding a group takes no more until the turn's
+-            // groups are hashed: its pieces wait, in order.
+-            if hashers[i].held_group().is_some() {
+-                waiting.push((i, bytes));
+-                continue;
+-            }
+-            let rest = hashers[i].gather_part(bytes, pooled, true);
+-            if hashers[i].held_group().is_some() {
+-                held.push(i);
+-                if !rest.is_empty() {
+-                    waiting.push((i, rest));
+-                }
+-            }
+-        }
+-        hash_held(hashers, &held);
+-        // The loop's variant: every held group was hashed, so each waiting
+-        // piece gathers on the next pass, and the bytes in play shrink on
+-        // every pass (a change that kept them would spin here forever;
+-        // the assert makes it a failure a test sees).
+-        assert!(held.iter().all(|&i| hashers[i].held_group().is_none()), "a held group outlived its turn");
+-        let (before, after): (usize, usize) = (turn.iter().map(|p| p.1.len()).sum(), waiting.iter().map(|p| p.1.len()).sum());
+-        assert!(
+-            after < before || (after == before && waiting.len() < turn.len()),
+-            "a turn's pass gathered nothing ({} pieces of {before} bytes before, {} of {after} after)",
+-            turn.len(),
+-            waiting.len()
+-        );
+-        held.clear();
+-        core::mem::swap(&mut turn, &mut waiting);
+-        waiting.clear();
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Hash the whole groups `held` names, one in each of those hashers'
+ /// stages, together where they share a key and flags, and pass each
+ /// group's subtree to its hasher's core.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+     use crate::{BLOCK_LEN, PARENT};

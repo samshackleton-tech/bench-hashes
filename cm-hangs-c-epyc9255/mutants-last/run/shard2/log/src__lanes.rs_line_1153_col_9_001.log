@@ -1,0 +1,54 @@
+
+*** src/lanes.rs:1153:9: replace sources::take_stream_task -> Option<Task> with Some(Default::default())
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::take_stream_task -> Option<Task> with Some(Default::default())
+@@ -1145,22 +1145,17 @@
+                 }
+             }
+             true
+         })
+     }
+ 
+     /// A task from any stream (the SME2 thread takes these alone).
+     pub(crate) fn take_stream_task() -> Option<Task> {
+-        let mut found = None;
+-        find(|source| {
+-            found = if source.ring.is_empty() { None } else { source.take_task() };
+-            found.is_some()
+-        });
+-        found
++        Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Whether any source has work waiting (`streams`: any stream).
+     pub(crate) fn visible(streams: bool) -> bool {
+         find(|source| (!streams || !source.ring.is_empty()) && source.waiting() > 0)
+     }
+ 
+     #[cfg(test)]
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0277]: the trait bound `lanes::Task: Default` is not satisfied
+    --> src/lanes.rs:1153:14
+     |
+1153 |         Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     |              ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `lanes::Task`
+    --> src/lanes.rs:1255:1
+     |
+1255 | pub(crate) struct Task {
+     | ^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

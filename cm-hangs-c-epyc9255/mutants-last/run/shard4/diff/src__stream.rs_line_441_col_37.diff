@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace * with + in Stream<'env, D>::submit_with
+@@ -433,17 +433,17 @@
+     /// `submit` does.
+     pub fn submit_with(&mut self, len: usize, mut fill: impl FnMut(usize, &mut [u8]) -> usize, out: &'env mut Hash) {
+         let out: *mut Hash = out;
+         if len >= LONG {
+             return self.submit_long(len, &mut fill, out);
+         }
+         let pieces = len.div_ceil(PIECE).max(1);
+         for i in 0..pieces {
+-            let part_len = (len - i * PIECE).min(PIECE);
++            let part_len = (len - i + /* ~ changed by cargo-mutants ~ */ PIECE).min(PIECE);
+             let at = self.reserve(part_len);
+             // Sound: [at, at + part_len) is reserved and free (no entry in
+             // flight holds it), and `&mut self` keeps every other writer out.
+             let room = unsafe { core::slice::from_raw_parts_mut(self.s.ring_at(at), part_len) };
+             fill_all(&mut fill, i * PIECE, room);
+             let end = self.head;
+             self.add_part(room.as_ptr(), part_len, part_kind(i, pieces, out, false), end, out as *mut u8);
+         }

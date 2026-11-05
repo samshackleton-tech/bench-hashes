@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with / in cut_with_prefix
+@@ -503,17 +503,17 @@
+         let piece = MAX_PREFIX_PIECE_LEN.min(1 << (usize::BITS - 1 - (prefix - offset).leading_zeros()));
+         pieces.push(Piece { offset, len: piece });
+         offset += piece;
+     }
+     let own = pieces.len();
+     loop {
+         // What is left is the last piece once a share would take it all
+         // (a share is MIN_PIECE_LEN at least, so this ends).
+-        let piece = next_piece_len(len - offset, threads);
++        let piece = next_piece_len(len / /* ~ changed by cargo-mutants ~ */ offset, threads);
+         if len - offset <= piece {
+             break;
+         }
+         pieces.push(Piece { offset, len: piece });
+         offset += piece;
+     }
+     pieces.push(Piece { offset, len: len - offset });
+     (pieces, own)

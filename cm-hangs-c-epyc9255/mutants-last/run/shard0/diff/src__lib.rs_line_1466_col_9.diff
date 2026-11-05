@@ -1,0 +1,22 @@
+--- src/lib.rs
++++ replace <impl std::io::Read for OutputReader>::read -> std::io::Result<usize> with Ok(0)
+@@ -1458,18 +1458,17 @@
+         f.debug_struct("OutputReader").field("position", &self.position()).finish()
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ impl std::io::Read for OutputReader {
+     #[inline]
+     fn read(&mut self, buf: &mut [u8]) -> std::io::Result<usize> {
+-        self.fill(buf);
+-        Ok(buf.len())
++        Ok(0) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ impl std::io::Seek for OutputReader {
+     fn seek(&mut self, pos: std::io::SeekFrom) -> std::io::Result<u64> {
+         let max_position = u64::MAX as i128;
+         let target_position: i128 = match pos {

@@ -1,0 +1,21 @@
+--- src/tree.rs
++++ replace <impl Kernels for PlatformKernels<'_>>::parent_root -> Cv with Default::default()
+@@ -185,17 +185,17 @@
+         match self.platform {
+             crate::platform::Platform::AVX512 => unsafe { crate::chunk_root::chunk_root(true, input, self.key, self.flags) },
+             crate::platform::Platform::SSE41 | crate::platform::Platform::AVX2 => unsafe { crate::chunk_root::chunk_root(false, input, self.key, self.flags) },
+         }
+     }
+ 
+     #[inline(always)]
+     fn parent_root(&self, children: &[Cv; 2]) -> Cv {
+-        crate::hasher::parent_output(&children[0], &children[1], self.key, self.flags, self.platform).root_bytes()
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(test)]
+ mod test {
+     use super::*;
+     use core::cell::RefCell;
+     use std::vec::Vec;

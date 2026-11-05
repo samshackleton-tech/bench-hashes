@@ -1,0 +1,51 @@
+
+*** src/lib.rs:691:9: replace ChunkState::update -> &mut Self with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/lib.rs
++++ replace ChunkState::update -> &mut Self with Box::leak(Box::new(Default::default()))
+@@ -683,19 +683,17 @@
+     }
+ }
+ 
+ impl ChunkState {
+     // Try to avoid buffering as much as possible, by compressing directly from
+     // the input slice when full blocks are available (src/hasher.rs).
+     #[inline(always)]
+     fn update(&mut self, input: &[u8]) -> &mut Self {
+-        self.absorb(input);
+-        debug_assert!(self.count() <= CHUNK_LEN);
+-        self
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]
+ impl Zeroize for ChunkState {
+     fn zeroize(&mut self) {
+         // Destructuring to trigger compile error as a reminder to update this impl.
+         let Self { cv, chunk_counter, buf, buf_len, blocks_compressed, flags, platform: _ } = self;
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-mkiuwr2e)
+error[E0277]: the trait bound `hasher::ChunkState<platform::Platform>: Default` is not satisfied
+   --> src/lib.rs:691:28
+    |
+691 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::ChunkState<platform::Platform>`
+   --> src/hasher.rs:303:1
+    |
+303 | pub struct ChunkState<P> {
+    | ^^^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

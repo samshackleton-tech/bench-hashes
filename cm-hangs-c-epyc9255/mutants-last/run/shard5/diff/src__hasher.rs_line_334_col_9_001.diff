@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace ChunkState<P>::start_flag -> u8 with 1
+@@ -326,17 +326,17 @@
+         let take = if want < input.len() { want } else { input.len() };
+         let start = self.buf_len as usize;
+         self.buf[start..start + take].copy_from_slice(&input[..take]);
+         self.buf_len += take as u8;
+         take
+     }
+ 
+     pub fn start_flag(&self) -> u8 {
+-        if self.blocks_compressed == 0 { CHUNK_START } else { 0 }
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The next bytes, `count() + input.len()` at most CHUNK_LEN. Whole
+     /// blocks compress straight from `input`; the last block always waits.
+     pub fn absorb(&mut self, input: &[u8]) {
+         let mut input = input;
+         if self.buf_len > 0 {
+             let take = self.fill_buf(input);

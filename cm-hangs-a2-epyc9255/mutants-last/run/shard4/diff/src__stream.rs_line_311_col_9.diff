@@ -1,0 +1,23 @@
+--- src/stream.rs
++++ replace Storage::long_at -> *mut u8 with Default::default()
+@@ -303,19 +303,17 @@
+     fn ring_at(&self, at: usize) -> *mut u8 {
+         debug_assert!(at <= RING_BYTES);
+         // Sound: `at` is in the ring.
+         unsafe { self.ring.add(at) }
+     }
+ 
+     /// The long ring's byte at `at`.
+     fn long_at(&self, at: usize) -> *mut u8 {
+-        debug_assert!(at <= LONG_RING_BYTES);
+-        // Sound: `at` is in the long ring.
+-        unsafe { self.long_ring.add(at) }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ /// A ring of `len` bytes, kept for good, as the storage is: zeroed,
+ /// untouched pages (only the bytes used are faulted in: calloc maps them
+ /// lazily, where an aligned allocation would write them all), starting at
+ /// the first 64-byte boundary, as each room's offset is, so every room
+ /// starts a cache line (glibc puts a 2 MiB block 16 bytes into one).

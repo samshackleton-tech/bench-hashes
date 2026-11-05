@@ -1,0 +1,21 @@
+--- src/hasher.rs
++++ replace + with * in ChunkState<P>::count
+@@ -312,17 +312,17 @@
+ 
+ impl<P: Blocks> ChunkState<P> {
+     pub fn new(key: &[u32; 8], chunk_counter: u64, flags: u8, platform: P) -> Self {
+         ChunkState { buf: [0; BLOCK_LEN], cv: *key, chunk_counter, buf_len: 0, blocks_compressed: 0, flags, platform }
+     }
+ 
+     /// The bytes so far.
+     pub fn count(&self) -> usize {
+-        BLOCK_LEN * self.blocks_compressed as usize + self.buf_len as usize
++        BLOCK_LEN * self.blocks_compressed as usize * /* ~ changed by cargo-mutants ~ */ self.buf_len as usize
+     }
+ 
+     /// As much of `input` as `buf` has room for, into it; returns how much.
+     fn fill_buf(&mut self, input: &[u8]) -> usize {
+         let want = BLOCK_LEN - self.buf_len as usize;
+         let take = if want < input.len() { want } else { input.len() };
+         let start = self.buf_len as usize;
+         self.buf[start..start + take].copy_from_slice(&input[..take]);

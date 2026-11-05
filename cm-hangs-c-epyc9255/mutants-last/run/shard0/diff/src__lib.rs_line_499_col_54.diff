@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ replace * with + in Hash::from_hex
+@@ -491,17 +491,17 @@
+             }
+         }
+         let hex_bytes: &[u8] = hex.as_ref();
+         if hex_bytes.len() != OUT_LEN * 2 {
+             return Err(HexError(HexErrorInner::InvalidLen(hex_bytes.len())));
+         }
+         let mut hash_bytes: [u8; OUT_LEN] = [0; OUT_LEN];
+         for i in 0..OUT_LEN {
+-            hash_bytes[i] = 16 * hex_val(hex_bytes[2 * i])? + hex_val(hex_bytes[2 * i + 1])?;
++            hash_bytes[i] = 16 * hex_val(hex_bytes[2 + /* ~ changed by cargo-mutants ~ */ i])? + hex_val(hex_bytes[2 * i + 1])?;
+         }
+         Ok(Hash::from(hash_bytes))
+     }
+ }
+ 
+ impl From<[u8; OUT_LEN]> for Hash {
+     #[inline]
+     fn from(bytes: [u8; OUT_LEN]) -> Self {

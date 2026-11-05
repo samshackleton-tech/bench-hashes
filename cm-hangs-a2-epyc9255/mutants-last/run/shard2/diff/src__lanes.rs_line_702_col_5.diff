@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace mark_forked with ()
+@@ -694,17 +694,17 @@
+ /// The pool, once [`initialize`] has created it.
+ static POOL: OnceLock<Pool> = OnceLock::new();
+ 
+ /// Set in a child forked after the pool started its threads (the fork
+ /// handler, `pthread_atfork`'s child): the child has none of them.
+ static FORKED: core::sync::atomic::AtomicBool = core::sync::atomic::AtomicBool::new(false);
+ 
+ extern "C" fn mark_forked() {
+-    FORKED.store(true, Ordering::Relaxed);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// A multithreaded call or stream in a forked child: the threads it would
+ /// use stayed in the parent.
+ #[cold]
+ #[inline(never)]
+ fn forked() -> ! {
+     panic!(

@@ -1,0 +1,67 @@
+
+*** src/lanes.rs:740:5: replace no_pool -> &'static Pool with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace no_pool -> &'static Pool with Box::leak(Box::new(Default::default()))
+@@ -732,23 +732,17 @@
+ }
+ 
+ /// A multithreaded call before `initialize_multithreaded`: the caller broke
+ /// the contract. The crate's own unit tests, many small programs in one,
+ /// initialize here instead.
+ #[cold]
+ #[inline(never)]
+ fn no_pool() -> &'static Pool {
+-    #[cfg(test)]
+-    {
+-        crate::initialize_multithreaded(None);
+-        POOL.get().expect("initialize_multithreaded created the pool")
+-    }
+-    #[cfg(not(test))]
+-    panic!("blake3-servil: call blake3_servil::initialize_multithreaded(None) once, before any multithreaded call or stream: it starts the threads they use")
++    Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ #[cfg(test)]
+ std::thread_local! {
+     /// How many workers the last job this thread ran asked to wake (None:
+     /// it asked for none), for the tests of the wake count (BLAKE3 #219).
+     pub(crate) static WAKES_WANTED: core::cell::Cell<Option<usize>> = const { core::cell::Cell::new(None) };
+ }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0277]: the trait bound `Pool: Default` is not satisfied
+   --> src/lanes.rs:740:24
+    |
+740 |     Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                        ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Pool`
+   --> src/lanes.rs:634:1
+    |
+634 | struct Pool {
+    | ^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::Pool: Default` is not satisfied
+   --> src/lanes.rs:740:24
+    |
+740 |     Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                        ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `lanes::Pool`
+   --> src/lanes.rs:634:1
+    |
+634 | struct Pool {
+    | ^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

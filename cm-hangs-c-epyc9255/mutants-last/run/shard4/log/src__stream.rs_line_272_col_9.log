@@ -1,0 +1,54 @@
+
+*** src/stream.rs:272:9: replace Storage::take -> &'static mut Storage with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/stream.rs
++++ replace Storage::take -> &'static mut Storage with Box::leak(Box::new(Default::default()))
+@@ -264,20 +264,17 @@
+ 
+ // Sound: a storage in the free list is no stream's; the one that takes it
+ // owns it alone.
+ unsafe impl Send for FreeStorage {}
+ 
+ impl Storage {
+     /// A storage from the free list, or a new one (kept for good).
+     fn take() -> &'static mut Storage {
+-        match FREE.lock().unwrap().pop() {
+-            Some(FreeStorage(s)) => s,
+-            None => Box::leak(Box::new(Storage::new())),
+-        }
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn new() -> Storage {
+         Storage {
+             source: Box::leak(Box::new(crate::lanes::sources::Source::new(ENTRIES))),
+             entries: std::vec![Entry { len: 0, kind: Kind::Abandoned, first: 0, ring_end: 0 }; ENTRIES].into_boxed_slice(),
+             ring: ring(RING_BYTES),
+             long_ring: ring(LONG_RING_BYTES),
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-3lxy0dpz)
+error[E0277]: the trait bound `Storage: Default` is not satisfied
+   --> src/stream.rs:272:28
+    |
+272 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                            ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Storage`
+   --> src/stream.rs:238:1
+    |
+238 | struct Storage {
+    | ^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

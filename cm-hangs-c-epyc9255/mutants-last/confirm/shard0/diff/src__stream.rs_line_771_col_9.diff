@@ -1,0 +1,24 @@
+--- src/stream.rs
++++ replace Stream<'env, D>::hand_over with ()
+@@ -763,20 +763,17 @@
+             self.s.lefts[self.open_first].store(task.members, Ordering::Relaxed);
+             self.hand_over(task);
+         }
+     }
+ 
+     /// Give `task` to the workers through the stream's source; with no
+     /// slot, hash it on this thread now.
+     fn hand_over(&mut self, task: Task) {
+-        match self.slot {
+-            Some(_) => self.s.source.publish(task),
+-            None => crate::lanes::run_task(task),
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Hand back every finished entry's place from the oldest on (a
+     /// batch's once its last part is done); how many entries.
+     fn deliver(&mut self) -> usize {
+         let mut count = 0;
+         while self.delivered < self.next {
+             let index = self.delivered % ENTRIES;

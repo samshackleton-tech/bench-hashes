@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in prefetch_kernels
+@@ -1236,17 +1236,17 @@
+ /// Prefetch the code of the kernels hashing `len` bytes on `platform`
+ /// runs: SME2's from 16 chunks, else the hybrids', chunks to root.
+ #[cfg(all(blake3_neon, feature = "std"))]
+ fn prefetch_kernels(len: usize, platform: Platform) {
+     #[cfg(blake3_sme2)]
+     if matches!(platform, Platform::SME2) && len >= SME2_SIZED_LEN {
+         sme2::prefetch_code();
+         // Below the flat walk, sixteen chunks' values merge on the hybrids.
+-        if !sme2::flat_takes(len) {
++        if  /* ~ changed by cargo-mutants ~ */sme2::flat_takes(len) {
+             neon_hybrid::prefetch_parent_code(16);
+         }
+         return;
+     }
+     // Below 16 chunks the SME2 platform runs the hybrids too.
+     #[cfg(blake3_sme2)]
+     let hybrids = matches!(platform, Platform::NEON | Platform::SME2);
+     #[cfg(not(blake3_sme2))]

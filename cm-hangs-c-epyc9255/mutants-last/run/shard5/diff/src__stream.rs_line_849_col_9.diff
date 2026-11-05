@@ -1,0 +1,28 @@
+--- src/stream.rs
++++ replace <impl Drop for Stream<'_, D>>::drop with ()
+@@ -841,24 +841,17 @@
+     }
+ }
+ 
+ impl<D> Drop for Stream<'_, D> {
+     /// Keep the storage as the thread's spare. A stream drops finished,
+     /// every place handed back: one that unwinds ends the process first
+     /// ([`stream`]'s guard), and the C API finishes it before it drops.
+     fn drop(&mut self) {
+-        assert!(self.open.is_none() && self.delivered == self.next, "a stream drops finished");
+-        if let Some(slot) = self.slot {
+-            crate::lanes::sources::Source::unregister(slot);
+-        }
+-        crate::lanes::sources::closed();
+-        // Sound: `s` is not used again; the next stream takes it whole.
+-        let s: &'static mut Storage = unsafe { &mut *(self.s as *mut Storage) };
+-        FREE.lock().unwrap().push(FreeStorage(s));
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(test)]
+ mod test {
+     use super::*;
+ 
+     /// Places for `n` digests, each starting as zeros.

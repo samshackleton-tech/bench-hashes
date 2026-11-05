@@ -1,0 +1,21 @@
+--- src/each.rs
++++ delete ! in update_turn
+@@ -100,17 +100,17 @@
+ /// together: their chunks back to back, a group per call with nothing in
+ /// between (the SME unit stays in its fast state), then each level of
+ /// their parents in one call. Then the waiting pieces, the same way, until
+ /// none is left.
+ fn update_turn(hashers: &mut [Hasher], pieces: &[(usize, &[u8])], pooled: bool) {
+     let mut turn: Vec<(usize, &[u8])> = pieces.to_vec();
+     let mut waiting: Vec<(usize, &[u8])> = Vec::new();
+     let mut held: Vec<usize> = Vec::new();
+-    while !turn.is_empty() {
++    while  /* ~ changed by cargo-mutants ~ */turn.is_empty() {
+         for &(i, bytes) in &turn {
+             // A hasher holding a group takes no more until the turn's
+             // groups are hashed: its pieces wait, in order.
+             if hashers[i].held_group().is_some() {
+                 waiting.push((i, bytes));
+                 continue;
+             }
+             let rest = hashers[i].gather_part(bytes, pooled, true);

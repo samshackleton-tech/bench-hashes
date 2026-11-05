@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ delete ! in sources::find
+@@ -1112,17 +1112,17 @@
+     /// The first registered source for which `f` says yes.
+     fn find(mut f: impl FnMut(&'static Source) -> bool) -> bool {
+         let mut active = ACTIVE.load(Ordering::SeqCst);
+         while active != 0 {
+             let slot = active.trailing_zeros() as usize;
+             active &= active - 1;
+             let ptr = REGISTERED[slot].load(Ordering::Acquire);
+             // Sound: sources are never freed (they are recycled).
+-            if !ptr.is_null() && f(unsafe { &*ptr }) {
++            if  /* ~ changed by cargo-mutants ~ */ptr.is_null() && f(unsafe { &*ptr }) {
+                 return true;
+             }
+         }
+         false
+     }
+ 
+     /// Run one item from any source: whether there was one. When two or
+     /// more wait and a worker is parked, this one wakes the next first

@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace > with < in hash_blocks
+@@ -561,17 +561,17 @@
+             hash_four_at_a_time::<N>(rest_lanes, key, flags, rest, platform);
+         } else {
+             for (output, message) in rest.iter_mut().zip(rest_lanes) {
+                 *output = *crate::hash_serial_on(&message[..(N - BLOCK_LEN) + last_len], key, flags, platform).as_bytes();
+             }
+         }
+     }
+     #[cfg(blake3_sme2)]
+-    if on_sme2 > 0 {
++    if on_sme2 < /* ~ changed by cargo-mutants ~ */ 0 {
+         // Sound: platform_is_sme2 means detect() found SME2 with 512-bit
+         // streaming vectors.
+         let sme2_lanes = &table[..if padded { lanes } else { on_sme2 }];
+         unsafe { crate::sme2::hash_messages::<N>(sme2_lanes, key, flags, CHUNK_START, CHUNK_END | ROOT, last_len, groups.as_flattened_mut()) };
+     }
+     #[cfg(not(blake3_sme2))]
+     let _ = groups;
+ }

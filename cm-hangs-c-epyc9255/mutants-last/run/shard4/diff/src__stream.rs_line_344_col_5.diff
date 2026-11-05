@@ -1,0 +1,28 @@
+--- src/stream.rs
++++ replace fill_all with ()
+@@ -336,24 +336,17 @@
+ }
+ 
+ /// `fill` called as `Read::read_exact` calls `read`, until `room` is full:
+ /// each call writes at the start of what is left, the bytes from `at` on,
+ /// and returns how many it wrote. A short write (a plain read's) would
+ /// otherwise leave bytes an earlier message left, hashed into a wrong
+ /// digest with no error (BLAKE3 #204).
+ fn fill_all(fill: &mut impl FnMut(usize, &mut [u8]) -> usize, at: usize, room: &mut [u8]) {
+-    let mut done = 0;
+-    while done < room.len() {
+-        let left = room.len() - done;
+-        let n = fill(at + done, &mut room[done..]);
+-        assert!(n != 0, "fill wrote nothing with {left} of its {} bytes left: its source ended before the message's length", room.len());
+-        assert!(n <= left, "fill says it wrote {n} bytes into a room of {left}");
+-        done += n;
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Part `i` of a message in `pieces` parts, its digest at `out`: the
+ /// message whole, or a piece.
+ fn part_kind(i: usize, pieces: usize, out: *mut Hash, long: bool) -> Kind {
+     if pieces == 1 { Kind::Message { out } } else { Kind::Piece { counter: (i * PIECE / CHUNK_LEN) as u64, last: i + 1 == pieces, long, out } }
+ }
+ 

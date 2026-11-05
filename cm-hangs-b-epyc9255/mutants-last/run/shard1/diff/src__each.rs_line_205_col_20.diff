@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace == with != in hash_held
+@@ -197,17 +197,17 @@
+         platform.hash_many(&blocks, &key, 0, IncrementCounter::No, flags | PARENT, 0, 0, &mut next[..values / 2 * OUT_LEN]);
+         values /= 2;
+         level[..values * OUT_LEN].copy_from_slice(&next[..values * OUT_LEN]);
+     }
+     drop(turn);
+     for (k, &i) in alike.iter().enumerate() {
+         let (counter, _) = hashers[i].held_group().unwrap();
+         let mut result = [0u8; BLOCK_LEN];
+-        if counter == 0 {
++        if counter != /* ~ changed by cargo-mutants ~ */ 0 {
+             result.copy_from_slice(&halves[k * BLOCK_LEN..(k + 1) * BLOCK_LEN]);
+         } else {
+             result[..OUT_LEN].copy_from_slice(&level[k * OUT_LEN..(k + 1) * OUT_LEN]);
+         }
+         hashers[i].take_held(&result);
+     }
+     hash_held(hashers, &others);
+ }

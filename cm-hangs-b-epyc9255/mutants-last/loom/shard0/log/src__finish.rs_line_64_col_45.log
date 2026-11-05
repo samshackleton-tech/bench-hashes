@@ -1,0 +1,149 @@
+
+*** src/finish.rs:64:45: delete ! in Finish::finished_count
+
+*** mutation diff:
+--- src/finish.rs
++++ delete ! in Finish::finished_count
+@@ -56,17 +56,17 @@
+ 
+ impl Finish {
+     pub(crate) fn new() -> Finish {
+         Finish { published: Line(AtomicUsize::new(0)), state: Line(AtomicUsize::new(0)), owner: Mutex::new(None) }
+     }
+ 
+     /// The pieces finished so far.
+     pub(crate) fn finished_count(&self) -> usize {
+-        self.state.load(Ordering::SeqCst) & !SLEEPING
++        self.state.load(Ordering::SeqCst) &  /* ~ changed by cargo-mutants ~ */SLEEPING
+     }
+ 
+     /// The thread that waits on this source from now on.
+     pub(crate) fn own(&self) {
+         *self.owner.lock().unwrap() = Some(thread::current());
+     }
+ 
+     /// Count `n` pieces finished (their outputs written before); the last
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-2bcrcnjo)
+warning: unused import: `Park`
+   --> src/park.rs:177:17
+    |
+177 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> src/park.rs:178:9
+    |
+178 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Park`
+   --> tests/../src/park.rs:177:17
+    |
+177 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> tests/../src/park.rs:178:9
+    |
+178 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (test "shuttle_park") generated 2 warnings (run `cargo fix --test "shuttle_park" -p blake3-servil` to apply 2 suggestions)
+warning: `blake3-servil` (lib test) generated 2 warnings (run `cargo fix --lib -p blake3-servil --tests` to apply 2 suggestions)
+    Finished `mutants` profile [optimized] target(s) in 0.84s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --test shuttle_finish --test shuttle_park
+warning: unused import: `Park`
+   --> tests/../src/park.rs:177:17
+    |
+177 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> tests/../src/park.rs:178:9
+    |
+178 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (test "shuttle_park") generated 2 warnings (run `cargo fix --test "shuttle_park" -p blake3-servil` to apply 2 suggestions)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID f6611ffc-68d2-46c8-b00a-a9e480c7e049 with nextest profile: mutants
+    Starting 10 tests across 2 binaries
+       START [         ] ( 1/10) blake3-servil::shuttle_park one_worker_one_publisher
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact one_worker_one_publisher --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_finish a_caller_polling_once_then_sleeping_is_woken
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_finish-44203514bf6e25fb --exact a_caller_polling_once_then_sleeping_is_woken --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_finish one_piece_one_worker
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_finish-44203514bf6e25fb --exact one_piece_one_worker --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_finish a_caller_sleeping_at_once_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_finish-44203514bf6e25fb --exact a_caller_sleeping_at_once_is_woken_by_the_last_piece --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park owed_wakes_cascade
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact owed_wakes_cascade --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_workers_one_publisher
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_workers_one_publisher --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_wakers_wake_two_workers
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_wakers_wake_two_workers --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park wakes_fan_out_no_waker_makes_more_than_its_share
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact wakes_fan_out_no_waker_makes_more_than_its_share --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_workers_two_publishers
+             command: sh /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-b-epyc9255-20261105T055351-17b821ca/fork/target/mutants/mutants-2bcrcnjo/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_workers_two_publishers --nocapture
+        FAIL [   0.031s] ( 1/10) blake3-servil::shuttle_finish a_caller_sleeping_at_once_is_woken_by_the_last_piece
+  stdout ───
+
+    running 1 test
+    test a_caller_sleeping_at_once_is_woken_by_the_last_piece ... FAILED
+
+    failures:
+
+    failures:
+        a_caller_sleeping_at_once_is_woken_by_the_last_piece
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 2 filtered out; finished in 0.00s
+
+  stderr ───
+    WARNING: Shuttle only correctly models SeqCst atomics and treats all other Orderings as if they were SeqCst. Bugs caused by weaker orderings like Relaxed may be missed. See https://docs.rs/shuttle/*/shuttle/sync/atomic/index.html#warning-about-relaxed-behaviors for details or to disable this warning.
+    test panicked in task 'main-thread'
+    failing schedule:
+    "
+    91021e9ddce1aee6b2aff460000000902491240100000000
+    "
+    pass that string to `shuttle::replay` to replay the failure
+
+    thread 'a_caller_sleeping_at_once_is_woken_by_the_last_piece' (2168531) panicked at tests/shuttle_finish.rs:69:13:
+    assertion `left == right` failed
+      left: 0
+     right: 2
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: immediately terminating 9 tests still running
+     SIGTERM [   0.032s] ( 2/10) blake3-servil::shuttle_park owed_wakes_cascade
+     SIGTERM [   0.032s] ( 3/10) blake3-servil::shuttle_park one_worker_one_publisher
+     SIGTERM [   0.032s] ( 4/10) blake3-servil::shuttle_park two_wakers_wake_two_workers
+     SIGTERM [   0.032s] ( 5/10) blake3-servil::shuttle_park wakes_fan_out_no_waker_makes_more_than_its_share
+     SIGTERM [   0.032s] ( 6/10) blake3-servil::shuttle_park two_workers_two_publishers
+     SIGTERM [   0.032s] ( 7/10) blake3-servil::shuttle_finish one_piece_one_worker
+     SIGTERM [   0.032s] ( 8/10) blake3-servil::shuttle_finish a_caller_polling_once_then_sleeping_is_woken
+     SIGTERM [   0.032s] ( 9/10) blake3-servil::shuttle_park two_workers_one_publisher
+     SIGTERM [   0.032s] (10/10) blake3-servil::shuttle_park park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+────────────
+     Summary [   0.032s] 10 tests run: 0 passed, 10 failed, 0 skipped
+error: test run failed
+
+*** result: Failure(100)

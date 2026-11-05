@@ -1,0 +1,248 @@
+
+*** src/park.rs:115:9: replace Park::wake_for -> usize with 1
+
+*** mutation diff:
+--- src/park.rs
++++ replace Park::wake_for -> usize with 1
+@@ -107,23 +107,17 @@
+ 
+     /// Wake workers for `wanted` pieces of new work, given `workers`
+     /// workers in all: up to `fanout` now, the rest owed, which the woken
+     /// workers pay, `fanout` each, before they work. How many it woke. A
+     /// publisher's read of `parked` follows its publication (a SeqCst store
+     /// or a fence), as a parking worker's re-check follows its bit: one of
+     /// the two sees the other.
+     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+-        let parked = self.parked_count();
+-        // Nobody parked, or enough awake: nothing to wake.
+-        let (now, later) = split(wanted.saturating_sub(workers - parked).min(parked), self.fanout);
+-        if later > 0 {
+-            self.owed.fetch_add(later, Ordering::SeqCst);
+-        }
+-        (0..now).take_while(|_| self.wake_one()).count()
++        1 /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Worker `me` parks unless `visible()` finds work: the bit first,
+     /// then one more look (a publisher stores, then reads `parked`; this
+     /// sets the bit, then looks: one of the two sees the other), then the
+     /// token, until a waker clears the bit. Returns having found work
+     /// (false) or having been woken (true); a woken worker then pays the
+     /// wakes owed ([`Park::pay_owed`]).
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-9m00u1gg)
+warning: unused variable: `wanted`
+   --> src/park.rs:114:35
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_wanted`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `workers`
+   --> src/park.rs:114:50
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                                  ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workers`
+
+warning: function `split` is never used
+  --> src/park.rs:59:15
+   |
+59 | pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {
+   |               ^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Park`
+   --> src/park.rs:171:17
+    |
+171 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> src/park.rs:172:9
+    |
+172 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 3 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: unused import: `Park`
+   --> tests/../src/park.rs:171:17
+    |
+171 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> tests/../src/park.rs:172:9
+    |
+172 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `wanted`
+   --> tests/../src/park.rs:114:35
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_wanted`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `workers`
+   --> tests/../src/park.rs:114:50
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                                  ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workers`
+
+warning: `blake3-servil` (test "shuttle_park") generated 4 warnings (run `cargo fix --test "shuttle_park" -p blake3-servil` to apply 4 suggestions)
+warning: `blake3-servil` (lib test) generated 4 warnings (2 duplicates) (run `cargo fix --lib -p blake3-servil --tests` to apply 2 suggestions)
+    Finished `mutants` profile [optimized] target(s) in 0.81s
+info: using target runner `sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --test shuttle_finish --test shuttle_park
+warning: unused variable: `wanted`
+   --> src/park.rs:114:35
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_wanted`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `workers`
+   --> src/park.rs:114:50
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                                  ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workers`
+
+warning: function `split` is never used
+  --> src/park.rs:59:15
+   |
+59 | pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {
+   |               ^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 3 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: unused import: `Park`
+   --> tests/../src/park.rs:171:17
+    |
+171 |     use super::{Park, split};
+    |                 ^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `std::sync::atomic::Ordering`
+   --> tests/../src/park.rs:172:9
+    |
+172 |     use std::sync::atomic::Ordering;
+    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused variable: `wanted`
+   --> tests/../src/park.rs:114:35
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                   ^^^^^^ help: if this is intentional, prefix it with an underscore: `_wanted`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `workers`
+   --> tests/../src/park.rs:114:50
+    |
+114 |     pub(crate) fn wake_for(&self, wanted: usize, workers: usize) -> usize {
+    |                                                  ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_workers`
+
+warning: `blake3-servil` (test "shuttle_park") generated 4 warnings (run `cargo fix --test "shuttle_park" -p blake3-servil` to apply 4 suggestions)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID c1268e1f-1ce3-439a-b8c2-46c16ffac582 with nextest profile: mutants
+    Starting 10 tests across 2 binaries
+       START [         ] ( 1/10) blake3-servil::shuttle_finish a_caller_polling_once_then_sleeping_is_woken
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_finish-44203514bf6e25fb --exact a_caller_polling_once_then_sleeping_is_woken --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park one_worker_one_publisher
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact one_worker_one_publisher --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_finish a_caller_sleeping_at_once_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_finish-44203514bf6e25fb --exact a_caller_sleeping_at_once_is_woken_by_the_last_piece --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_finish one_piece_one_worker
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_finish-44203514bf6e25fb --exact one_piece_one_worker --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_workers_one_publisher
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_workers_one_publisher --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_wakers_wake_two_workers
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_wakers_wake_two_workers --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park owed_wakes_cascade
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact owed_wakes_cascade --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park wakes_fan_out_no_waker_makes_more_than_its_share
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact wakes_fan_out_no_waker_makes_more_than_its_share --nocapture
+       START [         ] ( 1/10) blake3-servil::shuttle_park two_workers_two_publishers
+             command: sh /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/tools/mutants/test-runner /root/pinned-runs/cm-hangs-a2-epyc9255-20261105T055353-840a9bcc/fork/target/mutants/mutants-9m00u1gg/mutants/deps/shuttle_park-36e615d91f8059f3 --exact two_workers_two_publishers --nocapture
+        PASS [   0.032s] ( 1/10) blake3-servil::shuttle_park park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+        FAIL [   0.046s] ( 2/10) blake3-servil::shuttle_park owed_wakes_cascade
+  stdout ───
+
+    running 1 test
+    test owed_wakes_cascade ... FAILED
+
+    failures:
+
+    failures:
+        owed_wakes_cascade
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'owed_wakes_cascade' (447627) panicked at /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shuttle-0.8.1/src/runtime/execution.rs:203:17:
+    deadlock! blocked tasks: [main-thread (task main-thread(0)), <unknown> (task main-thread(1)), <unknown> (task main-thread(2)), <unknown> (task main-thread(3))]
+    failing schedule:
+    "
+    910323c3efe0a5d9e7ac9d05000020222222224444444464666666668808
+    "
+    pass that string to `shuttle::replay` to replay the failure
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: 8 tests still running
+        PASS [   0.047s] ( 3/10) blake3-servil::shuttle_finish a_caller_polling_once_then_sleeping_is_woken
+        FAIL [   0.054s] ( 4/10) blake3-servil::shuttle_park wakes_fan_out_no_waker_makes_more_than_its_share
+  stdout ───
+
+    running 1 test
+    test wakes_fan_out_no_waker_makes_more_than_its_share ... FAILED
+
+    failures:
+
+    failures:
+        wakes_fan_out_no_waker_makes_more_than_its_share
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 6 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'wakes_fan_out_no_waker_makes_more_than_its_share' (447639) panicked at /root/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/shuttle-0.8.1/src/runtime/execution.rs:203:17:
+    deadlock! blocked tasks: [main-thread (task main-thread(0)), <unknown> (task main-thread(1)), <unknown> (task main-thread(2)), <unknown> (task main-thread(3)), <unknown> (task main-thread(4)), <unknown> (task main-thread(5))]
+    failing schedule:
+    "
+    91033192c6f4e7ff8cfbed3b0000002022222244444464666666888888a8aaaaaacccccc0c
+    "
+    pass that string to `shuttle::replay` to replay the failure
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+        PASS [   0.058s] ( 5/10) blake3-servil::shuttle_finish one_piece_one_worker
+        PASS [   0.068s] ( 6/10) blake3-servil::shuttle_park two_workers_one_publisher
+        PASS [   0.068s] ( 7/10) blake3-servil::shuttle_park two_wakers_wake_two_workers
+        PASS [   0.069s] ( 8/10) blake3-servil::shuttle_park one_worker_one_publisher
+        PASS [   0.069s] ( 9/10) blake3-servil::shuttle_finish a_caller_sleeping_at_once_is_woken_by_the_last_piece
+        PASS [   0.077s] (10/10) blake3-servil::shuttle_park two_workers_two_publishers
+────────────
+     Summary [   0.077s] 10 tests run: 8 passed, 2 failed, 0 skipped
+error: test run failed
+
+*** result: Failure(100)

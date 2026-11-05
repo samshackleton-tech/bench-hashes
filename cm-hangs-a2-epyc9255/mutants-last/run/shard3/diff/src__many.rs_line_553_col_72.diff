@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace + with - in hash_blocks
+@@ -545,17 +545,17 @@
+     let on_sme2 = if padded {
+         count
+     } else if sme2 {
+         count - left
+     } else {
+         0
+     };
+     let lanes = if padded { count.next_multiple_of(GROUP) } else { count };
+-    let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
++    let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE - /* ~ changed by cargo-mutants ~ */ 16];
+     let table = fill_table(&mut slots, messages, count, lanes);
+     let (groups, rest) = outputs.split_at_mut(on_sme2);
+     if !rest.is_empty() {
+         let rest_lanes = &table[on_sme2..count];
+         if plans {
+             neon_plans_last_len::<N>(rest_lanes, key, flags, last_len, rest);
+         } else if last_len == BLOCK_LEN {
+             hash_four_at_a_time::<N>(rest_lanes, key, flags, rest, platform);

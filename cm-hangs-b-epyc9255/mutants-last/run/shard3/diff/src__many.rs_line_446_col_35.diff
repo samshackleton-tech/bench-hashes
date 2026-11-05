@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace && with || in hash_run_short
+@@ -438,17 +438,17 @@
+ 
+ /// [`hash_run`] for messages of 1 to 63 bytes (one short block): on SME2
+ /// the message kernel from ONE_BLOCK_PAD_MIN messages (the parent kernel
+ /// records 64 for every block), else the NEON plans, or one call each
+ /// without them.
+ #[inline(never)]
+ fn hash_run_short<const N: usize>(messages: &[u8], key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform, plans: bool, last_len: usize) {
+     #[cfg(blake3_sme2)]
+-    if platform_is_sme2(platform) && outputs.len() >= ONE_BLOCK_PAD_MIN {
++    if platform_is_sme2(platform) || /* ~ changed by cargo-mutants ~ */ outputs.len() >= ONE_BLOCK_PAD_MIN {
+         return hash_run_padded::<N>(messages, key, flags, outputs, last_len);
+     }
+     if plans {
+         let mut slots: Slots<N> = [core::mem::MaybeUninit::uninit(); TABLE + 16];
+         let lanes = fill_table(&mut slots, messages, outputs.len(), outputs.len());
+         neon_plans_last_len::<N>(lanes, key, flags, last_len, outputs);
+     } else {
+         for (output, message) in outputs.iter_mut().zip(messages.chunks_exact(N)) {

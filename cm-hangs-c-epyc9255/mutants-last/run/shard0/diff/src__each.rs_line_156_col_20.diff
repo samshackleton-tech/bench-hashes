@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace * with + in hash_held
+@@ -148,17 +148,17 @@
+     use crate::{BLOCK_LEN, PARENT};
+     let Some(&first) = held.first() else { return };
+     let (key, flags) = (hashers[first].core.key, hashers[first].core.chunk_state.flags);
+     let (alike, others): (Vec<usize>, Vec<usize>) = held.iter().partition(|&&i| hashers[i].core.key == key && hashers[i].core.chunk_state.flags == flags);
+     let turn = crate::platform::Sme2Turn::take(hashers[first].core.chunk_state.platform, true);
+     let platform = turn.platform();
+     let n = alike.len();
+     let per = crate::STAGE_LEN / CHUNK_LEN;
+-    let chunks = n * per;
++    let chunks = n + /* ~ changed by cargo-mutants ~ */ per;
+     let mut level = vec![0u8; chunks * OUT_LEN];
+     let refs: Vec<&[u8; CHUNK_LEN]> =
+         alike.iter().flat_map(|&i| hashers[i].held_group().expect("a held group").1.chunks_exact(CHUNK_LEN)).map(|c| c.try_into().unwrap()).collect();
+     let counters: Vec<u64> = alike.iter().map(|&i| hashers[i].held_group().unwrap().0).collect();
+     // On SME2, every group in one kernel call, each at its own counter;
+     // elsewhere a call per group.
+     #[cfg(blake3_sme2)]
+     let on_sme2 = matches!(platform, Platform::SME2);

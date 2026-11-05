@@ -1,0 +1,22 @@
+--- src/park.rs
++++ replace split -> (usize, usize) with (0, 0)
+@@ -52,18 +52,17 @@
+ /// (the i7-12700K's 1-2 MiB one-shots 16-25% slower); a publisher of 8 with
+ /// workers paying the rest unbounded let one worker make every owed wake
+ /// in a quarter of the i7's 2 MiB jobs (data 2026-10-25/wake-counts).
+ pub(crate) const FANOUT: usize = 8;
+ 
+ /// A waker's share of `need` wakes: the ones it makes now, at most
+ /// `fanout`, and the ones it leaves owed.
+ pub(crate) fn split(need: usize, fanout: usize) -> (usize, usize) {
+-    let now = need.min(fanout);
+-    (now, need - now)
++    (0, 0) /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ impl Park {
+     pub(crate) fn new(workers: usize, fanout: usize) -> Park {
+         assert!(fanout >= 1, "a waker makes at least one wake");
+         Park {
+             parked: (0..workers.div_ceil(64).max(1)).map(|_| Line(AtomicU64::new(0))).collect(),
+             handles: (0..workers).map(|_| OnceLock::new()).collect(),

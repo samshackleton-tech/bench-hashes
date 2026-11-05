@@ -1,0 +1,39 @@
+--- src/incremental.rs
++++ replace HasherCore::update_part_with_results with ()
+@@ -453,35 +453,17 @@
+             self.update_part_with_results(part, results);
+         }
+     }
+ 
+     #[cfg(feature = "std")]
+     fn update_part_with_results<'a>(&mut self, mut input: &[u8], results: &mut impl Iterator<Item = &'a [u8; BLOCK_LEN]>) {
+         // Its one caller hands it a whole held group, from a group boundary,
+         // where the core's chunk is empty (Hasher::take_held).
+-        debug_assert_eq!(self.chunk_state.count(), 0, "a held group starts where the core's chunk is empty");
+-        while input.len() > CHUNK_LEN {
+-            let len = hasher::subtree_len(self.chunk_state.chunk_counter, input.len());
+-            let chunks = (len / CHUNK_LEN) as u64;
+-            let result = results.next().expect("a result for every planned subtree");
+-            let counter = self.chunk_state.chunk_counter;
+-            if counter == 0 && len > CHUNK_LEN {
+-                self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+-                self.push_cv(result[OUT_LEN..].try_into().unwrap(), counter + chunks / 2);
+-            } else {
+-                self.push_cv(result[..OUT_LEN].try_into().unwrap(), counter);
+-            }
+-            self.chunk_state.chunk_counter += chunks;
+-            input = &input[len..];
+-        }
+-        if !input.is_empty() {
+-            self.chunk_state.update(input);
+-            self.merge_cv_stack(self.chunk_state.chunk_counter);
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// `update`'s loop; with `pooled`, whole subtrees of
+     /// `lanes::MIN_SPLIT_LEN` and more go to the pool.
+     pub(crate) fn update_pooled(&mut self, input: &[u8], pooled: bool) -> &mut Self {
+         #[cfg(not(feature = "std"))]
+         let _ = pooled;
+         self.assert_room(self.count(), input.len());

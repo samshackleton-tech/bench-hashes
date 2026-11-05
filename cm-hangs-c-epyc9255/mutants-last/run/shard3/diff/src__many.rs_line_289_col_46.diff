@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace || with && in across_from
+@@ -281,17 +281,17 @@
+ /// chunks): as many as the lanes, or 4 where each message's chunks leave
+ /// the lanes short and its own tree is a long chain (a partial chunk after
+ /// its whole ones, or two chunks). i7-12700K, six messages: 1500-6000 B
+ /// x0.58-0.84 across; 4 KiB x1.13, 8 KiB x1.55, 12-15 KiB x1.15-1.23
+ /// (their own lanes and parents ahead).
+ #[cfg(target_arch = "x86_64")]
+ pub(crate) fn across_from(len: usize, platform: Platform) -> Option<usize> {
+     let chunks = len.div_ceil(CHUNK_LEN);
+-    if !(2..ACROSS_CHUNKS).contains(&chunks) || !takes_platform(platform) {
++    if !(2..ACROSS_CHUNKS).contains(&chunks) && /* ~ changed by cargo-mutants ~ */ !takes_platform(platform) {
+         return None;
+     }
+     let chain = chunks < platform.simd_degree() && (len % CHUNK_LEN != 0 || chunks == 2);
+     Some(if chain { 4 } else { platform.simd_degree() })
+ }
+ 
+ /// Messages of one length, over a chunk and under ACROSS_CHUNKS chunks,
+ /// hashed across up to sixteen messages at every step of their tree (all

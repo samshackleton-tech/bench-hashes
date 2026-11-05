@@ -1,0 +1,27 @@
+--- src/performance.rs
++++ replace hash_many_multithreaded with ()
+@@ -103,23 +103,17 @@
+ /// [`hash_many`]'s speed; larger batches use the other cores too (on an
+ /// Apple M4 Max, 64-byte messages from about 10 down to 3 ns each). It
+ /// shares the cores with other callers as [`hash_multithreaded`] does.
+ #[cfg(feature = "std")]
+ // Inlined, so a constant mode folds to its constants (as
+ // convenience::hash is: no mode stored for the call to read).
+ #[inline(always)]
+ pub fn hash_many_multithreaded(mode: Mode, batch: &Batch, out: &mut [[u8; OUT_LEN]]) {
+-    crate::lanes::require();
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    // Its length against the digests here, on the caller's thread, as
+-    // hash_many's kernels check it: a multiplication.
+-    crate::many::assert_slots(Block::bytes(batch.blocks()), batch.message_len(), out.len());
+-    crate::lanes::hash_many(Block::bytes(batch.blocks()), batch.message_len(), key, flags, out);
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`hash`], using other CPU cores where that is faster: the same
+ /// [`Hash`](struct@Hash), never slower. For a message whose bytes are not
+ /// in blocks (a mapped file, say), a [`Hasher`]'s
+ /// `update_multithreaded` takes any slice, at the same speed on the
+ /// i7-12700K from 512 KiB to 1 GiB (about 1% slower at 1 MiB).
+ ///

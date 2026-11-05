@@ -1,0 +1,29 @@
+--- src/lib.rs
++++ replace <impl Clone for ChunkState>::clone -> Self with Default::default()
+@@ -666,25 +666,17 @@
+     #[inline(always)]
+     fn compress_blocks(&self, cv: &mut CVWords, blocks: &[u8], count: usize, counter: u64, flags: u8, flags_start: u8) {
+         Platform::compress_blocks(self, cv, blocks, count, counter, flags, flags_start)
+     }
+ }
+ 
+ impl Clone for ChunkState {
+     fn clone(&self) -> Self {
+-        hasher::ChunkState {
+-            buf: self.buf,
+-            cv: self.cv,
+-            chunk_counter: self.chunk_counter,
+-            buf_len: self.buf_len,
+-            blocks_compressed: self.blocks_compressed,
+-            flags: self.flags,
+-            platform: self.platform,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl ChunkState {
+     // Try to avoid buffering as much as possible, by compressing directly from
+     // the input slice when full blocks are available (src/hasher.rs).
+     #[inline(always)]
+     fn update(&mut self, input: &[u8]) -> &mut Self {

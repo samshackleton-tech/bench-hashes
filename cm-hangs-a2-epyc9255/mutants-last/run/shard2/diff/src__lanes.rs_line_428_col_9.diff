@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace <impl std::ops::Deref for OwnLine<T>>::deref -> &T with Box::leak(Box::new(Default::default()))
+@@ -420,17 +420,17 @@
+ 
+ /// Any value on a cache line of its own.
+ #[repr(align(128))]
+ pub(crate) struct OwnLine<T>(pub(crate) T);
+ 
+ impl<T> std::ops::Deref for OwnLine<T> {
+     type Target = T;
+     fn deref(&self) -> &T {
+-        &self.0
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Job<'_> {
+     /// Hash piece `index` into its slot. The caller has taken `index`
+     /// through `cursor`.
+     unsafe fn hash_piece(&self, index: usize, platform: Platform) {
+         match &self.work {

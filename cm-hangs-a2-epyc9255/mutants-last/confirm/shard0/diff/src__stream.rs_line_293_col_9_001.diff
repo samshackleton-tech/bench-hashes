@@ -1,0 +1,27 @@
+--- src/stream.rs
++++ replace Storage::run_waiting -> bool with false
+@@ -285,23 +285,17 @@
+             lefts: (0..ENTRIES).map(|_| OwnLine(AtomicUsize::new(0))).collect(),
+         }
+     }
+ 
+     /// Hash one of the stream's tasks no thread has taken: whether there
+     /// was one. A waiting caller's own help, the one way a lone task runs
+     /// while every worker is parked (only collect wakes one for it).
+     fn run_waiting(&self) -> bool {
+-        match self.source.take_task() {
+-            Some(task) => {
+-                crate::lanes::run_task(task);
+-                true
+-            }
+-            None => false,
+-        }
++        false /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// The ring's byte at `at`.
+     fn ring_at(&self, at: usize) -> *mut u8 {
+         debug_assert!(at <= RING_BYTES);
+         // Sound: `at` is in the ring.
+         unsafe { self.ring.add(at) }
+     }

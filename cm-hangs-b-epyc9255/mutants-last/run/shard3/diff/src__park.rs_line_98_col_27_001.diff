@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace & with ^ in Park::wake_one
+@@ -90,17 +90,17 @@
+     /// Wake one parked worker, if any: whether one was. With none parked,
+     /// one load a word.
+     pub(crate) fn wake_one(&self) -> bool {
+         for (word, handles) in self.parked.iter().zip(self.handles.chunks(64)) {
+             let mut bits = word.load(Ordering::SeqCst);
+             while bits != 0 {
+                 let bit = 1u64 << bits.trailing_zeros();
+                 let before = word.fetch_and(!bit, Ordering::SeqCst);
+-                if before & bit != 0 {
++                if before ^ /* ~ changed by cargo-mutants ~ */ bit != 0 {
+                     handles[bit.trailing_zeros() as usize].get().expect("a parked worker has set its thread").unpark();
+                     return true;
+                 }
+                 bits = before & !bit;
+             }
+         }
+         false
+     }

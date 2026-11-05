@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace * with + in hash_across
+@@ -300,17 +300,17 @@
+ /// each message alone (its chaining value so far is that message's own);
+ /// then each parent node, from the leaves up, across the messages, ROOT on
+ /// the top one. Every value on the stack: the batch allocates nothing.
+ #[cfg(target_arch = "x86_64")]
+ #[inline(never)]
+ fn hash_across(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+     let slot = slot_len(len);
+     for (group, digests) in outputs.chunks_mut(ACROSS_GROUP).enumerate() {
+-        let messages: arrayvec::ArrayVec<&[u8], ACROSS_GROUP> = (0..digests.len()).map(|m| &input[(group * ACROSS_GROUP + m) * slot..][..len]).collect();
++        let messages: arrayvec::ArrayVec<&[u8], ACROSS_GROUP> = (0..digests.len()).map(|m| &input[(group * ACROSS_GROUP + m) + /* ~ changed by cargo-mutants ~ */ slot..][..len]).collect();
+         hash_group_across(&messages, len, key, flags, digests, platform);
+     }
+ }
+ 
+ /// The most messages [`hash_group_across`] takes at once: the widest lanes.
+ #[cfg(target_arch = "x86_64")]
+ pub(crate) const ACROSS_GROUP: usize = 16;
+ 

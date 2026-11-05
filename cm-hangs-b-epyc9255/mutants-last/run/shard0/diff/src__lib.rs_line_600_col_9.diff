@@ -1,0 +1,32 @@
+--- src/lib.rs
++++ replace <impl fmt::Display for HexError>::fmt -> fmt::Result with Ok(Default::default())
+@@ -592,28 +592,17 @@
+ #[derive(Clone, Debug)]
+ enum HexErrorInner {
+     InvalidByte(u8),
+     InvalidLen(usize),
+ }
+ 
+ impl fmt::Display for HexError {
+     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+-        match self.0 {
+-            HexErrorInner::InvalidByte(byte) => {
+-                if byte < 128 {
+-                    write!(f, "invalid hex character: {:?}", byte as char)
+-                } else {
+-                    write!(f, "invalid hex character: 0x{:x}", byte)
+-                }
+-            }
+-            HexErrorInner::InvalidLen(len) => {
+-                write!(f, "expected 64 hex bytes, received {}", len)
+-            }
+-        }
++        Ok(Default::default()) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ #[cfg(feature = "std")]
+ impl std::error::Error for HexError {}
+ 
+ type Output = hasher::Output<Platform>;
+ 

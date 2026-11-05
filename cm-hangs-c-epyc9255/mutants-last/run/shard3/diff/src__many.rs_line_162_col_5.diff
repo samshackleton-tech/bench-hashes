@@ -1,0 +1,43 @@
+--- src/many.rs
++++ replace hash_chunked with ()
+@@ -154,39 +154,17 @@
+ 
+ /// Messages of 2 to 15 chunks on SME2, sixteen side by side per group;
+ /// messages left over past whole groups make one more group, its spare
+ /// lanes repeating the last message, when there are sme2_chunked_min of
+ /// them, and otherwise run through hash() one at a time, first.
+ #[cfg(blake3_sme2)]
+ #[inline(never)]
+ fn hash_chunked(input: &[u8], len: usize, key: &CVWords, flags: u8, outputs: &mut [[u8; OUT_LEN]], platform: Platform) {
+-    const GROUP: usize = 16;
+-    let slot = slot_len(len);
+-    let left = outputs.len() % GROUP;
+-    // Past whole groups a group pays from two messages sooner: hash() calls
+-    // beside the SME2 kernels run in their slow state (VM, 22 x 2 KiB: 630
+-    // ns per message with six alone, 486 with a padded group).
+-    let min = if outputs.len() > GROUP { sme2_chunked_min(len) - 2 } else { sme2_chunked_min(len) };
+-    let alone = if left >= min { 0 } else { left };
+-    let grouped = outputs.len() - alone;
+-    let (groups, rest) = outputs.split_at_mut(grouped);
+-    for (i, output) in rest.iter_mut().enumerate() {
+-        *output = *crate::hash_serial_on(&input[(grouped + i) * slot..][..len], key, flags, platform).as_bytes();
+-    }
+-    for (g, digests) in groups.chunks_mut(GROUP).enumerate() {
+-        let mut lanes = [core::ptr::null::<u8>(); GROUP];
+-        for (i, lane) in lanes.iter_mut().enumerate() {
+-            let message = g * GROUP + i.min(digests.len() - 1);
+-            *lane = input[message * slot..][..slot].as_ptr();
+-        }
+-        // Sound: the caller found SME2 (platform_is_sme2), and every lane
+-        // points at a whole slot inside `input`, zero past its message.
+-        unsafe { crate::sme2::hash_chunked_messages(&lanes, len, key, flags, digests.as_flattened_mut()) };
+-    }
++    () /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Messages of two chunks (1025 to 2048 bytes) side by side on the integer
+ /// + NEON parent plans, sixteen at a time: every message's first chunk in
+ /// one plan call at counter 0, every second chunk in another at counter 1,
+ /// then every root. hash() gives each message a NEON pair with a spare
+ /// lane (q1) or a pair alone (k2); side by side the plans fill their
+ /// lanes with the batch. VM, ns per message, one hash() each / side by

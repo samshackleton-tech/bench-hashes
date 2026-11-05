@@ -1,0 +1,54 @@
+
+*** src/lanes.rs:467:5: replace pool_platform -> Platform with Default::default()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace pool_platform -> Platform with Default::default()
+@@ -459,21 +459,17 @@
+         }
+     }
+ }
+ 
+ /// The platform every piece runs on (see the module docs, "Kernels"): on
+ /// an SME2 CPU the NEON hybrids, which no other core slows down; elsewhere
+ /// the detected one.
+ fn pool_platform() -> Platform {
+-    #[cfg(blake3_sme2)]
+-    if matches!(Platform::detect(), Platform::SME2) {
+-        return Platform::NEON;
+-    }
+-    Platform::detect()
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// One piece of the input: a whole subtree (bytes), or for a batch a
+ /// range of messages (message indices).
+ #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+ struct Piece {
+     offset: usize,
+     len: usize,
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-80wx_26p)
+error[E0277]: the trait bound `platform::Platform: Default` is not satisfied
+   --> src/lanes.rs:467:5
+    |
+467 |     Default::default() /* ~ changed by cargo-mutants ~ */
+    |     ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `platform::Platform`
+    |
+help: consider annotating `platform::Platform` with `#[derive(Default)]`
+   --> src/platform.rs:23:1
+    |
+ 23 + #[derive(Default)]
+ 24 | pub enum Platform {
+    |
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

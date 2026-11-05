@@ -1,0 +1,28 @@
+--- src/finish.rs
++++ replace Finish::finished with ()
+@@ -67,24 +67,17 @@
+     /// The thread that waits on this source from now on.
+     pub(crate) fn own(&self) {
+         *self.owner.lock().unwrap() = Some(thread::current());
+     }
+ 
+     /// Count `n` pieces finished (their outputs written before); the last
+     /// one wakes a caller parked for it.
+     pub(crate) fn finished(&self, n: usize) {
+-        let before = self.state.fetch_add(n, Ordering::SeqCst);
+-        if before & SLEEPING != 0 && (before & !SLEEPING) + n == self.published.load(Ordering::SeqCst) {
+-            if let Some(owner) = &*self.owner.lock().unwrap() {
+-                #[cfg(all(test, not(shuttle)))]
+-                tests::UNPARKS.with(|u| u.set(u.get() + 1));
+-                owner.unpark();
+-            }
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Wait until the count reaches `target`: `poll` a while (it returns
+     /// false when the while is up), then parked until the worker finishing
+     /// the last piece unparks this thread.
+     pub(crate) fn wait(&self, target: usize, mut poll: impl FnMut() -> bool) {
+         loop {
+             if self.finished_count() >= target {

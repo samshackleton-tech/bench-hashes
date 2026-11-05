@@ -1,0 +1,22 @@
+--- src/lib.rs
++++ replace Output::root_hash -> Hash with Default::default()
+@@ -627,18 +627,17 @@
+             flags: self.flags,
+             platform: self.platform,
+         }
+     }
+ }
+ 
+ impl Output {
+     fn root_hash(&self) -> Hash {
+-        debug_assert_eq!(self.counter, 0);
+-        Hash(self.root_bytes())
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     fn root_output_block(&self) -> [u8; 2 * OUT_LEN] {
+         self.platform.compress_xof(&self.input_chaining_value, &self.block, self.block_len, self.counter, self.flags | ROOT)
+     }
+ }
+ 
+ #[cfg(feature = "zeroize")]

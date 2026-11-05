@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace <impl Item for &[u8]>::bytes -> &[u8] with Vec::leak(vec![0])
+@@ -248,17 +248,17 @@
+ /// public calls' items are messages in blocks; the pool's ranges, bytes.
+ pub(crate) trait Item {
+     fn bytes(&self) -> &[u8];
+ }
+ 
+ impl Item for &[u8] {
+     #[inline(always)]
+     fn bytes(&self) -> &[u8] {
+-        self
++        Vec::leak(vec![0]) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Item for (&[Block], usize) {
+     #[inline(always)]
+     fn bytes(&self) -> &[u8] {
+         &Block::bytes(self.0)[..self.1]
+     }

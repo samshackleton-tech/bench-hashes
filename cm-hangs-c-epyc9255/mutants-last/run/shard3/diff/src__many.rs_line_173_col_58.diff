@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace + with - in hash_chunked
+@@ -165,17 +165,17 @@
+     // Past whole groups a group pays from two messages sooner: hash() calls
+     // beside the SME2 kernels run in their slow state (VM, 22 x 2 KiB: 630
+     // ns per message with six alone, 486 with a padded group).
+     let min = if outputs.len() > GROUP { sme2_chunked_min(len) - 2 } else { sme2_chunked_min(len) };
+     let alone = if left >= min { 0 } else { left };
+     let grouped = outputs.len() - alone;
+     let (groups, rest) = outputs.split_at_mut(grouped);
+     for (i, output) in rest.iter_mut().enumerate() {
+-        *output = *crate::hash_serial_on(&input[(grouped + i) * slot..][..len], key, flags, platform).as_bytes();
++        *output = *crate::hash_serial_on(&input[(grouped - /* ~ changed by cargo-mutants ~ */ i) * slot..][..len], key, flags, platform).as_bytes();
+     }
+     for (g, digests) in groups.chunks_mut(GROUP).enumerate() {
+         let mut lanes = [core::ptr::null::<u8>(); GROUP];
+         for (i, lane) in lanes.iter_mut().enumerate() {
+             let message = g * GROUP + i.min(digests.len() - 1);
+             *lane = input[message * slot..][..slot].as_ptr();
+         }
+         // Sound: the caller found SME2 (platform_is_sme2), and every lane

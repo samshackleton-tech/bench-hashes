@@ -1,0 +1,23 @@
+--- src/performance.rs
++++ replace hash -> Hash with Default::default()
+@@ -42,19 +42,17 @@
+ /// message.set(0, &[7u8; 100]);
+ /// assert_eq!(performance::hash(Mode::Plain, message.blocks(), 100), convenience::hash(&[7u8; 100]));
+ /// # }
+ /// ```
+ // Inlined, so a constant mode folds to its constants (as
+ // convenience::hash is: no mode stored for the call to read).
+ #[inline]
+ pub fn hash(mode: Mode, input: &[Block], len: usize) -> Hash {
+-    let mut room = core::mem::MaybeUninit::uninit();
+-    let (key, flags) = mode.key(&mut room);
+-    crate::hash_serial(&Block::bytes(input)[..len], key, flags)
++    Default::default() /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// The hashes of a [`Batch`]'s messages, in `mode`, on the calling thread:
+ /// `out[i]` becomes the [`hash`] of message `i`, one digest a message. This
+ /// is the shape of a Merkle tree's layer: leaves of one size, or nodes of
+ /// two 32-byte children, which the layer below writes straight into the
+ /// next layer's batch ([`Batch::digests_mut`]).
+ ///

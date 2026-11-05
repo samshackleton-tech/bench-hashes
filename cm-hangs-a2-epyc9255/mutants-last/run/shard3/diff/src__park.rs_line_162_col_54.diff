@@ -1,0 +1,21 @@
+--- src/park.rs
++++ replace - with + in Park::pay_owed
+@@ -154,17 +154,17 @@
+     /// works, each a worker that pays in turn: how many it woke.
+     pub(crate) fn pay_owed(&self) -> usize {
+         let mut made = 0;
+         while made < self.fanout {
+             let owed = self.owed.load(Ordering::SeqCst);
+             if owed == 0 {
+                 break;
+             }
+-            if self.owed.compare_exchange(owed, owed - 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {
++            if self.owed.compare_exchange(owed, owed + /* ~ changed by cargo-mutants ~ */ 1, Ordering::SeqCst, Ordering::SeqCst).is_err() {
+                 continue;
+             }
+             if !self.wake_one() {
+                 self.owed.store(0, Ordering::SeqCst);
+                 break;
+             }
+             made += 1;
+         }

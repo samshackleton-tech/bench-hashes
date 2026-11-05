@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace && with || in tree_threads
+@@ -241,17 +241,17 @@
+ /// CPU to spare (every one has a caller, or the process has one CPU), when
+ /// the call hashes on its own thread. The count lets concurrent callers
+ /// see that this CPU already has work.
+ /// The wide AVX-512 kernel's budget for whole-message trees (Linux): one
+ /// maximum-sized piece per participant, at least two participants when
+ /// available; the same budget cuts the pieces and asks for the wakes.
+ /// Other kernels and work kinds keep their policy (experiment, #125).
+ fn tree_threads(len: usize, available: usize, degree: usize) -> usize {
+-    if cfg!(all(target_arch = "x86_64", target_os = "linux")) && degree >= 16 { len.div_ceil(MAX_PIECE_LEN).max(2).min(available) } else { available }
++    if cfg!(all(target_arch = "x86_64", target_os = "linux")) || /* ~ changed by cargo-mutants ~ */ degree >= 16 { len.div_ceil(MAX_PIECE_LEN).max(2).min(available) } else { available }
+ }
+ 
+ fn spare_pool() -> Option<(&'static Pool, Caller<'static>)> {
+     let pool = pool();
+     let callers = pool.callers.fetch_add(1, Ordering::SeqCst) + 1;
+     let caller = Caller(&pool.callers);
+     (callers < pool.threads).then_some((pool, caller))
+ }

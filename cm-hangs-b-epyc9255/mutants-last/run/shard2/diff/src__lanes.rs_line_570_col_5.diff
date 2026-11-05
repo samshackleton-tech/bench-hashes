@@ -1,0 +1,54 @@
+--- src/lanes.rs
++++ replace merge_to_children -> usize with 0
+@@ -562,50 +562,17 @@
+     let count = merge_to_children(pieces, cvs, key, flags);
+     debug_assert_eq!(count, 2);
+     crate::hasher::parent_output(&cvs[0], &cvs[1], key, flags, pool_platform()).root_hash()
+ }
+ 
+ /// [`merge_root`] up to the root's two children, left in `cvs[0]` and
+ /// `cvs[1]`; returns 2.
+ fn merge_to_children(pieces: &[Piece], cvs: &mut [ChainingValue], key: &crate::CVWords, flags: u8) -> usize {
+-    debug_assert_eq!(pieces.len(), cvs.len());
+-    debug_assert!(pieces.len() >= 2);
+-    debug_assert_eq!(pieces[0].offset, 0);
+-    debug_assert!(pieces.last().unwrap().len > 0);
+-    debug_assert!(pieces[..pieces.len() - 1].iter().all(|p| p.len >= MIN_PIECE_LEN));
+-    debug_assert!(pieces.windows(2).all(|w| w[0].len.is_power_of_two() && w[0].len >= w[1].len && w[0].offset + w[0].len == w[1].offset));
+-    let platform = pool_platform();
+-    let mut count = cvs.len();
+-    let mut width = MIN_PIECE_LEN;
+-    let mut out = [0u8; crate::MAX_SIMD_DEGREE * crate::OUT_LEN];
+-    while count > 2 {
+-        let prefix = pieces.partition_point(|p| p.len > width);
+-        debug_assert!(prefix < count);
+-        let mut read = prefix;
+-        let mut write = prefix;
+-        while read + 1 < count {
+-            let children = (count - read).min(2 * crate::MAX_SIMD_DEGREE);
+-            // The inner loop's variant: each call merges at least one pair.
+-            assert!(children >= 2, "a parents call with under two children");
+-            let parents = crate::compress_parents_parallel(cvs[read..read + children].as_flattened(), key, flags, platform, &mut out);
+-            cvs[write..write + parents].as_flattened_mut().copy_from_slice(&out[..parents * crate::OUT_LEN]);
+-            read += children;
+-            write += parents;
+-        }
+-        if read < count {
+-            cvs[write] = cvs[read];
+-            write += 1;
+-        }
+-        // The loop's variant: a level merges at least one pair.
+-        assert!(write < count, "a level of the tree merged nothing");
+-        count = write;
+-        width *= 2;
+-    }
+-    count
++    0 /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// [`cut_with_prefix`] with no prefix (the tests').
+ #[cfg(test)]
+ fn cut_subtrees(len: usize, threads: usize) -> Vec<Piece> {
+     cut_with_prefix(len, threads, 0).0
+ }
+ 

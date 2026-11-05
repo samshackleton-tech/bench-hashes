@@ -1,0 +1,56 @@
+
+*** src/lib.rs:622:9: replace <impl Clone for Output>::clone -> Self with Default::default()
+
+*** mutation diff:
+--- src/lib.rs
++++ replace <impl Clone for Output>::clone -> Self with Default::default()
+@@ -614,24 +614,17 @@
+ 
+ #[cfg(feature = "std")]
+ impl std::error::Error for HexError {}
+ 
+ type Output = hasher::Output<Platform>;
+ 
+ impl Clone for Output {
+     fn clone(&self) -> Self {
+-        hasher::Output {
+-            block: self.block,
+-            input_chaining_value: self.input_chaining_value,
+-            block_len: self.block_len,
+-            counter: self.counter,
+-            flags: self.flags,
+-            platform: self.platform,
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Output {
+     fn root_hash(&self) -> Hash {
+         debug_assert_eq!(self.counter, 0);
+         Hash(self.root_bytes())
+     }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-mkiuwr2e)
+error[E0277]: the trait bound `hasher::Output<platform::Platform>: Default` is not satisfied
+   --> src/lib.rs:622:9
+    |
+622 |         Default::default() /* ~ changed by cargo-mutants ~ */
+    |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `hasher::Output<platform::Platform>`
+   --> src/hasher.rs:374:1
+    |
+374 | pub struct Output<P> {
+    | ^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

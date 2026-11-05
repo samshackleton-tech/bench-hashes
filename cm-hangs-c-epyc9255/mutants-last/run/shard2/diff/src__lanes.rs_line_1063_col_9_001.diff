@@ -1,0 +1,22 @@
+--- src/lanes.rs
++++ replace sources::keeps_polling -> bool with false
+@@ -1055,18 +1055,17 @@
+             self.finish.wait(target, || keeps_polling(started, &mut yielded));
+         }
+     }
+ 
+     /// One poll of a caller waiting for its pieces: a pause (yielding the
+     /// CPU every YIELD_EVERY), and whether to poll on, which it does for
+     /// SPIN_BEFORE_SLEEP from `started` before it sleeps.
+     fn keeps_polling(started: std::time::Instant, yielded: &mut std::time::Instant) -> bool {
+-        poll_pause(yielded);
+-        now() - started < SPIN_BEFORE_SLEEP
++        false /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     #[cfg(test)]
+     pub(crate) fn keeps_polling_for_tests(started: std::time::Instant, yielded: &mut std::time::Instant) -> bool {
+         keeps_polling(started, yielded)
+     }
+ 
+     /// Callers' job sources no thread holds.

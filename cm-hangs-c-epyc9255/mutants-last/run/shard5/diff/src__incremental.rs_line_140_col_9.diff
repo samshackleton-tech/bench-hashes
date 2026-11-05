@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace Hasher::staged_bytes -> &[u8] with Vec::leak(Vec::new())
+@@ -132,17 +132,17 @@
+ impl Hasher {
+     pub(crate) fn from_core(core: HasherCore) -> Self {
+         Self { core, staged: 0, stage: [core::mem::MaybeUninit::uninit(); STAGE_LEN] }
+     }
+ 
+     /// The bytes gathered in the stage.
+     fn staged_bytes(&self) -> &[u8] {
+         // Sound: the first `staged` bytes of the stage were written (gather).
+-        unsafe { core::slice::from_raw_parts(self.stage.as_ptr() as *const u8, self.staged) }
++        Vec::leak(Vec::new()) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Copy `bytes` into the stage after what it holds.
+     pub(crate) fn stage(&mut self, bytes: &[u8]) {
+         // Sound: MaybeUninit<u8> has u8's layout, and the bytes fit (gather).
+         let room = unsafe { core::slice::from_raw_parts_mut(self.stage.as_mut_ptr().add(self.staged) as *mut u8, bytes.len()) };
+         room.copy_from_slice(bytes);
+         self.staged += bytes.len();

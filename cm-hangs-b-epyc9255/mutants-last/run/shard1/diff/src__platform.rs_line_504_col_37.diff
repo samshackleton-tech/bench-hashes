@@ -1,0 +1,21 @@
+--- src/platform.rs
++++ replace | with & in read_x86_features
+@@ -496,17 +496,17 @@
+     // Sound: every x86-64 CPU has CPUID. (Safe since Rust 1.94; unsafe
+     // before.)
+     #[allow(unused_unsafe)]
+     let leaf1 = unsafe { arch::__cpuid(1) };
+     let mut features = READ;
+     if leaf1.ecx & (1 << 19) != 0 {
+         features |= SSE41;
+     }
+-    let avx = (1 << 26) | (1 << 27) | (1 << 28);
++    let avx = (1 << 26) | (1 << 27) & /* ~ changed by cargo-mutants ~ */ (1 << 28);
+     if leaf1.ecx & avx == avx {
+         // Sound: OSXSAVE (bit 27) says the OS enabled XGETBV.
+         let xcr0 = unsafe { arch::_xgetbv(0) };
+         // Sound: as leaf 1; leaf 7 exists where AVX does.
+         #[allow(unused_unsafe)]
+         let leaf7 = unsafe { arch::__cpuid_count(7, 0) };
+         let (ymm, zmm) = (0b110, 0b1110_0110);
+         if xcr0 & ymm == ymm && leaf7.ebx & (1 << 5) != 0 {

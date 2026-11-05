@@ -1,0 +1,21 @@
+--- src/lib.rs
++++ delete ! in prefetch_update_kernels
+@@ -1267,17 +1267,17 @@
+     }
+     let (mut counter, mut left) = (0u64, len);
+     while left > CHUNK_LEN {
+         let subtree = hasher::subtree_len(counter, left);
+         let chunks = subtree / CHUNK_LEN;
+         #[cfg(blake3_sme2)]
+         if matches!(platform, Platform::SME2) && chunks >= 16 {
+             sme2::prefetch_code();
+-            if !sme2::flat_takes(subtree) {
++            if  /* ~ changed by cargo-mutants ~ */sme2::flat_takes(subtree) {
+                 neon_hybrid::prefetch_parent_code(16);
+             }
+             counter += chunks as u64;
+             left -= subtree;
+             continue;
+         }
+         neon_hybrid::prefetch_tree_code(chunks.min(16), 0);
+         counter += chunks as u64;

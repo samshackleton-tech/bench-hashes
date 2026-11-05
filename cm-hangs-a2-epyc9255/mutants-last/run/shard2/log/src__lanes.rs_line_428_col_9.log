@@ -1,0 +1,48 @@
+
+*** src/lanes.rs:428:9: replace <impl std::ops::Deref for OwnLine<T>>::deref -> &T with Box::leak(Box::new(Default::default()))
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace <impl std::ops::Deref for OwnLine<T>>::deref -> &T with Box::leak(Box::new(Default::default()))
+@@ -420,17 +420,17 @@
+ 
+ /// Any value on a cache line of its own.
+ #[repr(align(128))]
+ pub(crate) struct OwnLine<T>(pub(crate) T);
+ 
+ impl<T> std::ops::Deref for OwnLine<T> {
+     type Target = T;
+     fn deref(&self) -> &T {
+-        &self.0
++        Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Job<'_> {
+     /// Hash piece `index` into its slot. The caller has taken `index`
+     /// through `cursor`.
+     unsafe fn hash_piece(&self, index: usize, platform: Platform) {
+         match &self.work {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-nntved6z)
+error[E0277]: the trait bound `T: Default` is not satisfied
+   --> src/lanes.rs:428:28
+    |
+428 |         Box::leak(Box::new(Default::default())) /* ~ changed by cargo-mutants ~ */
+    |                            ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `T`
+    |
+help: consider restricting type parameter `T` with trait `Default`
+    |
+425 | impl<T: std::default::Default> std::ops::Deref for OwnLine<T> {
+    |       +++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

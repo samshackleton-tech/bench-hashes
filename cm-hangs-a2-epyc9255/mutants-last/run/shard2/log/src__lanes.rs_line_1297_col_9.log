@@ -1,0 +1,60 @@
+
+*** src/lanes.rs:1297:9: replace Task::of -> Task with Default::default()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace Task::of -> Task with Default::default()
+@@ -1289,28 +1289,17 @@
+ 
+ // Sound: a task's pointers stay valid until its `left` reaches zero (above).
+ unsafe impl Send for Task {}
+ 
+ impl Task {
+     /// A task over `input` at chunk `counter`, its mode, kind, and
+     /// destinations still to fill in.
+     pub(crate) fn of(input: &[u8], counter: u64) -> Task {
+-        Task {
+-            input: input.as_ptr(),
+-            len: input.len(),
+-            counter,
+-            batch: None,
+-            key: [0; 8],
+-            flags: 0,
+-            out: core::ptr::null_mut(),
+-            left: core::ptr::null(),
+-            members: 0,
+-            member: [NO_MEMBER; MEMBERS],
+-        }
++        Default::default() /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// An empty task of short messages (with `batch`, batches of messages
+     /// of that length) in the mode of `key` and `flags`.
+     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {
+         Task { key: *key, flags, batch, ..Task::of(&[], 0) }
+     }
+ 
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-nntved6z)
+error[E0277]: the trait bound `lanes::Task: Default` is not satisfied
+    --> src/lanes.rs:1297:9
+     |
+1297 |         Default::default() /* ~ changed by cargo-mutants ~ */
+     |         ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `lanes::Task`
+    --> src/lanes.rs:1260:1
+     |
+1260 | pub(crate) struct Task {
+     | ^^^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

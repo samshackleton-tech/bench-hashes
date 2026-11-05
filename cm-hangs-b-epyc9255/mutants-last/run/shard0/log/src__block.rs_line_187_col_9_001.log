@@ -1,0 +1,62 @@
+
+*** src/block.rs:187:9: replace Batch<'_>::blocks_mut -> &mut[Block] with Vec::leak(vec![Default::default()])
+
+*** mutation diff:
+--- src/block.rs
++++ replace Batch<'_>::blocks_mut -> &mut[Block] with Vec::leak(vec![Default::default()])
+@@ -179,18 +179,17 @@
+     /// Message `i` becomes `message`, `message_len` bytes.
+     pub fn set(&mut self, i: usize, message: &[u8]) {
+         self.message_mut(i).copy_from_slice(message);
+     }
+ 
+     /// Every byte for writing, where no message has bytes past its end to
+     /// keep zero: `message_len` a multiple of 64 and not 0.
+     pub fn blocks_mut(&mut self) -> &mut [Block] {
+-        assert!(self.message_len % BLOCK_LEN == 0 && self.message_len > 0, "a batch whose messages leave no bytes past their ends ({} B)", self.message_len);
+-        self.blocks.to_mut()
++        Vec::leak(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Its 64-byte messages as 32-byte digests, two a message: a Merkle
+     /// layer's digests written straight into the next layer, whose
+     /// messages are pairs of children. A layer of an odd count leaves a
+     /// digest to spare: slice it, `&mut batch.digests_mut()[..count]`.
+     pub fn digests_mut(&mut self) -> &mut [[u8; 32]] {
+         assert!(self.message_len == 2 * 32, "digests_mut takes a batch of 64-byte messages, two digests each, not {} B", self.message_len);
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/tmp/blake3-servil-mutants/mutants-kbhabccz)
+error[E0277]: the trait bound `Block: Default` is not satisfied
+   --> src/block.rs:187:24
+    |
+187 |         Vec::leak(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */
+    |                        ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `Block`
+   --> src/block.rs:16:1
+    |
+ 16 | pub struct Block(pub [u8; BLOCK_LEN]);
+    | ^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `block::Block: Default` is not satisfied
+   --> src/block.rs:187:24
+    |
+187 |         Vec::leak(vec![Default::default()]) /* ~ changed by cargo-mutants ~ */
+    |                        ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+    |
+help: the trait `Default` is not implemented for `block::Block`
+   --> src/block.rs:16:1
+    |
+ 16 | pub struct Block(pub [u8; BLOCK_LEN]);
+    | ^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

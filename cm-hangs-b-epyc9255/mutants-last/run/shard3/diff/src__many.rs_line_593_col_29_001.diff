@@ -1,0 +1,21 @@
+--- src/many.rs
++++ replace / with * in hash_four_at_a_time
+@@ -585,17 +585,17 @@
+     let (start, end) = (CHUNK_START, CHUNK_END | ROOT);
+     // Keep the padded fourth lane for remainders of three. For other
+     // x86 tails, the existing platform kernel avoids separate scalar hashes.
+     if cfg!(target_arch = "x86_64") && lanes.len() % 4 != 3 {
+         noted_lanes(lanes.len());
+         platform.hash_many::<N>(lanes, key, 0, IncrementCounter::No, flags, start, end, outputs.as_flattened_mut());
+         return;
+     }
+-    let fours = lanes.len() / 4 * 4;
++    let fours = lanes.len() * /* ~ changed by cargo-mutants ~ */ 4 * 4;
+     if fours > 0 {
+         noted_lanes(fours);
+         platform.hash_many::<N>(&lanes[..fours], key, 0, IncrementCounter::No, flags, start, end, outputs[..fours].as_flattened_mut());
+     }
+     match lanes.len() - fours {
+         3 => {
+             let spare = [lanes[fours], lanes[fours + 1], lanes[fours + 2], lanes[fours + 2]];
+             let mut digests = [[0u8; OUT_LEN]; 4];

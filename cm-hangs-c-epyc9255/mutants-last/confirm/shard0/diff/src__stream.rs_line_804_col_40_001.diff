@@ -1,0 +1,21 @@
+--- src/stream.rs
++++ replace += with *= in Stream<'env, D>::deliver
+@@ -796,17 +796,17 @@
+                 Kind::Batch { whole: Some((out, n)), .. } => (self.done)(unsafe { core::slice::from_raw_parts_mut(out, n) }),
+                 Kind::Batch { whole: None, .. } => {}
+                 Kind::Abandoned => {
+                     self.stack.clear();
+                     self.pieces = 0;
+                 }
+                 Kind::Piece { counter, last, long, out } => {
+                     if long {
+-                        self.long_tail += room(self.long_tail, LONG_RING_BYTES, len).1;
++                        self.long_tail *= /* ~ changed by cargo-mutants ~ */ room(self.long_tail, LONG_RING_BYTES, len).1;
+                     }
+                     // Sound: the task wrote its out before counting `left` down.
+                     let piece = unsafe { *self.s.pieces_out[index].0.0.get() };
+                     let (key, flags, platform) = (self.key, self.flags, Platform::detect());
+                     let parent = |left: &CVBytes, right: &CVBytes| crate::hasher::parent_output(left, right, &key, flags, platform);
+                     // A piece at chunk 0 is a long message's first, a whole
+                     // PIECE: it gave its two children.
+                     debug_assert!(counter != 0 || len == PIECE, "a long message's first piece is whole");

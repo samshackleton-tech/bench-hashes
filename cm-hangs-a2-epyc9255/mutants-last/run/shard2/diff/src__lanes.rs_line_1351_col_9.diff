@@ -1,0 +1,54 @@
+--- src/lanes.rs
++++ replace Task::run_members with ()
+@@ -1343,50 +1343,17 @@
+ }
+ 
+ impl Task {
+     /// The members' digests: messages of one length side by side on the
+     /// multi-lane kernels (`hash_many`'s, from a table of pointers) where
+     /// that length is one block, or on x86 two to sixteen blocks of a power
+     /// of two (128 B to 1 KiB); any others one at a time.
+     fn run_members(&self, platform: Platform) {
+-        let members = &self.member[..self.members];
+-        if let Some(message_len) = self.batch {
+-            for m in members {
+-                // Sound: the stream keeps each batch's bytes and digest
+-                // space in place until the task's `left` is zero.
+-                let bytes = unsafe { core::slice::from_raw_parts(m.input, m.len) };
+-                let count = m.len / crate::many::slot_len(message_len);
+-                let digests = unsafe { core::slice::from_raw_parts_mut(m.out as *mut [u8; crate::OUT_LEN], count) };
+-                crate::many::hash_many_on(bytes, message_len, &self.key, self.flags, digests, platform);
+-            }
+-            return;
+-        }
+-        // Sound: the stream keeps every member's bytes and `out` in place
+-        // until the task's `left` is zero.
+-        if members.len() >= 2 && members.iter().all(|m| m.len == members[0].len) {
+-            match members[0].len {
+-                crate::BLOCK_LEN => return self.run_equal_members::<{ crate::BLOCK_LEN }>(platform),
+-                #[cfg(target_arch = "x86_64")]
+-                128 => return self.run_equal_members::<128>(platform),
+-                #[cfg(target_arch = "x86_64")]
+-                256 => return self.run_equal_members::<256>(platform),
+-                #[cfg(target_arch = "x86_64")]
+-                512 => return self.run_equal_members::<512>(platform),
+-                #[cfg(target_arch = "x86_64")]
+-                CHUNK_LEN => return self.run_equal_members::<CHUNK_LEN>(platform),
+-                _ => {}
+-            }
+-        }
+-        crate::ran(crate::Ran::MemberAlone);
+-        for m in members {
+-            let bytes = unsafe { core::slice::from_raw_parts(m.input, m.len) };
+-            let hash = crate::hash_serial_on(bytes, &self.key, self.flags, platform);
+-            unsafe { core::ptr::copy_nonoverlapping(hash.as_bytes().as_ptr(), m.out, crate::OUT_LEN) };
+-        }
++        () /* ~ changed by cargo-mutants ~ */
+     }
+ }
+ 
+ impl Task {
+     /// The members' digests, each a message of `N` bytes (whole blocks, at
+     /// most a chunk; run_members checked), side by side on the multi-lane
+     /// kernel from a table of pointers.
+     fn run_equal_members<const N: usize>(&self, platform: Platform) {

@@ -1,0 +1,21 @@
+--- src/incremental.rs
++++ replace >= with < in <impl hasher::Hooks for HasherHooks<'_>>::children
+@@ -87,17 +87,17 @@
+             return Some(unsafe { sme2::compress_subtree_flat_to_cv(input, ahead, self.key, counter, self.flags) });
+         }
+         None
+     }
+ 
+     #[inline(always)]
+     fn children(&self, input: &[u8], ahead: usize, counter: u64) -> [CVBytes; 2] {
+         #[cfg(feature = "std")]
+-        let pool_takes = self.pooled && input.len() >= lanes::MIN_SPLIT_LEN;
++        let pool_takes = self.pooled && input.len() < /* ~ changed by cargo-mutants ~ */ lanes::MIN_SPLIT_LEN;
+         #[cfg(not(feature = "std"))]
+         let pool_takes = false;
+         let pair = if pool_takes {
+             #[cfg(feature = "std")]
+             {
+                 lanes::subtree_children(input, self.key, counter, self.flags)
+             }
+             #[cfg(not(feature = "std"))]
