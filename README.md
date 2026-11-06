@@ -11,7 +11,7 @@ This record does not silently replace their earlier candidate hashes.
 The chronological sections below retain their original source identities. For current review, start here:
 
 - **Frozen #259, `1fb068fe`:** [direct whole-head results and gates](FINAL-1FB068FE.md), [compact AVX2 ABI/proof update](COMPACT-AVX2.md), and the fresh [exact-head standard multi-buffer SHA comparison](FINAL-1FB-MULTIBUFFER.md). The latter includes small-batch cells where SHA is faster, not just the large ready-batch gains.
-- **Separate draft #262, `8eba67f5`:** [minimal borrowed fixed-length adapter](MINIMAL-BATCH-8EBA67F5.md). Five-host correctness/build gates hold, but the measured Zen 3 warm blocker remains. Not ready for integration; partial-length MT performance is unmeasured.
+- **Separate draft #262, `8eba67f5`:** [minimal borrowed fixed-length adapter](MINIMAL-BATCH-8EBA67F5.md). Five-host correctness/build gates hold. The user accepted the localized Zen 3 warm cost; [issue #263](https://github.com/servil-software-factory/BLAKE3/issues/263) owns its follow-up while integration review proceeds. Partial-length MT performance remains a review scope.
 - **Not promoted:** [eight-wide fallback probe](WIDTH8-PROBE.md) and [startup-fixture reuse trial](SHARED-STARTUP-TRIAL.md). The startup trial lowers instructions but establishes no time/CPU/energy win at its margin. Rejected attempts and FAILED controls remain in the raw directories.
 - **Partner review:** [three requested x86 checks of John's isolated ARM collection change](partner-review/ARM-COLLECTIONS-X86.md), subsequently landed through #261. This is not ARM timing evidence from our x86 machines.
 

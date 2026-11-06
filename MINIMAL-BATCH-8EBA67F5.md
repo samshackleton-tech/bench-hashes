@@ -6,7 +6,7 @@ Current draft head: **8eba67f56b946f81fa0f1fb8d13fc306300e42d2**, `candidate/sam
 
 The direct four-host timing records remain labeled **1fb068fe → 8f3c06bd**, not relabeled as measurements of the new commit identity. They include a Zen 3 **1024 B × 8 warm loss ~3.1%**. The retired isolated variant instead lost **512 B × 8 ~6.1%**, also CPU/cycles/package energy; instructions essentially level. Both are retained. No false-positive, cache, aliasing or code-placement cause is asserted from timing alone.
 
-**Not ready for integration.** Large gains in ready partial-block batches do not average away an intended-pattern loss. Earlier shared-path scoped controls at the retained code tree hold on all four hosts; these are not full-library release checks.
+**Accepted performance tradeoff, November 6.** Sam The User accepted the localized ~3.1% Zen 3 cost because the larger partial-block gains outweigh it. [Issue #263](https://github.com/servil-software-factory/BLAKE3/issues/263), assigned to Sam Shackleton, collects the reproduction, attempted fixes and controlled profiling. Integration review can proceed while that follow-up stays open. Earlier shared-path scoped controls at the retained code tree hold on all four hosts.
 
 ## Fresh exact-commit correctness/build gates
 
