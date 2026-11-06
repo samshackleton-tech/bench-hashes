@@ -2,6 +2,9 @@
 
 2026-11-06 — Sam Shackleton
 
+Review: [draft #269](https://github.com/servil-software-factory/BLAKE3/pull/269).
+Startup follow-up: [#268](https://github.com/servil-software-factory/BLAKE3/issues/268), assigned to Sam.
+
 ## Review decision
 
 This candidate gives about **6× faster ready-state finalization on Zen 5**, and
