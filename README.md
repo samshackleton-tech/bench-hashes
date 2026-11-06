@@ -6,6 +6,17 @@ Earlier matrices and finite-pattern proofs are in
 [data/2026-11-06/last247-first-matrices](https://github.com/samshackleton-tech/bench-hashes/tree/data/2026-11-06/last247-first-matrices).
 This record does not silently replace their earlier candidate hashes.
 
+## Review map: frozen source versus separate experiments
+
+The chronological sections below retain their original source identities. For current review, start here:
+
+- **Frozen #259, `1fb068fe`:** [direct whole-head results and gates](FINAL-1FB068FE.md), [compact AVX2 ABI/proof update](COMPACT-AVX2.md), and the fresh [exact-head standard multi-buffer SHA comparison](FINAL-1FB-MULTIBUFFER.md). The latter includes small-batch cells where SHA is faster, not just the large ready-batch gains.
+- **Separate draft #262, `8eba67f5`:** [minimal borrowed fixed-length adapter](MINIMAL-BATCH-8EBA67F5.md). Five-host correctness/build gates hold, but the measured Zen 3 warm blocker remains. Not ready for integration; partial-length MT performance is unmeasured.
+- **Not promoted:** [eight-wide fallback probe](WIDTH8-PROBE.md) and [startup-fixture reuse trial](SHARED-STARTUP-TRIAL.md). The startup trial lowers instructions but establishes no time/CPU/energy win at its margin. Rejected attempts and FAILED controls remain in the raw directories.
+- **Partner review:** [three requested x86 checks of John's isolated ARM collection change](partner-review/ARM-COLLECTIONS-X86.md), subsequently landed through #261. This is not ARM timing evidence from our x86 machines.
+
+No later experiment silently expands the frozen #259 source/review boundary.
+
 ## Identities and limits
 
 Every run has a hash-pinned manifest, STATUS, identity/build logs, and raw output.
