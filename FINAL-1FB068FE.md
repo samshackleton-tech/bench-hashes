@@ -50,9 +50,12 @@ and cached-keyHMAC studies likewise keep their own exact source/workload labels.
 - Current assembly contract:32equal+32independently symbolic-ending proof cases,
   46helpertests,fourfaultcontrols; native392vector/110memory forms,200states each,
   28alignment controls. Native187/187on4x86hosts,158/158ARMVM; build/doc checks.
-- Shared-path scopes were measured incrementally:1ea→e448 holds3machines but has
-  the reported9700Xcold MTperformance1KiB+4.9%cell; e448→d270 and936→fc hold all4.
-  Do not turn these incremental scopes into an unmeasured full-head macro verdict.
+- Direct end-to-end shared-path scopes1ea→1fb are now VERIFIED on all4machines:
+  no slower cell.9700Xshared-one-cache continuous512B is3.6%faster. Scope is the
+  selected collection/stream/batch/unchanged-path cells under contention, not the
+  retired full check. Earlier incremental1ea→e448 had the reported9700Xcold
+  MTperformance1KiB+4.9%cell; it remains in its original record, not discarded.
+  The current full-head record is measured directly, not inferred from that chain.
 - Startup1ea→e448 adds~6.15us9700X (~26%); not removed to hide its cost. Not an
   exact startup measurement of this later head. No startupenergyclaim.
 - Standard full-round BLAKE3 outputs/keyed semantics, no clock guesses or public
