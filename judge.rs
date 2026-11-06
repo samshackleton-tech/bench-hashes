@@ -1,0 +1,54 @@
+use std::{collections::BTreeMap, fs, path::Path};
+use clocks::summary::{mean, discoveries};
+#[derive(Clone)]
+struct Row { units: u64, metrics: BTreeMap<String,u64> }
+type Key=(String,u64,String);
+fn read(path: &Path) -> BTreeMap<Key,Row> {
+    let text=fs::read_to_string(path).unwrap();
+    let mut lines=text.lines();
+    assert_eq!(lines.next(),Some("shape\titems\tbytes\talgorithm\tcalls\twall_ns\tcpu_ns\tcycles\tinstructions\tpackage_nj"));
+    let mut rows=BTreeMap::new();
+    for line in lines {
+        let f:Vec<_>=line.split('\t').collect();assert_eq!(f.len(),10);
+        let count:u64=f[1].parse().unwrap();let calls:u64=f[4].parse().unwrap();
+        let mut metrics=BTreeMap::new();
+        for (i,name) in [(5,"wall_ns"),(6,"cpu_ns"),(7,"cycles"),(8,"instructions"),(9,"package_nj")] {
+            if f[i]!="NA" {metrics.insert(name.to_string(),f[i].parse().unwrap());}
+        }
+        assert!(rows.insert((f[0].into(),count,f[3].into()),Row{units:count*calls,metrics}).is_none());
+    }
+    rows
+}
+fn main() {
+    let dir=std::env::args().nth(1).expect("directory");let dir=Path::new(&dir);
+    let old:Vec<_>=(1..=4).map(|p|read(&dir.join(format!("old-{p}.tsv")))).collect();
+    let new:Vec<_>=(1..=4).map(|p|read(&dir.join(format!("new-{p}.tsv")))).collect();
+    let mut cells=Vec::new();let mut names=Vec::new();
+    let mut costs=Vec::new();
+    for (shape,count,algorithm) in old[0].keys() {
+        if algorithm!="b3" {continue;}
+        for metric in ["wall_ns","cpu_ns","cycles","instructions","package_nj"] {
+            for versus in ["old-b3","sha256"] {
+                let mut pairs=Vec::new();let mut old_tot=(0u128,0u128);let mut new_tot=(0u128,0u128);
+                for p in 0..4 {
+                    let a=if versus=="old-b3" {&old[p][&(shape.clone(),*count,"b3".into())]} else {&new[p][&(shape.clone(),*count,"sha256".into())]};
+                    let b=&new[p][&(shape.clone(),*count,"b3".into())];
+                    let (Some(&av),Some(&bv))=(a.metrics.get(metric),b.metrics.get(metric)) else {break;};
+                    if av==0 || bv==0 {break;}
+                    pairs.push((mean([(av,a.units)]),mean([(bv,b.units)])));
+                    old_tot.0+=av as u128;old_tot.1+=a.units as u128;new_tot.0+=bv as u128;new_tot.1+=b.units as u128;
+                }
+                if pairs.len()==4 {
+                    names.push((shape.clone(),*count,metric,versus));cells.push(pairs);
+                    costs.push((old_tot,new_tot));
+                }
+            }
+        }
+    }
+    let judged=discoveries(&cells,50,30);
+    println!("shape\titems\tmetric\tversus\told_per_item\tnew_per_item\tratio_permille\tverdict");
+    for (((shape,count,metric,versus),cost),j) in names.into_iter().zip(costs).zip(judged) {
+        println!("{shape}\t{count}\t{metric}\t{versus}\t{:.4}\t{:.4}\t{}\t{:?}",
+                 cost.0.0 as f64/cost.0.1 as f64,cost.1.0 as f64/cost.1.1 as f64,j.ratio_permille,j.verdict);
+    }
+}
