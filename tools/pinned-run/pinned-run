@@ -95,6 +95,17 @@ def own_bytes():
     return open(os.path.realpath(__file__), "rb").read()
 
 
+def record_phase(run, name, **details):
+    """Workflow events, outside the timed job: monotonic intervals on one host/boot,
+    UTC for correlation. A stopped executor leaves the prefix it completed."""
+    with open("/proc/sys/kernel/random/boot_id") as f:
+        boot = f.read().strip()
+    row = dict(version=1, phase=name, utc_ns=time.time_ns(),
+               monotonic_ns=time.monotonic_ns(), boot_id=boot, **details)
+    with open(f"{run}/phases.jsonl", "a") as f:
+        f.write(json.dumps(row, sort_keys=True) + "\n")
+
+
 # ---------------------------------------------------------------- the client's transport
 def call(host, verb, *args, stdin=None, check=True):
     """One request to `host`'s pinned-run: its stdout (bytes). Tests replace this."""
@@ -343,6 +354,7 @@ def serve_submit(run_id, payload, start=start_unit):
     os.makedirs(run)
     with open(f"{run}/manifest.json", "w") as f:
         json.dump(m, f, indent=1, sort_keys=True)
+    record_phase(run, "accepted")
     start(run_id, tool_path)
     return {"run": run_id, "notes": notes}
 
@@ -363,7 +375,7 @@ def serve_lock(lock):
 def serve_fetch(run_id, out):
     run = run_dir(run_id)
     with tarfile.open(fileobj=out, mode="w|") as t:
-        for part in ("manifest.json", "STATUS", "REASONS", "prepare.log", "job.log", "out"):
+        for part in ("manifest.json", "STATUS", "REASONS", "prepare.log", "job.log", "phases.jsonl", "out"):
             if os.path.exists(f"{run}/{part}"):
                 t.add(f"{run}/{part}", arcname=part)
 
@@ -427,6 +439,8 @@ def sh(cmd, cwd=None, log=None):
 
 
 def remote_execute(run):
+    if os.path.exists(f"{run}/STATUS"):
+        return  # a terminal run and its phase record stay immutable
     m = json.load(open(f"{run}/manifest.json"))
     # A run executes once. A second remote-execute of the same run (its unit
     # restarted: needrestart did so on the AmpereOne after unattended-upgrade,
@@ -440,6 +454,7 @@ def remote_execute(run):
         with open(f"{run}/STATUS", "w") as f:
             f.write("FAILED\n")
         return
+    record_phase(run, "executor_started")
     os.makedirs(f"{run}/out", exist_ok=True)
     reasons = []
     lock = open(m["lock"], "a") if m.get("lock") else None
@@ -449,6 +464,7 @@ def remote_execute(run):
         # same lock through preparation, the job and result verification.
         fcntl.flock(lock, fcntl.LOCK_EX)
         open(f"{run}/LOCKED", "w").close()
+        record_phase(run, "lock_acquired")
     with open(f"{run}/prepare.log", "w") as log:
         # Every repository fetched by hash into a fresh directory, and checked.
         # Git's objects are named by their hashes, so one mirror per URL is a
@@ -480,21 +496,27 @@ def remote_execute(run):
         script = f"{RUNS}/scripts/job-{m['script_sha256']}.sh"
         if sha256(open(script, "rb").read()) != m["script_sha256"]:
             reasons.append("prepare: the stored script's hash changed")
+    record_phase(run, "prepared", ok=not reasons)
     if not reasons:
         env = dict(os.environ, HOME="/root", RUN_DIR=run, **m.get("env", {}))
         with open(f"{run}/job.log", "w") as out:
             p = subprocess.run(["bash", script, run], cwd=run, env=env, stdout=out, stderr=subprocess.STDOUT)
+        record_phase(run, "job_finished", exit_code=p.returncode)
         if p.returncode != 0:
             reasons.append(f"job: exit {p.returncode}")
-        reasons += verify(run, m)
+        verification = verify(run, m)
+        reasons += verification
+        record_phase(run, "verification_finished", ok=not verification)
     if lock:
         lock.close()
     if os.path.exists(f"{run}/STATUS"):
         return  # cancelled meanwhile: its STATUS stands
     with open(f"{run}/REASONS", "w") as f:
         f.write("".join(f"{x}\n" for x in reasons))
+    state = "FAILED" if reasons else "VERIFIED"
+    record_phase(run, "finished", status=state)
     with open(f"{run}/STATUS", "w") as f:
-        f.write("FAILED\n" if reasons else "VERIFIED\n")
+        f.write(state + "\n")
 
 
 def verify(run, m):
