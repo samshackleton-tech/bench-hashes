@@ -1,0 +1,27 @@
+--- pinned-run
++++ ignored-transport-failure
+@@ -142,7 +142,7 @@
+     """One request to `host`'s pinned-run: its stdout (bytes). Tests replace this."""
+     command = " ".join(shlex.quote(a) for a in ("pinned-run", "serve", verb, *args))
+     r = subprocess.run(SSH + ["-o", "UserKnownHostsFile=" + KNOWN_HOSTS, host, command], input=stdin, capture_output=True)
+-    if r.returncode == 255 or (check and r.returncode != 0):
++    if check and r.returncode != 0:
+         die(f"{host}: {verb} {' '.join(args)[:80]}: exit {r.returncode}\n{r.stderr.decode(errors='replace')[-2000:]}")
+     return r.stdout
+ 
+pinned-run: root@ours: version : exit 255
+Host key verification failed
+F
+======================================================================
+FAIL: test_transport_failure_stops_even_an_optional_request (__main__.Client.test_transport_failure_stops_even_an_optional_request) (check=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/wait-check-ice-20261107T221216-7199fdcb/tools/tools/pinned-run/test_pinned_run.py", line 509, in test_transport_failure_stops_even_an_optional_request
+    self.assertRaises(SystemExit):
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (failures=1)

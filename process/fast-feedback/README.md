@@ -19,7 +19,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Hardware, lockdown and first native/timing runs | [First fast-lane runs](FAST-LANE-ICE.md) | [Fast-lane records](fast-lane-runs/) |
 | Clock, counter, timer, load and energy validation | [New-host machine profile](MACHINE.md) | [Machine checks](machine-runs/) |
 | Compile/reference gate and zero-target failure control | [Preflight](PREFLIGHT.md) | [Preflight records](preflight-runs/) |
-| Study-scoped fetch and generated review summaries | [Collection](COLLECTION.md) | [Collection records](collect-runs/) |
+| Study-scoped fetch, summaries and named-run wait follow-up | [Collection](COLLECTION.md) | [Collection records](collect-runs/), [wait checks](wait-runs/) |
 | Four old/new preparation pairs and representative checks | [Exact-commit preparation](PREPARATION.md) | [Preparation records](prepare-runs/) |
 | Reviewer fixes, clean environment and host-key rejection | [Host authentication](HOST-AUTH.md) | [Authenticated checks](host-auth-runs/) |
 | Generator dependencies in the long-proof cache | [Proof-cache identity](PROOF-CACHE.md) | [Cache-key checks](proof-cache-runs/) |
@@ -30,7 +30,8 @@ John integrated the [proof-cache correction #290](https://github.com/servil-soft
 
 ## Open follow-through
 
-- Review Devon’s corrected local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152) and its subsequent execution bounds; [earlier findings](LOCAL-REVIEW.md).
+- Resolve the lifecycle/reviewer-fixture findings on Devon’s local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152), then check its execution bounds; [review](LOCAL-REVIEW.md).
+- Independent review/integration of the one-second named-run wait [#153](https://github.com/servil-software-factory/bench-hashes/pull/153).
 - Real-work queue tails, first-actionable-result time and reviewed decisions per week, weighed against the added hardware cost.
 - Enrollment of remaining fleet hosts before their first request with the authenticated client.
 - Later #146 work: dependency-complete evidence reuse, proof throughput and calibrated 80/20 screening.

@@ -46,4 +46,20 @@ This uses the identical BLAKE3-Servil commit on both sides, four fresh build/lay
 
 For the small compiler/reference jobs, preparation took about 13 s beside 3.5–5.2 s of script execution. The current preparation updates a mirror and imports every cached ref into every fresh checkout. Next is a controlled test of fetching only the named commit and its history, while keeping fresh checkouts/targets, exact HEAD checks and the preparation-through-verification lock.
 
+## Named-run wait follow-up
+
+[PR #153](https://github.com/servil-software-factory/bench-hashes/pull/153), source **`6c8d73e7352091e0eb4706059401953911939915`**, aligns the existing `wait HOST RUN` polling interval with scoped `next`: one second rather than twenty. It adds no command, setting, format or state.
+
+The new test checks queued/running transitions and already-terminal VERIFIED, FAILED with reason, CANCELLED and lost results. It checks the exact host/run, requested sleeps and preserved output without sleeping. Restoring the twenty-second interval fails its focused control.
+
+All **45 tests and seventeen fault controls** passed under empty HOME/system-only PATH in the exact-source preflight and both fresh target jobs:
+
+| Pinned run | Accepted→finished |
+|---|---:|
+| `wait-check-ice-preflight-20261107T221207-80cb4601` | 6.583 s |
+| `wait-check-ice-20261107T221216-7199fdcb` | 6.215 s |
+| `wait-check-arm-20261107T221216-183ca920` | 6.704 s |
+
+These are workflow phase intervals, not benchmark speed comparisons. `wait-runs/` retains the source/script/tool identities, all tests and planted faults, phases and generated review cards. The stable deployed runner remains the landed #150 version while this follow-up is reviewed.
+
 — Sam Shackleton

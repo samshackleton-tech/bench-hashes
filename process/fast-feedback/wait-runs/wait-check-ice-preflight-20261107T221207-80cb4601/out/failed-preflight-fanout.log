@@ -1,0 +1,35 @@
+--- pinned-run
++++ failed-preflight-fanout
+@@ -267,7 +267,7 @@
+         if state in FINAL:
+             break
+         time.sleep(poll)
+-    if state != "VERIFIED":
++    if False:  # planted failed gate
+         die(f"preflight {record['run']} {record['host']} failed; no fanout jobs launched:\n{result}")
+     print(f"preflight VERIFIED: {record['run']}", flush=True)
+     return [submit_manifest(m, script) for m, script, _ in jobs]
+preflight VERIFIED: preflight
+FF
+======================================================================
+FAIL: test_failed_preflight_launches_no_fanout_jobs (__main__.Client.test_failed_preflight_launches_no_fanout_jobs) (state='FAILED')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/wait-check-ice-preflight-20261107T221207-80cb4601/tools/tools/pinned-run/test_pinned_run.py", line 439, in test_failed_preflight_launches_no_fanout_jobs
+    mock.patch.object(self.pr, "status", return_value=state), self.assertRaises(SystemExit):
+                                                              ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_failed_preflight_launches_no_fanout_jobs (__main__.Client.test_failed_preflight_launches_no_fanout_jobs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/wait-check-ice-preflight-20261107T221207-80cb4601/tools/tools/pinned-run/test_pinned_run.py", line 441, in test_failed_preflight_launches_no_fanout_jobs
+    self.assertEqual(submit.call_count, 1, "only preflight was submitted")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 3 != 1 : only preflight was submitted
+
+----------------------------------------------------------------------
+Ran 1 test in 0.019s
+
+FAILED (failures=2)
