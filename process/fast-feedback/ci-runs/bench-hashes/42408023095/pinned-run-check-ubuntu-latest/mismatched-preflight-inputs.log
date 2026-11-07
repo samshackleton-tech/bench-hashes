@@ -1,0 +1,43 @@
+--- pinned-run
++++ mismatched-preflight-inputs
+@@ -250,7 +250,7 @@
+             script = f.read()
+         identity = (sorted((r["url"], r["commit"], r["path"]) for r in m["repos"]),
+                     script, m.get("env", {}), m.get("forbid", []), m.get("study"))
+-        if jobs and identity != jobs[0][2]:
++        if False:  # planted unchecked inputs
+             die("fanout: jobs must name the same repos, script bytes, environment and forbid rules")
+         jobs.append((m, script, identity))
+     if not jobs:
+preflight VERIFIED: preflight
+Fpreflight VERIFIED: preflight
+Fpreflight VERIFIED: preflight
+F
+======================================================================
+FAIL: test_fanout_refuses_different_instrument_inputs_before_any_submit (__main__.Client.test_fanout_refuses_different_instrument_inputs_before_any_submit) (change={'repos': [{'url': 'https://x/r', 'commit': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'path': 'src'}]})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/bench-hashes/bench-hashes/tools/pinned-run/test_pinned_run.py", line 452, in test_fanout_refuses_different_instrument_inputs_before_any_submit
+    with mock.patch.object(self.pr, "submit_manifest", return_value={"host": "root@fast", "run": "preflight"}) as submit, \
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_fanout_refuses_different_instrument_inputs_before_any_submit (__main__.Client.test_fanout_refuses_different_instrument_inputs_before_any_submit) (change={'env': {'MODE': 'different'}})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/bench-hashes/bench-hashes/tools/pinned-run/test_pinned_run.py", line 452, in test_fanout_refuses_different_instrument_inputs_before_any_submit
+    with mock.patch.object(self.pr, "submit_manifest", return_value={"host": "root@fast", "run": "preflight"}) as submit, \
+AssertionError: SystemExit not raised
+
+======================================================================
+FAIL: test_fanout_refuses_different_instrument_inputs_before_any_submit (__main__.Client.test_fanout_refuses_different_instrument_inputs_before_any_submit) (change={'forbid': ['different rules']})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/bench-hashes/bench-hashes/tools/pinned-run/test_pinned_run.py", line 452, in test_fanout_refuses_different_instrument_inputs_before_any_submit
+    with mock.patch.object(self.pr, "submit_manifest", return_value={"host": "root@fast", "run": "preflight"}) as submit, \
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.013s
+
+FAILED (failures=3)

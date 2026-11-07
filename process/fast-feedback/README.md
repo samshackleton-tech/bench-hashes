@@ -6,7 +6,7 @@ Program [#146](https://github.com/servil-software-factory/bench-hashes/issues/14
 
 The deployed runner preflights an instrument, submits matching target inputs, collects the next result by study and writes a source/latency/judgment summary. Fresh checkouts use the requested commit's history from the existing mirror. Host requests authenticate enrolled ED25519 keys.
 
-Integration tip: [bench-hashes PR #150](https://github.com/servil-software-factory/bench-hashes/pull/150), ready for review, source **`50a8f2621c8511463ceafee8738f5908552c44c2`**. It includes the earlier #148/#149 slices. **44 tests and fifteen fault controls** passed on Ice Lake and ARM, with empty HOME and system-only PATH. John owns integration.
+Integration tip: [bench-hashes PR #150](https://github.com/servil-software-factory/bench-hashes/pull/150), ready for review, head **`6778f98dcfaa24f2fc331a9252f65817f8eb03e7`**, with runner implementation `50a8f2621c8511463ceafee8738f5908552c44c2` and automatic Linux CI controls. It includes the earlier #148/#149 slices. **44 tests and fifteen fault controls** passed on Ice Lake and ARM, with empty HOME and system-only PATH. John owns integration.
 
 The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Representative native validation returned in **27.1 s**; startup A/A returned in **17.1 s**. A compiler/reference job's four paired checks fell from **16.98–17.26 s to 6.19–6.24 s**. Combined preflight→Ice Lake target finish took **14.1 s**. The reports identify the source and conditions for every result.
 
@@ -22,6 +22,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Four old/new preparation pairs and representative checks | [Exact-commit preparation](PREPARATION.md) | [Preparation records](prepare-runs/) |
 | Reviewer fixes, clean environment and host-key rejection | [Host authentication](HOST-AUTH.md) | [Authenticated checks](host-auth-runs/) |
 | Generator dependencies in the long-proof cache | [Proof-cache identity](PROOF-CACHE.md) | [Cache-key checks](proof-cache-runs/) |
+| Fast controls before longer CI work | [CI handoff](CI.md) | [Hosted CI records](ci-runs/) |
 
 The proof-cache correction is [BLAKE3 PR #290](https://github.com/servil-software-factory/BLAKE3/pull/290), ready for review. It changes cache selection and tests, leaving library code and proof definitions unchanged.
 

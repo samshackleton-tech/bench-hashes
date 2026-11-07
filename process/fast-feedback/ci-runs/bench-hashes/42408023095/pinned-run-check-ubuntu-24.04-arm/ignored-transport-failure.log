@@ -1,0 +1,26 @@
+--- pinned-run
++++ ignored-transport-failure
+@@ -141,7 +141,7 @@
+     """One request to `host`'s pinned-run: its stdout (bytes). Tests replace this."""
+     command = " ".join(shlex.quote(a) for a in ("pinned-run", "serve", verb, *args))
+     r = subprocess.run(SSH + ["-o", "UserKnownHostsFile=" + KNOWN_HOSTS, host, command], input=stdin, capture_output=True)
+-    if r.returncode == 255 or (check and r.returncode != 0):
++    if check and r.returncode != 0:
+         die(f"{host}: {verb} {' '.join(args)[:80]}: exit {r.returncode}\n{r.stderr.decode(errors='replace')[-2000:]}")
+     return r.stdout
+ 
+pinned-run: root@ours: version : exit 255
+Host key verification failed
+F
+======================================================================
+FAIL: test_transport_failure_stops_even_an_optional_request (__main__.Client.test_transport_failure_stops_even_an_optional_request) (check=False)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/bench-hashes/bench-hashes/tools/pinned-run/test_pinned_run.py", line 507, in test_transport_failure_stops_even_an_optional_request
+    with self.subTest(check=check), mock.patch.object(self.pr.subprocess, "run", return_value=failure), \
+AssertionError: SystemExit not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.010s
+
+FAILED (failures=1)
