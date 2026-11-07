@@ -1,0 +1,39 @@
+--- fixed-key
++++ omitted-generators
+@@ -34,7 +34,7 @@
+ # checked below. A green run for the same inputs is the same evidence, so
+ # a commit that changes none of them is not proved again; its status
+ # names the run that already passed.
+-inputs=$(git -C "$root" ls-tree "$commit" -- c c2sp tools/verify tools/gen_neon_hybrid.py tools/gen_sme2_hybrid.py tools/gen_x86.py | sha256sum | cut -d' ' -f1)
++inputs=$(git -C "$root" ls-tree "$commit" -- c c2sp tools/verify tools/gen_neon_hybrid.py | sha256sum | cut -d' ' -f1)
+ record=$root/tmp/long-proofs/inputs/$inputs.txt
+ if [ -f "$record" ]; then
+ 	prior=$(sed -n '1p' "$record")
+test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) ... 
+  test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) (generator='tools/gen_sme2_hybrid.py') ... FAIL
+  test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) (generator='tools/gen_x86.py') ... FAIL
+test_identical_inputs_and_unrelated_documentation_keep_the_cache_key (test_long_proof_inputs.LongProofInputs.test_identical_inputs_and_unrelated_documentation_keep_the_cache_key) ... ok
+test_kernel_specification_and_proof_tools_invalidate_the_cache_key (test_long_proof_inputs.LongProofInputs.test_kernel_specification_and_proof_tools_invalidate_the_cache_key) ... ok
+
+======================================================================
+FAIL: test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) (generator='tools/gen_sme2_hybrid.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/proof-cache-inputs-arm-20261107T193105-537311e4/fork/tools/verify/test_long_proof_inputs.py", line 59, in test_each_checked_generator_invalidates_the_cache_key
+    self.assertNotEqual(self.key(), before, f"{generator}: cached success must be invalidated")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '341eb8f99510b177be5d5c1bfe8b0e66c40d905f25d23276563082f8e305f4b3' == '341eb8f99510b177be5d5c1bfe8b0e66c40d905f25d23276563082f8e305f4b3' : tools/gen_sme2_hybrid.py: cached success must be invalidated
+
+======================================================================
+FAIL: test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) (generator='tools/gen_x86.py')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/proof-cache-inputs-arm-20261107T193105-537311e4/fork/tools/verify/test_long_proof_inputs.py", line 59, in test_each_checked_generator_invalidates_the_cache_key
+    self.assertNotEqual(self.key(), before, f"{generator}: cached success must be invalidated")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '341eb8f99510b177be5d5c1bfe8b0e66c40d905f25d23276563082f8e305f4b3' == '341eb8f99510b177be5d5c1bfe8b0e66c40d905f25d23276563082f8e305f4b3' : tools/gen_x86.py: cached success must be invalidated
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.320s
+
+FAILED (failures=2)
