@@ -1,6 +1,6 @@
 # In-place Hasher checkpoints: copy live staging bytes, not capacity
 
-2026-11-07 — measured candidate; independent review requested, no integration.
+2026-11-07 — [draft PR #283](https://github.com/servil-software-factory/BLAKE3/pull/283); independent review requested, no integration.
 
 BLAKE3-Servil can optimize the **existing standard `Clone::clone_from` operation**
 without changing the public API or Hasher representation. Copy its core, staged
@@ -116,9 +116,9 @@ instructions. Pinned assembly establishes copy lengths and transport, not a
 cache/aliasing cause. The particular libc instruction sequence and why the
 counter trade-off differs by CPU remain a scoped profiling question.
 
-**Owner: Sam Shackleton. Explicit acceptance pending.** The instruction cost
-needs an assigned follow-up with reproduction and bounded investigation before
-integration review; it is not automatically vetoed or silently treated as noise.
+**[Follow-up #282, assigned to Sam Shackleton](https://github.com/servil-software-factory/BLAKE3/issues/282). Explicit acceptance pending.** The instruction cost
+has exact reproduction, raw artifacts, attempted designs and a bounded next
+investigation; it is not automatically vetoed or silently treated as noise.
 The warm time/CPU/energy savings and unchanged ordinary-clone controls give the
 context in which reviewers can judge it.
 
