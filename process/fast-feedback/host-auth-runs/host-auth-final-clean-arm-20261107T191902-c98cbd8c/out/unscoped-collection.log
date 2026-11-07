@@ -1,0 +1,39 @@
+--- pinned-run
++++ unscoped-collection
+@@ -284,7 +284,7 @@
+ 
+ def states(study=None):
+     """(host, run, state), filtering before contacting any host."""
+-    runs = [r for r in registered() if study is None or r.get("study") == study]
++    runs = registered()  # planted ignored scope
+     out = []
+     for host in sorted({r["host"] for r in runs}):
+         ensure_installed(host)
+/tmp/pinned-run-control-i_v02tka/pinned-run:282: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-igmgetu_/launched.jsonl' mode='r' encoding='UTF-8'>
+  return [json.loads(l) for l in open(REGISTRY) if l.strip()]
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F
+======================================================================
+FAIL: test_scoped_next_ignores_other_studies_and_contacts_only_its_hosts (__main__.Client.test_scoped_next_ignores_other_studies_and_contacts_only_its_hosts)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/host-auth-final-clean-arm-20261107T191902-c98cbd8c/tools/tools/pinned-run/test_pinned_run.py", line 553, in test_scoped_next_ignores_other_studies_and_contacts_only_its_hosts
+    self.assertEqual(self.pr.next_done(study="pilot", poll=0), "ours")
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pinned-run-control-i_v02tka/pinned-run", line 323, in next_done
+    everything = states(study)
+  File "/tmp/pinned-run-control-i_v02tka/pinned-run", line 291, in states
+    known = {x["run"]: x["state"] for x in map(json.loads, call(host, "list", check=False).decode().splitlines() or [])}
+                                                           ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pinned-runs/host-auth-final-clean-arm-20261107T191902-c98cbd8c/tools/tools/pinned-run/test_pinned_run.py", line 550, in call
+    self.assertEqual(host, "root@ours", "scope filtering happens before any remote request")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'root@old' != 'root@ours'
+- root@old
++ root@ours
+ : scope filtering happens before any remote request
+
+----------------------------------------------------------------------
+Ran 1 test in 0.017s
+
+FAILED (failures=1)

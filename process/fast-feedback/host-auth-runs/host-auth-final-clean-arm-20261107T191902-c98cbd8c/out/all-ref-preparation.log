@@ -1,0 +1,45 @@
+--- pinned-run
++++ all-ref-preparation
+@@ -626,7 +626,7 @@
+                       ["git", "-C", cache, "update-ref", f"refs/pinned/{r['commit']}", r["commit"]],
+                       ["git", "init", "-q", d],
+                       ["git", "-C", d, "remote", "add", "origin", r["url"]],
+-                      ["git", "-C", d, "fetch", "-q", cache, r["commit"]],
++                      ["git", "-C", d, "fetch", "-q", cache, "+refs/*:refs/cache/*"],
+                       ["git", "-C", d, "checkout", "-q", "--detach", r["commit"]]]
+             for cmd in steps:
+                 p = sh(cmd, log=log)
+/tmp/pinned-run-control-ej17unmu/pinned-run:99: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-control-ej17unmu/pinned-run'>
+  return open(os.path.realpath(__file__), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-ej17unmu/pinned-run:590: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-d4rlvoh6/real-20261105T000001-00000001/manifest.json' mode='r' encoding='UTF-8'>
+  m = json.load(open(f"{run}/manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-ej17unmu/pinned-run:641: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-test-d4rlvoh6/scripts/job-ab08508fdf5ca4da5c4995987bc41c56c048aaa5eeb046417ae4049b7d40286e.sh'>
+  if sha256(open(script, "rb").read()) != m["script_sha256"]:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-ej17unmu/pinned-run:682: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-d4rlvoh6/real-20261105T000001-00000001/job.log' mode='r' encoding='UTF-8'>
+  text = open(f, errors="replace").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-ej17unmu/pinned-run:682: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-d4rlvoh6/real-20261105T000001-00000001/prepare.log' mode='r' encoding='UTF-8'>
+  text = open(f, errors="replace").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F
+======================================================================
+FAIL: test_exact_commit_preparation_keeps_history_without_importing_other_refs (__main__.Server.test_exact_commit_preparation_keeps_history_without_importing_other_refs)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/host-auth-final-clean-arm-20261107T191902-c98cbd8c/tools/tools/pinned-run/test_pinned_run.py", line 280, in test_exact_commit_preparation_keeps_history_without_importing_other_refs
+    self.assertEqual(self.git(run + "/src", "for-each-ref", "--format=%(refname)", "refs/cache").stdout, "",
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "only the requested history is fetched, not the mirror's unrelated refs")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'refs/cache/heads/main\nrefs/cache/pinned/[38 chars]fc\n' != ''
+- refs/cache/heads/main
+- refs/cache/pinned/89cb0cb3350a0faf48504da41234c6a52e9ea1fc
+ : only the requested history is fetched, not the mirror's unrelated refs
+
+----------------------------------------------------------------------
+Ran 1 test in 0.120s
+
+FAILED (failures=1)
