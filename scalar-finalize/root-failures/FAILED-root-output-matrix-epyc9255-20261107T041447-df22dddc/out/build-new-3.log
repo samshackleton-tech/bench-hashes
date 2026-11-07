@@ -1,0 +1,57 @@
+    Blocking waiting for file lock on package cache
+    Updating crates.io index
+    Blocking waiting for file lock on package cache
+     Locking 11 packages to highest compatible versions
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling constant_time_eq v0.4.2
+   Compiling cfg-if v1.0.5
+   Compiling arrayvec v0.7.8
+   Compiling cpufeatures v0.3.1
+   Compiling clocks v0.1.0 (/root/pinned-runs/root-output-matrix-epyc9255-20261107T041447-df22dddc/bench/clocks)
+   Compiling cc v1.11.1
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/root-output-matrix-epyc9255-20261107T041447-df22dddc/new)
+   Compiling blake3 v1.8.7
+   Compiling incrementalroots v0.1.0 (/root/pinned-runs/root-output-matrix-epyc9255-20261107T041447-df22dddc/probe-new-3)
+error[E0308]: mismatched types
+  --> src/main.rs:55:84
+   |
+55 |                     out[i] = *blake3_servil::throughput::hash(std::hint::black_box(bytes)).as_bytes();
+   |                                                               -------------------- ^^^^^ expected `Mode<'_>`, found `&Vec<u8>`
+   |                                                               |
+   |                                                               arguments to this function are incorrect
+   |
+   = note:   expected enum `blake3_servil::Mode<'_>`
+           found reference `&Vec<u8>`
+help: the return type of this call is `&Vec<u8>` due to the type of the argument passed
+  --> src/main.rs:55:63
+   |
+55 |                     out[i] = *blake3_servil::throughput::hash(std::hint::black_box(bytes)).as_bytes();
+   |                                                               ^^^^^^^^^^^^^^^^^^^^^-----^
+   |                                                                                    |
+   |                                                                                    this argument influences the return type of `black_box`
+note: function defined here
+  --> /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/hint.rs:490:13
+
+error[E0061]: this function takes 3 arguments but 1 argument was supplied
+  --> src/main.rs:55:31
+   |
+55 |                     out[i] = *blake3_servil::throughput::hash(std::hint::black_box(bytes)).as_bytes();
+   |                               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^----------------------------- two arguments of type `&[Block]` and `usize` are missing
+   |
+note: function defined here
+  --> /root/pinned-runs/root-output-matrix-epyc9255-20261107T041447-df22dddc/new/src/throughput.rs:51:8
+   |
+51 | pub fn hash(mode: Mode, input: &[Block], len: usize) -> Hash {
+   |        ^^^^
+help: provide the arguments
+   |
+55 |                     out[i] = *blake3_servil::throughput::hash(std::hint::black_box(bytes), /* &[Block] */, /* usize */).as_bytes();
+   |                                                                                          +++++++++++++++++++++++++++++
+
+Some errors have detailed explanations: E0061, E0308.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `incrementalroots` (bin "incrementalroots") due to 2 previous errors
