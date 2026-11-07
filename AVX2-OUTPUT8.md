@@ -2,6 +2,9 @@
 
 2026-11-07 — Sam Shackleton
 
+Review: [draft #274](https://github.com/servil-software-factory/BLAKE3/pull/274), stacked on frozen #271.
+Sam-assigned cost follow-up: [startup #268](https://github.com/servil-software-factory/BLAKE3/issues/268#issuecomment-6700142909) and [first-chunk #270](https://github.com/servil-software-factory/BLAKE3/issues/270#issuecomment-6700143624).
+
 ## Result and review scope
 
 The existing grouped incremental API now uses eight independent SIMD lanes on
