@@ -2,6 +2,9 @@
 
 2026-11-07 — Sam Shackleton
 
+Review: [draft #277](https://github.com/servil-software-factory/BLAKE3/pull/277), stacked on frozen #274.
+Sam-assigned cost records: [startup #268](https://github.com/servil-software-factory/BLAKE3/issues/268#issuecomment-6701173316), [first-chunk #270](https://github.com/servil-software-factory/BLAKE3/issues/270#issuecomment-6701173826).
+
 ## Result and scope
 
 AVX-512 CPUs already have a tested eight-lane kernel. Grouped incremental
