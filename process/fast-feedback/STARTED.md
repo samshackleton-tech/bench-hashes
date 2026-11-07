@@ -1,5 +1,7 @@
 # Fast-feedback pilot: first implementation
 
+Historical snapshot of the first slice. [Current delivery](README.md) links the maintained runner; the initial code remains in the source commit below.
+
 Tracking: [program #146](https://github.com/servil-software-factory/bench-hashes/issues/146), [pilot #147](https://github.com/servil-software-factory/bench-hashes/issues/147).
 
 ## Delivered
@@ -11,7 +13,7 @@ verification. Terminal records survive a repeated executor invocation.
 Source: **`4d0306cc0858a0cf98ac6c6dac1be2581be4fa41`**.
 [Implementation delta](https://github.com/samshackleton-tech/bench-hashes/compare/54b829d...4d0306cc0858a0cf98ac6c6dac1be2581be4fa41).
 
-One command runs the suite and all four planted-fault controls:
+From a checkout of that source, one command runs the suite and all four planted-fault controls:
 
 ```sh
 python3 tools/pinned-run/check.py --output /tmp/pinned-run-check
