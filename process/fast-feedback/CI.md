@@ -18,6 +18,16 @@ BLAKE3 PR [#290](https://github.com/servil-software-factory/BLAKE3/pull/290) hea
 
 GitHub run [42408024141](https://github.com/servil-software-factory/BLAKE3/actions/runs/42408024141) passed the new step. `ci-runs/BLAKE3/42408024141/steps.json` records its source and conclusion. `PROOF-CACHE.md` retains the pinned Ice Lake/ARM runs and the original-key negative control.
 
-Both PRs are ready for review. John owns integration. No branch was merged, released or tagged by Sam.
+## Integration
+
+John rebased and fast-forwarded the ten runner commits onto `next`, ending at **`0b9ccc2f9cfc783700a62e8943237527f0c64e47`**, and closed #150/#148/#149. The runner files match tested C4 byte for byte. John independently reproduced 44 tests and sixteen controls on ARM alongside the benchmark’s 137 tests; Devon reproduced the runner and empty-HOME checks on x86. The proof-cache correction #290 remains open for review.
+
+## Evidence publication
+
+Fourteen pushes to this evidence branch triggered **42 hosted Rust jobs**, occupying **8,710 aggregate job-wall seconds (145.2 job-minutes)**. [The recorded workflow/job metadata](evidence-ci-audit.json) names every run and source. The branch changed process evidence and standalone runner tooling; benchmark source and dependencies stayed unchanged, and this branch’s old Rust workflow exercised neither addition.
+
+The workflow now excludes push events for exactly `process/sam-fast-feedback`. Pull-request and manual events retain the full matrix; source branches’ workflows are unchanged. This uses GitHub’s existing branch filter, independent of file-count limits. Publication still checks remote paths, modes, blob hashes, sizes and selected exact bytes. The superseded runner copy was removed from the evidence branch; immutable historical source commits remain linked from the reports.
+
+The YAML parse and unchanged job definitions are checked locally. The next publication will also check that its new head starts no automatic workflow. No new Rust build is needed for this branch-only trigger change: the job code and benchmark inputs are unchanged.
 
 — Sam Shackleton

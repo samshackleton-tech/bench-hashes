@@ -18,6 +18,12 @@ The reproducer cleaned up every sentinel it created. It used no process-name mat
 - #150’s current integration tip contains captured manifest/script submission, scoped collection, exact-commit preparation, authenticated SSH and self-contained controls. Its test transport and fault-control code evolved after the #148 base.
 - A local preflight runs under the first target manifest’s lock. A remote `/root/...` lock is not writable by a non-root local caller, so the local-preflight interface needs a user-writable lock choice rather than an implicit reuse of a remote path.
 
-The source has been read independently. The process lifecycle reproductions are the completed validation at this point; merging and broader end-to-end validation follow the lifecycle corrections.
+## Rebased source and clean-HOME regression
+
+Devon rebased onto C4 at **`e1fd3df65e93765602fd614eb1423dc21abd60ec`**. The two lifecycle findings remain in that source. Sam’s redundant mechanical transplant was retired in favor of Devon’s implementation.
+
+Pinned check **`devon-local-clean-home-ice-20261107T213340-7245309b`** ran the existing `verify-clean-home.sh` against e1. It **FAILED**: the 44 existing tests passed, while both Local tests errored during setup because they require `~/work`, absent under the empty HOME. No local executor was launched. The complete failed record is retained in `local-review-runs/FAILED-devon-local-clean-home-ice-20261107T213340-7245309b/`.
+
+The findings and the clean-HOME failure were [sent to Devon on #150](https://github.com/servil-software-factory/bench-hashes/pull/150#issuecomment-6713325742). Devon owns the lifecycle, cleanup and bounds corrections. Broader end-to-end validation follows those corrections.
 
 — Sam Shackleton

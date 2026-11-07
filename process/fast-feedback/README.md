@@ -23,7 +23,8 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Four old/new preparation pairs and representative checks | [Exact-commit preparation](PREPARATION.md) | [Preparation records](prepare-runs/) |
 | Reviewer fixes, clean environment and host-key rejection | [Host authentication](HOST-AUTH.md) | [Authenticated checks](host-auth-runs/) |
 | Generator dependencies in the long-proof cache | [Proof-cache identity](PROOF-CACHE.md) | [Cache-key checks](proof-cache-runs/) |
-| Fast controls before longer CI work | [CI handoff](CI.md) | [Hosted CI records](ci-runs/) |
+| Fast controls before longer CI work; evidence-only trigger cleanup | [CI handoff](CI.md) | [Hosted CI records](ci-runs/) |
+| Local backend’s lifecycle findings and clean-HOME regression | [Independent review](LOCAL-REVIEW.md) | [Reproductions and failed check](local-review-runs/) |
 
 The proof-cache correction is [BLAKE3 PR #290](https://github.com/servil-software-factory/BLAKE3/pull/290), ready for review. It changes cache selection and tests, leaving library code and proof definitions unchanged.
 
