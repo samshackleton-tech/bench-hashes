@@ -26,12 +26,11 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Fast controls before longer CI work; evidence-only trigger cleanup | [CI handoff](CI.md) | [Hosted CI records](ci-runs/) |
 | Local backend’s lifecycle findings and clean-HOME regression | [Independent review](LOCAL-REVIEW.md) | [Reproductions and failed check](local-review-runs/) |
 
-The proof-cache correction is [BLAKE3 PR #290](https://github.com/servil-software-factory/BLAKE3/pull/290), ready for review. It changes cache selection and tests, leaving library code and proof definitions unchanged.
+John integrated the [proof-cache correction #290](https://github.com/servil-software-factory/BLAKE3/pull/290) into `next` at **`31c11c254c3bce80ff2cd00543fd693f6969fb37`** and independently reproduced its three tests. It changes cache selection and tests, leaving library code and proof definitions unchanged.
 
 ## Open follow-through
 
-- Organization review/integration of the proof-cache correction #290.
-- Devon’s local-backend lifecycle corrections and execution bounds; [independent review](LOCAL-REVIEW.md).
+- Review Devon’s corrected local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152) and its subsequent execution bounds; [earlier findings](LOCAL-REVIEW.md).
 - Real-work queue tails, first-actionable-result time and reviewed decisions per week, weighed against the added hardware cost.
 - Enrollment of remaining fleet hosts before their first request with the authenticated client.
 - Later #146 work: dependency-complete evidence reuse, proof throughput and calibrated 80/20 screening.

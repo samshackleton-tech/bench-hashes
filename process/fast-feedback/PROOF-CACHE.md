@@ -23,6 +23,8 @@ The control restores the original key's missing dependencies in a temporary scri
 
 Raw source/script identities, tests, control diff, phases and review summaries are in `proof-cache-runs/`. `proof-cache-check.sh` is the pinned instrument. It reads no credentials and posts no GitHub proof status.
 
-The change affects cache selection and its tests. It leaves library machine code, kernels and proof definitions unchanged, so this validation targets cache identity rather than rerunning the native performance gate or full proof families. John owns integration and the next proof run.
+The change affects cache selection and its tests. It leaves library machine code, kernels and proof definitions unchanged, so this validation targets cache identity rather than rerunning the native performance gate or full proof families.
+
+John independently reproduced the three tests and integrated [#290](https://github.com/servil-software-factory/BLAKE3/pull/290) into `next` at **`31c11c254c3bce80ff2cd00543fd693f6969fb37`**. He owns the next proof run.
 
 — Sam Shackleton

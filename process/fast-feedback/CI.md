@@ -20,7 +20,7 @@ GitHub run [42408024141](https://github.com/servil-software-factory/BLAKE3/actio
 
 ## Integration
 
-John rebased and fast-forwarded the ten runner commits onto `next`, ending at **`0b9ccc2f9cfc783700a62e8943237527f0c64e47`**, and closed #150/#148/#149. The runner files match tested C4 byte for byte. John independently reproduced 44 tests and sixteen controls on ARM alongside the benchmark’s 137 tests; Devon reproduced the runner and empty-HOME checks on x86. The proof-cache correction #290 remains open for review.
+John rebased and fast-forwarded the ten runner commits onto `next`, ending at **`0b9ccc2f9cfc783700a62e8943237527f0c64e47`**, and closed #150/#148/#149. The runner files match tested C4 byte for byte. John independently reproduced 44 tests and sixteen controls on ARM alongside the benchmark’s 137 tests; Devon reproduced the runner and empty-HOME checks on x86. John also integrated #290 into BLAKE3-Servil’s `next` at **`31c11c254c3bce80ff2cd00543fd693f6969fb37`**, independently reproducing its three tests.
 
 ## Evidence publication
 
@@ -28,6 +28,6 @@ Fourteen pushes to this evidence branch triggered **42 hosted Rust jobs**, occup
 
 The workflow now excludes push events for exactly `process/sam-fast-feedback`. Pull-request and manual events retain the full matrix; source branches’ workflows are unchanged. This uses GitHub’s existing branch filter, independent of file-count limits. Publication still checks remote paths, modes, blob hashes, sizes and selected exact bytes. The superseded runner copy was removed from the evidence branch; immutable historical source commits remain linked from the reports.
 
-The YAML parse and unchanged job definitions are checked locally. The next publication will also check that its new head starts no automatic workflow. No new Rust build is needed for this branch-only trigger change: the job code and benchmark inputs are unchanged.
+The YAML parse confirms that all job definitions and PR/manual triggers are unchanged. Publication **`475d5dfb911edf36f9845b2a22200c4458fb0e60`** started **zero automatic workflows**, confirmed again nine minutes after publication. A new Rust build cannot exercise this branch-only trigger change; the job code and benchmark inputs are unchanged.
 
 — Sam Shackleton
