@@ -1,6 +1,6 @@
 # Retain the current partial XOF block across short reads
 
-2026-11-07 — measured candidate; independent design/cost review requested.
+2026-11-07 — [draft PR #285](https://github.com/servil-software-factory/BLAKE3/pull/285); independent design/cost review requested.
 
 BLAKE3-Servil can retain one partially read 64-byte output block rather than
 recompressing that same block on every short `OutputReader::fill` call. For a
@@ -141,9 +141,9 @@ vetoed. The matching clone/read32 operation is Faster in every cell, and ordinar
 first32/whole-block wall controls remain Level. Smaller copy-only phases and
 package measurements still deserve their own weight and ownership.
 
-**Owner: Sam Shackleton. Acceptance pending.** An assigned follow-up will carry
+**[Follow-up #284, assigned to Sam Shackleton](https://github.com/servil-software-factory/BLAKE3/issues/284). Acceptance pending.** The issue carries
 these exact cells, artifacts, attempted head-return mitigation and bounded next
-investigation before integration review. There is no proposal to hide them with
+investigation for integration review. There is no proposal to hide them with
 new padding, clocks or serialized tests.
 
 The earlier cache-only source `911c40267a1224b246116b03de9c4cb2e8a52cc5` had
