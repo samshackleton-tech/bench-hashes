@@ -34,6 +34,15 @@ The three new plants disable host checking, accept a changed enrollment key and 
 
 `host-auth-startup-aa-ice-20261107T191623-03b0c39e`, at source 651cf3d, passed the existing startup A/A instrument over the authenticated transport: **17.2 s**, eight Level judgments and no load-warning output. Its full source, script, runner and phase identities are in `host-auth-runs/`.
 
-The final source is installed locally and request-deployed on both pilot hosts. #150 carries these follow-up commits together with collection and exact-commit preparation. John owns organization integration.
+## Explicit request identity
+
+A final transport pass added `IdentitiesOnly=yes`, so a request uses the named everyday key rather than an agent's alternate identity. Source **`c4e57ee2e465a5f9a8b7c272006047bbc65b1702`** passed **44 tests and sixteen fault controls** with empty HOME and system-only PATH on both pilot hosts:
+
+- `explicit-key-clean-ice-20261107T200000-8ab93b88`.
+- `explicit-key-clean-arm-20261107T200004-c2e578d5`.
+
+The extra plant enables implicit identities and fails the transport-argument test. Both hosted Linux CI jobs also passed all sixteen controls; their logs are indexed in `CI.md`.
+
+This source is installed locally and request-deployed on both pilot hosts. #150 carries these follow-up commits together with collection and exact-commit preparation. John owns organization integration.
 
 — Sam Shackleton

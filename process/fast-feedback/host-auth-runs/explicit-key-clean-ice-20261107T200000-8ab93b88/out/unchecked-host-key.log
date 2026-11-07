@@ -1,0 +1,25 @@
+--- pinned-run
++++ unchecked-host-key
+@@ -64,7 +64,7 @@
+ KNOWN_HOSTS = os.path.expanduser("~/.ssh/known_hosts")
+ SSH = ["ssh", "-F", "/dev/null", "-i", os.path.expanduser("~/.ssh/id_ed25519"), "-o", "BatchMode=yes",
+        "-o", "IdentitiesOnly=yes",
+-       "-o", "StrictHostKeyChecking=yes", "-o", "HostKeyAlgorithms=ssh-ed25519", "-o", "LogLevel=ERROR",
++       "-o", "StrictHostKeyChecking=no", "-o", "HostKeyAlgorithms=ssh-ed25519", "-o", "LogLevel=ERROR",
+        "-o", "ConnectTimeout=15",
+        # One connection reused for every call: a new SSH login runs PAM, the MOTD scripts and a
+        # systemd --user manager, about half a CPU-second the machine's load reading counts as
+F
+======================================================================
+FAIL: test_transport_checks_the_pinned_host_and_uses_a_fresh_connection_namespace (__main__.Client.test_transport_checks_the_pinned_host_and_uses_a_fresh_connection_namespace)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/explicit-key-clean-ice-20261107T200000-8ab93b88/tools/tools/pinned-run/test_pinned_run.py", line 496, in test_transport_checks_the_pinned_host_and_uses_a_fresh_connection_namespace
+    self.assertIn("StrictHostKeyChecking=yes", args)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'StrictHostKeyChecking=yes' not found in ['ssh', '-F', '/dev/null', '-i', '/root/pinned-runs/explicit-key-clean-ice-20261107T200000-8ab93b88/reviewer-home/.ssh/id_ed25519', '-o', 'BatchMode=yes', '-o', 'IdentitiesOnly=yes', '-o', 'StrictHostKeyChecking=no', '-o', 'HostKeyAlgorithms=ssh-ed25519', '-o', 'LogLevel=ERROR', '-o', 'ConnectTimeout=15', '-o', 'ControlMaster=auto', '-o', 'ControlPath=/root/pinned-runs/explicit-key-clean-ice-20261107T200000-8ab93b88/reviewer-home/.ssh/pinned-%C', '-o', 'ControlPersist=30m', '-o', 'UserKnownHostsFile=/tmp/pinned-run-test-ok488s89/known_hosts', 'root@ours', 'pinned-run serve version']
+
+----------------------------------------------------------------------
+Ran 1 test in 0.018s
+
+FAILED (failures=1)

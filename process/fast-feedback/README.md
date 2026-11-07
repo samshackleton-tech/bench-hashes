@@ -6,7 +6,7 @@ Program [#146](https://github.com/servil-software-factory/bench-hashes/issues/14
 
 The deployed runner preflights an instrument, submits matching target inputs, collects the next result by study and writes a source/latency/judgment summary. Fresh checkouts use the requested commit's history from the existing mirror. Host requests authenticate enrolled ED25519 keys.
 
-Integration tip: [bench-hashes PR #150](https://github.com/servil-software-factory/bench-hashes/pull/150), ready for review, head **`6778f98dcfaa24f2fc331a9252f65817f8eb03e7`**, with runner implementation `50a8f2621c8511463ceafee8738f5908552c44c2` and automatic Linux CI controls. It includes the earlier #148/#149 slices. **44 tests and fifteen fault controls** passed on Ice Lake and ARM, with empty HOME and system-only PATH. John owns integration.
+Integration tip: [bench-hashes PR #150](https://github.com/servil-software-factory/bench-hashes/pull/150), ready for review, head **`c4e57ee2e465a5f9a8b7c272006047bbc65b1702`**, with automatic Linux CI controls. It includes the earlier #148/#149 slices. **44 tests and sixteen fault controls** passed on Ice Lake and ARM, with empty HOME and system-only PATH. Both hosted Linux CI architectures passed the same controls. John owns integration.
 
 The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Representative native validation returned in **27.1 s**; startup A/A returned in **17.1 s**. A compiler/reference job's four paired checks fell from **16.98–17.26 s to 6.19–6.24 s**. Combined preflight→Ice Lake target finish took **14.1 s**. The reports identify the source and conditions for every result.
 

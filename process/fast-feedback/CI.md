@@ -10,6 +10,8 @@ GitHub run [42408023095](https://github.com/servil-software-factory/bench-hashes
 
 The new artifact upload stores the test and control logs under a separate name. The downloaded artifact digests were checked against GitHub's metadata before extracting their text logs. `ci-runs/bench-hashes/42408023095/` contains both sets of logs, source metadata and the recorded step conclusions. Existing benchmark artifacts retain their layout.
 
+The subsequent request-identity control at head **`c4e57ee2e465a5f9a8b7c272006047bbc65b1702`** also passed automatically on both hosted Linux architectures: **44 tests and sixteen fault controls**. Run [42408880986](https://github.com/servil-software-factory/bench-hashes/actions/runs/42408880986) and its downloaded logs are in `ci-runs/bench-hashes/42408880986/`.
+
 ## Proof-cache identity
 
 BLAKE3 PR [#290](https://github.com/servil-software-factory/BLAKE3/pull/290) head **`2cbea238af01a79a5f7cb68adb5a04eeb8f516ab`** adds its three focused cache-key tests immediately after checkout in the existing formatting/tool-controls job. Its functional correction and tests remain those checked at source `349bc152064388de20fd5ff6bcaea1e668d952d6`.

@@ -1,0 +1,49 @@
+--- pinned-run
++++ missing-lock-event
+@@ -611,7 +611,7 @@
+         # same lock through preparation, the job and result verification.
+         fcntl.flock(lock, fcntl.LOCK_EX)
+         open(f"{run}/LOCKED", "w").close()
+-        record_phase(run, "lock_acquired")
++        pass  # planted missing event
+     with open(f"{run}/prepare.log", "w") as log:
+         # Every repository fetched by hash into a fresh directory, and checked.
+         # Git's objects are named by their hashes, so one mirror per URL is a
+/tmp/pinned-run-control-apj8qj84/pinned-run:100: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-control-apj8qj84/pinned-run'>
+  return open(os.path.realpath(__file__), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-apj8qj84/pinned-run:591: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-b2in41lh/phases-20261105T000001-00000001/manifest.json' mode='r' encoding='UTF-8'>
+  m = json.load(open(f"{run}/manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-apj8qj84/pinned-run:642: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-test-b2in41lh/scripts/job-ab08508fdf5ca4da5c4995987bc41c56c048aaa5eeb046417ae4049b7d40286e.sh'>
+  if sha256(open(script, "rb").read()) != m["script_sha256"]:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F
+======================================================================
+FAIL: test_phases_cover_success_with_monotonic_and_wall_clock_identities (__main__.Server.test_phases_cover_success_with_monotonic_and_wall_clock_identities)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/runner/work/bench-hashes/bench-hashes/tools/pinned-run/test_pinned_run.py", line 75, in test_phases_cover_success_with_monotonic_and_wall_clock_identities
+    self.assertEqual([x["phase"] for x in rows], ["accepted", "executor_started", "lock_acquired",
+AssertionError: Lists differ: ['acc[24 chars]d', 'prepared', 'job_finished', 'verification_[17 chars]hed'] != ['acc[24 chars]d', 'lock_acquired', 'prepared', 'job_finished[34 chars]hed']
+
+First differing element 2:
+'prepared'
+'lock_acquired'
+
+Second list contains 1 additional elements.
+First extra element 6:
+'finished'
+
+  ['accepted',
+   'executor_started',
++  'lock_acquired',
+   'prepared',
+   'job_finished',
+   'verification_finished',
+   'finished']
+
+----------------------------------------------------------------------
+Ran 1 test in 0.016s
+
+FAILED (failures=1)

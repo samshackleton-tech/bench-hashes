@@ -1,0 +1,45 @@
+--- pinned-run
++++ premature-lock-event
+@@ -609,9 +609,9 @@
+         # Preparation consumes CPU and I/O too: cloning a queued run's
+         # repositories once spoiled the timing run ahead of it. Hold the
+         # same lock through preparation, the job and result verification.
++        record_phase(run, "lock_acquired")
+         fcntl.flock(lock, fcntl.LOCK_EX)
+         open(f"{run}/LOCKED", "w").close()
+-        record_phase(run, "lock_acquired")
+     with open(f"{run}/prepare.log", "w") as log:
+         # Every repository fetched by hash into a fresh directory, and checked.
+         # Git's objects are named by their hashes, so one mirror per URL is a
+/tmp/pinned-run-control-2kpdetv7/pinned-run:100: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-control-2kpdetv7/pinned-run'>
+  return open(os.path.realpath(__file__), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-2kpdetv7/pinned-run:591: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-i81a5ct5/phase-lock-20261105T000001-00000001/manifest.json' mode='r' encoding='UTF-8'>
+  m = json.load(open(f"{run}/manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F/usr/lib/python3.14/unittest/case.py:668: ResourceWarning: unclosed file <_io.TextIOWrapper name='/tmp/pinned-run-test-i81a5ct5/bench.lock' mode='a' encoding='UTF-8'>
+  with outcome.testPartExecutor(self):
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+
+======================================================================
+FAIL: test_lock_acquired_event_is_emitted_under_the_lock (__main__.Server.test_lock_acquired_event_is_emitted_under_the_lock)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/explicit-key-clean-arm-20261107T200004-c2e578d5/tools/tools/pinned-run/test_pinned_run.py", line 99, in test_lock_acquired_event_is_emitted_under_the_lock
+    self.execute_fake(run_id)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^
+  File "/root/pinned-runs/explicit-key-clean-arm-20261107T200004-c2e578d5/tools/tools/pinned-run/test_pinned_run.py", line 59, in execute_fake
+    self.pr.remote_execute(os.path.join(self.root, run_id))
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pinned-run-control-2kpdetv7/pinned-run", line 612, in remote_execute
+    record_phase(run, "lock_acquired")
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pinned-runs/explicit-key-clean-arm-20261107T200004-c2e578d5/tools/tools/pinned-run/test_pinned_run.py", line 94, in record
+    with self.assertRaises(BlockingIOError):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: BlockingIOError not raised
+
+----------------------------------------------------------------------
+Ran 1 test in 0.020s
+
+FAILED (failures=1)
