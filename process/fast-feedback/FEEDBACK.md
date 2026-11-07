@@ -51,7 +51,7 @@ Next observations should record **client invocation→displayed result** alongsi
 
 The existing audit script gained a phase-recorded pilot mode. It reuses the maintained runner’s `review_card()` for format/boot/order checks, durations and copied judgments. The reader used here has SHA-256 `f45d9b2e187b4074d7bd10bc8e2dce1ff7430d4f92ede54aab25bdd4172859cf` (landed source `0b9ccc2f9cfc783700a62e8943237527f0c64e47`).
 
-From this report directory, with a checkout of that runner source:
+To reproduce this frozen snapshot, check out evidence commit **`1332a176fed74f86e72c41072abf2469906fe7ff`**, then run from its report directory with a checkout of that runner source:
 
 ```sh
 python3 audit_runs.py --pilot . --runner /path/to/bench-hashes/tools/pinned-run/pinned-run

@@ -23,7 +23,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Study-scoped fetch, summaries and named-run wait follow-up | [Collection](COLLECTION.md) | [Collection records](collect-runs/), [wait checks](wait-runs/) |
 | Four old/new preparation pairs and representative checks | [Exact-commit preparation](PREPARATION.md) | [Preparation records](prepare-runs/) |
 | Reviewer fixes, clean environment and host-key rejection | [Host authentication](HOST-AUTH.md) | [Authenticated checks](host-auth-runs/) |
-| Generator dependencies in the long-proof cache | [Proof-cache identity](PROOF-CACHE.md) | [Cache-key checks](proof-cache-runs/) |
+| Proof-cache dependencies, reuse scope and executed-driver identity | [Proof-cache identity](PROOF-CACHE.md) | [Initial checks](proof-cache-runs/), [driver follow-up](proof-driver-runs/), [input history](proof-key-history.json) |
 | Fast controls before longer CI work; evidence-only trigger cleanup | [CI handoff](CI.md) | [Hosted CI records](ci-runs/) |
 | Local backend’s lifecycle findings and clean-HOME regression | [Independent review](LOCAL-REVIEW.md) | [Reproductions and failed check](local-review-runs/) |
 
@@ -32,7 +32,7 @@ John integrated the [proof-cache correction #290](https://github.com/servil-soft
 ## Open follow-through
 
 - Resolve the lifecycle/reviewer-fixture findings on Devon’s local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152), then check its execution bounds; [review](LOCAL-REVIEW.md).
-- Independent review/integration of the one-second named-run wait [#153](https://github.com/servil-software-factory/bench-hashes/pull/153).
+- Independent review/integration of the one-second named-run wait [#153](https://github.com/servil-software-factory/bench-hashes/pull/153) and executed-driver proof-cache identity [BLAKE3 #293](https://github.com/servil-software-factory/BLAKE3/pull/293).
 - Extend the [initial real-work snapshot](FEEDBACK.md) with client invocation→display time, real queue contention and reviewed decisions per week, weighed against the added hardware cost.
 - Enrollment of remaining fleet hosts before their first request with the authenticated client.
 - Later #146 work: dependency-complete evidence reuse, proof throughput and calibrated 80/20 screening.

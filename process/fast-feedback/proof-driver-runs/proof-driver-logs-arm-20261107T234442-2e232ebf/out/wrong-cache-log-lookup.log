@@ -1,0 +1,32 @@
+--- fixed-key
++++ wrong-cache-log-lookup
+@@ -42,7 +42,7 @@
+ 	description="passed; inputs as $(printf %s "$prior" | cut -c1-12); SHA-256 $(b64 $psha) BLAKE3 $(b64 $pb3)"
+ 	[ ${#description} -le 140 ] || { echo "long-proofs: the status description is ${#description} characters, over GitHub's 140: $description" >&2; exit 1; }
+ 	status success "$description"
+-	echo "long proofs passed for $commit; same proof inputs as $prior, not rerun; logs in $root/tmp/long-proofs/$prior-$inputs, SHA-256 $psha, BLAKE3 $pb3 (hex)"
++	echo "long proofs passed for $commit; same proof inputs as $prior, not rerun; logs in $root/tmp/long-proofs/$prior, SHA-256 $psha, BLAKE3 $pb3 (hex)"
+ 	exit 0
+ fi
+ mkdir -p "$logs"
+test_caller_verification_changes_invalidate_but_relocation_keeps_the_key (test_long_proof_inputs.LongProofInputs.test_caller_verification_changes_invalidate_but_relocation_keeps_the_key) ... ok
+test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) ... ok
+test_identical_inputs_and_unrelated_documentation_keep_the_cache_key (test_long_proof_inputs.LongProofInputs.test_identical_inputs_and_unrelated_documentation_keep_the_cache_key) ... ok
+test_kernel_specification_and_proof_tools_invalidate_the_cache_key (test_long_proof_inputs.LongProofInputs.test_kernel_specification_and_proof_tools_invalidate_the_cache_key) ... ok
+test_log_destinations_and_cache_lookup_preserve_each_input (test_long_proof_inputs.LongProofInputs.test_log_destinations_and_cache_lookup_preserve_each_input) ... FAIL
+test_same_proof_inputs_are_not_rerun (test_long_proofs.LongProofCarryOver.test_same_proof_inputs_are_not_rerun) ... ok
+test_success_and_failure (test_long_proofs.LongProofExit.test_success_and_failure) ... ok
+
+======================================================================
+FAIL: test_log_destinations_and_cache_lookup_preserve_each_input (test_long_proof_inputs.LongProofInputs.test_log_destinations_and_cache_lookup_preserve_each_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/proof-driver-logs-arm-20261107T234442-2e232ebf/fork/tools/verify/test_long_proof_inputs.py", line 124, in test_log_destinations_and_cache_lookup_preserve_each_input
+    self.assertIn(str(expected), output, "cache hit names the retained input-specific logs")
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '/tmp/long-proof-inputs-0bewk3gj/tmp/long-proofs/01bdb29890102953420424aeccb35011c63c82ad-abd207df5710ea4bc2d70b1aad3df45d07745a89c4366c9b567eb8946b7a75be' not found in 'long proofs passed for 04b30fe5e2ead3ebca6f84300310d3e845a7dd56; same proof inputs as 01bdb29890102953420424aeccb35011c63c82ad, not rerun; logs in /tmp/long-proof-inputs-0bewk3gj/tmp/long-proofs/01bdb29890102953420424aeccb35011c63c82ad, SHA-256 aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa, BLAKE3 bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb (hex)\n' : cache hit names the retained input-specific logs
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.796s
+
+FAILED (failures=1)

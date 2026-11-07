@@ -1,0 +1,41 @@
+--- fixed-key
++++ omitted-caller
+@@ -32,7 +32,7 @@
+ # tools, the specification, every checked generator, and the executing
+ # driver, which can come from another commit. A green run with identical
+ # inputs is reused; its status names the run that already passed.
+-inputs=$(tree=$(git -C "$root" ls-tree "$commit" -- c c2sp tools/verify tools/gen_neon_hybrid.py tools/gen_sme2_hybrid.py tools/gen_x86.py) && driver=$(sha256sum < "$0") && printf '%s\n%s\n' "$tree" "$driver" | sha256sum | cut -d' ' -f1)
++inputs=$(git -C "$root" ls-tree "$commit" -- c c2sp tools/verify tools/gen_neon_hybrid.py tools/gen_sme2_hybrid.py tools/gen_x86.py | sha256sum | cut -d' ' -f1)
+ logs=$root/tmp/long-proofs/$commit-$inputs
+ record=$root/tmp/long-proofs/inputs/$inputs.txt
+ if [ -f "$record" ]; then
+test_caller_verification_changes_invalidate_but_relocation_keeps_the_key (test_long_proof_inputs.LongProofInputs.test_caller_verification_changes_invalidate_but_relocation_keeps_the_key) ... FAIL
+test_each_checked_generator_invalidates_the_cache_key (test_long_proof_inputs.LongProofInputs.test_each_checked_generator_invalidates_the_cache_key) ... ok
+test_identical_inputs_and_unrelated_documentation_keep_the_cache_key (test_long_proof_inputs.LongProofInputs.test_identical_inputs_and_unrelated_documentation_keep_the_cache_key) ... ok
+test_kernel_specification_and_proof_tools_invalidate_the_cache_key (test_long_proof_inputs.LongProofInputs.test_kernel_specification_and_proof_tools_invalidate_the_cache_key) ... ok
+test_log_destinations_and_cache_lookup_preserve_each_input (test_long_proof_inputs.LongProofInputs.test_log_destinations_and_cache_lookup_preserve_each_input) ... FAIL
+test_same_proof_inputs_are_not_rerun (test_long_proofs.LongProofCarryOver.test_same_proof_inputs_are_not_rerun) ... ok
+test_success_and_failure (test_long_proofs.LongProofExit.test_success_and_failure) ... ok
+
+======================================================================
+FAIL: test_caller_verification_changes_invalidate_but_relocation_keeps_the_key (test_long_proof_inputs.LongProofInputs.test_caller_verification_changes_invalidate_but_relocation_keeps_the_key)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/proof-driver-logs-arm-20261107T234442-2e232ebf/fork/tools/verify/test_long_proof_inputs.py", line 86, in test_caller_verification_changes_invalidate_but_relocation_keeps_the_key
+    self.assertNotEqual(self.key(), before, "changed caller verification must invalidate cached success")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'a238df0b5bc7deb10efdc8a13f996bd20006050d4a278f544f4b7ff39b4322d6' == 'a238df0b5bc7deb10efdc8a13f996bd20006050d4a278f544f4b7ff39b4322d6' : changed caller verification must invalidate cached success
+
+======================================================================
+FAIL: test_log_destinations_and_cache_lookup_preserve_each_input (test_long_proof_inputs.LongProofInputs.test_log_destinations_and_cache_lookup_preserve_each_input)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/proof-driver-logs-arm-20261107T234442-2e232ebf/fork/tools/verify/test_long_proof_inputs.py", line 98, in test_log_destinations_and_cache_lookup_preserve_each_input
+    self.assertNotEqual(before, after)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+AssertionError: 'a238df0b5bc7deb10efdc8a13f996bd20006050d4a278f544f4b7ff39b4322d6' == 'a238df0b5bc7deb10efdc8a13f996bd20006050d4a278f544f4b7ff39b4322d6'
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.543s
+
+FAILED (failures=2)
