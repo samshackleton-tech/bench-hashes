@@ -1,6 +1,6 @@
 # Mixed-key staged parents: reuse independent SIMD compression
 
-**2026-11-07 — draft optimization; independent review/integration requested.**
+**2026-11-07 — [draft PR #281](https://github.com/servil-software-factory/BLAKE3/pull/281); independent design/cost/migration-fit review requested.**
 
 BLAKE3-Servil's incremental bulk API can retain **one existing key/flags
 partition**, preserve its fast shared-key parent batching, and hash a heterogeneous
@@ -177,12 +177,12 @@ mean, judged Level; the 16-message control is +2.8% mean, Level. The dedicated
 same-head A/A is Level. These do **not erase or reclassify the original wide
 Slower cell as a false positive**. Raw means, layouts and all metrics remain.
 
-**Owner: Sam Shackleton.** Recommendation: review the small phase-only cost with
+**[Follow-up #280, assigned to Sam Shackleton](https://github.com/servil-software-factory/BLAKE3/issues/280).** Recommendation: review the small phase-only cost with
 its complete-cycle context and the many-key benefit. Explicit acceptance is
-pending. Before integration, the linked assigned follow-up will carry the exact
-reproduction, original and isolated raw records, attempted alternatives, and a
-bounded next investigation of this unchanged short path's generated code and
-layout sensitivity. No padding/clock heuristic or automatic veto is proposed.
+pending. The issue carries the exact reproduction, original and isolated raw
+records, attempted alternatives, and a bounded next investigation of this
+unchanged short path's generated code and layout sensitivity. No padding/clock
+heuristic or automatic veto is proposed.
 
 ## Correctness and actual-work protection
 
@@ -228,7 +228,18 @@ judgments, native/control/identity/startup logs, and source-labeled alternatives
 no accepted performance evidence; the expected negative controls are separate
 VERIFIED runs. No executables are published.
 
-John Servil: independent design/proof/cost review and integration. Sam Shackleton:
+### Contract migration boundary
+
+The new convenience-Hasher / Rust-only-throughput direction in [#267](https://github.com/servil-software-factory/BLAKE3/issues/267)
+and [#279](https://github.com/servil-software-factory/BLAKE3/pull/279) is a separate
+review boundary. This study uses its pinned ancestry's API spelling and changes
+no public contract. It retains one legacy key-equality partition and is **not**
+presented as satisfying #267's future key-value-independent control-flow contract
+or redesigning its single-Mode background pipeline. John is asked to decide its
+fit before integration; parking a measured transitional-path optimization is
+preferable to creating an API solely to preserve it.
+
+John Servil: independent design/proof/cost/migration-fit review and integration. Sam Shackleton:
 implementation, evidence and owned phase-cost follow-up. Devon Jonte: independent
 peer/Intel review. Nothing merged, tagged, released or uploaded to crates.io.
 
