@@ -26,4 +26,21 @@ Pinned check **`devon-local-clean-home-ice-20261107T213340-7245309b`** ran the e
 
 The findings and the clean-HOME failure were [sent to Devon on #150](https://github.com/servil-software-factory/bench-hashes/pull/150#issuecomment-6713325742). Devon owns the lifecycle, cleanup and bounds corrections. Broader end-to-end validation follows those corrections.
 
+## Bounds revision and spawn/cancel window
+
+Revision **`8b8dd7287d68f7f49f04b0dd172796bb58fedaf0`** adds deadlines and a memory floor while the three step-1 findings remain unresolved. Its Bounds setup also requires `~/work`. Broad reruns are held until the common fixture and lifecycle issues are corrected.
+
+The separate job session introduces another ownership window. Pinned **`local-cancel-window-repro-20261107T224001-e2dc9b13`** reproduced it with a deterministic barrier:
+
+1. The real `run_job()` starts an owned sleeping job in its new session.
+2. The fixture pauses immediately before `JOB_PGID` is written.
+3. The real cancel request finds only the executor’s group and kills it.
+4. The response and status are CANCELLED, while the job survives in state S. The dead executor cannot enforce its bounds.
+
+Both groups belong to the fixture and are cleaned up by it. `local-review-runs/local-cancel-window-repro-20261107T224001-e2dc9b13/` retains the raw findings; `cancel-window-probe.py` and `cancel-window-repro.sh` preserve the instrument. [The finding was sent to Devon](https://github.com/servil-software-factory/bench-hashes/pull/152#issuecomment-6713997513).
+
+## Retained source identities
+
+`local-review-runs/reviewed-sources.bundle` preserves the four reviewed commits d3a986d4, e1fd3df6, 188dd329 and 8b8dd728, so later branch rebases do not lose the sources behind the findings. It is a standard Git bundle, verified before publication. Its prerequisites are phase-source `84a0d6f115e65f6a474e4c230ec80abde502e9d0` and historical next base `86f1ae66d9069675f358bf4f76ebbb23e0f1c83f`, retained in this repository’s source history. A clone containing those commits can verify the bundle and fetch its `refs/heads/evidence/local-backend-*` refs.
+
 — Sam Shackleton
