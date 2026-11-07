@@ -15,6 +15,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 | Read this for | Report | Raw records |
 |---|---|---|
 | Historical delay, failed probes and priorities | [Process audit](REPORT.md) | [Deduplicated run audit](run-audit.json) |
+| Real-change outcomes versus short-job feedback | [Initial feedback snapshot](FEEDBACK.md) | [Phase audit](pilot-audit.json), [review events](decision-audit.json) |
 | Phase records and initial checks | [First slice](STARTED.md) | [ARM/Zen 3 phase checks](phase-runs/) |
 | Hardware, lockdown and first native/timing runs | [First fast-lane runs](FAST-LANE-ICE.md) | [Fast-lane records](fast-lane-runs/) |
 | Clock, counter, timer, load and energy validation | [New-host machine profile](MACHINE.md) | [Machine checks](machine-runs/) |
@@ -32,7 +33,7 @@ John integrated the [proof-cache correction #290](https://github.com/servil-soft
 
 - Resolve the lifecycle/reviewer-fixture findings on Devon’s local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152), then check its execution bounds; [review](LOCAL-REVIEW.md).
 - Independent review/integration of the one-second named-run wait [#153](https://github.com/servil-software-factory/bench-hashes/pull/153).
-- Real-work queue tails, first-actionable-result time and reviewed decisions per week, weighed against the added hardware cost.
+- Extend the [initial real-work snapshot](FEEDBACK.md) with client invocation→display time, real queue contention and reviewed decisions per week, weighed against the added hardware cost.
 - Enrollment of remaining fleet hosts before their first request with the authenticated client.
 - Later #146 work: dependency-complete evidence reuse, proof throughput and calibrated 80/20 screening.
 

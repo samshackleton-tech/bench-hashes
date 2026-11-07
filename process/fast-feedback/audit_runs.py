@@ -1,11 +1,102 @@
 #!/usr/bin/env python3
 """Summarize existing pinned-run artifacts; no jobs or measurements launched."""
+import argparse
 import collections
+import contextlib
 import datetime as dt
+import hashlib
+import io
 import json
 import re
 import statistics
 from pathlib import Path
+
+
+def pilot_category(run, manifest, state):
+    if manifest.get('env', {}).get('PREFLIGHT_PLANT') == 'compile':
+        return 'deliberate-failure-control'
+    if run.startswith('preflight-gate-check-') and state == 'FAILED':
+        return 'control-harness-development-failure'
+    if run.startswith(('devon-local-review-repro-', 'local-cancel-window-repro-')):
+        return 'bug-reproduction'
+    if run.startswith('devon-local-clean-home-'):
+        return 'candidate-gate-failure'
+    if run.startswith('prepare-ab-'):
+        return 'controlled-latency-experiment'
+    if run.startswith(('collect-e2e-good-', 'preflight-live-good-', 'optimized-e2e-good-')):
+        return 'workflow-fixture'
+    if run.startswith(('fast-lane-native-', 'fast-lane-startup-', 'optimized-native-',
+                       'optimized-startup-', 'host-auth-startup-', 'startup-scoped-collect-',
+                       'fast-lane-machine-')):
+        return 'host-or-instrument-validation'
+    if run.startswith(('pinned-phase-', 'fast-lane-runner-', 'preflight-gate-check-',
+                       'scoped-collect-', 'exact-prepare-', 'host-auth-clean-',
+                       'host-auth-final-', 'explicit-key-', 'proof-cache-', 'wait-check-')):
+        return 'tool-change-validation'
+    raise AssertionError(f'classify the new work explicitly: {run}')
+
+
+def pilot_audit(base, runner):
+    # Reuse the deployed reader's phase/TSV checks and intervals, rather than
+    # implementing another result reader or inferring time from Git file mtimes.
+    source = runner.read_bytes()
+    namespace = {'__name__': 'pilot_review_reader', '__file__': str(runner.resolve())}
+    exec(compile(source, str(runner), 'exec'), namespace)
+    records = {}
+    pre_phase = {
+        'pinned-phase-check-arm-20261107T173419-6676eb5c',
+        'pinned-phase-check-zen3-20261107T173419-6eea0898',
+    }
+    excluded = []
+    for path in sorted(base.glob('*-runs/*/manifest.json')):
+        folder = path.parent
+        manifest = json.loads(path.read_text())
+        run = folder.name.removeprefix('FAILED-')
+        if run in pre_phase:
+            assert not (folder / 'phases.jsonl').exists(), 'update the declared phase coverage'
+            excluded.append(run)
+            continue
+        state = (folder / 'STATUS').read_text().strip()
+        reasons = (folder / 'REASONS').read_text().strip() if (folder / 'REASONS').exists() else ''
+        result = state + ('\n' + reasons if reasons else '')
+        if run in records:
+            assert records[run]['runner_result'] == result, f'conflicting copies: {run}'
+            assert records[run]['script_sha256'] == manifest['script_sha256']
+            assert records[run]['repos'] == manifest['repos']
+            continue
+        with contextlib.redirect_stdout(io.StringIO()):
+            summary = namespace['review_card'](str(folder), result)
+        summary['category'] = pilot_category(run, manifest, state)
+        summary['artifact'] = str(folder.relative_to(base))
+        records[run] = summary
+    rows = [records[key] for key in sorted(records)]
+    assert rows, 'no pilot artifacts'
+    output = base / 'pilot-audit.json'
+    output.write_text(json.dumps(rows, indent=2, sort_keys=True) + '\n')
+    print('REVIEW_READER_SHA256', hashlib.sha256(source).hexdigest())
+    print('PRE_PHASE_CONTROLS_EXCLUDED', sorted(excluded))
+    print('UNIQUE', len(rows), dict(collections.Counter(r['runner_result'].splitlines()[0] for r in rows)))
+    for category in sorted({r['category'] for r in rows}):
+        group = [r for r in rows if r['category'] == category]
+        totals = sorted(r['durations_ns']['total'] for r in group if 'total' in r['durations_ns'])
+        print('CATEGORY', category, 'n', len(group), 'states',
+              dict(collections.Counter(r['runner_result'].splitlines()[0] for r in group)),
+              'accepted_to_finished_ns', totals)
+    print('OUTPUT', output)
+
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--pilot', nargs='?', type=Path, const=Path(__file__).resolve().parent,
+                    help='audit phase-recorded pilot artifacts under this directory')
+parser.add_argument('--runner', type=Path, help='canonical pinned-run whose review reader to use')
+args = parser.parse_args()
+if args.pilot is not None:
+    if args.runner is None:
+        parser.error('--pilot requires --runner: name the recorded review-reader source')
+    pilot_audit(args.pilot, args.runner)
+    raise SystemExit(0)
+if args.runner is not None:
+    parser.error('--runner requires --pilot')
 
 ROOT = Path('/home/samshackleton/blake3-reports')
 STUDIES = ['held-stage-next', 'clone-prefix-next', 'xof-cache-next', 'root-direct-next', 'finalize-root', 'first-chunk-batch', 'output8-next', 'small8-next', 'multiblock-next']
