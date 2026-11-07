@@ -1,0 +1,43 @@
+replace: /tmp/pinned-run-control-pxmgwpve/pinned-run: 1 replacement(s)
+--- /tmp/pinned-run-control-pxmgwpve/pinned-run
++++ /tmp/pinned-run-control-pxmgwpve/pinned-run (new)
+@@ -504,6 +504,8 @@
+         record_phase(run, "job_finished", exit_code=p.returncode)
+         if p.returncode != 0:
+             reasons.append(f"job: exit {p.returncode}")
++        if lock:
++            lock.close()
+         verification = verify(run, m)
+         reasons += verification
+         record_phase(run, "verification_finished", ok=not verification)
+/tmp/pinned-run-control-pxmgwpve/pinned-run:95: ResourceWarning: unclosed file <_io.BufferedReader name='/tmp/pinned-run-control-pxmgwpve/pinned-run'>
+  return open(os.path.realpath(__file__), "rb").read()
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-pxmgwpve/pinned-run:444: ResourceWarning: unclosed file <_io.TextIOWrapper name='/root/work/pinned-run-test-qs9x_uad/prepare-lock-20261105T000001-00000001/manifest.json' mode='r' encoding='UTF-8'>
+  m = json.load(open(f"{run}/manifest.json"))
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+/tmp/pinned-run-control-pxmgwpve/pinned-run:497: ResourceWarning: unclosed file <_io.BufferedReader name='/root/work/pinned-run-test-qs9x_uad/scripts/job-ab08508fdf5ca4da5c4995987bc41c56c048aaa5eeb046417ae4049b7d40286e.sh'>
+  if sha256(open(script, "rb").read()) != m["script_sha256"]:
+ResourceWarning: Enable tracemalloc to get the object allocation traceback
+F
+======================================================================
+FAIL: test_preparation_and_job_both_hold_the_measurement_lock (__main__.Server.test_preparation_and_job_both_hold_the_measurement_lock)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/root/pinned-runs/pinned-phase-check-zen3-20261107T173419-6eea0898/tools/tools/pinned-run/test_pinned_run.py", line 216, in test_preparation_and_job_both_hold_the_measurement_lock
+    self.pr.remote_execute(run)
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "/tmp/pinned-run-control-pxmgwpve/pinned-run", line 509, in remote_execute
+    verification = verify(run, m)
+  File "/root/pinned-runs/pinned-phase-check-zen3-20261107T173419-6eea0898/tools/tools/pinned-run/test_pinned_run.py", line 213, in verify
+    assert_locked("verify")
+    ~~~~~~~~~~~~~^^^^^^^^^^
+  File "/root/pinned-runs/pinned-phase-check-zen3-20261107T173419-6eea0898/tools/tools/pinned-run/test_pinned_run.py", line 203, in assert_locked
+    with self.assertRaises(BlockingIOError, msg=phase):
+         ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: BlockingIOError not raised : verify
+
+----------------------------------------------------------------------
+Ran 1 test in 0.011s
+
+FAILED (failures=1)
