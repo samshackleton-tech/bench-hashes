@@ -2,6 +2,9 @@
 
 2026-11-07 — Sam Shackleton
 
+Review: [draft #278](https://github.com/servil-software-factory/BLAKE3/pull/278).
+Work-count follow-up: [#238 comment](https://github.com/servil-software-factory/BLAKE3/issues/238#issuecomment-6702394885).
+
 ## Chosen change
 
 A three-line production guard avoids cloning the Hasher core and updating that
