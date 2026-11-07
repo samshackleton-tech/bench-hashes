@@ -1,0 +1,26 @@
+MEMORY vmovdqu ymm0, ymmword ptr [rdx]
+MEMORY vmovdqu xmm0, xmmword ptr [rdx]
+MEMORY vinsertf128 ymm0, ymm0, xmmword ptr [rdx], 0x1
+MEMORY vmovdqa ymmword ptr [rdx], ymm0
+MEMORY vpbroadcastd ymm0, dword ptr [rdx]
+MEMORY vpor ymm0, ymm0, ymmword ptr [rdx]
+MEMORY vpaddd ymm0, ymm0, ymmword ptr [rdx]
+MEMORY vpaddd ymm0, ymm1, ymmword ptr [rdx]
+MEMORY vpxor ymm0, ymm0, ymmword ptr [rdx]
+MEMORY vmovdqu ymmword ptr [rdx], ymm0
+MEMORY vmovdqu32 zmm0, zmmword ptr [rdx]
+MEMORY vpbroadcastd zmm0, dword ptr [rdx]
+MEMORY vpord zmm0, zmm0, zmmword ptr [rdx]
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "/root/pinned-runs/uniform-model-20261107T021011-d3db108f/library/tools/verify/cross_check_x86.py", line 198, in main
+    mx, mv, md = model(mnem, text, xs, vs, avx512, data, offset)
+                 ~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pinned-runs/uniform-model-20261107T021011-d3db108f/library/tools/verify/cross_check_x86.py", line 111, in model
+    x86.step(m, 0, mnem, x86.split(text), 0)
+    ~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/root/pinned-runs/uniform-model-20261107T021011-d3db108f/library/tools/verify/x86.py", line 681, in step
+    return vector(m, mnem, base, vex, ops, nxt)
+  File "/root/pinned-runs/uniform-model-20261107T021011-d3db108f/library/tools/verify/x86.py", line 898, in vector
+    raise Unproved(f"no model of {mnem} {', '.join(ops)}")
+aarch64.Unproved: no model of vpord zmm0, zmm0, zmmword ptr [rdx]
