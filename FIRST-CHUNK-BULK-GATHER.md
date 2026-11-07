@@ -2,6 +2,9 @@
 
 2026-11-07 — Sam Shackleton
 
+Review: [draft #271](https://github.com/servil-software-factory/BLAKE3/pull/271), stacked on frozen #269.
+Measured-cost follow-up: [#270](https://github.com/servil-software-factory/BLAKE3/issues/270), assigned to Sam.
+
 ## Result and review decision
 
 For 1,024 independent 1-KiB messages arriving in **four 256-byte pieces each**,
