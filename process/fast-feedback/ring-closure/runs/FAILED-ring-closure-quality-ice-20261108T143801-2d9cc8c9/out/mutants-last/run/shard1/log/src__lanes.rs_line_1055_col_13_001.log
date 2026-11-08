@@ -1,0 +1,62 @@
+
+*** src/lanes.rs:1055:13: replace sources::Source::take -> Option<Item> with Some(Default::default())
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::Source::take -> Option<Item> with Some(Default::default())
+@@ -1047,17 +1047,17 @@
+             self.claimed.store(base + own, Ordering::Relaxed);
+             self.finish.published.store(base + pieces, Ordering::Release);
+             core::sync::atomic::fence(Ordering::SeqCst);
+             base + pieces
+         }
+ 
+         /// Claim the next published item, if any.
+         pub(crate) fn take(&self) -> Option<Item> {
+-            self.take_claimed(|| {}, core::convert::identity)
++            Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// `claimed` lets the schedule test pause before the task copy.
+         /// Construct the caller's result before releasing the slot, so a
+         /// different return representation needs no copy after release.
+         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {
+             let mut c = self.claimed.load(Ordering::Acquire);
+             loop {
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/tmp/blake3-servil-mutants/mutants-_26ezw9a)
+error[E0277]: the trait bound `sources::Item: Default` is not satisfied
+    --> src/lanes.rs:1055:18
+     |
+1055 |             Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     |                  ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `sources::Item`
+    --> src/lanes.rs:944:5
+     |
+ 944 |     pub(crate) enum Item {
+     |     ^^^^^^^^^^^^^^^^^^^^
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error[E0277]: the trait bound `lanes::sources::Item: Default` is not satisfied
+    --> src/lanes.rs:1055:18
+     |
+1055 |             Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     |                  ^^^^^^^^^^^^^^^^^^ unsatisfied trait bound
+     |
+help: the trait `Default` is not implemented for `lanes::sources::Item`
+    --> src/lanes.rs:944:5
+     |
+ 944 |     pub(crate) enum Item {
+     |     ^^^^^^^^^^^^^^^^^^^^
+
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

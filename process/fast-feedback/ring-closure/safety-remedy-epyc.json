@@ -1,0 +1,53 @@
+{
+  "name": "safety-remedy-controls-epyc",
+  "study": "ring-closure-20261108",
+  "host": "root@88.216.222.150",
+  "lock": "/root/bench-native-afk.lock",
+  "repos": [
+    {
+      "url": "https://github.com/servil-software-factory/BLAKE3",
+      "commit": "ddb7199d7f0b0f04390e923474b630ffc7ff2811",
+      "path": "fork"
+    }
+  ],
+  "script": "/home/samshackleton/blake3-reports/ring-closure-20261108/safety-probes.sh",
+  "expect": [
+    {
+      "file": "out/identity.txt",
+      "contains": [
+        "library ddb7199d7f0b0f04390e923474b630ffc7ff2811",
+        "x86_64"
+      ]
+    },
+    {
+      "file": "out/probes.log",
+      "contains": [
+        "constructor accepted an impossible packed count",
+        "public safe Stream::open forget witness compiled; its body was never executed",
+        "prior-stream synthetic plaintext: absent before submission; present across stream boundary; absent after overwrite",
+        "2 passed, 1 failed"
+      ]
+    },
+    {
+      "file": "out/status.txt",
+      "contains": [
+        "safety audit: capacity assertion red",
+        "no invalid slices or dangling tasks executed"
+      ]
+    },
+    {
+      "file": "out/remedy-controls.txt",
+      "contains": [
+        "capacity remedy passes desired release assertion",
+        "private open rejects compile-only forgetting witness",
+        "restored byte-for-byte"
+      ]
+    }
+  ],
+  "forbid": [
+    "was not used in the crate graph"
+  ],
+  "env": {
+    "SAFETY_CONTROLS": "1"
+  }
+}

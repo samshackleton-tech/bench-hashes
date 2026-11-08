@@ -1,0 +1,84 @@
+
+*** src/lanes.rs:1062:13: replace sources::Source::take_claimed -> Option<T> with Some(Default::default())
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::Source::take_claimed -> Option<T> with Some(Default::default())
+@@ -1054,53 +1054,17 @@
+         pub(crate) fn take(&self) -> Option<Item> {
+             self.take_claimed(|| {}, core::convert::identity)
+         }
+ 
+         /// `claimed` lets the schedule test pause before the task copy.
+         /// Construct the caller's result before releasing the slot, so a
+         /// different return representation needs no copy after release.
+         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {
+-            let mut c = self.claimed.load(Ordering::Acquire);
+-            loop {
+-                let p = self.finish.published.load(Ordering::Acquire);
+-                if c >= p {
+-                    return None;
+-                }
+-                // Read after the publication Acquire: the fixture reserved
+-                // its batch before publishing this task.
+-                #[cfg(all(test, blake3_gpu))]
+-                if self.gpu_batch_reserved.load(Ordering::SeqCst) {
+-                    return None;
+-                }
+-                // A job's pieces go in runs, consecutive, sized to the work
+-                // left (guided self-scheduling): each worker reads its input
+-                // front to back, so a mapped file from storage meets the
+-                // kernel's readahead stream by stream (official's I/O
+-                // pattern), and runs shrink to one piece near the end for
+-                // balance. A stream's tasks go one at a time.
+-                let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };
+-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+-                    Ok(_) if self.ring.is_empty() => {
+-                        return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));
+-                    }
+-                    // Sound: this thread alone took slot c, written before
+-                    // `published` passed it.
+-                    Ok(_) => {
+-                        claimed();
+-                        let slot = &self.ring[c % self.ring.len()];
+-                        // Sound: this worker claimed the task after its
+-                        // publication; the producer waits for `next` below.
+-                        let result = Some(map(Item::Task(unsafe { (*slot.task.get()).assume_init_read() })));
+-                        slot.next.store(c + self.ring.len(), Ordering::Release);
+-                        return result;
+-                    }
+-                    Err(now) => c = now,
+-                }
+-            }
++            Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// Establish the GPU-claim precondition of its finish/reclaim test.
+         /// The first successful GPU claim restores ordinary CPU service.
+         #[cfg(all(test, blake3_gpu))]
+         pub(crate) fn reserve_gpu_batch_for_test(&self) {
+             self.gpu_batch_reserved.store(true, Ordering::SeqCst);
+         }
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/ring-closure-registry-ice-20261108T145715-ae527628/tmp/blake3-servil-mutants/mutants-ss789tc1)
+error[E0277]: the trait bound `T: Default` is not satisfied
+    --> src/lanes.rs:1062:18
+     |
+1062 |             Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+     |                  ^^^^^^^^^^^^^^^^^^ the trait `Default` is not implemented for `T`
+     |
+help: consider restricting type parameter `T` with trait `Default`
+     |
+1061 |         fn take_claimed<T: std::default::Default>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {
+     |                          +++++++++++++++++++++++
+
+For more information about this error, try `rustc --explain E0277`.
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

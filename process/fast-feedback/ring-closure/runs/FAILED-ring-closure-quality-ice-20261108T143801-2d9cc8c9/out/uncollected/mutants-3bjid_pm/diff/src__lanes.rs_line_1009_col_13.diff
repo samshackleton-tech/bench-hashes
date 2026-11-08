@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace sources::Source::push with ()
+@@ -1001,17 +1001,17 @@
+                 noted(Noted::WakeTry);
+                 pool.park.wake_one();
+             }
+         }
+ 
+         /// Write `task` to the ring and make it visible (the SME2 thread
+         /// woken for it where there is one).
+         fn push(&self, task: Task) {
+-            self.push_waiting(task, || {});
++            () /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// `waiting` exposes the copy/reuse boundary to the schedule test.
+         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+             let p = self.finish.published.load(Ordering::Relaxed);
+             // Every build: a task written over one not yet taken would be
+             // run as garbage (memory mismanagement, at the cost of a load
+             // and a comparison the debug check already made).

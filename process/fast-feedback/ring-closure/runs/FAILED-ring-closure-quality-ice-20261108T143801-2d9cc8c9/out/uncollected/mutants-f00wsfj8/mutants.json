@@ -1,0 +1,610 @@
+[
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_run -> bool with true\n@@ -1108,33 +1108,17 @@\n         /// Claim the `n` oldest waiting tasks at once, for a stream's GPU\n         /// (`crate::gpu::feed`): when they lie at positions `from..to`\n         /// (the run its GPU may take, all published: `to` is at most the\n         /// count published); `f` reads them in place. Whether it claimed\n         /// them. Only the stream's own thread calls this, so no slot it\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n-            debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n-            let c = self.claimed.load(Ordering::Acquire);\n-            if c < from || c + n > to {\n-                return false;\n-            }\n-            if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n-                return false;\n-            }\n-            #[cfg(test)]\n-            self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n-            // Sound: this thread alone took slots c..c + n, written before\n-            // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n-            for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n-            }\n-            true\n+            true /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n         }\n \n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1116:13: replace sources::Source::take_run -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 1132
+      },
+      "start": {
+        "column": 13,
+        "line": 1116
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_run -> bool with false\n@@ -1108,33 +1108,17 @@\n         /// Claim the `n` oldest waiting tasks at once, for a stream's GPU\n         /// (`crate::gpu::feed`): when they lie at positions `from..to`\n         /// (the run its GPU may take, all published: `to` is at most the\n         /// count published); `f` reads them in place. Whether it claimed\n         /// them. Only the stream's own thread calls this, so no slot it\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n-            debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n-            let c = self.claimed.load(Ordering::Acquire);\n-            if c < from || c + n > to {\n-                return false;\n-            }\n-            if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n-                return false;\n-            }\n-            #[cfg(test)]\n-            self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n-            // Sound: this thread alone took slots c..c + n, written before\n-            // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n-            for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n-            }\n-            true\n+            false /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n         }\n \n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1116:13: replace sources::Source::take_run -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 1132
+      },
+      "start": {
+        "column": 13,
+        "line": 1116
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1110,17 +1110,17 @@\n         /// (the run its GPU may take, all published: `to` is at most the\n         /// count published); `f` reads them in place. Whether it claimed\n         /// them. Only the stream's own thread calls this, so no slot it\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n             debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n             let c = self.claimed.load(Ordering::Acquire);\n-            if c < from || c + n > to {\n+            if c < from || c - /* ~ changed by cargo-mutants ~ */ n > to {\n                 return false;\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1118:30: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 1118
+      },
+      "start": {
+        "column": 30,
+        "line": 1118
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1110,17 +1110,17 @@\n         /// (the run its GPU may take, all published: `to` is at most the\n         /// count published); `f` reads them in place. Whether it claimed\n         /// them. Only the stream's own thread calls this, so no slot it\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n             debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n             let c = self.claimed.load(Ordering::Acquire);\n-            if c < from || c + n > to {\n+            if c < from || c * /* ~ changed by cargo-mutants ~ */ n > to {\n                 return false;\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1118:30: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 31,
+        "line": 1118
+      },
+      "start": {
+        "column": 30,
+        "line": 1118
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1113,17 +1113,17 @@\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n             debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n             let c = self.claimed.load(Ordering::Acquire);\n             if c < from || c + n > to {\n                 return false;\n             }\n-            if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n+            if self.claimed.compare_exchange(c, c - /* ~ changed by cargo-mutants ~ */ n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1121:51: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 1121
+      },
+      "start": {
+        "column": 51,
+        "line": 1121
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1113,17 +1113,17 @@\n         /// reads is written meanwhile (that thread alone publishes).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {\n             debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), \"a GPU's run lies among the tasks published\");\n             let c = self.claimed.load(Ordering::Acquire);\n             if c < from || c + n > to {\n                 return false;\n             }\n-            if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n+            if self.claimed.compare_exchange(c, c * /* ~ changed by cargo-mutants ~ */ n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1121:51: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 1121
+      },
+      "start": {
+        "column": 51,
+        "line": 1121
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1120,17 +1120,17 @@\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n+            f(&mut (c..c - /* ~ changed by cargo-mutants ~ */ n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1128:26: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1128
+      },
+      "start": {
+        "column": 26,
+        "line": 1128
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1120,17 +1120,17 @@\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n+            f(&mut (c..c * /* ~ changed by cargo-mutants ~ */ n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1128:26: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 1128
+      },
+      "start": {
+        "column": 26,
+        "line": 1128
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with / in sources::Source::take_run\n@@ -1120,17 +1120,17 @@\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n+            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i / /* ~ changed by cargo-mutants ~ */ self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1128:62: replace % with / in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 1128
+      },
+      "start": {
+        "column": 62,
+        "line": 1128
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with + in sources::Source::take_run\n@@ -1120,17 +1120,17 @@\n             }\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n+            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i + /* ~ changed by cargo-mutants ~ */ self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1128:62: replace % with + in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 63,
+        "line": 1128
+      },
+      "start": {
+        "column": 62,
+        "line": 1128
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1121,17 +1121,17 @@\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n-            for i in c..c + n {\n+            for i in c..c - /* ~ changed by cargo-mutants ~ */ n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1129:27: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 1129
+      },
+      "start": {
+        "column": 27,
+        "line": 1129
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1121,17 +1121,17 @@\n             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n-            for i in c..c + n {\n+            for i in c..c * /* ~ changed by cargo-mutants ~ */ n {\n                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1129:27: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 1129
+      },
+      "start": {
+        "column": 27,
+        "line": 1129
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with / in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i / /* ~ changed by cargo-mutants ~ */ self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:29: replace % with / in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1130
+      },
+      "start": {
+        "column": 29,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with + in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i + /* ~ changed by cargo-mutants ~ */ self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:29: replace % with + in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 1130
+      },
+      "start": {
+        "column": 29,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i % self.ring.len()].next.store(i - /* ~ changed by cargo-mutants ~ */ self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:61: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1130
+      },
+      "start": {
+        "column": 61,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i % self.ring.len()].next.store(i * /* ~ changed by cargo-mutants ~ */ self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:61: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1130
+      },
+      "start": {
+        "column": 61,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field key from struct Task expression in Task::members\n@@ -1637,17 +1637,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task {  /* ~ changed by cargo-mutants ~ */ flags, batch, ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if let Some((run, context)) = self.action {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1646
+        },
+        "start": {
+          "column": 5,
+          "line": 1642
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1645:16: delete field key from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 26,
+        "line": 1645
+      },
+      "start": {
+        "column": 16,
+        "line": 1645
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field flags from struct Task expression in Task::members\n@@ -1637,17 +1637,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task { key: *key,  /* ~ changed by cargo-mutants ~ */ batch, ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if let Some((run, context)) = self.action {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1646
+        },
+        "start": {
+          "column": 5,
+          "line": 1642
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1645:27: delete field flags from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 1645
+      },
+      "start": {
+        "column": 27,
+        "line": 1645
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ delete field batch from struct Task expression in Task::members\n@@ -1637,17 +1637,17 @@\n             members: 0,\n             member: [NO_MEMBER; MEMBERS],\n         }\n     }\n \n     /// An empty task of short messages (with `batch`, batches of messages\n     /// of that length) in the mode of `key` and `flags`.\n     pub(crate) fn members(key: &crate::CVWords, flags: u8, batch: Option<usize>) -> Task {\n-        Task { key: *key, flags, batch, ..Task::of(&[], 0) }\n+        Task { key: *key, flags,  /* ~ changed by cargo-mutants ~ */ ..Task::of(&[], 0) }\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     pub(crate) fn run(self, platform: Platform) {\n         if let Some((run, context)) = self.action {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::members",
+      "return_type": "-> Task",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1646
+        },
+        "start": {
+          "column": 5,
+          "line": 1642
+        }
+      }
+    },
+    "genre": "StructField",
+    "name": "src/lanes.rs:1645:34: delete field batch from struct Task expression in Task::members",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 40,
+        "line": 1645
+      },
+      "start": {
+        "column": 34,
+        "line": 1645
+      }
+    }
+  }
+]

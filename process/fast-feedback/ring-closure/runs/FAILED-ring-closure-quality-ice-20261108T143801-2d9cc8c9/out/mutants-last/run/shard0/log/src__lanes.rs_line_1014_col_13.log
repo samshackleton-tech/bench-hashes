@@ -1,0 +1,359 @@
+
+*** src/lanes.rs:1014:13: replace sources::Source::push_waiting with ()
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace sources::Source::push_waiting with ()
+@@ -1006,38 +1006,17 @@
+         /// Write `task` to the ring and make it visible (the SME2 thread
+         /// woken for it where there is one).
+         fn push(&self, task: Task) {
+             self.push_waiting(task, || {});
+         }
+ 
+         /// `waiting` exposes the copy/reuse boundary to the schedule test.
+         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+-            let p = self.finish.published.load(Ordering::Relaxed);
+-            // Every build: a task written over one not yet taken would be
+-            // run as garbage (memory mismanagement, at the cost of a load
+-            // and a comparison the debug check already made).
+-            assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), "a source's ring holds every task not yet taken");
+-            let slot = &self.ring[p % self.ring.len()];
+-            if slot.next.load(Ordering::Acquire) != p {
+-                waiting();
+-                // A worker has claimed the old task and may be descheduled
+-                // before its copy. Let it run before reusing that storage.
+-                while slot.next.load(Ordering::Acquire) != p {
+-                    std::thread::yield_now();
+-                }
+-            }
+-            // Sound: the previous reader released this slot after its copy,
+-            // and this stream alone writes it.
+-            unsafe { (*slot.task.get()).write(task) };
+-            self.finish.published.store(p + 1, Ordering::Release);
+-            core::sync::atomic::fence(Ordering::SeqCst);
+-            if pool().sme2 {
+-                wake_sme2();
+-            }
++            () /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// Make `job` the caller's current job, its pieces `0..own` the
+         /// caller's own: the number `finished` must reach when it is done.
+         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {
+             let base = self.finish.published.load(Ordering::Relaxed);
+             debug_assert_eq!(self.finish.finished_count(), base, "the last job is finished");
+             self.job.store(job, Ordering::Relaxed);
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/tmp/blake3-servil-mutants/mutants-3bjid_pm)
+warning: unused variable: `task`
+    --> src/lanes.rs:1013:32
+     |
+1013 |         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+     |                                ^^^^ help: if this is intentional, prefix it with an underscore: `_task`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `waiting`
+    --> src/lanes.rs:1013:44
+     |
+1013 |         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+     |                                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_waiting`
+
+warning: field `sme2` is never read
+   --> src/lanes.rs:638:5
+    |
+632 | struct Pool {
+    |        ---- field in this struct
+...
+638 |     sme2: bool,
+    |     ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `wake_sme2` is never used
+    --> src/lanes.rs:1780:4
+     |
+1780 | fn wake_sme2() {
+     |    ^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 4 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: `blake3-servil` (lib test) generated 4 warnings (4 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 7.49s
+info: using target runner `sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: unused variable: `task`
+    --> src/lanes.rs:1013:32
+     |
+1013 |         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+     |                                ^^^^ help: if this is intentional, prefix it with an underscore: `_task`
+     |
+     = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `waiting`
+    --> src/lanes.rs:1013:44
+     |
+1013 |         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {
+     |                                            ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_waiting`
+
+warning: field `sme2` is never read
+   --> src/lanes.rs:638:5
+    |
+632 | struct Pool {
+    |        ---- field in this struct
+...
+638 |     sme2: bool,
+    |     ^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `wake_sme2` is never used
+    --> src/lanes.rs:1780:4
+     |
+1780 | fn wake_sme2() {
+     |    ^^^^^^^^^
+
+warning: `blake3-servil` (lib) generated 4 warnings (run `cargo fix --lib -p blake3-servil` to apply 2 suggestions)
+warning: `blake3-servil` (lib test) generated 4 warnings (4 duplicates)
+    Finished `mutants` profile [optimized] target(s) in 0.08s
+info: using target runner `sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID fbceb8ea-d13f-4163-82e1-80ba620db3d5 with nextest profile: mutants
+    Starting 227 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/227) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/227) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/227) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/227) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/227) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/227) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/227) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/227) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/227) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+       START [         ] (  1/227) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+       START [         ] (  1/227) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.080s] (  1/227) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  2/227) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.088s] (  2/227) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  3/227) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.094s] (  3/227) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+       START [         ] (  4/227) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.107s] (  4/227) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  5/227) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::finalize_each_groups_only_full_output_lanes --nocapture
+        PASS [   0.113s] (  5/227) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  6/227) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.121s] (  6/227) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  7/227) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.127s] (  7/227) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  8/227) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.129s] (  8/227) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  9/227) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.140s] (  9/227) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 10/227) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.154s] ( 10/227) blake3-servil avx512::test::test_xof_many
+       START [         ] ( 11/227) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.157s] ( 11/227) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] ( 12/227) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each --nocapture
+        PASS [   0.163s] ( 12/227) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 13/227) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.163s] ( 13/227) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] ( 14/227) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.169s] ( 14/227) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] ( 15/227) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+        PASS [   0.183s] ( 15/227) blake3-servil block::test::test_blocks_mut_writes_the_messages
+       START [         ] ( 16/227) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+        PASS [   0.192s] ( 16/227) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] ( 17/227) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+        PASS [   0.199s] ( 17/227) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 18/227) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+        PASS [   0.127s] ( 18/227) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 19/227) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_rejects_corrupted_answer --nocapture
+        PASS [   0.122s] ( 19/227) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+       START [         ] ( 20/227) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+        PASS [   0.123s] ( 20/227) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 21/227) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+        PASS [   0.250s] ( 21/227) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+       START [         ] ( 22/227) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.127s] ( 22/227) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 23/227) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.134s] ( 23/227) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 24/227) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.173s] ( 24/227) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 25/227) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.127s] ( 25/227) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 26/227) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first --nocapture
+        PASS [   0.126s] ( 26/227) blake3-servil each::test::test_hash_each_small_items_by_blocks
+       START [         ] ( 27/227) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::clone_from_copies_only_the_live_stage_prefix --nocapture
+        PASS [   0.133s] ( 27/227) blake3-servil each::test::test_update_each
+       START [         ] ( 28/227) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.137s] ( 28/227) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 29/227) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_the_length_hint_never_changes_the_digest --nocapture
+        PASS [   0.146s] ( 29/227) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 30/227) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+        PASS [   0.153s] ( 30/227) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+       START [         ] ( 31/227) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_update_stages_to_the_message_boundary_from_an_offset --nocapture
+        PASS [   0.234s] ( 31/227) blake3-servil chunk_root::test::test_chunk_root_line_placements
+       START [         ] ( 32/227) blake3-servil lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy --nocapture
+        PASS [   0.147s] ( 32/227) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+       START [         ] ( 33/227) blake3-servil lanes::sources::test::ring_slots_advance_after_every_copy
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::ring_slots_advance_after_every_copy --nocapture
+        PASS [   0.146s] ( 33/227) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+       START [         ] ( 34/227) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_a_finished_threads_source_is_the_next_threads --nocapture
+        PASS [   0.147s] ( 34/227) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+       START [         ] ( 35/227) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty --nocapture
+        PASS [   0.150s] ( 35/227) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+       START [         ] ( 36/227) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_find_reaches_every_registered_source --nocapture
+        PASS [   0.140s] ( 36/227) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+       START [         ] ( 37/227) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_unregister_gives_the_slot_back --nocapture
+        PASS [   0.152s] ( 37/227) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+       START [         ] ( 38/227) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_unregister_leaves_the_other_sources_registered --nocapture
+        PASS [   0.149s] ( 38/227) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+       START [         ] ( 39/227) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind --nocapture
+        PASS [   0.151s] ( 39/227) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+       START [         ] ( 40/227) blake3-servil lanes::test::equal_members_match_the_reference
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::equal_members_match_the_reference --nocapture
+        PASS [   0.165s] ( 40/227) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+       START [         ] ( 41/227) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_caller_gives_its_place_back --nocapture
+        PASS [   0.157s] ( 41/227) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+       START [         ] ( 42/227) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps --nocapture
+        PASS [   0.166s] ( 42/227) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+       START [         ] ( 43/227) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_claim_takes_a_share_of_what_waits --nocapture
+        PASS [   0.166s] ( 43/227) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+       START [         ] ( 44/227) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own --nocapture
+        PASS [   0.164s] ( 44/227) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+       START [         ] ( 45/227) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_parked_caller_is_woken_by_the_last_piece --nocapture
+        PASS [   0.164s] ( 45/227) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+       START [         ] ( 46/227) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_poller_yields_every_yield_every --nocapture
+        PASS [   0.161s] ( 46/227) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+       START [         ] ( 47/227) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_source_unregistered_leaves_its_slot --nocapture
+        PASS [   0.156s] ( 47/227) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+       START [         ] ( 48/227) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+             command: sh /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/fork/tools/mutants/test-runner /root/pinned-runs/ring-closure-quality-ice-20261108T143801-2d9cc8c9/target/mutants/run-0/mutants/deps/blake3_servil-896db09f64b46e77 --exact lanes::test::test_a_stream_is_what_opens_the_sources --nocapture
+        FAIL [   0.163s] ( 48/227) blake3-servil lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy
+  stdout ───
+
+    running 1 test
+    test lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy ... FAILED
+
+    failures:
+
+    failures:
+        lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 192 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread '<unnamed>' (1171875) panicked at src/lanes.rs:1366:62:
+    the first task is claimed
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+    thread 'lanes::sources::test::ring_reuse_waits_for_the_claimed_task_copy' (1171874) panicked at src/lanes.rs:1369:35:
+    called `Result::unwrap()` on an `Err` value: RecvError
+
+  Cancelling due to test failure: immediately terminating 17 tests still running
+     SIGTERM [   0.033s] ( 49/227) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+     SIGTERM [   0.074s] ( 50/227) blake3-servil lanes::test::equal_members_match_the_reference
+     SIGTERM [   0.117s] ( 51/227) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+     SIGTERM [   0.053s] ( 52/227) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+     SIGTERM [   0.140s] ( 53/227) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+     SIGTERM [   0.130s] ( 54/227) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+     SIGTERM [   0.157s] ( 55/227) blake3-servil lanes::sources::test::ring_slots_advance_after_every_copy
+     SIGTERM [   0.083s] ( 56/227) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+     SIGTERM [   0.064s] ( 57/227) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+     SIGTERM [   0.099s] ( 58/227) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+     SIGTERM [   0.041s] ( 59/227) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+     SIGTERM [   0.009s] ( 60/227) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+     SIGTERM [   0.024s] ( 61/227) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+     SIGTERM [   0.072s] ( 62/227) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+     SIGTERM [   0.149s] ( 63/227) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+     SIGTERM [   0.017s] ( 64/227) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+     SIGTERM [   0.383s] ( 65/227) blake3-servil each::test::test_hash_each_multithreaded
+────────────
+     Summary [   0.505s] 65/227 tests run: 47 passed, 18 failed, 0 skipped
+warning: 162/227 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

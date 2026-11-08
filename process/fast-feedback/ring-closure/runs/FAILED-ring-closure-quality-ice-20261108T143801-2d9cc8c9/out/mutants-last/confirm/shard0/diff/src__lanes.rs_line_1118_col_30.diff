@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with - in sources::Source::take_run
+@@ -1110,17 +1110,17 @@
+         /// (the run its GPU may take, all published: `to` is at most the
+         /// count published); `f` reads them in place. Whether it claimed
+         /// them. Only the stream's own thread calls this, so no slot it
+         /// reads is written meanwhile (that thread alone publishes).
+         #[cfg(blake3_gpu)]
+         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {
+             debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), "a GPU's run lies among the tasks published");
+             let c = self.claimed.load(Ordering::Acquire);
+-            if c < from || c + n > to {
++            if c < from || c - /* ~ changed by cargo-mutants ~ */ n > to {
+                 return false;
+             }
+             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {
+                 return false;
+             }
+             #[cfg(test)]
+             self.gpu_batch_reserved.store(false, Ordering::SeqCst);
+             // Sound: this thread alone took slots c..c + n, written before

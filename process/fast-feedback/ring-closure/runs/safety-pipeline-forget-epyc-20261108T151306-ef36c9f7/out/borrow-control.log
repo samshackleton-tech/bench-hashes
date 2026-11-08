@@ -1,0 +1,58 @@
+    Checking pipeline-forget-audit v0.0.0 (/root/pinned-runs/safety-pipeline-forget-epyc-20261108T151306-ef36c9f7/probe)
+error[E0502]: cannot borrow `blocks` as mutable because it is also borrowed as immutable
+  --> src/lib.rs:9:5
+   |
+ 7 |     s.submit_batch(Batch::from_blocks(&blocks, 64), &mut places, 0).await;
+   |                                       ------- immutable borrow occurs here
+ 8 |     
+ 9 |     blocks.fill(Block([1; 64]));
+   |     ^^^^^^ mutable borrow occurs here
+...
+12 |     s.finish();
+   |     - immutable borrow later used here
+
+error[E0505]: cannot move out of `blocks` because it is borrowed
+  --> src/lib.rs:10:10
+   |
+ 4 |     let mut blocks = vec![Block::ZERO; 2];
+   |         ---------- binding `blocks` declared here
+...
+ 7 |     s.submit_batch(Batch::from_blocks(&blocks, 64), &mut places, 0).await;
+   |                                       ------- borrow of `blocks` occurs here
+...
+10 |     drop(blocks);
+   |          ^^^^^^ move out of `blocks` occurs here
+11 |     places[0] = [1; 32];
+12 |     s.finish();
+   |     - borrow later used here
+   |
+help: consider cloning the value if the performance cost is acceptable
+   |
+ 7 |     s.submit_batch(Batch::from_blocks(&blocks.clone(), 64), &mut places, 0).await;
+   |                                              ++++++++
+
+error[E0506]: cannot assign to `places[_]` because it is borrowed
+  --> src/lib.rs:11:5
+   |
+ 7 |     s.submit_batch(Batch::from_blocks(&blocks, 64), &mut places, 0).await;
+   |                                                     ----------- `places[_]` is borrowed here
+...
+11 |     places[0] = [1; 32];
+   |     ^^^^^^^^^^^^^^^^^^^ `places[_]` is assigned to here but it was already borrowed
+12 |     s.finish();
+   |     - borrow later used here
+
+warning: value assigned to `places` is never read
+  --> src/lib.rs:11:5
+   |
+11 |     places[0] = [1; 32];
+   |     ^^^^^^^^^^^^^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+Some errors have detailed explanations: E0502, E0505, E0506.
+For more information about an error, try `rustc --explain E0502`.
+warning: `pipeline-forget-audit` (lib) generated 1 warning
+error: could not compile `pipeline-forget-audit` (lib) due to 3 previous errors; 1 warning emitted
+control: the same release before finish is rejected by the borrow checker

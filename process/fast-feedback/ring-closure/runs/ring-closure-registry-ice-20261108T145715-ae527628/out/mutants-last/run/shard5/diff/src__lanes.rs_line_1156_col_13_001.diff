@@ -1,0 +1,27 @@
+--- src/lanes.rs
++++ replace sources::Source::take_task -> Option<Task> with Some(Default::default())
+@@ -1148,23 +1148,17 @@
+ 
+         #[cfg(test)]
+         pub(crate) fn run_len_for_tests(waiting: usize, threads: usize) -> usize {
+             Self::run_len(waiting, threads)
+         }
+ 
+         /// A stream's next task, if any (this source is a stream's).
+         pub(crate) fn take_task(&self) -> Option<Task> {
+-            self.take_claimed(
+-                || {},
+-                |item| match item {
+-                    Item::Task(task) => task,
+-                    Item::Pieces(..) => unreachable!("a stream's source carries tasks"),
+-                },
+-            )
++            Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         fn waiting(&self) -> usize {
+             self.finish.published.load(Ordering::Acquire).saturating_sub(self.claimed.load(Ordering::Acquire))
+         }
+ 
+         /// Wake a parked worker for a task this stream has published that no
+         /// thread has taken: `publish` wakes one for the second task in

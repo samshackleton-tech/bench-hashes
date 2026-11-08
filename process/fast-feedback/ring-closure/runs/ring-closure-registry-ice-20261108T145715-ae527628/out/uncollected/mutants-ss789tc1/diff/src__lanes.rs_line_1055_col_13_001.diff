@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace sources::Source::take -> Option<Item> with Some(Default::default())
+@@ -1047,17 +1047,17 @@
+             self.claimed.store(base + own, Ordering::Relaxed);
+             self.finish.published.store(base + pieces, Ordering::Release);
+             core::sync::atomic::fence(Ordering::SeqCst);
+             base + pieces
+         }
+ 
+         /// Claim the next published item, if any.
+         pub(crate) fn take(&self) -> Option<Item> {
+-            self.take_claimed(|| {}, core::convert::identity)
++            Some(Default::default()) /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// `claimed` lets the schedule test pause before the task copy.
+         /// Construct the caller's result before releasing the slot, so a
+         /// different return representation needs no copy after release.
+         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {
+             let mut c = self.claimed.load(Ordering::Acquire);
+             loop {

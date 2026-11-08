@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with * in sources::Source::take_run
+@@ -1120,17 +1120,17 @@
+             }
+             if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {
+                 return false;
+             }
+             #[cfg(test)]
+             self.gpu_batch_reserved.store(false, Ordering::SeqCst);
+             // Sound: this thread alone took slots c..c + n, written before
+             // `published` passed them.
+-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));
++            f(&mut (c..c * /* ~ changed by cargo-mutants ~ */ n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));
+             for i in c..c + n {
+                 self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);
+             }
+             true
+         }
+ 
+         /// The count of tasks published (a stream's own, on its thread).
+         #[cfg(blake3_gpu)]

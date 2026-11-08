@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace % with + in sources::Source::take_claimed
+@@ -1081,17 +1081,17 @@
+                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+                     Ok(_) if self.ring.is_empty() => {
+                         return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));
+                     }
+                     // Sound: this thread alone took slot c, written before
+                     // `published` passed it.
+                     Ok(_) => {
+                         claimed();
+-                        let slot = &self.ring[c % self.ring.len()];
++                        let slot = &self.ring[c + /* ~ changed by cargo-mutants ~ */ self.ring.len()];
+                         // Sound: this worker claimed the task after its
+                         // publication; the producer waits for `next` below.
+                         let result = Some(map(Item::Task(unsafe { (*slot.task.get()).assume_init_read() })));
+                         slot.next.store(c + self.ring.len(), Ordering::Release);
+                         return result;
+                     }
+                     Err(now) => c = now,
+                 }

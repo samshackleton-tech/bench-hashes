@@ -1,0 +1,130 @@
+[
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with - in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i % self.ring.len()].next.store(i - /* ~ changed by cargo-mutants ~ */ self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:61: replace + with - in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1130
+      },
+      "start": {
+        "column": 61,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace + with * in sources::Source::take_run\n@@ -1122,17 +1122,17 @@\n                 return false;\n             }\n             #[cfg(test)]\n             self.gpu_batch_reserved.store(false, Ordering::SeqCst);\n             // Sound: this thread alone took slots c..c + n, written before\n             // `published` passed them.\n             f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));\n             for i in c..c + n {\n-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);\n+                self.ring[i % self.ring.len()].next.store(i * /* ~ changed by cargo-mutants ~ */ self.ring.len(), Ordering::Release);\n             }\n             true\n         }\n \n         /// The count of tasks published (a stream's own, on its thread).\n         #[cfg(blake3_gpu)]\n         pub(crate) fn published(&self) -> usize {\n             self.finish.published.load(Ordering::Relaxed)\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_run",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1133
+        },
+        "start": {
+          "column": 9,
+          "line": 1108
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1130:61: replace + with * in sources::Source::take_run",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1130
+      },
+      "start": {
+        "column": 61,
+        "line": 1130
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_task -> Option<Task> with None\n@@ -1148,23 +1148,17 @@\n \n         #[cfg(test)]\n         pub(crate) fn run_len_for_tests(waiting: usize, threads: usize) -> usize {\n             Self::run_len(waiting, threads)\n         }\n \n         /// A stream's next task, if any (this source is a stream's).\n         pub(crate) fn take_task(&self) -> Option<Task> {\n-            self.take_claimed(\n-                || {},\n-                |item| match item {\n-                    Item::Task(task) => task,\n-                    Item::Pieces(..) => unreachable!(\"a stream's source carries tasks\"),\n-                },\n-            )\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         fn waiting(&self) -> usize {\n             self.finish.published.load(Ordering::Acquire).saturating_sub(self.claimed.load(Ordering::Acquire))\n         }\n \n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_task",
+      "return_type": "-> Option<Task>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1163
+        },
+        "start": {
+          "column": 9,
+          "line": 1154
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1156:13: replace sources::Source::take_task -> Option<Task> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 1162
+      },
+      "start": {
+        "column": 13,
+        "line": 1156
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_task -> Option<Task> with Some(Default::default())\n@@ -1148,23 +1148,17 @@\n \n         #[cfg(test)]\n         pub(crate) fn run_len_for_tests(waiting: usize, threads: usize) -> usize {\n             Self::run_len(waiting, threads)\n         }\n \n         /// A stream's next task, if any (this source is a stream's).\n         pub(crate) fn take_task(&self) -> Option<Task> {\n-            self.take_claimed(\n-                || {},\n-                |item| match item {\n-                    Item::Task(task) => task,\n-                    Item::Pieces(..) => unreachable!(\"a stream's source carries tasks\"),\n-                },\n-            )\n+            Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n         }\n \n         fn waiting(&self) -> usize {\n             self.finish.published.load(Ordering::Acquire).saturating_sub(self.claimed.load(Ordering::Acquire))\n         }\n \n         /// Wake a parked worker for a task this stream has published that no\n         /// thread has taken: `publish` wakes one for the second task in\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_task",
+      "return_type": "-> Option<Task>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1163
+        },
+        "start": {
+          "column": 9,
+          "line": 1154
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1156:13: replace sources::Source::take_task -> Option<Task> with Some(Default::default())",
+    "package": "blake3-servil",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 1162
+      },
+      "start": {
+        "column": 13,
+        "line": 1156
+      }
+    }
+  }
+]

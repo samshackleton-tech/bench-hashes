@@ -1,0 +1,194 @@
+[
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take -> Option<Item> with None\n@@ -1047,17 +1047,17 @@\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n-            self.take_claimed(|| {}, core::convert::identity)\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// `claimed` lets the schedule test pause before the task copy.\n         /// Construct the caller's result before releasing the slot, so a\n         /// different return representation needs no copy after release.\n         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1056
+        },
+        "start": {
+          "column": 9,
+          "line": 1053
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1055:13: replace sources::Source::take -> Option<Item> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1055
+      },
+      "start": {
+        "column": 13,
+        "line": 1055
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take -> Option<Item> with Some(Default::default())\n@@ -1047,17 +1047,17 @@\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n-            self.take_claimed(|| {}, core::convert::identity)\n+            Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// `claimed` lets the schedule test pause before the task copy.\n         /// Construct the caller's result before releasing the slot, so a\n         /// different return representation needs no copy after release.\n         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1056
+        },
+        "start": {
+          "column": 9,
+          "line": 1053
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1055:13: replace sources::Source::take -> Option<Item> with Some(Default::default())",
+    "package": "blake3-servil",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1055
+      },
+      "start": {
+        "column": 13,
+        "line": 1055
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_claimed -> Option<T> with None\n@@ -1054,53 +1054,17 @@\n         pub(crate) fn take(&self) -> Option<Item> {\n             self.take_claimed(|| {}, core::convert::identity)\n         }\n \n         /// `claimed` lets the schedule test pause before the task copy.\n         /// Construct the caller's result before releasing the slot, so a\n         /// different return representation needs no copy after release.\n         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {\n-            let mut c = self.claimed.load(Ordering::Acquire);\n-            loop {\n-                let p = self.finish.published.load(Ordering::Acquire);\n-                if c >= p {\n-                    return None;\n-                }\n-                // Read after the publication Acquire: the fixture reserved\n-                // its batch before publishing this task.\n-                #[cfg(all(test, blake3_gpu))]\n-                if self.gpu_batch_reserved.load(Ordering::SeqCst) {\n-                    return None;\n-                }\n-                // A job's pieces go in runs, consecutive, sized to the work\n-                // left (guided self-scheduling): each worker reads its input\n-                // front to back, so a mapped file from storage meets the\n-                // kernel's readahead stream by stream (official's I/O\n-                // pattern), and runs shrink to one piece near the end for\n-                // balance. A stream's tasks go one at a time.\n-                let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };\n-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n-                    Ok(_) if self.ring.is_empty() => {\n-                        return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));\n-                    }\n-                    // Sound: this thread alone took slot c, written before\n-                    // `published` passed it.\n-                    Ok(_) => {\n-                        claimed();\n-                        let slot = &self.ring[c % self.ring.len()];\n-                        // Sound: this worker claimed the task after its\n-                        // publication; the producer waits for `next` below.\n-                        let result = Some(map(Item::Task(unsafe { (*slot.task.get()).assume_init_read() })));\n-                        slot.next.store(c + self.ring.len(), Ordering::Release);\n-                        return result;\n-                    }\n-                    Err(now) => c = now,\n-                }\n-            }\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Establish the GPU-claim precondition of its finish/reclaim test.\n         /// The first successful GPU claim restores ordinary CPU service.\n         #[cfg(all(test, blake3_gpu))]\n         pub(crate) fn reserve_gpu_batch_for_test(&self) {\n             self.gpu_batch_reserved.store(true, Ordering::SeqCst);\n         }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_claimed",
+      "return_type": "-> Option<T>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1099
+        },
+        "start": {
+          "column": 9,
+          "line": 1058
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1062:13: replace sources::Source::take_claimed -> Option<T> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 1098
+      },
+      "start": {
+        "column": 13,
+        "line": 1062
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take_claimed -> Option<T> with Some(Default::default())\n@@ -1054,53 +1054,17 @@\n         pub(crate) fn take(&self) -> Option<Item> {\n             self.take_claimed(|| {}, core::convert::identity)\n         }\n \n         /// `claimed` lets the schedule test pause before the task copy.\n         /// Construct the caller's result before releasing the slot, so a\n         /// different return representation needs no copy after release.\n         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {\n-            let mut c = self.claimed.load(Ordering::Acquire);\n-            loop {\n-                let p = self.finish.published.load(Ordering::Acquire);\n-                if c >= p {\n-                    return None;\n-                }\n-                // Read after the publication Acquire: the fixture reserved\n-                // its batch before publishing this task.\n-                #[cfg(all(test, blake3_gpu))]\n-                if self.gpu_batch_reserved.load(Ordering::SeqCst) {\n-                    return None;\n-                }\n-                // A job's pieces go in runs, consecutive, sized to the work\n-                // left (guided self-scheduling): each worker reads its input\n-                // front to back, so a mapped file from storage meets the\n-                // kernel's readahead stream by stream (official's I/O\n-                // pattern), and runs shrink to one piece near the end for\n-                // balance. A stream's tasks go one at a time.\n-                let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };\n-                match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n-                    Ok(_) if self.ring.is_empty() => {\n-                        return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));\n-                    }\n-                    // Sound: this thread alone took slot c, written before\n-                    // `published` passed it.\n-                    Ok(_) => {\n-                        claimed();\n-                        let slot = &self.ring[c % self.ring.len()];\n-                        // Sound: this worker claimed the task after its\n-                        // publication; the producer waits for `next` below.\n-                        let result = Some(map(Item::Task(unsafe { (*slot.task.get()).assume_init_read() })));\n-                        slot.next.store(c + self.ring.len(), Ordering::Release);\n-                        return result;\n-                    }\n-                    Err(now) => c = now,\n-                }\n-            }\n+            Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Establish the GPU-claim precondition of its finish/reclaim test.\n         /// The first successful GPU claim restores ordinary CPU service.\n         #[cfg(all(test, blake3_gpu))]\n         pub(crate) fn reserve_gpu_batch_for_test(&self) {\n             self.gpu_batch_reserved.store(true, Ordering::SeqCst);\n         }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_claimed",
+      "return_type": "-> Option<T>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1099
+        },
+        "start": {
+          "column": 9,
+          "line": 1058
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1062:13: replace sources::Source::take_claimed -> Option<T> with Some(Default::default())",
+    "package": "blake3-servil",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 1098
+      },
+      "start": {
+        "column": 13,
+        "line": 1062
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace match guard self.ring.is_empty() with true in sources::Source::take_claimed\n@@ -1074,17 +1074,17 @@\n                 // A job's pieces go in runs, consecutive, sized to the work\n                 // left (guided self-scheduling): each worker reads its input\n                 // front to back, so a mapped file from storage meets the\n                 // kernel's readahead stream by stream (official's I/O\n                 // pattern), and runs shrink to one piece near the end for\n                 // balance. A stream's tasks go one at a time.\n                 let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };\n                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n-                    Ok(_) if self.ring.is_empty() => {\n+                    Ok(_) if true /* ~ changed by cargo-mutants ~ */ => {\n                         return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));\n                     }\n                     // Sound: this thread alone took slot c, written before\n                     // `published` passed it.\n                     Ok(_) => {\n                         claimed();\n                         let slot = &self.ring[c % self.ring.len()];\n                         // Sound: this worker claimed the task after its\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_claimed",
+      "return_type": "-> Option<T>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1099
+        },
+        "start": {
+          "column": 9,
+          "line": 1058
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/lanes.rs:1082:30: replace match guard self.ring.is_empty() with true in sources::Source::take_claimed",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 1082
+      },
+      "start": {
+        "column": 30,
+        "line": 1082
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace match guard self.ring.is_empty() with false in sources::Source::take_claimed\n@@ -1074,17 +1074,17 @@\n                 // A job's pieces go in runs, consecutive, sized to the work\n                 // left (guided self-scheduling): each worker reads its input\n                 // front to back, so a mapped file from storage meets the\n                 // kernel's readahead stream by stream (official's I/O\n                 // pattern), and runs shrink to one piece near the end for\n                 // balance. A stream's tasks go one at a time.\n                 let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };\n                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {\n-                    Ok(_) if self.ring.is_empty() => {\n+                    Ok(_) if false /* ~ changed by cargo-mutants ~ */ => {\n                         return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));\n                     }\n                     // Sound: this thread alone took slot c, written before\n                     // `published` passed it.\n                     Ok(_) => {\n                         claimed();\n                         let slot = &self.ring[c % self.ring.len()];\n                         // Sound: this worker claimed the task after its\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take_claimed",
+      "return_type": "-> Option<T>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1099
+        },
+        "start": {
+          "column": 9,
+          "line": 1058
+        }
+      }
+    },
+    "genre": "MatchArmGuard",
+    "name": "src/lanes.rs:1082:30: replace match guard self.ring.is_empty() with false in sources::Source::take_claimed",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 50,
+        "line": 1082
+      },
+      "start": {
+        "column": 30,
+        "line": 1082
+      }
+    }
+  }
+]
