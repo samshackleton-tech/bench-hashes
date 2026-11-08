@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Ring source 88e215ed: no named cell slower on Ice and EPYC; a flaky allocation test fixed; audit fixes offered | [Report](ring-closure/r88/REPORT.md) | [Raw runs and instruments](ring-closure/r88/runs/) |
 | Ring copy-elision candidate on Ice (three short shared-stream cells Slower) and a cursory-reader safety audit (six findings) | [Report](ring-closure/REPORT.md), [audit](ring-closure/SAFETY-AUDIT.md) | [Raw runs, probes and instruments](ring-closure/runs/) |
 | Optional held-parent scratch-vector deletion: measured allocation reduction, Level timing | [Memory/simplicity follow-up](parent-buffer/REPORT.md) | [Raw tests, controls, allocation and timing](parent-buffer/parent-buffer-runs/) |
 | Unpromoted eligibility-before-gather experiment: all-Level direct timing, retained energy cost | [Frozen alternative](output-precheck/REPORT.md) | [Complete raw studies](output-precheck/output-precheck-runs/) |

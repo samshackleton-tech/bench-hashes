@@ -1,0 +1,66 @@
+[
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::take_stream_task -> Option<&Task> with Some(Box::leak(Box::new(Default::default())))\n@@ -1342,34 +1342,17 @@\n                 source.finished(n);\n             }\n         }\n     }\n \n     /// Copy a stream task into the caller's place before releasing its\n     /// slot. The reference borrows that copy; None clears the place.\n     pub(crate) fn take_stream_task(out: &mut Option<Task>) -> Option<&Task> {\n-        *out = None;\n-        find(|source| {\n-            if source.ring.is_empty() {\n-                return false;\n-            }\n-            source\n-                .take_claimed(\n-                    || {},\n-                    |item| {\n-                        *out = Some(match item {\n-                            Item::Task(task) => task,\n-                            Item::Pieces(..) => unreachable!(\"a stream's source carries tasks\"),\n-                        });\n-                    },\n-                )\n-                .is_some()\n-        });\n-        out.as_ref()\n+        Some(Box::leak(Box::new(Default::default()))) /* ~ changed by cargo-mutants ~ */\n     }\n \n     /// Whether any source has work waiting (`streams`: any stream).\n     pub(crate) fn visible(streams: bool) -> bool {\n         find(|source| (!streams || !source.ring.is_empty()) && source.waiting() > 0)\n     }\n \n     #[cfg(test)]\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::take_stream_task",
+      "return_type": "-> Option<&Task>",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1368
+        },
+        "start": {
+          "column": 5,
+          "line": 1347
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1350:9: replace sources::take_stream_task -> Option<&Task> with Some(Box::leak(Box::new(Default::default())))",
+    "package": "blake3-servil",
+    "replacement": "Some(Box::leak(Box::new(Default::default())))",
+    "span": {
+      "end": {
+        "column": 21,
+        "line": 1367
+      },
+      "start": {
+        "column": 9,
+        "line": 1350
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace Task::run with ()\n@@ -1678,17 +1678,17 @@\n     }\n \n     /// Hash on `platform` into `out`: for a subtree of two chunks or more at\n     /// chunk zero (it may be the whole message), its pair of child chaining\n     /// values; for any other, its chaining value (first 32 bytes). Then\n     /// count down.\n     #[inline(always)]\n     pub(crate) fn run(self, platform: Platform) {\n-        self.run_ref(platform);\n+        () /* ~ changed by cargo-mutants ~ */\n     }\n \n     // The SME2 worker owns a copied task in its local place. Borrow it for\n     // execution so its member array stays in that place. Each task runs once.\n     fn run_ref(&self, platform: Platform) {\n         if let Some((run, context)) = self.action {\n             // Sound: the producer holds the action's context through the\n             // source's completion barrier, as it holds ordinary task data.\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "Task::run",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 6,
+          "line": 1687
+        },
+        "start": {
+          "column": 5,
+          "line": 1680
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1686:9: replace Task::run with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 1686
+      },
+      "start": {
+        "column": 9,
+        "line": 1686
+      }
+    }
+  }
+]

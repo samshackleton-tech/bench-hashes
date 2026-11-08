@@ -1,0 +1,37 @@
+--- src/lanes.rs
++++ replace sources::Source::take_run -> bool with true
+@@ -1108,33 +1108,17 @@
+         /// Claim the `n` oldest waiting tasks at once, for a stream's GPU
+         /// (`crate::gpu::feed`): when they lie at positions `from..to`
+         /// (the run its GPU may take, all published: `to` is at most the
+         /// count published); `f` reads them in place. Whether it claimed
+         /// them. Only the stream's own thread calls this, so no slot it
+         /// reads is written meanwhile (that thread alone publishes).
+         #[cfg(blake3_gpu)]
+         pub(crate) fn take_run(&self, from: usize, to: usize, n: usize, f: impl FnOnce(&mut dyn Iterator<Item = &Task>)) -> bool {
+-            debug_assert!(to <= self.finish.published.load(Ordering::Relaxed), "a GPU's run lies among the tasks published");
+-            let c = self.claimed.load(Ordering::Acquire);
+-            if c < from || c + n > to {
+-                return false;
+-            }
+-            if self.claimed.compare_exchange(c, c + n, Ordering::AcqRel, Ordering::Acquire).is_err() {
+-                return false;
+-            }
+-            #[cfg(test)]
+-            self.gpu_batch_reserved.store(false, Ordering::SeqCst);
+-            // Sound: this thread alone took slots c..c + n, written before
+-            // `published` passed them.
+-            f(&mut (c..c + n).map(|i| unsafe { (*self.ring[i % self.ring.len()].task.get()).assume_init_ref() }));
+-            for i in c..c + n {
+-                self.ring[i % self.ring.len()].next.store(i + self.ring.len(), Ordering::Release);
+-            }
+-            true
++            true /* ~ changed by cargo-mutants ~ */
+         }
+ 
+         /// The count of tasks published (a stream's own, on its thread).
+         #[cfg(blake3_gpu)]
+         pub(crate) fn published(&self) -> usize {
+             self.finish.published.load(Ordering::Relaxed)
+         }
+ 

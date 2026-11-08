@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace - with + in sources::Source::take_claimed
+@@ -1075,17 +1075,17 @@
+                 // left (guided self-scheduling): each worker reads its input
+                 // front to back, so a mapped file from storage meets the
+                 // kernel's readahead stream by stream (official's I/O
+                 // pattern), and runs shrink to one piece near the end for
+                 // balance. A stream's tasks go one at a time.
+                 let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };
+                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+                     Ok(_) if self.ring.is_empty() => {
+-                        return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));
++                        return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c + /* ~ changed by cargo-mutants ~ */ self.base.load(Ordering::Relaxed), n)));
+                     }
+                     // Sound: this thread alone took slot c, written before
+                     // `published` passed it.
+                     Ok(_) => {
+                         claimed();
+                         let slot = &self.ring[c % self.ring.len()];
+                         // Sound: this worker claimed the task after its
+                         // publication; the producer waits for `next` below.

@@ -1,0 +1,38 @@
+--- src/lanes.rs
++++ replace sources::take_stream_task -> Option<&Task> with None
+@@ -1342,34 +1342,17 @@
+                 source.finished(n);
+             }
+         }
+     }
+ 
+     /// Copy a stream task into the caller's place before releasing its
+     /// slot. The reference borrows that copy; None clears the place.
+     pub(crate) fn take_stream_task(out: &mut Option<Task>) -> Option<&Task> {
+-        *out = None;
+-        find(|source| {
+-            if source.ring.is_empty() {
+-                return false;
+-            }
+-            source
+-                .take_claimed(
+-                    || {},
+-                    |item| {
+-                        *out = Some(match item {
+-                            Item::Task(task) => task,
+-                            Item::Pieces(..) => unreachable!("a stream's source carries tasks"),
+-                        });
+-                    },
+-                )
+-                .is_some()
+-        });
+-        out.as_ref()
++        None /* ~ changed by cargo-mutants ~ */
+     }
+ 
+     /// Whether any source has work waiting (`streams`: any stream).
+     pub(crate) fn visible(streams: bool) -> bool {
+         find(|source| (!streams || !source.ring.is_empty()) && source.waiting() > 0)
+     }
+ 
+     #[cfg(test)]

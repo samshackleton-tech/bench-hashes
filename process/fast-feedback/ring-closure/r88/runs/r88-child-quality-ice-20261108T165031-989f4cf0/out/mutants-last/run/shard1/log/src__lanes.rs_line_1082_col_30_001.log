@@ -1,0 +1,301 @@
+
+*** src/lanes.rs:1082:30: replace match guard self.ring.is_empty() with false in sources::Source::take_claimed
+
+*** mutation diff:
+--- src/lanes.rs
++++ replace match guard self.ring.is_empty() with false in sources::Source::take_claimed
+@@ -1074,17 +1074,17 @@
+                 // A job's pieces go in runs, consecutive, sized to the work
+                 // left (guided self-scheduling): each worker reads its input
+                 // front to back, so a mapped file from storage meets the
+                 // kernel's readahead stream by stream (official's I/O
+                 // pattern), and runs shrink to one piece near the end for
+                 // balance. A stream's tasks go one at a time.
+                 let n = if self.ring.is_empty() { Self::run_len(p - c, pool().threads) } else { 1 };
+                 match self.claimed.compare_exchange_weak(c, c + n, Ordering::AcqRel, Ordering::Acquire) {
+-                    Ok(_) if self.ring.is_empty() => {
++                    Ok(_) if false /* ~ changed by cargo-mutants ~ */ => {
+                         return Some(map(Item::Pieces(self.job.load(Ordering::Relaxed), c - self.base.load(Ordering::Relaxed), n)));
+                     }
+                     // Sound: this thread alone took slot c, written before
+                     // `published` passed it.
+                     Ok(_) => {
+                         claimed();
+                         let slot = &self.ring[c % self.ring.len()];
+                         // Sound: this worker claimed the task after its
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/tmp/blake3-servil-mutants/mutants-bddm4zhn)
+    Finished `mutants` profile [optimized] target(s) in 2.21s
+info: using target runner `sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 892521ce-1405-4c95-a411-22e22c906565 with nextest profile: mutants
+    Starting 228 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/228) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/228) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/228) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/228) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/228) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/228) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/228) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/228) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+       START [         ] (  1/228) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/228) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+       START [         ] (  1/228) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.085s] (  1/228) blake3-servil avx512::test::test_xof_many
+       START [         ] (  2/228) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.094s] (  2/228) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  3/228) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.101s] (  3/228) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] (  4/228) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.108s] (  4/228) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  5/228) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::finalize_each_groups_only_full_output_lanes --nocapture
+        PASS [   0.115s] (  5/228) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  6/228) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.122s] (  6/228) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  7/228) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.136s] (  7/228) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  8/228) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.138s] (  8/228) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  9/228) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.144s] (  9/228) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] ( 10/228) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.160s] ( 10/228) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] ( 11/228) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.167s] ( 11/228) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] ( 12/228) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each --nocapture
+        PASS [   0.174s] ( 12/228) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] ( 13/228) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.190s] ( 13/228) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+       START [         ] ( 14/228) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.205s] ( 14/228) blake3-servil block::test::test_blocks_mut_writes_the_messages
+       START [         ] ( 15/228) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+        PASS [   0.211s] ( 15/228) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] ( 16/228) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+        PASS [   0.213s] ( 16/228) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 17/228) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+        PASS [   0.137s] ( 17/228) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 18/228) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+        PASS [   0.226s] ( 18/228) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 19/228) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_rejects_corrupted_answer --nocapture
+        PASS [   0.140s] ( 19/228) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+       START [         ] ( 20/228) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+        PASS [   0.141s] ( 20/228) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 21/228) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+        PASS [   0.182s] ( 21/228) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 22/228) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.146s] ( 22/228) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 23/228) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.140s] ( 23/228) blake3-servil each::test::test_hash_each_small_items_by_blocks
+       START [         ] ( 24/228) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.145s] ( 24/228) blake3-servil each::test::test_update_each
+       START [         ] ( 25/228) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.143s] ( 25/228) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 26/228) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first --nocapture
+        PASS [   0.135s] ( 26/228) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 27/228) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::clone_from_copies_only_the_live_stage_prefix --nocapture
+        PASS [   0.130s] ( 27/228) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+       START [         ] ( 28/228) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.241s] ( 28/228) blake3-servil chunk_root::test::test_chunk_root_line_placements
+       START [         ] ( 29/228) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_the_length_hint_never_changes_the_digest --nocapture
+        PASS [   0.129s] ( 29/228) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+       START [         ] ( 30/228) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/fork/tools/mutants/test-runner /root/pinned-runs/r88-child-quality-ice-20261108T165031-989f4cf0/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+     SIGABRT [   0.345s] ( 30/228) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::packed_test::packed_messages_hash_as_each_message_alone' (1976426) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+    thread 'blake3-worker-1' (1976429) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-2' (1976430) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-10' (1976440) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-6' (1976434) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-111' (1976557) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-41' (1976477) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-86' (1976528) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-14' (1976445) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-74' (1976516) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-25' (1976459) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-105' (1976551) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-30' (1976464) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-72' (1976514) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-40' (1976476) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-78' (1976520) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-55' (1976493) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-92' (1976536) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-66' (1976508) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-80' (1976522) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-107' (1976553) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 17 tests still running
+     SIGTERM [   0.063s] ( 31/228) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+     SIGTERM [   0.125s] ( 32/228) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+     SIGTERM [   0.046s] ( 33/228) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+     SIGTERM [   0.090s] ( 34/228) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+     SIGTERM [   0.133s] ( 35/228) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+     SIGTERM [   0.006s] ( 36/228) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+     SIGTERM [   0.099s] ( 37/228) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+     SIGTERM [   0.121s] ( 38/228) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+     SIGTERM [   0.035s] ( 39/228) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+     SIGTERM [   0.011s] ( 40/228) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+     SIGTERM [   0.011s] ( 41/228) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+     SIGTERM [   0.022s] ( 42/228) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+     SIGTERM [   0.029s] ( 43/228) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+     SIGTERM [   0.057s] ( 44/228) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+     SIGKILL [   0.209s] ( 45/228) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly' (1977809) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+    thread 'blake3-worker-10' (1977821) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    thread 'blake3-worker-11' (1977822) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.211s] ( 46/228) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_past_the_split' (1977762) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.234s] ( 47/228) blake3-servil each::test::test_hash_each_multithreaded
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded' (1977702) panicked at src/lanes.rs:1089:47:
+    attempt to calculate the remainder with a divisor of zero
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+    (test aborted with signal 9: SIGKILL)
+
+────────────
+     Summary [   0.358s] 47/228 tests run: 29 passed, 18 failed, 0 skipped
+warning: 181/228 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

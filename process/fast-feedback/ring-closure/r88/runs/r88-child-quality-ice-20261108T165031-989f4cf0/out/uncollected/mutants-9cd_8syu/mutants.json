@@ -1,0 +1,226 @@
+[
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::push with ()\n@@ -1001,17 +1001,17 @@\n                 noted(Noted::WakeTry);\n                 pool.park.wake_one();\n             }\n         }\n \n         /// Write `task` to the ring and make it visible (the SME2 thread\n         /// woken for it where there is one).\n         fn push(&self, task: Task) {\n-            self.push_waiting(task, || {});\n+            () /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// `waiting` exposes the copy/reuse boundary to the schedule test.\n         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {\n             let p = self.finish.published.load(Ordering::Relaxed);\n             // Every build: a task written over one not yet taken would be\n             // run as garbage (memory mismanagement, at the cost of a load\n             // and a comparison the debug check already made).\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1010
+        },
+        "start": {
+          "column": 9,
+          "line": 1006
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1009:13: replace sources::Source::push with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 44,
+        "line": 1009
+      },
+      "start": {
+        "column": 13,
+        "line": 1009
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::push_waiting with ()\n@@ -1006,38 +1006,17 @@\n         /// Write `task` to the ring and make it visible (the SME2 thread\n         /// woken for it where there is one).\n         fn push(&self, task: Task) {\n             self.push_waiting(task, || {});\n         }\n \n         /// `waiting` exposes the copy/reuse boundary to the schedule test.\n         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {\n-            let p = self.finish.published.load(Ordering::Relaxed);\n-            // Every build: a task written over one not yet taken would be\n-            // run as garbage (memory mismanagement, at the cost of a load\n-            // and a comparison the debug check already made).\n-            assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n-            let slot = &self.ring[p % self.ring.len()];\n-            if slot.next.load(Ordering::Acquire) != p {\n-                waiting();\n-                // A worker has claimed the old task and may be descheduled\n-                // before its copy. Let it run before reusing that storage.\n-                while slot.next.load(Ordering::Acquire) != p {\n-                    std::thread::yield_now();\n-                }\n-            }\n-            // Sound: the previous reader released this slot after its copy,\n-            // and this stream alone writes it.\n-            unsafe { (*slot.task.get()).write(task) };\n-            self.finish.published.store(p + 1, Ordering::Release);\n-            core::sync::atomic::fence(Ordering::SeqCst);\n-            if pool().sme2 {\n-                wake_sme2();\n-            }\n+            () /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// Make `job` the caller's current job, its pieces `0..own` the\n         /// caller's own: the number `finished` must reach when it is done.\n         pub(crate) fn publish_job(&self, job: *mut Job<'static>, pieces: usize, own: usize) -> usize {\n             let base = self.finish.published.load(Ordering::Relaxed);\n             debug_assert_eq!(self.finish.finished_count(), base, \"the last job is finished\");\n             self.job.store(job, Ordering::Relaxed);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1036
+        },
+        "start": {
+          "column": 9,
+          "line": 1012
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1014:13: replace sources::Source::push_waiting with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 14,
+        "line": 1035
+      },
+      "start": {
+        "column": 13,
+        "line": 1014
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with / in sources::Source::push_waiting\n@@ -1011,17 +1011,17 @@\n \n         /// `waiting` exposes the copy/reuse boundary to the schedule test.\n         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {\n             let p = self.finish.published.load(Ordering::Relaxed);\n             // Every build: a task written over one not yet taken would be\n             // run as garbage (memory mismanagement, at the cost of a load\n             // and a comparison the debug check already made).\n             assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n-            let slot = &self.ring[p % self.ring.len()];\n+            let slot = &self.ring[p / /* ~ changed by cargo-mutants ~ */ self.ring.len()];\n             if slot.next.load(Ordering::Acquire) != p {\n                 waiting();\n                 // A worker has claimed the old task and may be descheduled\n                 // before its copy. Let it run before reusing that storage.\n                 while slot.next.load(Ordering::Acquire) != p {\n                     std::thread::yield_now();\n                 }\n             }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1036
+        },
+        "start": {
+          "column": 9,
+          "line": 1012
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1019:37: replace % with / in sources::Source::push_waiting",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 1019
+      },
+      "start": {
+        "column": 37,
+        "line": 1019
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace % with + in sources::Source::push_waiting\n@@ -1011,17 +1011,17 @@\n \n         /// `waiting` exposes the copy/reuse boundary to the schedule test.\n         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {\n             let p = self.finish.published.load(Ordering::Relaxed);\n             // Every build: a task written over one not yet taken would be\n             // run as garbage (memory mismanagement, at the cost of a load\n             // and a comparison the debug check already made).\n             assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n-            let slot = &self.ring[p % self.ring.len()];\n+            let slot = &self.ring[p + /* ~ changed by cargo-mutants ~ */ self.ring.len()];\n             if slot.next.load(Ordering::Acquire) != p {\n                 waiting();\n                 // A worker has claimed the old task and may be descheduled\n                 // before its copy. Let it run before reusing that storage.\n                 while slot.next.load(Ordering::Acquire) != p {\n                     std::thread::yield_now();\n                 }\n             }\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1036
+        },
+        "start": {
+          "column": 9,
+          "line": 1012
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1019:37: replace % with + in sources::Source::push_waiting",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 1019
+      },
+      "start": {
+        "column": 37,
+        "line": 1019
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace != with == in sources::Source::push_waiting\n@@ -1012,17 +1012,17 @@\n         /// `waiting` exposes the copy/reuse boundary to the schedule test.\n         fn push_waiting(&self, task: Task, waiting: impl FnOnce()) {\n             let p = self.finish.published.load(Ordering::Relaxed);\n             // Every build: a task written over one not yet taken would be\n             // run as garbage (memory mismanagement, at the cost of a load\n             // and a comparison the debug check already made).\n             assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n             let slot = &self.ring[p % self.ring.len()];\n-            if slot.next.load(Ordering::Acquire) != p {\n+            if slot.next.load(Ordering::Acquire) == /* ~ changed by cargo-mutants ~ */ p {\n                 waiting();\n                 // A worker has claimed the old task and may be descheduled\n                 // before its copy. Let it run before reusing that storage.\n                 while slot.next.load(Ordering::Acquire) != p {\n                     std::thread::yield_now();\n                 }\n             }\n             // Sound: the previous reader released this slot after its copy,\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1036
+        },
+        "start": {
+          "column": 9,
+          "line": 1012
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1020:50: replace != with == in sources::Source::push_waiting",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 52,
+        "line": 1020
+      },
+      "start": {
+        "column": 50,
+        "line": 1020
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace != with == in sources::Source::push_waiting\n@@ -1016,17 +1016,17 @@\n             // run as garbage (memory mismanagement, at the cost of a load\n             // and a comparison the debug check already made).\n             assert!(p - self.claimed.load(Ordering::Relaxed) < self.ring.len(), \"a source's ring holds every task not yet taken\");\n             let slot = &self.ring[p % self.ring.len()];\n             if slot.next.load(Ordering::Acquire) != p {\n                 waiting();\n                 // A worker has claimed the old task and may be descheduled\n                 // before its copy. Let it run before reusing that storage.\n-                while slot.next.load(Ordering::Acquire) != p {\n+                while slot.next.load(Ordering::Acquire) == /* ~ changed by cargo-mutants ~ */ p {\n                     std::thread::yield_now();\n                 }\n             }\n             // Sound: the previous reader released this slot after its copy,\n             // and this stream alone writes it.\n             unsafe { (*slot.task.get()).write(task) };\n             self.finish.published.store(p + 1, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::push_waiting",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1036
+        },
+        "start": {
+          "column": 9,
+          "line": 1012
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/lanes.rs:1024:57: replace != with == in sources::Source::push_waiting",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 59,
+        "line": 1024
+      },
+      "start": {
+        "column": 57,
+        "line": 1024
+      }
+    }
+  },
+  {
+    "diff": "--- src/lanes.rs\n+++ replace sources::Source::take -> Option<Item> with None\n@@ -1047,17 +1047,17 @@\n             self.claimed.store(base + own, Ordering::Relaxed);\n             self.finish.published.store(base + pieces, Ordering::Release);\n             core::sync::atomic::fence(Ordering::SeqCst);\n             base + pieces\n         }\n \n         /// Claim the next published item, if any.\n         pub(crate) fn take(&self) -> Option<Item> {\n-            self.take_claimed(|| {}, core::convert::identity)\n+            None /* ~ changed by cargo-mutants ~ */\n         }\n \n         /// `claimed` lets the schedule test pause before the task copy.\n         /// Construct the caller's result before releasing the slot, so a\n         /// different return representation needs no copy after release.\n         fn take_claimed<T>(&self, claimed: impl FnOnce(), map: impl FnOnce(Item) -> T) -> Option<T> {\n             let mut c = self.claimed.load(Ordering::Acquire);\n             loop {\n",
+    "file": "src/lanes.rs",
+    "function": {
+      "function_name": "sources::Source::take",
+      "return_type": "-> Option<Item>",
+      "span": {
+        "end": {
+          "column": 10,
+          "line": 1056
+        },
+        "start": {
+          "column": 9,
+          "line": 1053
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/lanes.rs:1055:13: replace sources::Source::take -> Option<Item> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 62,
+        "line": 1055
+      },
+      "start": {
+        "column": 13,
+        "line": 1055
+      }
+    }
+  }
+]

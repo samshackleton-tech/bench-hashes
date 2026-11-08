@@ -1,0 +1,21 @@
+--- src/lanes.rs
++++ replace + with * in sources::Source::take_claimed
+@@ -1085,17 +1085,17 @@
+                     // Sound: this thread alone took slot c, written before
+                     // `published` passed it.
+                     Ok(_) => {
+                         claimed();
+                         let slot = &self.ring[c % self.ring.len()];
+                         // Sound: this worker claimed the task after its
+                         // publication; the producer waits for `next` below.
+                         let result = Some(map(Item::Task(unsafe { (*slot.task.get()).assume_init_read() })));
+-                        slot.next.store(c + self.ring.len(), Ordering::Release);
++                        slot.next.store(c * /* ~ changed by cargo-mutants ~ */ self.ring.len(), Ordering::Release);
+                         return result;
+                     }
+                     Err(now) => c = now,
+                 }
+             }
+         }
+ 
+         /// Establish the GPU-claim precondition of its finish/reclaim test.
