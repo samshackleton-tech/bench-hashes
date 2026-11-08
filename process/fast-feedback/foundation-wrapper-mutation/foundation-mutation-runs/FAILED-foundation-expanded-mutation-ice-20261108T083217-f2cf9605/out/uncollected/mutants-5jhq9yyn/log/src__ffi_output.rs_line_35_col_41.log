@@ -1,0 +1,210 @@
+
+*** src/ffi_output.rs:35:41: replace | with & in input
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace | with & in input
+@@ -27,17 +27,17 @@
+ /// stacked subtree. Its final block is already padded by ChunkState.
+ /// Other states keep Hasher's existing finalization path.
+ pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {
+     let c = &hasher.core.chunk_state;
+     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {
+         block: &c.buf,
+         cv: &c.cv,
+         len: c.buf_len,
+-        flags: c.flags | c.start_flag() | CHUNK_END,
++        flags: c.flags | c.start_flag() & /* ~ changed by cargo-mutants ~ */ CHUNK_END,
+     })
+ }
+ 
+ /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded
+ /// block and CV; its block length is 0..64. The output holds 16 digests.
+ pub(crate) unsafe fn hash_group(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(out.len(), 16, "sixteen root outputs");
+     crate::ran_kernel(blake3_servil_output16 as *const ());
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/tmp/blake3-servil-mutants/mutants-5jhq9yyn)
+    Finished `mutants` profile [optimized] target(s) in 1.88s
+info: using target runner `sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 760a3bf7-3a21-4013-a006-35cb4cb1b2a5 with nextest profile: mutants
+    Starting 224 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/224) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/224) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/224) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/224) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+       START [         ] (  1/224) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.078s] (  1/224) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  2/224) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.100s] (  2/224) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  3/224) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.106s] (  3/224) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] (  4/224) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.114s] (  4/224) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] (  5/224) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.120s] (  5/224) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] (  6/224) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.121s] (  6/224) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  7/224) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.129s] (  7/224) blake3-servil avx512::test::test_xof_many
+       START [         ] (  8/224) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.136s] (  8/224) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  9/224) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.144s] (  9/224) blake3-servil block::test::test_blocks_mut_writes_the_messages
+       START [         ] ( 10/224) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.152s] ( 10/224) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 11/224) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each --nocapture
+        PASS [   0.160s] ( 11/224) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+       START [         ] ( 12/224) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.160s] ( 12/224) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] ( 13/224) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.168s] ( 13/224) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 14/224) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+        PASS [   0.185s] ( 14/224) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] ( 15/224) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+        PASS [   0.192s] ( 15/224) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+       START [         ] ( 16/224) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+        PASS [   0.199s] ( 16/224) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 17/224) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+        PASS [   0.204s] ( 17/224) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] ( 18/224) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::startup_rejects_corrupted_answer --nocapture
+        PASS [   0.140s] ( 18/224) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 19/224) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+        PASS [   0.221s] ( 19/224) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] ( 20/224) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+        PASS [   0.131s] ( 20/224) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 21/224) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.141s] ( 21/224) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 22/224) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.141s] ( 22/224) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 23/224) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.138s] ( 23/224) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 24/224) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.173s] ( 24/224) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 25/224) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first --nocapture
+        PASS [   0.140s] ( 25/224) blake3-servil each::test::test_hash_each_small_items_by_blocks
+       START [         ] ( 26/224) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::clone_from_copies_only_the_live_stage_prefix --nocapture
+        PASS [   0.142s] ( 26/224) blake3-servil each::test::test_update_each
+       START [         ] ( 27/224) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.138s] ( 27/224) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 28/224) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_the_length_hint_never_changes_the_digest --nocapture
+        PASS [   0.146s] ( 28/224) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 29/224) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-1/mutants/deps/blake3_servil-896db09f64b46e77 --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+        FAIL [   0.144s] ( 29/224) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+  stdout ───
+
+    running 1 test
+    test ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices ... FAILED
+
+    failures:
+
+    failures:
+        ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 189 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices' (612685) panicked at src/ffi_output.rs:177:13:
+    assertion `left == right` failed
+      left: [[124, 232, 20, 240, 211, 115, 117, 182, 254, 132, 233, 83, 204, 152, 159, 13, 199, 105, 213, 133, 9, 140, 68, 72, 216, 147, 193, 30, 10, 152, 231, 203], [48, 187, 173, 239, 24, 173, 162, 231, 37, 134, 155, 164, 28, 9, 92, 21, 221, 223, 253, 240, 217, 90, 197, 215, 37, 232, 28, 203, 226, 123, 206, 190], [88, 177, 71, 44, 43, 40, 249, 13, 41, 94, 40, 131, 78, 28, 57, 114, 229, 19, 62, 100, 108, 155, 101, 252, 64, 129, 29, 100, 196, 53, 83, 235], [128, 42, 11, 229, 31, 255, 80, 10, 169, 127, 236, 144, 91, 102, 96, 151, 12, 197, 114, 235, 237, 88, 53, 14, 64, 56, 113, 103, 29, 196, 96, 89], [65, 209, 107, 122, 26, 193, 204, 95, 6, 255, 14, 61, 25, 54, 12, 239, 122, 87, 186, 250, 191, 68, 52, 250, 171, 193, 91, 115, 68, 29, 104, 240], [42, 181, 42, 137, 226, 189, 226, 178, 181, 154, 116, 31, 145, 103, 212, 26, 33, 171, 127, 94, 159, 115, 81, 228, 182, 46, 146, 39, 237, 109, 221, 239], [89, 202, 111, 240, 129, 113, 244, 218, 244, 110, 28, 73, 63, 97, 213, 231, 167, 72, 111, 113, 47, 91, 98, 74, 111, 121, 144, 100, 38, 232, 215, 179], [205, 37, 255, 192, 210, 206, 6, 58, 216, 241, 34, 120, 42, 233, 189, 95, 45, 235, 223, 254, 20, 123, 140, 230, 251, 122, 231, 14, 169, 163, 189, 142], [7, 77, 7, 4, 71, 178, 11, 32, 182, 255, 66, 215, 229, 38, 89, 78, 111, 192, 165, 104, 59, 44, 201, 97, 103, 216, 140, 119, 205, 188, 17, 157], [239, 127, 163, 79, 63, 210, 221, 115, 172, 118, 211, 150, 101, 98, 200, 23, 11, 94, 83, 138, 169, 1, 86, 144, 211, 138, 10, 205, 79, 3, 187, 207], [78, 234, 194, 212, 116, 217, 244, 33, 46, 53, 14, 77, 79, 222, 231, 98, 62, 233, 220, 204, 49, 42, 203, 27, 122, 151, 8, 34, 43, 63, 119, 125], [32, 56, 156, 115, 40, 177, 45, 72, 220, 5, 252, 186, 249, 136, 173, 8, 155, 143, 209, 238, 197, 248, 218, 222, 64, 151, 129, 27, 98, 157, 146, 242], [128, 30, 227, 254, 234, 136, 110, 128, 32, 181, 130, 254, 58, 244, 219, 105, 27, 211, 100, 173, 196, 169, 172, 131, 175, 202, 168, 208, 19, 55, 17, 167], [140, 22, 234, 222, 75, 203, 86, 174, 8, 10, 127, 172, 216, 73, 221, 106, 246, 170, 121, 158, 145, 150, 84, 229, 143, 95, 14, 157, 55, 15, 78, 134], [200, 199, 70, 65, 157, 25, 125, 177, 42, 97, 91, 7, 238, 14, 252, 130, 132, 164, 20, 17, 246, 211, 198, 79, 86, 152, 108, 214, 155, 159, 69, 73], [222, 144, 10, 213, 132, 196, 93, 67, 24, 254, 156, 117, 24, 5, 64, 138, 107, 104, 89, 149, 3, 164, 39, 254, 78, 69, 152, 122, 32, 4, 104, 135]]
+     right: [[200, 197, 185, 247, 237, 167, 202, 17, 54, 150, 65, 189, 173, 122, 22, 148, 179, 185, 60, 44, 214, 132, 113, 82, 145, 220, 94, 239, 238, 25, 26, 121], [9, 166, 161, 169, 85, 75, 224, 95, 37, 30, 247, 143, 189, 180, 206, 91, 232, 69, 253, 174, 60, 81, 134, 204, 71, 183, 246, 200, 22, 30, 100, 29], [205, 79, 96, 217, 163, 189, 59, 180, 17, 252, 40, 226, 176, 156, 103, 123, 155, 57, 18, 165, 219, 2, 164, 159, 41, 143, 45, 222, 74, 22, 12, 60], [41, 123, 133, 61, 51, 212, 140, 153, 67, 25, 254, 226, 170, 123, 195, 202, 147, 105, 104, 244, 178, 63, 157, 5, 188, 162, 239, 181, 71, 228, 119, 253], [79, 182, 122, 194, 202, 84, 139, 97, 163, 135, 230, 60, 63, 209, 71, 120, 39, 9, 244, 130, 111, 202, 218, 44, 23, 98, 4, 92, 197, 161, 245, 248], [84, 10, 63, 192, 217, 41, 69, 151, 4, 26, 84, 75, 31, 120, 106, 113, 116, 151, 66, 79, 99, 144, 41, 134, 169, 61, 222, 172, 205, 154, 129, 24], [223, 217, 134, 241, 103, 145, 214, 216, 65, 166, 53, 212, 204, 171, 231, 178, 3, 154, 210, 213, 252, 200, 63, 158, 41, 64, 149, 225, 163, 235, 169, 134], [87, 14, 179, 56, 39, 220, 92, 203, 248, 167, 198, 202, 155, 107, 179, 80, 55, 1, 171, 98, 48, 189, 176, 25, 12, 5, 96, 240, 20, 2, 195, 210], [244, 86, 93, 230, 120, 198, 131, 19, 185, 250, 99, 240, 164, 219, 234, 162, 204, 3, 158, 175, 165, 168, 55, 102, 238, 21, 21, 255, 4, 225, 155, 192], [249, 246, 58, 46, 88, 99, 243, 241, 108, 137, 212, 147, 210, 240, 197, 153, 122, 126, 117, 157, 233, 241, 183, 65, 198, 196, 29, 4, 89, 157, 55, 198], [36, 98, 187, 107, 239, 91, 213, 255, 117, 218, 34, 191, 144, 34, 42, 5, 153, 190, 112, 115, 231, 5, 77, 11, 222, 53, 203, 13, 43, 242, 78, 8], [22, 75, 113, 1, 35, 65, 197, 231, 70, 28, 241, 87, 106, 133, 220, 56, 234, 227, 224, 4, 20, 43, 149, 191, 97, 34, 122, 83, 173, 201, 80, 1], [44, 37, 192, 213, 62, 238, 252, 243, 226, 142, 126, 252, 217, 79, 202, 13, 245, 166, 226, 96, 118, 238, 53, 248, 227, 19, 224, 102, 204, 137, 228, 229], [156, 195, 231, 134, 24, 230, 242, 155, 197, 198, 7, 196, 127, 180, 103, 5, 36, 203, 14, 217, 214, 62, 123, 19, 235, 60, 75, 28, 200, 178, 31, 247], [46, 127, 78, 60, 52, 7, 181, 237, 177, 223, 120, 29, 69, 13, 223, 209, 112, 249, 57, 76, 164, 75, 254, 165, 77, 164, 236, 114, 49, 98, 52, 227], [175, 19, 73, 185, 245, 249, 161, 166, 160, 64, 77, 234, 54, 220, 201, 73, 155, 203, 37, 201, 173, 193, 18, 183, 204, 154, 147, 202, 228, 31, 50, 98]]
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: immediately terminating 17 tests still running
+     SIGTERM [   0.096s] ( 30/224) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+     SIGTERM [   0.051s] ( 31/224) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+     SIGTERM [   0.021s] ( 32/224) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+     SIGTERM [   0.030s] ( 33/224) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+     SIGTERM [   0.122s] ( 34/224) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+     SIGTERM [   0.045s] ( 35/224) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+     SIGTERM [   0.214s] ( 36/224) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGTERM [   0.069s] ( 37/224) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+     SIGTERM [   0.129s] ( 38/224) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+     SIGTERM [   0.115s] ( 39/224) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+     SIGTERM [   0.110s] ( 40/224) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+     SIGTERM [   0.040s] ( 41/224) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+     SIGTERM [   0.008s] ( 42/224) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+     SIGKILL [   0.016s] ( 43/224) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGTERM [   0.093s] ( 44/224) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+     SIGTERM [   0.035s] ( 45/224) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+     SIGTERM [   0.195s] ( 46/224) blake3-servil each::test::test_hash_each_multithreaded
+────────────
+     Summary [   0.316s] 46/224 tests run: 28 passed, 18 failed, 0 skipped
+warning: 178/224 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

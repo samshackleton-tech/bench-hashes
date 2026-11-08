@@ -1,0 +1,29 @@
+--- src/ffi_output.rs
++++ replace self_test -> usize with 0
+@@ -64,25 +64,17 @@
+     let mut out = [[0u8; OUT_LEN]; 16];
+     hash(&inputs, &mut out);
+     crate::self_test::fold(out.as_flattened())
+ }
+ fn check_self_test(answer: u64) {
+     assert_eq!(answer, SELF_TEST_EXPECTED, "blake3-servil startup self-test failed: sixteen root outputs");
+ }
+ pub(crate) fn self_test(platform: Platform) -> usize {
+-    if !matches!(platform, Platform::AVX512) {
+-        return 0;
+-    }
+-    let answer = self_test_shape(|inputs, out| {
+-        // Sound: initialize detected this platform before testing its kernels.
+-        unsafe { hash_group(inputs, out) };
+-    });
+-    check_self_test(answer);
+-    1
++    0 /* ~ changed by cargo-mutants ~ */
+ }
+ #[cfg(test)]
+ pub(crate) fn entry() -> *const () {
+     blake3_servil_output16 as *const ()
+ }
+ 
+ #[cfg(test)]
+ mod tests {

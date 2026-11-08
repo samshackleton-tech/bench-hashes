@@ -1,0 +1,295 @@
+
+*** src/ffi_output.rs:57:37: replace % with / in self_test_shape
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace % with / in self_test_shape
+@@ -49,17 +49,17 @@
+ const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;
+ fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {
+     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];
+     let flags: [u8; 16] = core::array::from_fn(|i| {
+         let shape = [3u8, 2, 4][i % 3];
+         if shape == 4 {
+             lens[i] = 64;
+         }
+-        shape | [0u8, 16, 32, 64][i % 4]
++        shape | [0u8, 16, 32, 64][i / /* ~ changed by cargo-mutants ~ */ 4]
+     });
+     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {
+         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))
+     });
+     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));
+     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });
+     let mut out = [[0u8; OUT_LEN]; 16];
+     hash(&inputs, &mut out);
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/tmp/blake3-servil-mutants/mutants-_0c5bpb6)
+    Finished `mutants` profile [optimized] target(s) in 1.17s
+info: using target runner `sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 32650067-0bca-4cbc-8c96-fd51e026830d with nextest profile: mutants
+    Starting 224 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/224) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/224) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/224) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/224) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/224) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/224) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+       START [         ] (  1/224) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+       START [         ] (  1/224) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.087s] (  1/224) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  2/224) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.089s] (  2/224) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  3/224) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.100s] (  3/224) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] (  4/224) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.101s] (  4/224) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  5/224) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.120s] (  5/224) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] (  6/224) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.147s] (  6/224) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] (  7/224) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.154s] (  7/224) blake3-servil avx512::test::test_xof_many
+       START [         ] (  8/224) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.160s] (  8/224) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  9/224) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.162s] (  9/224) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 10/224) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.167s] ( 10/224) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] ( 11/224) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each --nocapture
+        PASS [   0.182s] ( 11/224) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] ( 12/224) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.189s] ( 12/224) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] ( 13/224) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.107s] ( 13/224) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 14/224) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/fork/tools/mutants/test-runner /root/pinned-runs/foundation-expanded-mutation-ice-20261108T083217-f2cf9605/target/mutants/run-2/mutants/deps/blake3_servil-896db09f64b46e77 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+     SIGABRT [   0.082s] ( 14/224) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_on_counts_its_alone_messages_and_rounds' (669432) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 17 tests still running
+     SIGTERM [   0.076s] ( 15/224) blake3-servil each::test::test_update_each
+     SIGTERM [   0.054s] ( 16/224) blake3-servil each::test::test_update_each_holds_groups_together
+     SIGTERM [   0.154s] ( 17/224) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGTERM [   0.062s] ( 18/224) blake3-servil each::test::test_update_each_at_offsets
+     SIGKILL [   0.243s] ( 19/224) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero' (669131) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGTERM [   0.049s] ( 20/224) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+     SIGTERM [   0.081s] ( 21/224) blake3-servil each::test::test_hash_each_small_items_by_blocks
+     SIGKILL [   0.096s] ( 22/224) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_past_the_split' (669365) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.143s] ( 23/224) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'chunk_root::test::test_chunk_root_matches_chunk_state' (669230) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.243s] ( 24/224) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree' (669064) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.243s] ( 25/224) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks' (669181) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.243s] ( 26/224) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::packed_test::packed_messages_hash_as_each_message_alone' (669090) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.243s] ( 27/224) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_from_blocks_borrows_messages_that_fill_their_blocks' (669117) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.142s] ( 28/224) blake3-servil each::test::test_hash_each_matches_hash_with
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_matches_hash_with' (669237) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.243s] ( 29/224) blake3-servil block::test::test_blocks_mut_writes_the_messages
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_blocks_mut_writes_the_messages' (669103) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.089s] ( 30/224) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly' (669403) panicked at src/ffi_output.rs:69:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: sixteen root outputs
+      left: 11644910110792275123
+     right: 6116972716023002997
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGTERM [   0.125s] ( 31/224) blake3-servil each::test::test_hash_each_multithreaded
+────────────
+     Summary [   0.246s] 31/224 tests run: 13 passed, 18 failed, 0 skipped
+warning: 193/224 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

@@ -1,0 +1,290 @@
+[
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace self_test_shape -> u64 with 1\n@@ -43,32 +43,17 @@\n     crate::ran_kernel(blake3_servil_output16 as *const ());\n     // Sound: caller supplies the ISA; references and fixed descriptor count\n     // provide the readable data, and the checked output holds all stores.\n     unsafe { blake3_servil_output16(inputs.as_ptr(), out.as_mut_ptr().cast()) };\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n-    let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n-    let flags: [u8; 16] = core::array::from_fn(|i| {\n-        let shape = [3u8, 2, 4][i % 3];\n-        if shape == 4 {\n-            lens[i] = 64;\n-        }\n-        shape | [0u8, 16, 32, 64][i % 4]\n-    });\n-    let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n-        core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n-    });\n-    let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n-    let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n-    let mut out = [[0u8; OUT_LEN]; 16];\n-    hash(&inputs, &mut out);\n-    crate::self_test::fold(out.as_flattened())\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n fn check_self_test(answer: u64) {\n     assert_eq!(answer, SELF_TEST_EXPECTED, \"blake3-servil startup self-test failed: sixteen root outputs\");\n }\n pub(crate) fn self_test(platform: Platform) -> usize {\n     if !matches!(platform, Platform::AVX512) {\n         return 0;\n     }\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:51:5: replace self_test_shape -> u64 with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 47,
+        "line": 66
+      },
+      "start": {
+        "column": 5,
+        "line": 51
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace % with / in self_test_shape\n@@ -45,17 +45,17 @@\n     // provide the readable data, and the checked output holds all stores.\n     unsafe { blake3_servil_output16(inputs.as_ptr(), out.as_mut_ptr().cast()) };\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n-        let shape = [3u8, 2, 4][i % 3];\n+        let shape = [3u8, 2, 4][i / /* ~ changed by cargo-mutants ~ */ 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n         shape | [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:53:35: replace % with / in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 53
+      },
+      "start": {
+        "column": 35,
+        "line": 53
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace % with + in self_test_shape\n@@ -45,17 +45,17 @@\n     // provide the readable data, and the checked output holds all stores.\n     unsafe { blake3_servil_output16(inputs.as_ptr(), out.as_mut_ptr().cast()) };\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n-        let shape = [3u8, 2, 4][i % 3];\n+        let shape = [3u8, 2, 4][i + /* ~ changed by cargo-mutants ~ */ 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n         shape | [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:53:35: replace % with + in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 36,
+        "line": 53
+      },
+      "start": {
+        "column": 35,
+        "line": 53
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in self_test_shape\n@@ -46,17 +46,17 @@\n     unsafe { blake3_servil_output16(inputs.as_ptr(), out.as_mut_ptr().cast()) };\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n-        if shape == 4 {\n+        if shape != /* ~ changed by cargo-mutants ~ */ 4 {\n             lens[i] = 64;\n         }\n         shape | [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:54:18: replace == with != in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 20,
+        "line": 54
+      },
+      "start": {
+        "column": 18,
+        "line": 54
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with & in self_test_shape\n@@ -49,17 +49,17 @@\n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n-        shape | [0u8, 16, 32, 64][i % 4]\n+        shape & /* ~ changed by cargo-mutants ~ */ [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:15: replace | with & in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 57
+      },
+      "start": {
+        "column": 15,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in self_test_shape\n@@ -49,17 +49,17 @@\n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n-        shape | [0u8, 16, 32, 64][i % 4]\n+        shape ^ /* ~ changed by cargo-mutants ~ */ [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:15: replace | with ^ in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 57
+      },
+      "start": {
+        "column": 15,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace % with / in self_test_shape\n@@ -49,17 +49,17 @@\n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n-        shape | [0u8, 16, 32, 64][i % 4]\n+        shape | [0u8, 16, 32, 64][i / /* ~ changed by cargo-mutants ~ */ 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:37: replace % with / in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 57
+      },
+      "start": {
+        "column": 37,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace % with + in self_test_shape\n@@ -49,17 +49,17 @@\n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n-        shape | [0u8, 16, 32, 64][i % 4]\n+        shape | [0u8, 16, 32, 64][i + /* ~ changed by cargo-mutants ~ */ 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:37: replace % with + in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 57
+      },
+      "start": {
+        "column": 37,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in self_test_shape\n@@ -52,17 +52,17 @@\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n         shape | [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n-        core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n+        core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 + /* ~ changed by cargo-mutants ~ */ 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n     crate::self_test::fold(out.as_flattened())\n }\n fn check_self_test(answer: u64) {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:60:71: replace * with + in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 72,
+        "line": 60
+      },
+      "start": {
+        "column": 71,
+        "line": 60
+      }
+    }
+  }
+]

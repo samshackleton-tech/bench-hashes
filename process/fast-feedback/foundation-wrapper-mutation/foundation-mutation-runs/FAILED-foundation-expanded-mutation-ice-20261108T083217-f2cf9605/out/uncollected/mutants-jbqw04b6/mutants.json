@@ -1,0 +1,130 @@
+[
+  {
+    "diff": "--- src/self_test.rs\n+++ replace run -> usize with 0\n@@ -457,64 +457,17 @@\n     2 * count * 32\n }\n \n /// Run every case and panic on the first that differs from the reference;\n /// how many cases ran (CASES and the selected platform's extra entries).\n fn run() -> usize {\n     // A kernel's panic, as a test plants it: the guard in ensure_slow\n     // stops the process for it.\n-    #[cfg(test)]\n-    if PLANTED_FAILURE.load(core::sync::atomic::Ordering::Relaxed) {\n-        panic!(\"a kernel's panic, planted by a test\");\n-    }\n-    compiled_features_present();\n-    let platform = Platform::detect_unchecked();\n-    let mut checked = 0;\n-    #[cfg(test)]\n-    let mut index = 0;\n-    let previous = chain(\n-        |case, input, previous, out| {\n-            let written = outputs(platform, case, input, previous, out);\n-            // A wrong digest a test plants in one case, as a CPU or build\n-            // that computes one would give.\n-            #[cfg(test)]\n-            {\n-                if index == PLANTED_WRONG_CASE.load(core::sync::atomic::Ordering::Relaxed) {\n-                    out[written - 1] ^= 1;\n-                }\n-                index += 1;\n-            }\n-            written\n-        },\n-        |index, folded| {\n-            checked += 1;\n-            if folded != EXPECTED[index] {\n-                stop(format_args!(\n-                    \"blake3-servil startup self-test failed: case {index}, {} (platform {}): this build or this CPU \\\n-                     computes wrong BLAKE3 digests on that path\",\n-                    CASES[index].1,\n-                    platform.name(),\n-                ));\n-            }\n-        },\n-    );\n-    #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if crate::platform::wide_avx512() {\n-        // Sound: the detected platform has the wide kernels' ISA, and\n-        // hash_many dispatches to them (only then does startup check them). Their\n-        // wrapper checks its bounds, and builds all arguments on the stack.\n-        checked += unsafe { crate::avx512_32::self_test(&previous) };\n-    }\n-    #[cfg(all(feature = \"std\", blake3_avx512_ffi, target_os = \"linux\"))]\n-    {\n-        checked += crate::ffi_output::self_test(platform);\n-    }\n-    let _ = previous;\n-    checked\n+    0 /* ~ changed by cargo-mutants ~ */\n }\n \n /// Stop when this binary was compiled to assume an instruction that this\n /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT\n /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),\n /// silently giving other values (QEMU's Ivy Bridge: leading_zeros(1 << 20)\n /// is 20, not 43). Every other instruction the compiler could assume traps\n /// on a CPU without it (SIGILL), which already stops the program. The\n",
+    "file": "src/self_test.rs",
+    "function": {
+      "function_name": "run",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 513
+        },
+        "start": {
+          "column": 1,
+          "line": 460
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/self_test.rs:465:5: replace run -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 512
+      },
+      "start": {
+        "column": 5,
+        "line": 465
+      }
+    }
+  },
+  {
+    "diff": "--- src/self_test.rs\n+++ replace run -> usize with 1\n@@ -457,64 +457,17 @@\n     2 * count * 32\n }\n \n /// Run every case and panic on the first that differs from the reference;\n /// how many cases ran (CASES and the selected platform's extra entries).\n fn run() -> usize {\n     // A kernel's panic, as a test plants it: the guard in ensure_slow\n     // stops the process for it.\n-    #[cfg(test)]\n-    if PLANTED_FAILURE.load(core::sync::atomic::Ordering::Relaxed) {\n-        panic!(\"a kernel's panic, planted by a test\");\n-    }\n-    compiled_features_present();\n-    let platform = Platform::detect_unchecked();\n-    let mut checked = 0;\n-    #[cfg(test)]\n-    let mut index = 0;\n-    let previous = chain(\n-        |case, input, previous, out| {\n-            let written = outputs(platform, case, input, previous, out);\n-            // A wrong digest a test plants in one case, as a CPU or build\n-            // that computes one would give.\n-            #[cfg(test)]\n-            {\n-                if index == PLANTED_WRONG_CASE.load(core::sync::atomic::Ordering::Relaxed) {\n-                    out[written - 1] ^= 1;\n-                }\n-                index += 1;\n-            }\n-            written\n-        },\n-        |index, folded| {\n-            checked += 1;\n-            if folded != EXPECTED[index] {\n-                stop(format_args!(\n-                    \"blake3-servil startup self-test failed: case {index}, {} (platform {}): this build or this CPU \\\n-                     computes wrong BLAKE3 digests on that path\",\n-                    CASES[index].1,\n-                    platform.name(),\n-                ));\n-            }\n-        },\n-    );\n-    #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if crate::platform::wide_avx512() {\n-        // Sound: the detected platform has the wide kernels' ISA, and\n-        // hash_many dispatches to them (only then does startup check them). Their\n-        // wrapper checks its bounds, and builds all arguments on the stack.\n-        checked += unsafe { crate::avx512_32::self_test(&previous) };\n-    }\n-    #[cfg(all(feature = \"std\", blake3_avx512_ffi, target_os = \"linux\"))]\n-    {\n-        checked += crate::ffi_output::self_test(platform);\n-    }\n-    let _ = previous;\n-    checked\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n \n /// Stop when this binary was compiled to assume an instruction that this\n /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT\n /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),\n /// silently giving other values (QEMU's Ivy Bridge: leading_zeros(1 << 20)\n /// is 20, not 43). Every other instruction the compiler could assume traps\n /// on a CPU without it (SIGILL), which already stops the program. The\n",
+    "file": "src/self_test.rs",
+    "function": {
+      "function_name": "run",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 513
+        },
+        "start": {
+          "column": 1,
+          "line": 460
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/self_test.rs:465:5: replace run -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 12,
+        "line": 512
+      },
+      "start": {
+        "column": 5,
+        "line": 465
+      }
+    }
+  },
+  {
+    "diff": "--- src/self_test.rs\n+++ replace += with -= in run\n@@ -501,17 +501,17 @@\n     if crate::platform::wide_avx512() {\n         // Sound: the detected platform has the wide kernels' ISA, and\n         // hash_many dispatches to them (only then does startup check them). Their\n         // wrapper checks its bounds, and builds all arguments on the stack.\n         checked += unsafe { crate::avx512_32::self_test(&previous) };\n     }\n     #[cfg(all(feature = \"std\", blake3_avx512_ffi, target_os = \"linux\"))]\n     {\n-        checked += crate::ffi_output::self_test(platform);\n+        checked -= /* ~ changed by cargo-mutants ~ */ crate::ffi_output::self_test(platform);\n     }\n     let _ = previous;\n     checked\n }\n \n /// Stop when this binary was compiled to assume an instruction that this\n /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT\n /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),\n",
+    "file": "src/self_test.rs",
+    "function": {
+      "function_name": "run",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 513
+        },
+        "start": {
+          "column": 1,
+          "line": 460
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/self_test.rs:509:17: replace += with -= in run",
+    "package": "blake3-servil",
+    "replacement": "-=",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 509
+      },
+      "start": {
+        "column": 17,
+        "line": 509
+      }
+    }
+  },
+  {
+    "diff": "--- src/self_test.rs\n+++ replace += with *= in run\n@@ -501,17 +501,17 @@\n     if crate::platform::wide_avx512() {\n         // Sound: the detected platform has the wide kernels' ISA, and\n         // hash_many dispatches to them (only then does startup check them). Their\n         // wrapper checks its bounds, and builds all arguments on the stack.\n         checked += unsafe { crate::avx512_32::self_test(&previous) };\n     }\n     #[cfg(all(feature = \"std\", blake3_avx512_ffi, target_os = \"linux\"))]\n     {\n-        checked += crate::ffi_output::self_test(platform);\n+        checked *= /* ~ changed by cargo-mutants ~ */ crate::ffi_output::self_test(platform);\n     }\n     let _ = previous;\n     checked\n }\n \n /// Stop when this binary was compiled to assume an instruction that this\n /// CPU runs as another one instead of trapping: x86's LZCNT and TZCNT\n /// (BMI1) run as BSR and BSF on CPUs without them (Intel before Haswell),\n",
+    "file": "src/self_test.rs",
+    "function": {
+      "function_name": "run",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 513
+        },
+        "start": {
+          "column": 1,
+          "line": 460
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/self_test.rs:509:17: replace += with *= in run",
+    "package": "blake3-servil",
+    "replacement": "*=",
+    "span": {
+      "end": {
+        "column": 19,
+        "line": 509
+      },
+      "start": {
+        "column": 17,
+        "line": 509
+      }
+    }
+  }
+]

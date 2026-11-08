@@ -1,0 +1,290 @@
+[
+  {
+    "diff": "--- src/each.rs\n+++ replace finalize_each with ()\n@@ -85,48 +85,17 @@\n     update_turn(hashers, pieces, true);\n }\n \n /// The hash of each message `which` names: `out[k]` is what\n /// `hashers[which[k]].finalize()` would give, and that hasher is then\n /// reset for its next message (no length hint). Requires\n /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n-    assert_eq!(which.len(), out.len(), \"one digest per message named\");\n-    debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n-    #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n-        #[cfg(all(test, feature = \"std\"))]\n-        crate::counted(crate::Counted::OutputGroupTurn);\n-        for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n-            if which.len() == 16 {\n-                let hashed = {\n-                    let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n-                    match inputs {\n-                        Some(inputs) => {\n-                            // Sound: the detected platform supplies AVX-512F+VL;\n-                            // borrowed descriptors keep every block/CV readable.\n-                            unsafe { crate::ffi_output::hash_group(inputs.as_slice().try_into().unwrap(), out) };\n-                            true\n-                        }\n-                        None => false,\n-                    }\n-                };\n-                if hashed {\n-                    for &i in which {\n-                        hashers[i].reset(None);\n-                    }\n-                    continue;\n-                }\n-            }\n-            finish_each(hashers, which, out);\n-        }\n-        return;\n-    }\n-    finish_each(hashers, which, out);\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Each hasher `which` names finished in place and reset, its digest into\n /// `out`: the path every message takes but a sixteen-lane group.\n fn finish_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     for (&i, out) in which.iter().zip(out) {\n         *out = *hashers[i].take_output().root_hash().as_bytes();\n         hashers[i].reset(None);\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 125
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/each.rs:93:5: replace finalize_each with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 124
+      },
+      "start": {
+        "column": 5,
+        "line": 93
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace && with || in finalize_each\n@@ -88,17 +88,17 @@\n /// The hash of each message `which` names: `out[k]` is what\n /// `hashers[which[k]].finalize()` would give, and that hasher is then\n /// reset for its next message (no length hint). Requires\n /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(which.len(), out.len(), \"one digest per message named\");\n     debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n     #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n+    if which.len() >= 16 || /* ~ changed by cargo-mutants ~ */ matches!(Platform::detect(), Platform::AVX512) {\n         #[cfg(all(test, feature = \"std\"))]\n         crate::counted(crate::Counted::OutputGroupTurn);\n         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n             if which.len() == 16 {\n                 let hashed = {\n                     let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n                     match inputs {\n                         Some(inputs) => {\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 125
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/each.rs:96:26: replace && with || in finalize_each",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 96
+      },
+      "start": {
+        "column": 26,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace >= with < in finalize_each\n@@ -88,17 +88,17 @@\n /// The hash of each message `which` names: `out[k]` is what\n /// `hashers[which[k]].finalize()` would give, and that hasher is then\n /// reset for its next message (no length hint). Requires\n /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(which.len(), out.len(), \"one digest per message named\");\n     debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n     #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n+    if which.len() < /* ~ changed by cargo-mutants ~ */ 16 && matches!(Platform::detect(), Platform::AVX512) {\n         #[cfg(all(test, feature = \"std\"))]\n         crate::counted(crate::Counted::OutputGroupTurn);\n         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n             if which.len() == 16 {\n                 let hashed = {\n                     let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n                     match inputs {\n                         Some(inputs) => {\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 125
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/each.rs:96:20: replace >= with < in finalize_each",
+    "package": "blake3-servil",
+    "replacement": "<",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 96
+      },
+      "start": {
+        "column": 20,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace == with != in finalize_each\n@@ -92,17 +92,17 @@\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(which.len(), out.len(), \"one digest per message named\");\n     debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n     #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n     if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n         #[cfg(all(test, feature = \"std\"))]\n         crate::counted(crate::Counted::OutputGroupTurn);\n         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n-            if which.len() == 16 {\n+            if which.len() != /* ~ changed by cargo-mutants ~ */ 16 {\n                 let hashed = {\n                     let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n                     match inputs {\n                         Some(inputs) => {\n                             // Sound: the detected platform supplies AVX-512F+VL;\n                             // borrowed descriptors keep every block/CV readable.\n                             unsafe { crate::ffi_output::hash_group(inputs.as_slice().try_into().unwrap(), out) };\n                             true\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 125
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/each.rs:100:28: replace == with != in finalize_each",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 30,
+        "line": 100
+      },
+      "start": {
+        "column": 28,
+        "line": 100
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace input -> Option<Input<'_>> with None\n@@ -22,23 +22,17 @@\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n-    let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n-        block: &c.buf,\n-        cv: &c.cv,\n-        len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END,\n-    })\n+    None /* ~ changed by cargo-mutants ~ */\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n /// block and CV; its block length is 0..64. The output holds 16 digests.\n pub(crate) unsafe fn hash_group(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), 16, \"sixteen root outputs\");\n     crate::ran_kernel(blake3_servil_output16 as *const ());\n     // Sound: caller supplies the ISA; references and fixed descriptor count\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:30:5: replace input -> Option<Input<'_>> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 36
+      },
+      "start": {
+        "column": 5,
+        "line": 30
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace input -> Option<Input<'_>> with Some(Default::default())\n@@ -22,23 +22,17 @@\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n-    let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n-        block: &c.buf,\n-        cv: &c.cv,\n-        len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END,\n-    })\n+    Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n /// block and CV; its block length is 0..64. The output holds 16 digests.\n pub(crate) unsafe fn hash_group(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), 16, \"sixteen root outputs\");\n     crate::ran_kernel(blake3_servil_output16 as *const ());\n     // Sound: caller supplies the ISA; references and fixed descriptor count\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:30:5: replace input -> Option<Input<'_>> with Some(Default::default())",
+    "package": "blake3-servil",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 36
+      },
+      "start": {
+        "column": 5,
+        "line": 30
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace && with || in input\n@@ -23,17 +23,17 @@\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n+    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 || /* ~ changed by cargo-mutants ~ */ hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n         flags: c.flags | c.start_flag() | CHUNK_END,\n     })\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:31:91: replace && with || in input",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 93,
+        "line": 31
+      },
+      "start": {
+        "column": 91,
+        "line": 31
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace && with || in input\n@@ -23,17 +23,17 @@\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n+    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 || /* ~ changed by cargo-mutants ~ */ c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n         flags: c.flags | c.start_flag() | CHUNK_END,\n     })\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:31:67: replace && with || in input",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 69,
+        "line": 31
+      },
+      "start": {
+        "column": 67,
+        "line": 31
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace && with || in input\n@@ -23,17 +23,17 @@\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n+    (hasher.staged == 0 || /* ~ changed by cargo-mutants ~ */ hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n         flags: c.flags | c.start_flag() | CHUNK_END,\n     })\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:31:25: replace && with || in input",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 27,
+        "line": 31
+      },
+      "start": {
+        "column": 25,
+        "line": 31
+      }
+    }
+  }
+]

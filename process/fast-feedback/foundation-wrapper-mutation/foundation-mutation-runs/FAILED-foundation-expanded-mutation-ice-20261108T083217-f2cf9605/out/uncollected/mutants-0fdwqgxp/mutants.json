@@ -1,0 +1,130 @@
+[
+  {
+    "diff": "--- src/each.rs\n+++ replace && with || in finalize_each\n@@ -88,17 +88,17 @@\n /// The hash of each message `which` names: `out[k]` is what\n /// `hashers[which[k]].finalize()` would give, and that hasher is then\n /// reset for its next message (no length hint). Requires\n /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(which.len(), out.len(), \"one digest per message named\");\n     debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n     #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n+    if which.len() >= 16 || /* ~ changed by cargo-mutants ~ */ matches!(Platform::detect(), Platform::AVX512) {\n         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n             if which.len() == 16 {\n                 let hashed = {\n                     let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n                     match inputs {\n                         Some(inputs) => {\n                             // Sound: the detected platform supplies AVX-512F+VL;\n                             // borrowed descriptors keep every block/CV readable.\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 123
+        },
+        "start": {
+          "column": 1,
+          "line": 88
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/each.rs:96:26: replace && with || in finalize_each",
+    "package": "blake3-servil",
+    "replacement": "||",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 96
+      },
+      "start": {
+        "column": 26,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in input\n@@ -27,17 +27,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END,\n+        flags: c.flags | c.start_flag() ^ /* ~ changed by cargo-mutants ~ */ CHUNK_END,\n     })\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n /// block and CV; its block length is 0..64. The output holds 16 digests.\n pub(crate) unsafe fn hash_group(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), 16, \"sixteen root outputs\");\n     crate::ran_kernel(blake3_servil_output16 as *const ());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:35:41: replace | with ^ in input",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 35
+      },
+      "start": {
+        "column": 41,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in input\n@@ -27,17 +27,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END,\n+        flags: c.flags ^ /* ~ changed by cargo-mutants ~ */ c.start_flag() | CHUNK_END,\n     })\n }\n \n /// Requires AVX-512F+VL on Linux. Each descriptor holds a readable padded\n /// block and CV; its block length is 0..64. The output holds 16 digests.\n pub(crate) unsafe fn hash_group(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), 16, \"sixteen root outputs\");\n     crate::ran_kernel(blake3_servil_output16 as *const ());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 37
+        },
+        "start": {
+          "column": 1,
+          "line": 26
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:35:24: replace | with ^ in input",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 35
+      },
+      "start": {
+        "column": 24,
+        "line": 35
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in self_test_shape\n@@ -49,17 +49,17 @@\n const SELF_TEST_EXPECTED: u64 = 0x54e3da46af4eb775;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n             lens[i] = 64;\n         }\n-        shape | [0u8, 16, 32, 64][i % 4]\n+        shape ^ /* ~ changed by cargo-mutants ~ */ [0u8, 16, 32, 64][i % 4]\n     });\n     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {\n         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))\n     });\n     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));\n     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] });\n     let mut out = [[0u8; OUT_LEN]; 16];\n     hash(&inputs, &mut out);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "self_test_shape",
+      "return_type": "-> u64",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 67
+        },
+        "start": {
+          "column": 1,
+          "line": 50
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:15: replace | with ^ in self_test_shape",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 57
+      },
+      "start": {
+        "column": 15,
+        "line": 57
+      }
+    }
+  }
+]

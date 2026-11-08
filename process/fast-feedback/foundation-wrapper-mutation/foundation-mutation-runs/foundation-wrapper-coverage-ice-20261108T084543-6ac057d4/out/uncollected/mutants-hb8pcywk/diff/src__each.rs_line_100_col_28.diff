@@ -1,0 +1,21 @@
+--- src/each.rs
++++ replace == with != in finalize_each
+@@ -92,17 +92,17 @@
+ pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(which.len(), out.len(), "one digest per message named");
+     debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), "each finalized index is distinct");
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {
+         #[cfg(all(test, feature = "std"))]
+         crate::counted(crate::Counted::OutputGroupTurn);
+         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {
+-            if which.len() == 16 {
++            if which.len() != /* ~ changed by cargo-mutants ~ */ 16 {
+                 let hashed = {
+                     let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();
+                     match inputs {
+                         Some(inputs) => {
+                             // Sound: the detected platform supplies AVX-512F+VL;
+                             // borrowed descriptors keep every block/CV readable.
+                             unsafe { crate::ffi_output::hash_group(inputs.as_slice().try_into().unwrap(), out) };
+                             true
