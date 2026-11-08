@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Independent CPU-native ring-slot ownership validation and deterministic red control | [Ring safety](ring-slot-native/REPORT.md) | [Exact-source native records](ring-slot-native/ring-runs/) |
 | Real eight-message AVX-512 groups: exact incremental/aggregate gains and costs | [Real-eight stage](small8-next/REPORT.md) | [Raw native/proof/cycle records](small8-next/small8-runs/) |
 | AVX2 output8 integration checks and AVX-512 control/performance holds | [Output8 stage](output8-next/REPORT.md) | [Native/proof/control records](output8-next/output8-runs/) |
 | Grouped first-chunk whole-work gains, costs and correctness hold | [First-chunk stage](first-chunk-next/REPORT.md) | [All positive/failed records](first-chunk-next/first-chunk-runs/) |
