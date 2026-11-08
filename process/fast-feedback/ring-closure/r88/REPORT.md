@@ -75,6 +75,14 @@ This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb8
 
 Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
 
+## #312 independent-key follow-up (user decision, 22:41 UTC)
+
+The user selected independent-key lanes, prioritizing plain mode and then shared-key many-message workloads, while retaining key-independent dispatch. [Decision, exact sources, rejecting controls and complete-work costs](INDEPENDENT-KEYS.md).
+
+Personal held-stage candidate **cd2880f1d2f1a3d1d155877ce105b487ac6966b0**, directly against **b817ac85c985582ed600208e02a380ece730c4a2**: Ice and EPYC each have **320 cycle + 320 update + 256 finish judgments Level**, including plain/shared-key/distinct-key/mixed-mode and sparse controls. Existing x86 kernels suffice; no new assembly/API/state. Ice 230 tests/21 docs, ARM VM 202/21, rejecting old-runtime controls, and 6 mutants/no new survivor/38 s pass. Native AVX2, ARM optimization and integration remain open.
+
+The first all-independent attempt's compile failure and EPYC sparse-plain **+4.3% Slower** result are retained under their exact sources. The revised candidate keeps wholly plain turns on the existing shared-IV route, selected by public mode only. Level is not equal cost, and these held-stage results are not current-next/main or canonical full-gate verdicts.
+
 ## #312 revised: cohorts by iteration (John's review, 18:16 UTC)
 
 John's review found that 9d620e44 recursed once per keyed hasher, copying the rest of the held list each time: n frames and n(n-1)/2 copied indices for n keyed hashers.
