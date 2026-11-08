@@ -1,0 +1,20 @@
+#[test]
+fn held_parent_allocated_bytes() {
+    blake3_servil::initialize();
+    assert!(std::is_x86_feature_detected!("avx2"));
+    let data = vec![7u8; 16 * 1024];
+    for n in [2usize, 7, 8, 16, 128, 512] {
+        let keys: Vec<[u8; 32]> = (0..n).map(|i| core::array::from_fn(|j| (i * 37 + j * 11) as u8)).collect();
+        let mut hashers: Vec<_> = keys.iter().map(|key| Hasher::new(Mode::Keyed(key), None)).collect();
+        let pieces: Vec<_> = (0..n).map(|i| (i, data.as_slice())).collect();
+        for stage in 0..2 {
+            let bytes = allocated(|| throughput::update_each(&mut hashers, &pieces));
+            assert!(hashers.iter().all(|h| h.count() == ((stage + 1) * data.len()) as u64));
+            std::hint::black_box(&hashers);
+            println!("HELD_ALLOC n={n} stage={stage} bytes={bytes}");
+        }
+    }
+}
+
+#[test]
+fn single_threaded_calls_allocate_as_the_memory_section_says() {

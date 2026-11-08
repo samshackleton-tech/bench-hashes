@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Optional held-parent scratch-vector deletion: measured allocation reduction, Level timing | [Memory/simplicity follow-up](parent-buffer/REPORT.md) | [Raw tests, controls, allocation and timing](parent-buffer/parent-buffer-runs/) |
 | Unpromoted eligibility-before-gather experiment: all-Level direct timing, retained energy cost | [Frozen alternative](output-precheck/REPORT.md) | [Complete raw studies](output-precheck/output-precheck-runs/) |
 | Physical i7 exact-stage records: AVX2 benefit, Plain controls, assigned stream-fix cost | [Independent record review](physical-i7-review/REPORT.md) | [Integrity/source checks](physical-i7-review/verification/) |
 | Expanded foundation Rust-wrapper gate: original survivors, counted selector test, green child | [Foundation quality gate](foundation-wrapper-mutation/REPORT.md) | [Original red and checked records](foundation-wrapper-mutation/foundation-mutation-runs/) |

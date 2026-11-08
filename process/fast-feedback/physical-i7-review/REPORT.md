@@ -43,6 +43,12 @@ These are **Plain/shared-key controls**. Distinct-key and mixed-mode benefits/co
 
 Source ownership: producer writes TaskSlot.task/acquires next before reuse; successful CPU claimer copies task/release-stores next; GPU release follows its borrow. Claimers also CAS claimed. These are real ownership transfers. Native TaskSlot stride/field offsets/cache-line overlap are **not** established from Rust source field order or timing. Next useful owner investigation records layout and reproducible path counts, then tests a focused safe ownership ablation with footprint/copy costs accounted for. No established cache/alignment/frequency cause, no competing scheduler/ring design, no more stress against the old unsafe window.
 
+### Separate later16-pair confirmation
+
+Devon’s later publication **21d01c25454d710f1ac4debc9ff0d046dc87d060** adds `r303-confirm`:16old/new pairs, same40985bbc/d4sources and49f45960bench. All62files/7,632,351bytes in that version’s ring-cost prefix and both manifests/full sample identities pass integrity checks. This is a separately identified follow-up, not an expansion/replacement of the frozen original4-pair record above.
+
+The retained verdict reports mt solo64B **+7.8%Slower (16/16pair directions)**, solo128B **+3.8%Slower (14/16)**, shared-one-cache64B **+7.8%Slower (14/16)**;256BLevel. ThreeSlower cells, not a64-pair gate or owner acceptance. [Immutable confirmation](https://github.com/devonjonte/bench-hashes/tree/21d01c25454d710f1ac4debc9ff0d046dc87d060/2026-11-08/ring-fix-stream-cost-i7).
+
 Owner acceptance/Mac-GPU/integration/source gates remain separate. Sam has not merged, released, tagged, uploaded or tuned workers.
 
 — Sam Shackleton
