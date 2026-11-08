@@ -1,0 +1,30 @@
+# mixed-stage-controls-epyc-20261108T063217-e65b349e
+
+Host: `root@88.216.222.150`; study: `mixed-stage-controls-20261108`.
+
+Runner result:
+```
+VERIFIED
+```
+
+## Workflow latency
+
+| Phase | Nanoseconds |
+|---|---:|
+| dispatch | 45029107 |
+| lock_wait | 113480 |
+| preparation | 327202311 |
+| job | 11886744443 |
+| verification | 501552 |
+| total | 12259647273 |
+
+## Instrument judgments
+
+This run has no judgments TSV. Its checks and logs are in [out/](out/).
+
+## Sources
+
+[Manifest](manifest.json) · [Phases](phases.jsonl)
+- `fork`: https://github.com/samshackleton-tech/BLAKE3 at `a6fedec518aa7a32ba658c79ca7b41234c6e5d56`
+- Script SHA-256: `b0cce77ef7d41f0ec8f069b66ce6882650f0cbeb81037f4987d54293c8ad9111`
+- Runner SHA-256: `f45d9b2e187b4074d7bd10bc8e2dce1ff7430d4f92ede54aab25bdd4172859cf`
