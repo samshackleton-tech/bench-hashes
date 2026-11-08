@@ -65,3 +65,12 @@ John asked for the minimal exact-source remedy (17:22 UTC), so this joined the p
 Update-only follows the cycle closely. Consume-once finish is Level everywhere but one Ice shared-key cell (+8.9%). The distinct-key gain comes from the old code's repeated partitions: each pass partitioned what was left, and distinct keys left all but one. The shared-key loss comes from parent calls no longer batched across hashers that share a key; this is the cost of the fix. Using the independent-key lanes (#281/#304, not on next) is the route John named to recover it.
 
 Runs: `fix312-costs-ice-20261108T174729-dd7b8205`, `fix312-costs-epyc-20261108T174727-e3cd618d`; summary `fix312-costs-summary.tsv`.
+
+## Devon's #314 head fe60dc85 on Ice and EPYC
+
+This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb81c55163667dc78e18573765bc6cf** (`candidate/devon-task-prefix`, on 88e215ed) against fbfb319f, with the same gate, bench 7ea20449 and 15 points.
+
+- **Ice** (`fe60-gate-ice-20261108T175422-84dafd10`): no cell slower, and no instruction movement beyond 0.5%. The first stage named no suspects, so no second stage ran.
+- **EPYC** (`fe60-gate-epyc-20261108T175423-5839daac`): no cell slower. The 64-pair confirmation of five suspects also judged no cell slower.
+
+Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
