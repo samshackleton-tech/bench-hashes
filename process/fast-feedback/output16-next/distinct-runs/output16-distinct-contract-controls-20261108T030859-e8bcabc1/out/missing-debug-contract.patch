@@ -1,0 +1,10 @@
+--- a/src/each.rs
++++ b/src/each.rs
+@@ -91,7 +91,6 @@
+ /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.
+ pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(which.len(), out.len(), "one digest per message named");
+-    debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), "each finalized index is distinct");
+     #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+     if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {
+         for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {

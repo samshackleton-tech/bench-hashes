@@ -1,81 +1,77 @@
-# Output16 on the consuming Hasher API — integration candidate
+# Output16 integration — distinct-index contract, current `next`
 
-**Not landed.** The major sixteen-lane root-compression optimization from [#269](https://github.com/servil-software-factory/BLAKE3/pull/269) now has a current-API integration candidate. It halves complete-cycle cost for many short-message groups without changing a key, counter, digest or XOF semantics. **No multithreading threshold, worker count or pool policy is tuned.** Startup work remains an explicit cost, so this is not a global Pareto claim.
+[Integration PR #295](https://github.com/servil-software-factory/BLAKE3/pull/295), **not landed by Sam**. This stages the independently reviewed sixteen-lane full-round root compression from #269 before multithreading tuning. No worker count or threshold is tuned.
 
-## One integration source
+## Current source and contract
 
-John provided the rebased integration `64ac019d4c65767f139429170fa8b85183d10ce4`. Sam initially missed that parallel work and built a separate port; it is retired, its measurements remain separately labelled in [EARLIER-PORT.md](EARLIER-PORT.md). None are relabelled as current-source results.
+John chose **distinct indices** as `finalize_each`'s precondition: documented, checked in debug builds, no duplicate scan/fallback in the release path. Head **`ca36629a3cfa6a63d8c49099cebaae76756b41a9`** implements that decision on his `64ac019d` integration, retaining proof registration and the rustdoc-link correction. Positive tests cover digests, reset/key/mode preservation and unselected states; debug tests reject duplicates within/across groups. Removing the debug assertion or fast reset fails the intended test.
 
-Current **`3414da907a2ce49d4bedaf2fbbf6ac91c3f21cce`** is John's implementation plus two small follow-ups:
+The old fallback proposals are **unselected**. [EARLIER-PORT.md](EARLIER-PORT.md) preserves `1d74d686`; [GUARD-ALTERNATIVE.md](GUARD-ALTERNATIVE.md) preserves `3414da90`. Their measurements and failed/positive controls are not relabelled as this version's results. John's API decision supersedes those duplicate-behavior tests; that history is retained, not hidden.
 
-1. A test-first repeated-index correction. Current docs require output length/index bounds, and specify reset-after-finish; they do not forbid repeats. The test-only child `9790a7f6` fails on John's tip at **`repeated indices observe the earlier reset`** (nextest exit100, not compilation). The guard keeps repeated indices within a group on the existing sequential path, avoiding an API restriction. Tests also cover repeats across two full groups, empty-after-finish, keys/modes and untouched states.
-2. Complete long-proof wiring: output16 generator identity/agreement and its dedicated proof command, plus disambiguation of an existing rustdoc `Hash` link so warnings-denied docs pass.
-
-The kernel, generator and theorem remain **byte-identical** to frozen reviewed `f9fcef459d9999af05765a598c9fb72f704029ff`. The original review head is not rewritten. No Hasher field, persistent state or public API concept is added. Native Hasher size/stride is **18,432 B**, alignment64; a single caller owns all input/output places.
-
-## Complete work, measured on this source
-
-Each timed cycle updates messages in 17-byte fragments, produces their canonical digests through `throughput::finalize_each`, and resets them for reuse. Construction and key/context preparation are outside; **all updates, finalization and resets are inside**.
-
-At **1,024 states**, nanoseconds per message:
-
-| Shape | Ice Lake before → after | EPYC 9255 before → after |
-|---|---:|---:|
-| Plain 1 B | 181.3375 → **90.3196** | 74.8704 → **28.5237** |
-| Plain 64 B | 289.1216 → **187.3929** | 106.4046 → **55.8602** |
-| Plain 1 KiB | 3391.6254 → **3134.2264** | 1820.8523 → **1677.2570** |
-| Mixed-mode varied lengths | 1756.3970 → **1596.8805** | 935.9888 → **844.8170** |
-
-CPU, cycles, instructions and package energy also improve in these cells. One-byte-message package energy changes from **19260.1826→9748.6093 nJ** on Ice and **5432.1939→2121.5649 nJ** on EPYC. RAPL includes package idle/background energy; this is the complete-cycle package cost, not isolated compression energy.
-
-Across 85 shape/count combinations (counts2/16/17/64/1024, empty/fixed/varied lengths and independent plain/keyed/derived modes), the five-metric judgments are:
-
-| Comparison | Faster | Level | Slower |
-|---|---:|---:|---:|
-| Ice Lake base→candidate | 385 | 40 | **0** |
-| EPYC base→candidate | 400 | 25 | **0** |
-| Ice Lake candidate→same candidate | 0 | 425 | **0** |
-
-Four fresh build/layout pairs alternate adjacent sides, using shared `clocks::summary`, **3% practical margin /5% FDR**. Busy windows are forbidden for this probe. These are direct current-API comparisons, not composed older ratios, and do not establish a gain for every library workload. Sub-width codegen can change too; timing alone does not attribute every gain to SIMD or cache effects.
-
-## Startup cost, not hidden by the whole-work gains
-
-Fresh-process startup on Ice, four build/layout pairs and 32 process launches per side total:
-
-| First initialize metric | Base → candidate | Judgment |
-|---|---:|---|
-| Wall ns | 76771.2500 → 79056.5625 | Level |
-| Process CPU ns | 77663.8438 → 79992.9375 | Level |
-| Cycles | 111718.5000 → 115043.3438 | Level |
-| Instructions | 82216.8125 → 95006.6250 | **Slower, +15.6%** |
-
-First wall mean is 2.285µs higher; **Level does not establish equal cost**. Already-initialized metrics are all Level. Separate same-head startup A/A: **all eight judgments Level**. No startup energy claim is made. The retired port's +4.253µs first-wall Slower and +3.2% already-cycle Slower remain in its own report; they are not erased or attributed to this source.
-
-The extra instruction work covers the new reachable kernel's runtime startup check. John accepted approximately5µs one-time startup cost for the original design in assigned [#268](https://github.com/servil-software-factory/BLAKE3/issues/268). This source's evidence is provided there for explicit owner judgment; the issue stays open while that accepted cost remains. No self-test is weakened to hide it.
-
-## Quality and gate scope
-
-- Fresh pinned preflight/Ice/ARM: **222 release tests on Ice /197 on ARM**, **21 doc examples each**, no-default build, formatting and warnings-denied rustdoc pass. Kernel/generator/proof byte agreement with the frozen source passes.
-- Original integration's missing repeated-index behavior has a retained FAILED test-first record. Corrected tests pass; removing reset or bypassing duplicate detection each fails the intended assertion. Across-group repeats exercise sequential resets while retaining eligible vector groups.
-- Full-round symbolic proof: **1210 steps**, arbitrary per-lane CV/block/length/flags; four fault controls rejected. This proves the assembled compression/ABI/bounds, **not the new Rust selector**.
-- Canonical AArch64 comparison with John's `64ac019d` reports **the same compiled benchmark code**. John's already-completed VM/Mac gates therefore carry; no ARM VM native-speed claim or redundant Mac run is needed.
-- A broader canonical x86 check on **this source** is running as `output16-integration-canonical-epyc-20261108T023806-7e8b3dfe`. It retains the standard four-pair and automatic64-pair suspect stages over eight applicable points:64B,idle64B,1KiB,1MiB,interleaved256,turn256,idleturn256,briefidleturn256. **No verdict yet.** Controlled-idle turn256 is unavailable: this host's cpuidle driver is `none`, with zero state-disable controls; that point is explicitly recorded, not counted as passed.
-
-## Identities and raw records
+While this work ran, John landed #283/#285 on `next`. The current study therefore gates **the actual combined tree**:
 
 | Role | Full commit |
 |---|---|
-| Current API baseline | `597581e963b3b6a2eb3df96234339a99aec274cd` |
-| John's rebased foundation | `64ac019d4c65767f139429170fa8b85183d10ce4` |
-| Test-first child | `9790a7f62d36d7763d68d84e8a4e8188db85e0ac` |
-| Corrected integration | `3414da907a2ce49d4bedaf2fbbf6ac91c3f21cce` |
-| Frozen reviewed kernel | `f9fcef459d9999af05765a598c9fb72f704029ff` |
+| Current `next` baseline, including #283/#285 | `7ee5c1f8cfad7937fb490e6510f8f36fe5ce912f` |
+| PR head, distinct-index foundation | `ca36629a3cfa6a63d8c49099cebaae76756b41a9` |
+| Exact tested integration tree | **`d4f675f4967317b41546e8c8309d35eb384cbbaf`** |
+| Frozen reviewed kernel/generator/theorem | `f9fcef459d9999af05765a598c9fb72f704029ff` |
 | Benchmark/clocks | `9994de190259648ede82f7c5e4dbac4f1534a41d` |
 
-`integration-runs/` holds this candidate's raw native/matrix/controls/A-A/startup/code/proof records and the FAILED test-first case. Other run directories belong to the retired parallel port and are labelled in its report, including two native preflights, the bounded-check timeout and the unsupported-point calibration failure. Its completed eight-point canonical check passed both stages, but is **not** claimed for the corrected integration.
+`d4f675f4` is GitHub's synthetic PR merge, with verified parents `[7ee5c1f8, ca36629a]`, preserved at personal ref `evidence/sam-output16-merge-d4f675f4`. It is a reproducible test input, **not a merge into the organization's branch**. The implementation and measurements add no persistent Hasher field or API type. Native Hasher size/stride remains18,432B, alignment64; one caller owns all input/output places.
 
-Shell instruments/manifests are alongside this report. Every reported execution uses pinned-run: full immutable sources, instrument hashes, fresh private checkouts/targets, lock before preparation through verification, and canonical fetched review. Binary inspection text from the earlier port is in `inspection/`; compiled executables and files≥20MB are omitted.
+## Complete-work measurements
 
-John owns integration/cost judgment. **No merge, release, tag or crate upload performed.** #271 follows on the accepted foundation under a separate identity; its frozen evidence and finish/sparse-use costs stay intact.
+A timed cycle updates messages in17-byte fragments, produces their canonical digests with `finalize_each`, and resets the selected states for reuse. Construction and key/context preparation are outside; **all updates, digest production and resets are inside**.
+
+At **1,024 states**, ns/message:
+
+| Shape | Ice Lake before → after | EPYC9255 before → after |
+|---|---:|---:|
+| Plain1B | 181.0772 → **91.5479** | 74.6768 → **29.1250** |
+| Plain64B | 287.8147 → **198.3636** | 106.4074 → **60.9162** |
+| Plain1KiB | 3379.7417 →3349.8052, **Level** | 1818.8775 →1779.9037, **Level** |
+| Mixed-mode varied lengths | 1764.0612 →1714.4107, **Level** | 934.2656 →**894.2409, Faster** |
+
+One-byte-message package energy is **19225.4225→9723.6837nJ** on Ice and **5393.9863→2189.2793nJ** on EPYC, both Faster. RAPL includes package idle/background energy; this is complete-cycle package cost, not isolated compression energy. The varied EPYC wall gain does **not** imply an energy gain: package energy there is Level.
+
+Four fresh build/layout pairs alternate adjacent old/new order, using shared `clocks::summary`, **3% practical margin /5% FDR**. Across85 shape/count combinations (2/16/17/64/1024 states, empty/fixed/varied lengths and independent plain/keyed/derived modes), five metrics per cell:
+
+| Comparison | Faster | Level | Slower |
+|---|---:|---:|---:|
+| Ice Lake current baseline→integration | 254 |171 |**0** |
+| EPYC current baseline→integration |257 |168 |**0** |
+| Ice integration→same integration |0 |425 |**0** |
+
+Busy windows are forbidden for this probe. These are **direct current-tree comparisons**, not products of old ratios or evidence for every library workload. In particular, this individual-update probe does not measure #271's grouped-update mechanism, which follows next. No gain from an earlier source is substituted for a Level cell here.
+
+## Startup resources, explicitly retained
+
+Ice Lake, four build/layout pairs,32 fresh process launches per side total:
+
+| First initialize | Baseline → integration | Judgment |
+|---|---:|---|
+| Wall ns |77980.2500 →77849.0312 |Level |
+| Process CPU ns |78356.1875 →78773.4062 |Level |
+| Cycles |110685.9375 →115476.2812 |Level |
+| Instructions |82246.8438 →95132.6875 |**Slower,+15.7%** |
+
+All already-initialized metrics are Level; same-source startup A/A has **all8 judgments Level**. Level is not equal cost; no startup-energy claim is made. The implementation retains runtime startup coverage for the new reachable kernel. Assigned [#268](https://github.com/servil-software-factory/BLAKE3/issues/268) owns the accepted original approximately5µs startup tradeoff and this exact-source instruction-work follow-up. Owner judgment is requested; no global Pareto claim or weakened self-test.
+
+## Validation and scope
+
+- Fresh pinned preflight and independent targets: **224 release tests on Ice /199 on ARM**, **21 docs each**, formatting/no-default/warnings-denied rustdoc pass. Kernel, generator and theorem bytes agree with frozen f9.
+- Two debug precondition tests and the release reset test pass. Dropping the precondition makes both debug `should_panic` tests fail; dropping reset fails its intended release assertion. Not compile failures.
+- The current merged-tree assembled theorem passes1210 full-round steps and rejects all four fault controls (`output16-distinct-proof-ice-20261108T031526-9e466c02`). This proves the compression/ABI/bounds, **not the Rust selector**. No full proof campaign is claimed.
+- John's rebased foundation had independent VM/Mac gates; fresh combined-tree ARM validation above is correctness/build coverage, not native ARM performance. The prior `3414`→`64ac` compiled-code identity remains historical, not a compiled-code claim about this new merged tree.
+- The retired sources' broader canonical checks passed both stages, including64 suspect pairs; those are **not claimed for this source**. The current handoff is the exact-source native/complete-cycle/A-A/cost gate John requested. Integration review remains his.
+
+## Raw records and continuation
+
+`distinct-runs/` contains the current merged-tree records; scripts/manifests are alongside this report. `integration-runs/` belongs to the unselected fallback source, and the other run directories to the earlier port. Failed borrow/rustdoc/setup/unsupported-point cases are preserved. Their reports identify the boundaries. Compiled executables and files≥20MB are omitted.
+
+All reported execution uses pinned-run with full immutable sources/instrument hashes, fresh private checkouts/targets and host lock before preparation through verification, followed by canonical fetched reviews. Original frozen optimization heads remain unchanged. John has supplied the rebased #271/#274/#277/#281 stack; each stage gets its own identity and measurements. Finish-only, sparse, occasional-use, instruction and package costs stay beside complete-work gains.
+
+No organization merge/release/tag/crate upload was performed by Sam.
 
 — Sam Shackleton
