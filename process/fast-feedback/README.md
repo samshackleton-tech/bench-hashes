@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Complete endpoint vs original-next: canonical/small/large work, startup and finish costs | [Direct whole-stack checkpoint](whole-stack/REPORT.md) | [Canonical and paired records](whole-stack/whole-stack-runs/) |
 | Eight-lane held-parent remainders: test-first gap, incremental and direct aggregate evidence | [Existing-kernel tail reuse](parent8-next/REPORT.md) | [Exact-source records](parent8-next/parent8-runs/) |
 | Mixed-key held stages: full cycles, consume-once finish and sparse costs | [Mixed-key stage](mixed-stage-next/REPORT.md) | [Exact-source phase records](mixed-stage-next/mixed-stage-runs/) |
 | Independent CPU-native ring-slot ownership validation and deterministic red control | [Ring safety](ring-slot-native/REPORT.md) | [Exact-source native records](ring-slot-native/ring-runs/) |

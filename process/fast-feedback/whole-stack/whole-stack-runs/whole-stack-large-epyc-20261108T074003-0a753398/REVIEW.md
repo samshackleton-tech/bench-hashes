@@ -1,0 +1,178 @@
+# whole-stack-large-epyc-20261108T074003-0a753398
+
+Host: `root@88.216.222.150`; study: `whole-stack-large-epyc-20261108`.
+
+Runner result:
+```
+VERIFIED
+```
+
+## Workflow latency
+
+| Phase | Nanoseconds |
+|---|---:|
+| dispatch | 38894815 |
+| lock_wait | 104811 |
+| preparation | 1498720163 |
+| job | 141941376991 |
+| verification | 1093754 |
+| total | 143480264274 |
+
+## Instrument judgments
+
+[out/judgments-cycle.tsv](out/judgments-cycle.tsv): 155 Faster, 165 Level
+[out/judgments-finish.tsv](out/judgments-finish.tsv): 220 Level, 36 Slower
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.3896", "old_per_item": "691.5796", "ratio_permille": "1032", "shape": "distinct_keys_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.5081", "old_per_item": "691.3005", "ratio_permille": "1032", "shape": "distinct_keys_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.2930", "old_per_item": "690.5669", "ratio_permille": "1037", "shape": "distinct_keys_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.2220", "old_per_item": "689.9136", "ratio_permille": "1038", "shape": "distinct_keys_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.8140", "old_per_item": "682.3652", "ratio_permille": "1034", "shape": "distinct_keys_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.4084", "old_per_item": "682.0827", "ratio_permille": "1034", "shape": "distinct_keys_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3579", "old_per_item": "719.5371", "ratio_permille": "1037", "shape": "distinct_keys_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3315", "old_per_item": "719.5371", "ratio_permille": "1037", "shape": "distinct_keys_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.5991", "old_per_item": "719.4575", "ratio_permille": "1038", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.5081", "old_per_item": "691.6006", "ratio_permille": "1032", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.3384", "old_per_item": "691.6465", "ratio_permille": "1031", "shape": "mixed_modes_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.4209", "old_per_item": "691.5178", "ratio_permille": "1032", "shape": "mixed_modes_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.3127", "old_per_item": "690.4727", "ratio_permille": "1037", "shape": "mixed_modes_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.3169", "old_per_item": "689.7943", "ratio_permille": "1038", "shape": "mixed_modes_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.8275", "old_per_item": "682.3273", "ratio_permille": "1034", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.4318", "old_per_item": "682.0584", "ratio_permille": "1034", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3877", "old_per_item": "719.5464", "ratio_permille": "1037", "shape": "mixed_modes_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3286", "old_per_item": "719.5371", "ratio_permille": "1037", "shape": "mixed_modes_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.5918", "old_per_item": "719.4111", "ratio_permille": "1038", "shape": "plain_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.5249", "old_per_item": "691.4126", "ratio_permille": "1032", "shape": "plain_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.6130", "old_per_item": "692.1450", "ratio_permille": "1031", "shape": "plain_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.3694", "old_per_item": "691.2461", "ratio_permille": "1032", "shape": "plain_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.3748", "old_per_item": "690.4786", "ratio_permille": "1038", "shape": "plain_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.2918", "old_per_item": "689.8277", "ratio_permille": "1038", "shape": "plain_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.7799", "old_per_item": "682.3901", "ratio_permille": "1034", "shape": "plain_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.4868", "old_per_item": "681.8670", "ratio_permille": "1035", "shape": "plain_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.4307", "old_per_item": "719.5312", "ratio_permille": "1037", "shape": "plain_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3433", "old_per_item": "719.5537", "ratio_permille": "1037", "shape": "plain_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.3330", "old_per_item": "691.6304", "ratio_permille": "1031", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "713.3564", "old_per_item": "691.3281", "ratio_permille": "1032", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.3148", "old_per_item": "690.4892", "ratio_permille": "1037", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "716.2132", "old_per_item": "689.9557", "ratio_permille": "1038", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.8161", "old_per_item": "682.3849", "ratio_permille": "1034", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "705.4811", "old_per_item": "682.0662", "ratio_permille": "1034", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.2998", "old_per_item": "719.5156", "ratio_permille": "1037", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "746.3726", "old_per_item": "719.5557", "ratio_permille": "1037", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-finish"}
+```
+[out/judgments-update.tsv](out/judgments-update.tsv): 155 Faster, 165 Level
+
+## Sources
+
+[Manifest](manifest.json) · [Phases](phases.jsonl)
+- `old`: https://github.com/samshackleton-tech/BLAKE3 at `7ee5c1f8cfad7937fb490e6510f8f36fe5ce912f`
+- `new`: https://github.com/samshackleton-tech/BLAKE3 at `4f1dd19c83122dfee2c62c1304eb593b812ee992`
+- `bench`: https://github.com/servil-software-factory/bench-hashes at `9994de190259648ede82f7c5e4dbac4f1534a41d`
+- Script SHA-256: `f484d04c38974e6f4b2d6b61448499ee99a15a5f15a7ab893151d1c8fd77214c`
+- Runner SHA-256: `f45d9b2e187b4074d7bd10bc8e2dce1ff7430d4f92ede54aab25bdd4172859cf`
