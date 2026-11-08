@@ -75,7 +75,7 @@ This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb8
 
 Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
 
-## #312 revised: cohorts by iteration (John's review, 18:18 UTC)
+## #312 revised: cohorts by iteration (John's review, 18:16 UTC)
 
 John's review found that 9d620e44 recursed once per keyed hasher, copying the rest of the held list each time: n frames and n(n-1)/2 copied indices for n keyed hashers.
 
