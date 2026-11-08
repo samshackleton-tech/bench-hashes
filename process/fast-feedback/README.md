@@ -4,7 +4,7 @@ Program [#146](https://github.com/servil-software-factory/bench-hashes/issues/14
 
 ## November 8: library optimization resumed
 
-Sam The User redirected work to major BLAKE3-Servil optimizations before multithreading tuning. Further workflow experiments are parked; the deployed runner is unchanged. [Current output16 integration and complete-work evidence](output16-next/REPORT.md) uses that runner, with startup costs and retired-source records kept separate.
+Sam The User redirected work to major BLAKE3-Servil optimizations before multithreading tuning. Further workflow experiments are parked; the deployed runner is unchanged. [Current output16 integration](output16-next/REPORT.md) and the [grouped first-chunk stage](first-chunk-next/REPORT.md) use that runner. Startup/sparse/crossover costs and historical alternatives stay separate; the first-chunk stage also retains an unresolved pipeline-doctest gate hold.
 
 ## Pilot delivery
 
@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Grouped first-chunk whole-work gains, costs and correctness hold | [First-chunk stage](first-chunk-next/REPORT.md) | [All positive/failed records](first-chunk-next/first-chunk-runs/) |
 | Current-API output16 kernel integration and costs | [Output16 integration](output16-next/REPORT.md) | [Current-source records](output16-next/integration-runs/), [retired parallel port](output16-next/EARLIER-PORT.md) |
 | Historical delay, failed probes and priorities | [Process audit](REPORT.md) | [Deduplicated run audit](run-audit.json) |
 | Real-change outcomes versus short-job feedback | [Initial feedback snapshot](FEEDBACK.md) | [Phase audit](pilot-audit.json), [review events](decision-audit.json) |

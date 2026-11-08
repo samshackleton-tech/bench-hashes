@@ -1,0 +1,88 @@
+# first-chunk-grouped-cycle-epyc-20261108T033946-95cc989a
+
+Host: `root@88.216.222.150`; study: `first-chunk-cycle-epyc-20261108`.
+
+Runner result:
+```
+VERIFIED
+```
+
+## Workflow latency
+
+| Phase | Nanoseconds |
+|---|---:|
+| dispatch | 37017274 |
+| lock_wait | 119260 |
+| preparation | 1493344692 |
+| job | 168692729848 |
+| verification | 1435445 |
+| total | 170224719400 |
+
+## Instrument judgments
+
+[out/judgments-cycle.tsv](out/judgments-cycle.tsv): 624 Faster, 212 Level, 14 Slower
+
+```json
+{"items": "1024", "metric": "package_nj", "new_per_item": "1167.6425", "old_per_item": "1126.9535", "ratio_permille": "1036", "shape": "plain_0_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "2673.5741", "old_per_item": "2595.6360", "ratio_permille": "1030", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "2673.3160", "old_per_item": "2595.0686", "ratio_permille": "1030", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "11586.6737", "old_per_item": "11245.1589", "ratio_permille": "1030", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "184372.9590", "old_per_item": "178511.5257", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "wall_ns", "new_per_item": "2672.0098", "old_per_item": "2588.8220", "ratio_permille": "1032", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cpu_ns", "new_per_item": "2671.9336", "old_per_item": "2588.2541", "ratio_permille": "1032", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cycles", "new_per_item": "11578.9496", "old_per_item": "11217.7217", "ratio_permille": "1032", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "64", "metric": "wall_ns", "new_per_item": "2673.8980", "old_per_item": "2588.6616", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "64", "metric": "cpu_ns", "new_per_item": "2673.8197", "old_per_item": "2588.6716", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "64", "metric": "cycles", "new_per_item": "11587.5762", "old_per_item": "11219.7716", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "1024", "metric": "wall_ns", "new_per_item": "2694.1763", "old_per_item": "2607.8427", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "1024", "metric": "cpu_ns", "new_per_item": "2694.0901", "old_per_item": "2607.7796", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "1024", "metric": "cycles", "new_per_item": "11672.7006", "old_per_item": "11297.0752", "ratio_permille": "1033", "shape": "plain_2048_piece256", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+## Sources
+
+[Manifest](manifest.json) · [Phases](phases.jsonl)
+- `old`: https://github.com/samshackleton-tech/BLAKE3 at `d4f675f4967317b41546e8c8309d35eb384cbbaf`
+- `new`: https://github.com/samshackleton-tech/BLAKE3 at `85c4b2d92b71c87a42261509fa6258f02903a0bc`
+- `bench`: https://github.com/servil-software-factory/bench-hashes at `9994de190259648ede82f7c5e4dbac4f1534a41d`
+- Script SHA-256: `9755cd0f5b20f8ec2fa7d97cabed3689e46261c63202d17fb226c7aa2eb59d7e`
+- Runner SHA-256: `f45d9b2e187b4074d7bd10bc8e2dce1ff7430d4f92ede54aab25bdd4172859cf`
