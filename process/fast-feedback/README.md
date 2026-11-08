@@ -2,7 +2,11 @@
 
 Program [#146](https://github.com/servil-software-factory/bench-hashes/issues/146) seeks faster development feedback at the same quality. Pilot [#147](https://github.com/servil-software-factory/bench-hashes/issues/147) supplies reserved physical capacity and an end-to-end pinned workflow.
 
-## Current delivery
+## November 8: library optimization resumed
+
+Sam The User redirected work to major BLAKE3-Servil optimizations before multithreading tuning. Further workflow experiments are parked; the deployed runner is unchanged. [Current output16 integration and complete-work evidence](output16-next/REPORT.md) uses that runner, with startup costs and retired-source records kept separate.
+
+## Pilot delivery
 
 The deployed runner preflights an instrument, submits matching target inputs, collects the next result by study and writes a source/latency/judgment summary. Fresh checkouts use the requested commit's history from the existing mirror. Host requests authenticate enrolled ED25519 keys.
 
@@ -14,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| Current-API output16 kernel integration and costs | [Output16 integration](output16-next/REPORT.md) | [Current-source records](output16-next/integration-runs/), [retired parallel port](output16-next/EARLIER-PORT.md) |
 | Historical delay, failed probes and priorities | [Process audit](REPORT.md) | [Deduplicated run audit](run-audit.json) |
 | Real-change outcomes versus short-job feedback | [Initial feedback snapshot](FEEDBACK.md) | [Phase audit](pilot-audit.json), [review events](decision-audit.json) |
 | Phase records and initial checks | [First slice](STARTED.md) | [ARM/Zen 3 phase checks](phase-runs/) |
@@ -29,7 +34,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 John integrated the [proof-cache correction #290](https://github.com/servil-software-factory/BLAKE3/pull/290) into `next` at **`31c11c254c3bce80ff2cd00543fd693f6969fb37`** and independently reproduced its three tests. It changes cache selection and tests, leaving library code and proof definitions unchanged.
 
-## Open follow-through
+## Deferred follow-through and external review
 
 - Resolve the lifecycle/reviewer-fixture findings on Devon’s local backend [#152](https://github.com/servil-software-factory/bench-hashes/pull/152), then check its execution bounds; [review](LOCAL-REVIEW.md).
 - Independent review/integration of the one-second named-run wait [#153](https://github.com/servil-software-factory/bench-hashes/pull/153) and executed-driver proof-cache identity [BLAKE3 #293](https://github.com/servil-software-factory/BLAKE3/pull/293).
@@ -37,6 +42,6 @@ John integrated the [proof-cache correction #290](https://github.com/servil-soft
 - Enrollment of remaining fleet hosts before their first request with the authenticated client.
 - Later #146 work: dependency-complete evidence reuse, proof throughput and calibrated 80/20 screening.
 
-Library optimization ports remain paused while the API settles. Frozen optimization candidates and their cost decisions stay separate from this pilot.
+The API settled and the user resumed library optimization on November 8. Frozen optimization review heads and their cost decisions remain separate from this pilot; no multithreading tuning or release follows automatically.
 
 — Sam Shackleton
