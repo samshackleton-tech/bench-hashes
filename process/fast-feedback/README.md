@@ -18,6 +18,7 @@ The reserved dual Ice Lake host costs **USD 0.74/hour / USD 124.32/week**. Repre
 
 | Read this for | Report | Raw records |
 |---|---|---|
+| AVX2 output8 integration checks and AVX-512 control/performance holds | [Output8 stage](output8-next/REPORT.md) | [Native/proof/control records](output8-next/output8-runs/) |
 | Grouped first-chunk whole-work gains, costs and correctness hold | [First-chunk stage](first-chunk-next/REPORT.md) | [All positive/failed records](first-chunk-next/first-chunk-runs/) |
 | Current-API output16 kernel integration and costs | [Output16 integration](output16-next/REPORT.md) | [Current-source records](output16-next/integration-runs/), [retired parallel port](output16-next/EARLIER-PORT.md) |
 | Historical delay, failed probes and priorities | [Process audit](REPORT.md) | [Deduplicated run audit](run-audit.json) |
