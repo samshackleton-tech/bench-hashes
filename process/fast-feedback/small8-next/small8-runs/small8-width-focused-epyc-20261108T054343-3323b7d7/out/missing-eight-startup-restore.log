@@ -1,0 +1,11 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -208,7 +208,7 @@
+         unsafe { hash_on_platform(platform, inputs, out) };
+         if lanes(platform) == 16 && crate::platform::avx2_detected() {
+             let mut eight = [[0u8; OUT_LEN]; 16];
+-            unsafe { hash_group::<16>(inputs, &mut eight) };
++            unsafe { hash_eight_groups(inputs, &mut eight) };
+             check_self_test(crate::self_test::fold(eight.as_flattened()));
+         }
+     });
