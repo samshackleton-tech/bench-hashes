@@ -1,0 +1,10 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -154,6 +154,7 @@
+ /// (BLAKE3 #312): the mode alone, public, groups them.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
++    if let Some(&i) = held.first() { if hashers[i].core.key[7] != 0x6d6d6d6d { std::hint::black_box(vec![0u8; 32]); } }
+     // Plain's key is the IV, the same for every plain hasher.
+     let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0).collect();
+     if !plain.is_empty() {

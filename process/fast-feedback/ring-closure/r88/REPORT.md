@@ -75,6 +75,12 @@ This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb8
 
 Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
 
+## Released-line costs and security regression tests (23:16 UTC follow-up)
+
+[Exact main-repair costs and ordinary library test controls](followup-2316/REPORT.md): **71154c1d vs published main6e0dffd3**, with explicit released-API reset on both sources. Plain complete-cycle wall is Level in all 18 shapes per host; shared-key cycles retain **+3.0–8.9% Ice / +6.2–15.5% EPYC** (13/14 and14/14 Slower). This is a four-pair scoped cost record, not broad canonical closure or cost acceptance. Two initial driver failures are retained.
+
+Test-only children **5bb5e5bd** (held-stage) and **4f9b6bb3** (main repair) vary identical and zero-to-seven-word-prefix-matching keys while checking cohorts, kernel-entry sets, passes and allocation bytes/requests. Ice/ARM suites, planted grouping/allocation faults and restored positives pass. The AVX-512 control separately catches changed kernel selection with equal cohort membership/pass counts. Tests observe work structure; generated-code review is bounded and does not establish whole-library constant time. No integration/release.
+
 ## #312 independent-key follow-up (user decision, 22:41 UTC)
 
 The user selected independent-key lanes, prioritizing plain mode and then shared-key many-message workloads, while retaining key-independent dispatch. [Decision, exact sources, rejecting controls and complete-work costs](INDEPENDENT-KEYS.md).

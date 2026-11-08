@@ -1,0 +1,20 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -248,7 +248,7 @@
+     let Some(&_first) = held.first() else { return };
+     // Public plain mode fixes every key to the IV; use the existing
+     // shared-key kernel without gathering per-lane key descriptors.
+-    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {
++    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) || held.iter().all(|&i| hashers[i].core.key == hashers[_first].core.key && hashers[i].core.chunk_state.flags == hashers[_first].core.chunk_state.flags) {
+         hash_cohort(hashers, held);
+         return;
+     }
+@@ -970,7 +970,7 @@
+     fn held_dispatch_ignores_key_equality_and_prefixes() {
+         crate::initialize();
+         let input = vec![42u8; 2 * crate::STAGE_LEN];
+-        for platform in crate::test::every_platform() {
++        for platform in crate::test::every_platform().into_iter().rev() {
+             for n in [3usize, 8, 16, 17, 33] {
+                 for mixed in [false, true] {
+                     let mut reference = None;

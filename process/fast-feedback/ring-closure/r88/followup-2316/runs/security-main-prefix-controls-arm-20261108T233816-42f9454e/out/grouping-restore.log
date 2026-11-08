@@ -1,0 +1,17 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -155,12 +155,12 @@
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+     // Plain's key is the IV, the same for every plain hasher.
+-    let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == hashers[held[0]].core.chunk_state.flags && hashers[i].core.key == hashers[held[0]].core.key).collect();
++    let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0).collect();
+     if !plain.is_empty() {
+         hash_cohort(hashers, &plain);
+     }
+     for &i in held {
+-        if !plain.contains(&i) {
++        if hashers[i].core.chunk_state.flags != 0 {
+             hash_cohort(hashers, &[i]);
+         }
+     }
