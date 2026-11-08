@@ -74,3 +74,24 @@ This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb8
 - **EPYC** (`fe60-gate-epyc-20261108T175423-5839daac`): no cell slower. The 64-pair confirmation of five suspects also judged no cell slower.
 
 Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
+
+## #312 revised: cohorts by iteration (John's review, 18:18 UTC)
+
+John's review found that 9d620e44 recursed once per keyed hasher, copying the rest of the held list each time: n frames and n(n-1)/2 copied indices for n keyed hashers.
+
+**Revision 3f3abd29cced846dead9d821cfa50ad822c62fc7** (next, on 9d620e44) and **e7f475686fce3fcce08d3a63c213f407e370776f** (main backport, on 6057c458) remove the recursion and the remainder copies. `hash_held` now builds one plain cohort and one single-hasher cohort for each keyed or key-derivation hasher, and each goes through `hash_cohort`, the existing body. The pass-count test adds a large cohort: 600 keyed hashers take 600 passes, and 600 plain hashers take one.
+
+**Correctness:**
+- Ice (`fix312b-quality-ice-20261108T182703-2f8ef7fa`): 228 tests and 21 docs pass. With cohorts chosen by key equality again (two planted edits), the test fails at "equal keys take the passes distinct keys take". The mutation gate reports 5 mutants, no new survivor, 44 s.
+- ARM VM, with the same red control: 202 tests on next (`fix312b-arm-20261108T182705-9e2dd2bd`), 163 on main (`fix312b-main-arm-20261108T182707-a08d31e7`).
+
+**Complete-cycle wall against fd048373**, same instrument (`fix312b-costs-*`, summary `fix312b-costs-summary.tsv`):
+
+| Workload | Ice | EPYC |
+|---|---|---|
+| plain | 18 Level | 18 Level |
+| keyed, one shared key | 13 Slower and 1 Level, +2.9% to +9.5% (512 hashers +8.2%) | 14 Slower, +6.1% to +15.5% (512 hashers +15.2%) |
+| keyed, distinct keys | 11 Faster, down to 78.2% of old | 11 Faster, down to 76.5% |
+| mixed modes | 18 Level | 18 Level |
+
+Consume-once finish is Level in all 256 judgments on each host. 9d620e44's cost table stays as that source's evidence.
