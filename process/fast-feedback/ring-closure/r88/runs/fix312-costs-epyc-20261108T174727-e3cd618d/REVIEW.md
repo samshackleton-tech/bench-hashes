@@ -1,0 +1,826 @@
+# fix312-costs-epyc-20261108T174727-e3cd618d
+
+Host: `root@88.216.222.150`; study: `r88-20261108`.
+
+Runner result:
+```
+VERIFIED
+```
+
+## Workflow latency
+
+| Phase | Nanoseconds |
+|---|---:|
+| dispatch | 43346069 |
+| lock_wait | 114861 |
+| preparation | 1973548591 |
+| job | 142525470943 |
+| verification | 1059624 |
+| total | 144543605278 |
+
+## Instrument judgments
+
+[out/judgments-cycle.tsv](out/judgments-cycle.tsv): 49 Faster, 171 Level, 100 Slower
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "2142.1624", "old_per_item": "2078.6788", "ratio_permille": "1031", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "2142.1157", "old_per_item": "2078.6112", "ratio_permille": "1031", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "9278.5673", "old_per_item": "9003.9975", "ratio_permille": "1030", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "155803.3571", "old_per_item": "150775.4338", "ratio_permille": "1033", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "2310.0566", "old_per_item": "2226.4097", "ratio_permille": "1038", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "2309.8553", "old_per_item": "2211.3599", "ratio_permille": "1044", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "10000.7504", "old_per_item": "9574.4801", "ratio_permille": "1044", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "22730.8512", "old_per_item": "21668.4965", "ratio_permille": "1049", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "170307.2120", "old_per_item": "164377.6060", "ratio_permille": "1036", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "4620.1003", "old_per_item": "4413.4752", "ratio_permille": "1047", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "4619.9302", "old_per_item": "4413.4484", "ratio_permille": "1047", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "20000.3592", "old_per_item": "19110.6216", "ratio_permille": "1047", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "45239.1401", "old_per_item": "43086.9463", "ratio_permille": "1050", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "342221.4704", "old_per_item": "325570.3383", "ratio_permille": "1051", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "2166.5184", "old_per_item": "2083.2985", "ratio_permille": "1040", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "2166.3569", "old_per_item": "2083.2651", "ratio_permille": "1040", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "9381.0030", "old_per_item": "9020.6675", "ratio_permille": "1040", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "22130.8947", "old_per_item": "21238.2024", "ratio_permille": "1042", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "157606.1166", "old_per_item": "151905.3357", "ratio_permille": "1038", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "4386.4540", "old_per_item": "4191.9917", "ratio_permille": "1046", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "4356.9034", "old_per_item": "4191.2131", "ratio_permille": "1040", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "18864.0556", "old_per_item": "18146.4969", "ratio_permille": "1040", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "43994.8810", "old_per_item": "42208.5406", "ratio_permille": "1042", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "2381.2210", "old_per_item": "2305.0557", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "2381.1793", "old_per_item": "2304.9583", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "10308.5932", "old_per_item": "9978.3442", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "5012.0091", "old_per_item": "4818.4347", "ratio_permille": "1040", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "5012.0590", "old_per_item": "4818.1018", "ratio_permille": "1040", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "21694.3378", "old_per_item": "20855.8536", "ratio_permille": "1040", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "370482.7279", "old_per_item": "357521.8351", "ratio_permille": "1036", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "2463.5822", "old_per_item": "2050.3435", "ratio_permille": "1202", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "2463.4771", "old_per_item": "2036.5059", "ratio_permille": "1210", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "10664.9690", "old_per_item": "8816.0011", "ratio_permille": "1210", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "24465.8508", "old_per_item": "19180.0103", "ratio_permille": "1276", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "181707.7398", "old_per_item": "151349.0369", "ratio_permille": "1201", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "4901.9181", "old_per_item": "4046.7120", "ratio_permille": "1211", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "4901.8880", "old_per_item": "4046.6607", "ratio_permille": "1211", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "21225.3633", "old_per_item": "17521.4187", "ratio_permille": "1211", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "48680.9474", "old_per_item": "38118.2018", "ratio_permille": "1277", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "360843.3530", "old_per_item": "298816.7107", "ratio_permille": "1208", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "2236.9523", "old_per_item": "1895.5560", "ratio_permille": "1180", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "2236.6139", "old_per_item": "1895.4810", "ratio_permille": "1180", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "9688.6889", "old_per_item": "8209.7227", "ratio_permille": "1180", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "23133.8232", "old_per_item": "19586.8384", "ratio_permille": "1181", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "162196.7346", "old_per_item": "138012.1464", "ratio_permille": "1175", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "4462.1135", "old_per_item": "3813.2158", "ratio_permille": "1170", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "4461.6667", "old_per_item": "3811.9189", "ratio_permille": "1170", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "19317.4822", "old_per_item": "16508.2035", "ratio_permille": "1170", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "45961.5688", "old_per_item": "38982.8098", "ratio_permille": "1179", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "324441.0206", "old_per_item": "277385.9729", "ratio_permille": "1170", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "wall_ns", "new_per_item": "2253.9095", "old_per_item": "1917.5788", "ratio_permille": "1175", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cpu_ns", "new_per_item": "2253.6078", "old_per_item": "1917.5196", "ratio_permille": "1175", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cycles", "new_per_item": "9759.9215", "old_per_item": "8306.3044", "ratio_permille": "1175", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "23240.2530", "old_per_item": "19816.9637", "ratio_permille": "1173", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "package_nj", "new_per_item": "163714.9964", "old_per_item": "139736.1301", "ratio_permille": "1172", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "wall_ns", "new_per_item": "4542.3918", "old_per_item": "3878.4552", "ratio_permille": "1171", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cpu_ns", "new_per_item": "4510.4845", "old_per_item": "3877.1306", "ratio_permille": "1163", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "cycles", "new_per_item": "19527.2546", "old_per_item": "16792.1349", "ratio_permille": "1163", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "46213.7327", "old_per_item": "39441.3200", "ratio_permille": "1172", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "17", "metric": "package_nj", "new_per_item": "334016.9692", "old_per_item": "284613.6308", "ratio_permille": "1173", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "2320.9974", "old_per_item": "1930.9203", "ratio_permille": "1202", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "2320.8982", "old_per_item": "1930.4601", "ratio_permille": "1202", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "10048.5203", "old_per_item": "8359.4246", "ratio_permille": "1202", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "23596.7704", "old_per_item": "19535.8684", "ratio_permille": "1208", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "169456.2700", "old_per_item": "140829.1414", "ratio_permille": "1203", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "4659.4534", "old_per_item": "3901.6428", "ratio_permille": "1194", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "4659.3202", "old_per_item": "3900.6446", "ratio_permille": "1194", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "20175.5820", "old_per_item": "16888.1046", "ratio_permille": "1195", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "46940.9668", "old_per_item": "38866.4990", "ratio_permille": "1208", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "339470.6161", "old_per_item": "286081.1022", "ratio_permille": "1187", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "wall_ns", "new_per_item": "2182.7239", "old_per_item": "2044.9945", "ratio_permille": "1067", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "cpu_ns", "new_per_item": "2182.6747", "old_per_item": "2044.9647", "ratio_permille": "1067", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "cycles", "new_per_item": "9455.9363", "old_per_item": "8859.3221", "ratio_permille": "1067", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "instructions", "new_per_item": "23229.0113", "old_per_item": "21710.4901", "ratio_permille": "1070", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "package_nj", "new_per_item": "158478.3527", "old_per_item": "148902.8938", "ratio_permille": "1064", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "wall_ns", "new_per_item": "4332.2422", "old_per_item": "4059.6947", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "cpu_ns", "new_per_item": "4331.6955", "old_per_item": "4059.6414", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "cycles", "new_per_item": "18763.6695", "old_per_item": "17585.7345", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "instructions", "new_per_item": "46120.5225", "old_per_item": "43046.4022", "ratio_permille": "1071", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "2", "metric": "package_nj", "new_per_item": "314846.4200", "old_per_item": "294226.1758", "ratio_permille": "1070", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "2536.6481", "old_per_item": "2037.5571", "ratio_permille": "1245", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "2536.6320", "old_per_item": "2037.4516", "ratio_permille": "1245", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "10981.5769", "old_per_item": "8820.4382", "ratio_permille": "1245", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "instructions", "new_per_item": "25114.5036", "old_per_item": "19097.7189", "ratio_permille": "1315", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "186753.8318", "old_per_item": "150887.3701", "ratio_permille": "1238", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "5323.9043", "old_per_item": "4295.5797", "ratio_permille": "1239", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "5323.8040", "old_per_item": "4295.3397", "ratio_permille": "1239", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "23042.5776", "old_per_item": "18593.3739", "ratio_permille": "1239", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "instructions", "new_per_item": "49988.4178", "old_per_item": "37939.5140", "ratio_permille": "1318", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "393570.4008", "old_per_item": "318249.6130", "ratio_permille": "1237", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "wall_ns", "new_per_item": "2234.6584", "old_per_item": "1945.7344", "ratio_permille": "1148", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "cpu_ns", "new_per_item": "2234.6124", "old_per_item": "1945.7209", "ratio_permille": "1148", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "cycles", "new_per_item": "9679.7737", "old_per_item": "8428.9698", "ratio_permille": "1148", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "22948.8244", "old_per_item": "20130.3968", "ratio_permille": "1140", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "package_nj", "new_per_item": "163519.6547", "old_per_item": "141517.9897", "ratio_permille": "1155", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "wall_ns", "new_per_item": "4407.0873", "old_per_item": "3833.7725", "ratio_permille": "1150", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "cpu_ns", "new_per_item": "4406.2044", "old_per_item": "3833.7148", "ratio_permille": "1149", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "cycles", "new_per_item": "19088.5444", "old_per_item": "16608.9419", "ratio_permille": "1149", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "45633.9345", "old_per_item": "39927.8369", "ratio_permille": "1143", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+
+```json
+{"items": "8", "metric": "package_nj", "new_per_item": "319654.5050", "old_per_item": "278221.0251", "ratio_permille": "1149", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-cycle"}
+```
+[out/judgments-finish.tsv](out/judgments-finish.tsv): 256 Level
+[out/judgments-update.tsv](out/judgments-update.tsv): 49 Faster, 173 Level, 98 Slower
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "2053.7716", "old_per_item": "1992.1775", "ratio_permille": "1031", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "8894.9707", "old_per_item": "8628.5589", "ratio_permille": "1031", "shape": "mixed_modes_open1024_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "2227.4972", "old_per_item": "2127.5475", "ratio_permille": "1047", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "2227.4286", "old_per_item": "2127.4968", "ratio_permille": "1047", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "9644.0140", "old_per_item": "9212.4739", "ratio_permille": "1047", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "22095.7934", "old_per_item": "21035.1487", "ratio_permille": "1050", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "165193.1816", "old_per_item": "157073.2415", "ratio_permille": "1052", "shape": "mixed_modes_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "4533.0460", "old_per_item": "4338.2242", "ratio_permille": "1045", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "4533.0697", "old_per_item": "4338.1524", "ratio_permille": "1045", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "19626.2652", "old_per_item": "18782.3015", "ratio_permille": "1045", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "44592.8313", "old_per_item": "42448.6838", "ratio_permille": "1051", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "335617.6946", "old_per_item": "321573.5023", "ratio_permille": "1043", "shape": "mixed_modes_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "2079.7584", "old_per_item": "1996.6254", "ratio_permille": "1042", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "2079.5517", "old_per_item": "1996.4240", "ratio_permille": "1042", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "9005.0077", "old_per_item": "8643.9598", "ratio_permille": "1042", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "21489.1160", "old_per_item": "20600.5968", "ratio_permille": "1043", "shape": "mixed_modes_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "4270.4156", "old_per_item": "4107.7393", "ratio_permille": "1040", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "4270.3957", "old_per_item": "4107.4832", "ratio_permille": "1040", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "18491.0913", "old_per_item": "17786.0374", "ratio_permille": "1040", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "43354.6547", "old_per_item": "41570.7956", "ratio_permille": "1043", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "313181.6048", "old_per_item": "301540.1317", "ratio_permille": "1039", "shape": "mixed_modes_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "2293.9114", "old_per_item": "2220.1898", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "2293.8588", "old_per_item": "2220.0986", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "9929.6128", "old_per_item": "9608.7132", "ratio_permille": "1033", "shape": "mixed_modes_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "4923.7048", "old_per_item": "4732.1244", "ratio_permille": "1040", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "4923.6005", "old_per_item": "4732.1689", "ratio_permille": "1040", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "21307.6058", "old_per_item": "20487.4632", "ratio_permille": "1039", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "368280.7088", "old_per_item": "350154.7010", "ratio_permille": "1051", "shape": "mixed_modes_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "2381.0123", "old_per_item": "1948.4638", "ratio_permille": "1222", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "2381.0261", "old_per_item": "1948.3660", "ratio_permille": "1222", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "10308.5558", "old_per_item": "8434.2180", "ratio_permille": "1222", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "23832.1639", "old_per_item": "18544.2601", "ratio_permille": "1285", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "175163.4208", "old_per_item": "144597.1611", "ratio_permille": "1211", "shape": "shared_key_open128_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "wall_ns", "new_per_item": "4817.7432", "old_per_item": "3966.1997", "ratio_permille": "1215", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cpu_ns", "new_per_item": "4817.5426", "old_per_item": "3965.5259", "ratio_permille": "1215", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "cycles", "new_per_item": "20860.5992", "old_per_item": "17171.2986", "ratio_permille": "1215", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "instructions", "new_per_item": "48018.0663", "old_per_item": "37482.4514", "ratio_permille": "1281", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "128", "metric": "package_nj", "new_per_item": "355969.6324", "old_per_item": "293356.9252", "ratio_permille": "1213", "shape": "shared_key_open128_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "2149.3582", "old_per_item": "1810.0684", "ratio_permille": "1187", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "2149.3327", "old_per_item": "1809.7294", "ratio_permille": "1188", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "9310.0936", "old_per_item": "7839.4130", "ratio_permille": "1188", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "22499.0173", "old_per_item": "18951.2316", "ratio_permille": "1187", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "155937.3129", "old_per_item": "131706.4226", "ratio_permille": "1184", "shape": "shared_key_open16_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "wall_ns", "new_per_item": "4371.6836", "old_per_item": "3726.1499", "ratio_permille": "1173", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "cpu_ns", "new_per_item": "4371.5395", "old_per_item": "3725.9527", "ratio_permille": "1173", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "cycles", "new_per_item": "18927.4367", "old_per_item": "16135.6614", "ratio_permille": "1173", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "instructions", "new_per_item": "45326.4205", "old_per_item": "38344.4374", "ratio_permille": "1182", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "16", "metric": "package_nj", "new_per_item": "317815.3779", "old_per_item": "272324.7477", "ratio_permille": "1167", "shape": "shared_key_open16_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "wall_ns", "new_per_item": "2166.4913", "old_per_item": "1844.2900", "ratio_permille": "1175", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "cpu_ns", "new_per_item": "2166.4366", "old_per_item": "1831.7983", "ratio_permille": "1183", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "cycles", "new_per_item": "9382.5743", "old_per_item": "7934.9038", "ratio_permille": "1182", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "22599.7827", "old_per_item": "19175.6687", "ratio_permille": "1179", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "package_nj", "new_per_item": "157951.2158", "old_per_item": "134453.6458", "ratio_permille": "1175", "shape": "shared_key_open17_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "wall_ns", "new_per_item": "4423.9594", "old_per_item": "3790.6957", "ratio_permille": "1167", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "cpu_ns", "new_per_item": "4423.8239", "old_per_item": "3790.5135", "ratio_permille": "1167", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "cycles", "new_per_item": "19153.1040", "old_per_item": "16413.8142", "ratio_permille": "1167", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "instructions", "new_per_item": "45581.7730", "old_per_item": "38800.1520", "ratio_permille": "1175", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "17", "metric": "package_nj", "new_per_item": "323111.8049", "old_per_item": "275821.3058", "ratio_permille": "1171", "shape": "shared_key_open17_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "2235.2005", "old_per_item": "1842.9437", "ratio_permille": "1213", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "2235.1878", "old_per_item": "1842.9144", "ratio_permille": "1213", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "9679.9661", "old_per_item": "7980.0750", "ratio_permille": "1213", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "22957.7381", "old_per_item": "18898.0705", "ratio_permille": "1215", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "163368.2456", "old_per_item": "134358.6762", "ratio_permille": "1216", "shape": "shared_key_open24_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "wall_ns", "new_per_item": "4575.0296", "old_per_item": "3815.0998", "ratio_permille": "1199", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cpu_ns", "new_per_item": "4574.7800", "old_per_item": "3814.9301", "ratio_permille": "1199", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "cycles", "new_per_item": "19806.2130", "old_per_item": "16518.7839", "ratio_permille": "1199", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "instructions", "new_per_item": "46300.9799", "old_per_item": "38228.7591", "ratio_permille": "1211", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "24", "metric": "package_nj", "new_per_item": "333288.8494", "old_per_item": "278559.4133", "ratio_permille": "1196", "shape": "shared_key_open24_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "wall_ns", "new_per_item": "2091.8718", "old_per_item": "1969.0284", "ratio_permille": "1062", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "cpu_ns", "new_per_item": "2091.6391", "old_per_item": "1955.6331", "ratio_permille": "1070", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "cycles", "new_per_item": "9061.1561", "old_per_item": "8471.1132", "ratio_permille": "1070", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "instructions", "new_per_item": "22565.0109", "old_per_item": "21048.5765", "ratio_permille": "1072", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "package_nj", "new_per_item": "151991.3058", "old_per_item": "143242.1066", "ratio_permille": "1061", "shape": "shared_key_open2_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "wall_ns", "new_per_item": "4242.9629", "old_per_item": "3975.8054", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "cpu_ns", "new_per_item": "4241.4697", "old_per_item": "3975.7938", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "cycles", "new_per_item": "18375.7500", "old_per_item": "17224.4718", "ratio_permille": "1067", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "instructions", "new_per_item": "45456.5220", "old_per_item": "42400.8300", "ratio_permille": "1072", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "2", "metric": "package_nj", "new_per_item": "307247.1959", "old_per_item": "288999.2863", "ratio_permille": "1063", "shape": "shared_key_open2_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "2451.2773", "old_per_item": "1953.0923", "ratio_permille": "1255", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "2451.1687", "old_per_item": "1953.0018", "ratio_permille": "1255", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "10609.4012", "old_per_item": "8455.6055", "ratio_permille": "1255", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "instructions", "new_per_item": "24491.4838", "old_per_item": "18462.2418", "ratio_permille": "1327", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "182984.0243", "old_per_item": "145019.6272", "ratio_permille": "1261", "shape": "shared_key_open512_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "wall_ns", "new_per_item": "5274.5050", "old_per_item": "4214.5596", "ratio_permille": "1251", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cpu_ns", "new_per_item": "5241.0116", "old_per_item": "4214.6083", "ratio_permille": "1244", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "cycles", "new_per_item": "22682.9296", "old_per_item": "18243.4916", "ratio_permille": "1243", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "instructions", "new_per_item": "49358.2599", "old_per_item": "37303.6523", "ratio_permille": "1323", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "512", "metric": "package_nj", "new_per_item": "392227.8062", "old_per_item": "312027.6332", "ratio_permille": "1257", "shape": "shared_key_open512_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "wall_ns", "new_per_item": "2151.8133", "old_per_item": "1861.1342", "ratio_permille": "1156", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "cpu_ns", "new_per_item": "2151.0080", "old_per_item": "1860.7593", "ratio_permille": "1156", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "cycles", "new_per_item": "9315.5476", "old_per_item": "8060.5342", "ratio_permille": "1156", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "22311.0720", "old_per_item": "19484.3791", "ratio_permille": "1145", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "package_nj", "new_per_item": "158562.2517", "old_per_item": "135214.8866", "ratio_permille": "1172", "shape": "shared_key_open8_len16384_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "wall_ns", "new_per_item": "4316.3724", "old_per_item": "3747.5358", "ratio_permille": "1152", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "cpu_ns", "new_per_item": "4316.1861", "old_per_item": "3746.7694", "ratio_permille": "1152", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "cycles", "new_per_item": "18696.5447", "old_per_item": "16231.1783", "ratio_permille": "1152", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "instructions", "new_per_item": "44998.1377", "old_per_item": "39287.9879", "ratio_permille": "1145", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+```json
+{"items": "8", "metric": "package_nj", "new_per_item": "314479.4589", "old_per_item": "272376.6713", "ratio_permille": "1155", "shape": "shared_key_open8_len32768_piece4096", "verdict": "Slower", "versus": "old-update"}
+```
+
+## Sources
+
+[Manifest](manifest.json) · [Phases](phases.jsonl)
+- `old`: https://github.com/servil-software-factory/BLAKE3 at `fd048373c8e5cb814ef9fc302709a75a96650a05`
+- `new`: https://github.com/samshackleton-tech/BLAKE3 at `9d620e4444cd9c0a4f1f7ad4404cfa4935c8d836`
+- `bench`: https://github.com/servil-software-factory/bench-hashes at `9994de190259648ede82f7c5e4dbac4f1534a41d`
+- Script SHA-256: `f484d04c38974e6f4b2d6b61448499ee99a15a5f15a7ab893151d1c8fd77214c`
+- Runner SHA-256: `f45d9b2e187b4074d7bd10bc8e2dce1ff7430d4f92ede54aab25bdd4172859cf`

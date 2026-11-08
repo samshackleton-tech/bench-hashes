@@ -40,3 +40,28 @@ Child **10454b8a822e307aca8a471d112acfe5a0fc8f97** (personal `test/sam-r88-x86-q
 No landing, release or tuning by Sam.
 
 — Sam Shackleton
+
+## #312 fix, at John's request: grouping by public mode
+
+John asked for the minimal exact-source remedy (17:22 UTC), so this joined the plan.
+
+**Fix 9d620e4444cd9c0a4f1f7ad4404cfa4935c8d836** (personal `fix/sam-update-each-public-grouping`, one commit on next fd048373) changes how `hash_held` groups a turn's held hashers. The old code compared secret keys; now the plain hashers' groups hash together, since every plain key is the IV, and each keyed or key-derivation hasher's group hashes alone, through the same per-hasher route. No key value decides the work. A test-only pass counter (`Counted::HeldPass`) asserts this: three plain hashers take one pass, and three keyed hashers take three whether their keys are equal or distinct.
+
+**Backport 6057c458f012611e37c456d67afbc3e8a632f9d9** (`fix/sam-update-each-public-grouping-main`, on main 6e0dffd3, released 0.8.0) is the same change, with the counter in slot 4.
+
+**Correctness:**
+- Ice (`fix312-quality-ice-20261108T174728-fff8df5a`): 228 tests, 21 docs, fmt, no-default, rustdoc pass. With the old key-equality partition restored temporarily, the new test fails at "equal keys take the passes distinct keys take". The mutation gate reports 2 mutants, no new survivor, 33 s.
+- ARM VM: 202 tests with the control on next (`fix312-native-arm-20261108T174743-73d9d7af`); 163 tests with the control for the backport (`fix312-main-arm-20261108T174835-9de2765c`).
+
+**Cost, whole-workload instrument unchanged** (`mixed-stage-costs.sh`, bench/clocks 9994de19, four fresh layout pairs, 3% margin with 5% FDR). Wall time is shown below; cycles, instructions and package energy are in the judgments. Pieces are 4 KiB; there are 2 to 512 messages of 16 and 32 KiB, plus 1024 open with 7 to 16 active:
+
+| Workload | Ice complete cycle | EPYC complete cycle |
+|---|---|---|
+| plain | 18 Level | 18 Level |
+| keyed, **one shared key** | **14 Slower, +3.7% to +15.0%** | **14 Slower, +6.7% to +24.5%** |
+| keyed, distinct keys | 7 Faster, 7 Level (down to 83.3% of old) | 10 Faster, 4 Level (down to 83.8%) |
+| mixed modes | 2 Slower (up to +3.6%), 16 Level | 7 Slower (up to +4.7%), 11 Level |
+
+Update-only follows the cycle closely. Consume-once finish is Level everywhere but one Ice shared-key cell (+8.9%). The distinct-key gain comes from the old code's repeated partitions: each pass partitioned what was left, and distinct keys left all but one. The shared-key loss comes from parent calls no longer batched across hashers that share a key; this is the cost of the fix. Using the independent-key lanes (#281/#304, not on next) is the route John named to recover it.
+
+Runs: `fix312-costs-ice-20261108T174729-dd7b8205`, `fix312-costs-epyc-20261108T174727-e3cd618d`; summary `fix312-costs-summary.tsv`.

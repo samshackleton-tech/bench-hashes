@@ -1,0 +1,11 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -155,7 +155,7 @@
+     let (key, flags) = (hashers[first].core.key, hashers[first].core.chunk_state.flags);
+     // Plain's key is the IV, the same for every plain hasher.
+     let plain = |i: usize| hashers[i].core.chunk_state.flags == 0;
+-    let (alike, others): (Vec<usize>, Vec<usize>) = held.iter().partition(|&&i| hashers[i].core.key == key && hashers[i].core.chunk_state.flags == flags);
++    let (alike, others): (Vec<usize>, Vec<usize>) = if plain(first) { held.iter().partition(|&&i| plain(i)) } else { (vec![first], held[1..].to_vec()) };
+     let turn = crate::platform::Sme2Turn::take(hashers[first].core.chunk_state.platform, true);
+     let platform = turn.platform();
+     let n = alike.len();
