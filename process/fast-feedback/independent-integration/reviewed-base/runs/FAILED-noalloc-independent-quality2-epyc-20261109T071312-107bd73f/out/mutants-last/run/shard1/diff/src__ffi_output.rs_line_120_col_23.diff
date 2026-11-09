@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace / with % in held_groups
+@@ -112,17 +112,17 @@
+                 h.core.chunk_state.flags,
+                 CHUNK_START,
+                 CHUNK_END,
+                 output.as_flattened_mut(),
+             );
+         }
+         hashers[i].write_stage(0, output.as_flattened());
+     }
+-    let mut per = PER / 2;
++    let mut per = PER % /* ~ changed by cargo-mutants ~ */ 2;
+     while per != 0 {
+         if per == 1 {
+             for &i in held {
+                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();
+                 hashers[i].write_stage(PER * OUT_LEN, &halves);
+             }
+         }
+         let count = held.len() * per;

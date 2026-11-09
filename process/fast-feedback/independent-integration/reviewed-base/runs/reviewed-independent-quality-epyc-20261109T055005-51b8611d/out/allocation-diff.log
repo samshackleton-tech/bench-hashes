@@ -1,0 +1,10 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -208,6 +208,7 @@
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+     let Some(&_first) = held.first() else { return };
++    if hashers[_first].core.key[7] != 0x6d6d6d6d { std::hint::black_box(vec![0u8; 32]); }
+     // Public plain mode fixes every key to the IV; use the existing
+     // shared-key kernel without gathering per-lane key descriptors.
+     if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {

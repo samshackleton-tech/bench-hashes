@@ -1,0 +1,11 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -120,7 +120,7 @@
+         let input = |j: usize| {
+             let h = &hashers[held[j / per_message]];
+             Input {
+-                block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),
++                block: level.as_flattened()[(j % per_message) * BLOCK_LEN..(j % per_message + 1) * BLOCK_LEN].try_into().unwrap(),
+                 cv: &h.core.key,
+                 len: BLOCK_LEN as u8,
+                 flags: h.core.chunk_state.flags | crate::PARENT,

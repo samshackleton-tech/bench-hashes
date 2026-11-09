@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace >= with < in held_groups
+@@ -126,17 +126,17 @@
+                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();
+                 hashers[i].write_stage(PER * OUT_LEN, &halves);
+             }
+         }
+         let count = held.len() * per;
+         let mut base = 0;
+         while base < count {
+             let left = count - base;
+-            let batch = if left >= width {
++            let batch = if left < /* ~ changed by cargo-mutants ~ */ width {
+                 width
+             } else if left >= 8 && eight {
+                 8
+             } else {
+                 left
+             };
+             {
+                 let input = |j: usize| {

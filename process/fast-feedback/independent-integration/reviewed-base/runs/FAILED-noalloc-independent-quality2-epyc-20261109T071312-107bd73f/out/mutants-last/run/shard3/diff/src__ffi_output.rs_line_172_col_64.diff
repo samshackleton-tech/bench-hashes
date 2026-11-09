@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace * with + in held_groups
+@@ -164,17 +164,17 @@
+                         *out = crate::hasher::le_bytes(&cv);
+                     }
+                 }
+             }
+             // per divides both kernel widths, so the batch has read each
+             // touched hasher's complete level before any prefix is overwritten.
+             for (j, value) in output[..batch].iter().enumerate() {
+                 let at = base + j;
+-                hashers[held[at / per]].write_stage((at % per) * OUT_LEN, value);
++                hashers[held[at / per]].write_stage((at % per) + /* ~ changed by cargo-mutants ~ */ OUT_LEN, value);
+             }
+             let before = base;
+             base += batch;
+             assert!(base > before, "a parent batch advances");
+         }
+         let before = per;
+         per /= 2;
+         assert!(per < before, "a parent level shrinks");

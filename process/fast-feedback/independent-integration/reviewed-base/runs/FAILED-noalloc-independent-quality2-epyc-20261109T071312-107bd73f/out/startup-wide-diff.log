@@ -1,0 +1,11 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -234,7 +234,7 @@
+     let mut checked = 1;
+     let answer = self_test_shape(|inputs, out| {
+         // Sound: initialize detected this platform before testing its kernels.
+-        unsafe { hash_on_platform(platform, inputs, out) };
++        unsafe { hash_on_platform(platform, inputs, out) }; out[0][0] ^= 1;
+         if lanes(platform) == 16 && crate::platform::avx2_detected() {
+             // Check the wide output before the remainder kernel reuses it.
+             check_self_test(crate::self_test::fold(out.as_flattened()));

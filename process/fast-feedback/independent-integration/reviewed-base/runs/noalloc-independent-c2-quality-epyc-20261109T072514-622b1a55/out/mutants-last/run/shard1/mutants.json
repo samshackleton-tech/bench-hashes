@@ -1,0 +1,546 @@
+[
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -86,17 +86,17 @@\n /// Each leaf pass consumes a whole stage before its CVs replace the input.\n /// Parent batches consume whole current levels before scattering into their\n /// prefixes; descriptor borrows end before the shared stage writer runs.\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n-    if width == 0 {\n+    if width != /* ~ changed by cargo-mutants ~ */ 0 {\n         return false;\n     }\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     debug_assert!(held.len() <= crate::many::TABLE, \"the ready table bounds held groups\");\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:94:14: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 94
+      },
+      "start": {
+        "column": 14,
+        "line": 94
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with % in held_groups\n@@ -89,17 +89,17 @@\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n     if width == 0 {\n         return false;\n     }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n+    const PER: usize = crate::STAGE_LEN % /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;\n     const { assert!(PER == 16) };\n     debug_assert!(held.len() <= crate::many::TABLE, \"the ready table bounds held groups\");\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:97:41: replace / with % in held_groups",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 97
+      },
+      "start": {
+        "column": 41,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with * in held_groups\n@@ -89,17 +89,17 @@\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n     if width == 0 {\n         return false;\n     }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n+    const PER: usize = crate::STAGE_LEN * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;\n     const { assert!(PER == 16) };\n     debug_assert!(held.len() <= crate::many::TABLE, \"the ready table bounds held groups\");\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:97:41: replace / with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 97
+      },
+      "start": {
+        "column": 41,
+        "line": 97
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:82: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 83,
+        "line": 108
+      },
+      "start": {
+        "column": 82,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:82: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 83,
+        "line": 108
+      },
+      "start": {
+        "column": 82,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:103: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 104,
+        "line": 108
+      },
+      "start": {
+        "column": 103,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:103: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 104,
+        "line": 108
+      },
+      "start": {
+        "column": 103,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with - in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j - /* ~ changed by cargo-mutants ~ */ 1) * CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:98: replace + with - in held_groups",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 99,
+        "line": 108
+      },
+      "start": {
+        "column": 98,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with * in held_groups\n@@ -100,17 +100,17 @@\n     // Selecting AVX2 already requires this capability. AVX512 can retain\n     // scalar remainders if eight-lane execution is unavailable.\n     let eight = crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j * /* ~ changed by cargo-mutants ~ */ 1) * CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n                 &h.core.key,\n                 counter,\n                 crate::IncrementCounter::Yes,\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:108:98: replace + with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 99,
+        "line": 108
+      },
+      "start": {
+        "column": 98,
+        "line": 108
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with % in held_groups\n@@ -114,17 +114,17 @@\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n                 output.as_flattened_mut(),\n             );\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n-    let mut per = PER / 2;\n+    let mut per = PER % /* ~ changed by cargo-mutants ~ */ 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:122:23: replace / with % in held_groups",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 122
+      },
+      "start": {
+        "column": 23,
+        "line": 122
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with * in held_groups\n@@ -114,17 +114,17 @@\n                 h.core.chunk_state.flags,\n                 CHUNK_START,\n                 CHUNK_END,\n                 output.as_flattened_mut(),\n             );\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n-    let mut per = PER / 2;\n+    let mut per = PER * /* ~ changed by cargo-mutants ~ */ 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:122:23: replace / with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 24,
+        "line": 122
+      },
+      "start": {
+        "column": 23,
+        "line": 122
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace != with == in held_groups\n@@ -115,17 +115,17 @@\n                 CHUNK_START,\n                 CHUNK_END,\n                 output.as_flattened_mut(),\n             );\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n     let mut per = PER / 2;\n-    while per != 0 {\n+    while per == /* ~ changed by cargo-mutants ~ */ 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n         let mut base = 0;\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:123:15: replace != with == in held_groups",
+    "package": "blake3-servil",
+    "replacement": "==",
+    "span": {
+      "end": {
+        "column": 17,
+        "line": 123
+      },
+      "start": {
+        "column": 15,
+        "line": 123
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -116,17 +116,17 @@\n                 CHUNK_END,\n                 output.as_flattened_mut(),\n             );\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n     let mut per = PER / 2;\n     while per != 0 {\n-        if per == 1 {\n+        if per != /* ~ changed by cargo-mutants ~ */ 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n         let mut base = 0;\n         while base < count {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:124:16: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 124
+      },
+      "start": {
+        "column": 16,
+        "line": 124
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -119,17 +119,17 @@\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n     let mut per = PER / 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n-                hashers[i].write_stage(PER * OUT_LEN, &halves);\n+                hashers[i].write_stage(PER + /* ~ changed by cargo-mutants ~ */ OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n         let mut base = 0;\n         while base < count {\n             let left = count - base;\n             let batch = if left >= width {\n                 width\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:127:44: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 127
+      },
+      "start": {
+        "column": 44,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -119,17 +119,17 @@\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n     let mut per = PER / 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n-                hashers[i].write_stage(PER * OUT_LEN, &halves);\n+                hashers[i].write_stage(PER / /* ~ changed by cargo-mutants ~ */ OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n         let mut base = 0;\n         while base < count {\n             let left = count - base;\n             let batch = if left >= width {\n                 width\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:127:44: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 45,
+        "line": 127
+      },
+      "start": {
+        "column": 44,
+        "line": 127
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -122,17 +122,17 @@\n     let mut per = PER / 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n-        let count = held.len() * per;\n+        let count = held.len() + /* ~ changed by cargo-mutants ~ */ per;\n         let mut base = 0;\n         while base < count {\n             let left = count - base;\n             let batch = if left >= width {\n                 width\n             } else if left >= 8 && eight {\n                 8\n             } else {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:130:32: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 130
+      },
+      "start": {
+        "column": 32,
+        "line": 130
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -122,17 +122,17 @@\n     let mut per = PER / 2;\n     while per != 0 {\n         if per == 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n-        let count = held.len() * per;\n+        let count = held.len() / /* ~ changed by cargo-mutants ~ */ per;\n         let mut base = 0;\n         while base < count {\n             let left = count - base;\n             let batch = if left >= width {\n                 width\n             } else if left >= 8 && eight {\n                 8\n             } else {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 195
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:130:32: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 130
+      },
+      "start": {
+        "column": 32,
+        "line": 130
+      }
+    }
+  }
+]

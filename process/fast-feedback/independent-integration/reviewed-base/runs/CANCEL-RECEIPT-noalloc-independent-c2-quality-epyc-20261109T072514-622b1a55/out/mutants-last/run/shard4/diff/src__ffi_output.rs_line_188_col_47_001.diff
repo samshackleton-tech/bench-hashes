@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace * with / in held_groups
+@@ -180,17 +180,17 @@
+         let before = per;
+         per /= 2;
+         assert!(per < before, "a parent level shrinks");
+     }
+     for &i in held {
+         let (counter, stage) = hashers[i].held_group().unwrap();
+         let mut result = [0u8; BLOCK_LEN];
+         if counter == 0 {
+-            result.copy_from_slice(&stage[PER * OUT_LEN..PER * OUT_LEN + BLOCK_LEN]);
++            result.copy_from_slice(&stage[PER / /* ~ changed by cargo-mutants ~ */ OUT_LEN..PER * OUT_LEN + BLOCK_LEN]);
+         } else {
+             result[..OUT_LEN].copy_from_slice(&stage[..OUT_LEN]);
+         }
+         hashers[i].take_held(&result);
+     }
+     true
+ }
+ 

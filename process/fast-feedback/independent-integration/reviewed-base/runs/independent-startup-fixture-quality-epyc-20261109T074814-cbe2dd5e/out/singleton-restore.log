@@ -1,0 +1,39 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -202,14 +202,30 @@
+     static HELD_GROUPS: core::cell::RefCell<Vec<Vec<usize>>> = const { core::cell::RefCell::new(Vec::new()) };
+ }
+ 
+-/// Hash the whole groups `held` names, one in each of those hashers'
+-/// stages, and pass each group's subtree to its hasher's core. The plain
+-/// hashers' groups hash together; a keyed or key-derivation hasher's group
+-/// hashes alone, since its key is secret and must not decide the work
+-/// (BLAKE3 #312): the mode alone, public, groups them.
++/// Hash held stages with an independent key per parent lane where
++/// available. Elsewhere, public mode chooses the cohorts; key values
++/// never determine grouping, allocation or dispatch.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+-    // Plain's key is the IV, the same for every plain hasher.
++    let Some(&_first) = held.first() else { return };
++    // Public plain mode fixes every key to the IV; use the existing
++    // shared-key kernel without gathering per-lane key descriptors.
++    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {
++        hash_cohort(hashers, held);
++        return;
++    }
++    #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
++    {
++        let platform = hashers[_first].core.chunk_state.platform;
++        if crate::ffi_output::held_groups(hashers, held, platform) {
++            #[cfg(all(test, feature = "std"))]
++            HELD_GROUPS.with(|groups| groups.borrow_mut().push(held.to_vec()));
++            crate::counted(crate::Counted::HeldPass);
++            return;
++        }
++    }
++    // Plain hashers all use the IV. Keyed and derive-key hashers take
++    // individual cohorts until this platform has independent parent lanes.
+     let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0).collect();
+     if !plain.is_empty() {
+         hash_cohort(hashers, &plain);

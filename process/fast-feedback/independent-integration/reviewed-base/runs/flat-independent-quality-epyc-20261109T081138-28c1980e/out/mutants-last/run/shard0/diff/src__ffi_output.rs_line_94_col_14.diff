@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace == with != in held_groups
+@@ -86,17 +86,17 @@
+ /// already fill their chunk lanes; parents borrow each message's own key
+ /// and flags in the existing independent-compression descriptors. The
+ /// caller bounds held stages by TABLE; shared workspace keeps CVs contiguous.
+ pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {
+     if held.is_empty() {
+         return true;
+     }
+     let width = lanes(platform);
+-    if width == 0 {
++    if width != /* ~ changed by cargo-mutants ~ */ 0 {
+         return false;
+     }
+     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
+     const { assert!(PER == 16) };
+     let n = held.len();
+     let mut work = crate::each::HeldWorkspace::<{ crate::many::TABLE }>::new(n);
+     let (mut level, mut next) = work.buffers();
+     for (k, &i) in held.iter().enumerate() {

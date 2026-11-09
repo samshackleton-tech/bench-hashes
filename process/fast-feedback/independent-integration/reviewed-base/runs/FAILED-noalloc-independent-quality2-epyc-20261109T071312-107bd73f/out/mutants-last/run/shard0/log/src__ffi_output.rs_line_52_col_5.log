@@ -1,0 +1,216 @@
+
+*** src/ffi_output.rs:52:5: replace input -> Option<Input<'_>> with None
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace input -> Option<Input<'_>> with None
+@@ -44,23 +44,17 @@
+         _ => 0,
+     }
+ }
+ 
+ /// A whole message still in its first chunk, with no staged suffix or
+ /// stacked subtree. Its final block is already padded by ChunkState.
+ /// Other states keep Hasher's existing finalization path.
+ pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {
+-    let c = &hasher.core.chunk_state;
+-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {
+-        block: &c.buf,
+-        cv: &c.cv,
+-        len: c.buf_len,
+-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,
+-    })
++    None /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor
+ /// borrows a readable padded block/CV, length 0..64. All counters are zero.
+ pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(out.len(), W, "one compression output per lane");
+     if W == 16 {
+         crate::ran_kernel(blake3_servil_output16 as *const ());
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/tmp/blake3-servil-mutants/mutants-wlfaesfh)
+warning: unused variable: `hasher`
+  --> src/ffi_output.rs:51:21
+   |
+51 | pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {
+   |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_hasher`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning (run `cargo fix --lib -p blake3-servil` to apply 1 suggestion)
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 2.25s
+info: using target runner `sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+warning: unused variable: `hasher`
+  --> src/ffi_output.rs:51:21
+   |
+51 | pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {
+   |                     ^^^^^^ help: if this is intentional, prefix it with an underscore: `_hasher`
+   |
+   = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: `blake3-servil` (lib) generated 1 warning (run `cargo fix --lib -p blake3-servil` to apply 1 suggestion)
+warning: `blake3-servil` (lib test) generated 1 warning (1 duplicate)
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 41e283e8-174d-4480-a8e4-53e3c52d8c5a with nextest profile: mutants
+    Starting 235 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/235) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/235) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/235) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/235) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/235) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/235) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/235) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/235) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact avx512::test::test_xof_many --nocapture
+        PASS [   0.035s] (  1/235) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  2/235) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+        PASS [   0.039s] (  2/235) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  3/235) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+        PASS [   0.043s] (  3/235) blake3-servil avx512::test::test_xof_many
+       START [         ] (  4/235) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.052s] (  4/235) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  5/235) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.055s] (  5/235) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  6/235) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.060s] (  6/235) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  7/235) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.061s] (  7/235) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  8/235) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+        PASS [   0.028s] (  8/235) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+       START [         ] (  9/235) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.027s] (  9/235) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] ( 10/235) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.021s] ( 10/235) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] ( 11/235) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.021s] ( 11/235) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 12/235) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.020s] ( 12/235) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 13/235) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.082s] ( 13/235) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 14/235) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.022s] ( 14/235) blake3-servil block::test::test_blocks_mut_writes_the_messages
+       START [         ] ( 15/235) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::finalize_each_groups_only_full_output_lanes --nocapture
+        PASS [   0.019s] ( 15/235) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 16/235) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::held_dispatch_ignores_key_equality_and_prefixes --nocapture
+        PASS [   0.019s] ( 16/235) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] ( 17/235) blake3-servil each::test::held_groups_pass_by_mode_not_key
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::held_groups_pass_by_mode_not_key --nocapture
+        PASS [   0.019s] ( 17/235) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 18/235) blake3-servil each::test::held_passes_do_not_depend_on_keys
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::held_passes_do_not_depend_on_keys --nocapture
+        PASS [   0.020s] ( 18/235) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 19/235) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.023s] ( 19/235) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+       START [         ] ( 20/235) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.078s] ( 20/235) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+       START [         ] ( 21/235) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.025s] ( 21/235) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 22/235) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.033s] ( 22/235) blake3-servil each::test::held_groups_pass_by_mode_not_key
+       START [         ] ( 23/235) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.019s] ( 23/235) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 24/235) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.018s] ( 24/235) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 25/235) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_held_key_groups_take_one_partition_pass --nocapture
+        PASS [   0.061s] ( 25/235) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 26/235) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_update_each --nocapture
+        PASS [   0.021s] ( 26/235) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 27/235) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.024s] ( 27/235) blake3-servil each::test::test_hash_each_small_items_by_blocks
+       START [         ] ( 28/235) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.024s] ( 28/235) blake3-servil each::test::test_update_each
+       START [         ] ( 29/235) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+        PASS [   0.085s] ( 29/235) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+       START [         ] ( 30/235) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+        PASS [   0.030s] ( 30/235) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 31/235) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+        PASS [   0.023s] ( 31/235) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 32/235) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+        PASS [   0.087s] ( 32/235) blake3-servil each::test::held_passes_do_not_depend_on_keys
+       START [         ] ( 33/235) blake3-servil ffi_output::tests::startup_covers_each_supported_platform
+             command: sh /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/library/tools/mutants/test-runner /root/pinned-runs/noalloc-independent-quality2-epyc-20261109T071312-107bd73f/target/mutants/run-0/mutants/deps/blake3_servil-1b42312aa3a890c3 --exact ffi_output::tests::startup_covers_each_supported_platform --nocapture
+        FAIL [   0.023s] ( 33/235) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+  stdout ───
+
+    running 1 test
+    test ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices ... FAILED
+
+    failures:
+
+    failures:
+        ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+
+    test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 197 filtered out; finished in 0.00s
+
+  stderr ───
+
+    thread 'ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices' (2786566) panicked at src/ffi_output.rs:364:13:
+    assertion `left == right` failed
+      left: false
+     right: true
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGTERM [   0.012s] ( 34/235) blake3-servil ffi_output::tests::startup_covers_each_supported_platform
+     SIGTERM [   0.112s] ( 35/235) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGTERM [   0.020s] ( 36/235) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+     SIGTERM [   0.017s] ( 37/235) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+     SIGTERM [   0.012s] ( 38/235) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+     SIGTERM [   0.052s] ( 39/235) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+     SIGTERM [   0.087s] ( 40/235) blake3-servil each::test::test_hash_each_multithreaded
+────────────
+     Summary [   0.194s] 40/235 tests run: 32 passed, 8 failed, 0 skipped
+warning: 195/235 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

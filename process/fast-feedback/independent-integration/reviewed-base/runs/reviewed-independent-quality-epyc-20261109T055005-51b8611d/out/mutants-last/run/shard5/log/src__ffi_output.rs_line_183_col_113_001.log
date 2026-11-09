@@ -1,0 +1,751 @@
+
+*** src/ffi_output.rs:183:113: replace | with ^ in self_test_shape
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace | with ^ in self_test_shape
+@@ -175,17 +175,17 @@
+             lens[i] = 64;
+         }
+         shape | [0u8, 16, 32, 64][i % 4]
+     });
+     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {
+         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))
+     });
+     let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));
+-    let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] | if (i / 4) % 2 == 0 { ROOT } else { 0 } });
++    let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] ^ /* ~ changed by cargo-mutants ~ */ if (i / 4) % 2 == 0 { ROOT } else { 0 } });
+     let mut out = [[0u8; OUT_LEN]; 16];
+     hash(&inputs, &mut out);
+     crate::self_test::fold(out.as_flattened())
+ }
+ fn check_self_test(answer: u64) {
+     assert_eq!(answer, SELF_TEST_EXPECTED, "blake3-servil startup self-test failed: independent counter-zero compressions");
+ }
+ unsafe fn hash_eight_groups(inputs: &[Input<'_>; 16], out: &mut [[u8; OUT_LEN]]) {
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/tmp/blake3-servil-mutants/mutants-kljkg642)
+    Finished `mutants` profile [optimized] target(s) in 0.82s
+info: using target runner `sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID f5aff696-0409-407a-9073-3a8f465a6d6c with nextest profile: mutants
+    Starting 234 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/234) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.058s] (  1/234) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  2/234) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+        PASS [   0.073s] (  2/234) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  3/234) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+        PASS [   0.073s] (  3/234) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  4/234) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.078s] (  4/234) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  5/234) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.083s] (  5/234) blake3-servil avx512::test::test_xof_many
+       START [         ] (  6/234) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.086s] (  6/234) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] (  7/234) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.087s] (  7/234) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  8/234) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+        PASS [   0.026s] (  8/234) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+       START [         ] (  9/234) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.029s] (  9/234) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] ( 10/234) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.104s] ( 10/234) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] ( 11/234) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.029s] ( 11/234) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+       START [         ] ( 12/234) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.028s] ( 12/234) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+       START [         ] ( 13/234) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.029s] ( 13/234) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 14/234) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+        PASS [   0.031s] ( 14/234) blake3-servil block::test::test_blocks_mut_writes_the_messages
+       START [         ] ( 15/234) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::finalize_each_groups_only_full_output_lanes --nocapture
+        PASS [   0.024s] ( 15/234) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 16/234) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_dispatch_ignores_key_equality_and_prefixes --nocapture
+        PASS [   0.024s] ( 16/234) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+       START [         ] ( 17/234) blake3-servil each::test::held_groups_pass_by_mode_not_key
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_groups_pass_by_mode_not_key --nocapture
+        PASS [   0.026s] ( 17/234) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 18/234) blake3-servil each::test::held_passes_do_not_depend_on_keys
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_passes_do_not_depend_on_keys --nocapture
+        PASS [   0.028s] ( 18/234) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 19/234) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_matches_hash_with --nocapture
+        PASS [   0.088s] ( 19/234) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+       START [         ] ( 20/234) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded --nocapture
+        PASS [   0.030s] ( 20/234) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+       START [         ] ( 21/234) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+        PASS [   0.031s] ( 21/234) blake3-servil each::test::test_hash_each_matches_hash_with
+       START [         ] ( 22/234) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+        PASS [   0.042s] ( 22/234) blake3-servil each::test::held_groups_pass_by_mode_not_key
+       START [         ] ( 23/234) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+        PASS [   0.025s] ( 23/234) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+       START [         ] ( 24/234) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+        PASS [   0.014s] ( 24/234) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+       START [         ] ( 25/234) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_held_key_groups_take_one_partition_pass --nocapture
+        PASS [   0.014s] ( 25/234) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+       START [         ] ( 26/234) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each --nocapture
+        PASS [   0.069s] ( 26/234) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+       START [         ] ( 27/234) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each_at_offsets --nocapture
+        PASS [   0.015s] ( 27/234) blake3-servil each::test::test_hash_each_small_items_by_blocks
+       START [         ] ( 28/234) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each_holds_groups_together --nocapture
+        PASS [   0.016s] ( 28/234) blake3-servil each::test::test_update_each
+       START [         ] ( 29/234) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+        PASS [   0.018s] ( 29/234) blake3-servil each::test::test_update_each_at_offsets
+       START [         ] ( 30/234) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+        PASS [   0.016s] ( 30/234) blake3-servil each::test::test_update_each_holds_groups_together
+       START [         ] ( 31/234) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+        PASS [   0.080s] ( 31/234) blake3-servil each::test::held_passes_do_not_depend_on_keys
+       START [         ] ( 32/234) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+        PASS [   0.088s] ( 32/234) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+       START [         ] ( 33/234) blake3-servil ffi_output::tests::startup_covers_each_supported_platform
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::startup_covers_each_supported_platform --nocapture
+        PASS [   0.013s] ( 33/234) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+       START [         ] ( 34/234) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::startup_rejects_corrupted_answer --nocapture
+        PASS [   0.013s] ( 34/234) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+       START [         ] ( 35/234) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+        PASS [   0.013s] ( 35/234) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+       START [         ] ( 36/234) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+        PASS [   0.012s] ( 36/234) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+       START [         ] ( 37/234) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+        PASS [   0.015s] ( 37/234) blake3-servil ffi_output::tests::startup_covers_each_supported_platform
+       START [         ] ( 38/234) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+        PASS [   0.017s] ( 38/234) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+       START [         ] ( 39/234) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+        PASS [   0.120s] ( 39/234) blake3-servil chunk_root::test::test_chunk_root_line_placements
+       START [         ] ( 40/234) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+        PASS [   0.018s] ( 40/234) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+       START [         ] ( 41/234) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first --nocapture
+        PASS [   0.023s] ( 41/234) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+       START [         ] ( 42/234) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::clone_from_copies_only_the_live_stage_prefix --nocapture
+        PASS [   0.017s] ( 42/234) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+       START [         ] ( 43/234) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+        PASS [   0.018s] ( 43/234) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+       START [         ] ( 44/234) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_the_length_hint_never_changes_the_digest --nocapture
+        PASS [   0.069s] ( 44/234) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+       START [         ] ( 45/234) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+        PASS [   0.020s] ( 45/234) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+       START [         ] ( 46/234) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_update_stages_to_the_message_boundary_from_an_offset --nocapture
+        PASS [   0.022s] ( 46/234) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+       START [         ] ( 47/234) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_a_finished_threads_source_is_the_next_threads --nocapture
+        PASS [   0.017s] ( 47/234) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+       START [         ] ( 48/234) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty --nocapture
+        PASS [   0.039s] ( 48/234) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+       START [         ] ( 49/234) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_find_reaches_every_registered_source --nocapture
+        PASS [   0.019s] ( 49/234) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+       START [         ] ( 50/234) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_unregister_gives_the_slot_back --nocapture
+        PASS [   0.019s] ( 50/234) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+       START [         ] ( 51/234) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_unregister_leaves_the_other_sources_registered --nocapture
+        PASS [   0.020s] ( 51/234) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+       START [         ] ( 52/234) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind --nocapture
+        PASS [   0.023s] ( 52/234) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+       START [         ] ( 53/234) blake3-servil lanes::sources::test::waiting_help_runs_one_task
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::waiting_help_runs_one_task --nocapture
+        PASS [   0.022s] ( 53/234) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+       START [         ] ( 54/234) blake3-servil lanes::test::equal_members_match_the_reference
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::equal_members_match_the_reference --nocapture
+        PASS [   0.021s] ( 54/234) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+       START [         ] ( 55/234) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_caller_gives_its_place_back --nocapture
+        PASS [   0.022s] ( 55/234) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+       START [         ] ( 56/234) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps --nocapture
+        PASS [   0.024s] ( 56/234) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+       START [         ] ( 57/234) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_claim_takes_a_share_of_what_waits --nocapture
+        PASS [   0.023s] ( 57/234) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+       START [         ] ( 58/234) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own --nocapture
+        PASS [   0.024s] ( 58/234) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+       START [         ] ( 59/234) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_parked_caller_is_woken_by_the_last_piece --nocapture
+        PASS [   0.023s] ( 59/234) blake3-servil lanes::sources::test::waiting_help_runs_one_task
+       START [         ] ( 60/234) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_poller_yields_every_yield_every --nocapture
+        PASS [   0.024s] ( 60/234) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+       START [         ] ( 61/234) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_source_unregistered_leaves_its_slot --nocapture
+        PASS [   0.157s] ( 61/234) blake3-servil each::test::test_hash_each_multithreaded
+       START [         ] ( 62/234) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_stream_is_what_opens_the_sources --nocapture
+        PASS [   0.022s] ( 62/234) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+       START [         ] ( 63/234) blake3-servil lanes::test::test_a_wake_is_tried_for_the_second_task_waiting
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_wake_is_tried_for_the_second_task_waiting --nocapture
+        PASS [   0.023s] ( 63/234) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+       START [         ] ( 64/234) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open --nocapture
+        PASS [   0.024s] ( 64/234) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+       START [         ] ( 65/234) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_concurrent_batch_callers_agree --nocapture
+        PASS [   0.026s] ( 65/234) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+       START [         ] ( 66/234) blake3-servil lanes::test::test_concurrent_callers_agree
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_concurrent_callers_agree --nocapture
+        PASS [   0.023s] ( 66/234) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+       START [         ] ( 67/234) blake3-servil lanes::test::test_cut_items_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_items_exactly --nocapture
+        PASS [   0.020s] ( 67/234) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+       START [         ] ( 68/234) blake3-servil lanes::test::test_cut_messages_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_messages_exactly --nocapture
+        PASS [   0.023s] ( 68/234) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+       START [         ] ( 69/234) blake3-servil lanes::test::test_cut_messages_shapes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_messages_shapes --nocapture
+        PASS [   0.025s] ( 69/234) blake3-servil lanes::test::test_a_wake_is_tried_for_the_second_task_waiting
+       START [         ] ( 70/234) blake3-servil lanes::test::test_cut_with_prefix_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_with_prefix_exactly --nocapture
+        PASS [   0.024s] ( 70/234) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+       START [         ] ( 71/234) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_with_prefix_shapes_and_hashes --nocapture
+        PASS [   0.028s] ( 71/234) blake3-servil lanes::test::test_cut_items_exactly
+       START [         ] ( 72/234) blake3-servil lanes::test::test_hash_many_pool_agrees
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_hash_many_pool_agrees --nocapture
+        PASS [   0.044s] ( 72/234) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+       START [         ] ( 73/234) blake3-servil lanes::test::test_hash_matches_serial
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_hash_matches_serial --nocapture
+        PASS [   0.082s] ( 73/234) blake3-servil lanes::test::equal_members_match_the_reference
+       START [         ] ( 74/234) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_idle_workers_park_while_a_stream_is_open --nocapture
+        PASS [   0.035s] ( 74/234) blake3-servil lanes::test::test_cut_messages_exactly
+       START [         ] ( 75/234) blake3-servil lanes::test::test_next_piece_len
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_next_piece_len --nocapture
+        PASS [   0.046s] ( 75/234) blake3-servil lanes::test::test_concurrent_callers_agree
+       START [         ] ( 76/234) blake3-servil lanes::test::test_one_member_runs_alone
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_one_member_runs_alone --nocapture
+        PASS [   0.039s] ( 76/234) blake3-servil lanes::test::test_cut_messages_shapes
+       START [         ] ( 77/234) blake3-servil lanes::test::test_simd_merge_matches_recursive
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_simd_merge_matches_recursive --nocapture
+        PASS [   0.039s] ( 77/234) blake3-servil lanes::test::test_cut_with_prefix_exactly
+       START [         ] ( 78/234) blake3-servil lanes::test::test_sme2_prefix_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_sme2_prefix_exactly --nocapture
+        PASS [   0.047s] ( 78/234) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+       START [         ] ( 79/234) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_spin_ends_after_spin_or_with_no_stream_open --nocapture
+        PASS [   0.024s] ( 79/234) blake3-servil lanes::test::test_next_piece_len
+       START [         ] ( 80/234) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_pool_begins_at_min_split_len --nocapture
+        PASS [   0.038s] ( 80/234) blake3-servil lanes::test::test_hash_many_pool_agrees
+       START [         ] ( 81/234) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_pool_reads_time_through_now --nocapture
+        PASS [   0.029s] ( 81/234) blake3-servil lanes::test::test_hash_matches_serial
+       START [         ] ( 82/234) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_workers_are_every_thread_but_the_caller --nocapture
+        PASS [   0.029s] ( 82/234) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+       START [         ] ( 83/234) blake3-servil lanes::test::test_tree_thread_budget
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_tree_thread_budget --nocapture
+        PASS [   0.026s] ( 83/234) blake3-servil lanes::test::test_one_member_runs_alone
+       START [         ] ( 84/234) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_update_multithreaded_matches_hash --nocapture
+        PASS [   0.028s] ( 84/234) blake3-servil lanes::test::test_simd_merge_matches_recursive
+       START [         ] ( 85/234) blake3-servil many::test::across_partial_chunks_matches_published_vectors
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::across_partial_chunks_matches_published_vectors --nocapture
+        PASS [   0.027s] ( 85/234) blake3-servil lanes::test::test_sme2_prefix_exactly
+       START [         ] ( 86/234) blake3-servil many::test::four_chunk_batch_matches_published_vectors
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::four_chunk_batch_matches_published_vectors --nocapture
+        PASS [   0.019s] ( 86/234) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+       START [         ] ( 87/234) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_a_short_input_is_refused_before_the_kernels --nocapture
+        PASS [   0.021s] ( 87/234) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+       START [         ] ( 88/234) blake3-servil many::test::test_across_from_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_across_from_exactly --nocapture
+        PASS [   0.021s] ( 88/234) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+       START [         ] ( 89/234) blake3-servil many::test::test_hash_blocks_without_plans
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_blocks_without_plans --nocapture
+        PASS [   0.024s] ( 89/234) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+       START [         ] ( 90/234) blake3-servil many::test::test_hash_four_at_a_time_arrangement
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_four_at_a_time_arrangement --nocapture
+        PASS [   0.026s] ( 90/234) blake3-servil lanes::test::test_tree_thread_budget
+       START [         ] ( 91/234) blake3-servil many::test::test_hash_many_modes_every_platform
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_modes_every_platform --nocapture
+        PASS [   0.028s] ( 91/234) blake3-servil many::test::across_partial_chunks_matches_published_vectors
+       START [         ] ( 92/234) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_needs_the_input_it_names --nocapture
+        PASS [   0.028s] ( 92/234) blake3-servil many::test::four_chunk_batch_matches_published_vectors
+       START [         ] ( 93/234) blake3-servil many::test::test_hash_many_on_paths_by_count
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_on_paths_by_count --nocapture
+        PASS [   0.027s] ( 93/234) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+       START [         ] ( 94/234) blake3-servil many::test::test_hash_many_whole_blocks
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_whole_blocks --nocapture
+        PASS [   0.027s] ( 94/234) blake3-servil many::test::test_across_from_exactly
+       START [         ] ( 95/234) blake3-servil many::test::test_small_batches_after_a_pause
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_small_batches_after_a_pause --nocapture
+        PASS [   0.028s] ( 95/234) blake3-servil many::test::test_hash_blocks_without_plans
+       START [         ] ( 96/234) blake3-servil many::test::test_sme2_sized_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_sme2_sized_exactly --nocapture
+        PASS [   0.027s] ( 96/234) blake3-servil many::test::test_hash_four_at_a_time_arrangement
+       START [         ] ( 97/234) blake3-servil many::test::test_whole_blocks_x86_full_width
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_whole_blocks_x86_full_width --nocapture
+        PASS [   0.022s] ( 97/234) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+       START [         ] ( 98/234) blake3-servil many::test::two_chunk_batch_matches_published_vectors
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::two_chunk_batch_matches_published_vectors --nocapture
+        PASS [   0.024s] ( 98/234) blake3-servil many::test::test_hash_many_on_paths_by_count
+       START [         ] ( 99/234) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest --nocapture
+        PASS [   0.024s] ( 99/234) blake3-servil many::test::test_sme2_sized_exactly
+       START [         ] (100/234) blake3-servil park::test::wakes_made_and_owed_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact park::test::wakes_made_and_owed_exactly --nocapture
+        PASS [   0.046s] (100/234) blake3-servil many::test::test_hash_many_modes_every_platform
+       START [         ] (101/234) blake3-servil platform::x86_degree_test::test_detected_degree_is_the_widest_kernel
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_degree_test::test_detected_degree_is_the_widest_kernel --nocapture
+        PASS [   0.023s] (101/234) blake3-servil many::test::two_chunk_batch_matches_published_vectors
+       START [         ] (102/234) blake3-servil platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none --nocapture
+        PASS [   0.041s] (102/234) blake3-servil many::test::test_hash_many_whole_blocks
+       START [         ] (103/234) blake3-servil platform::x86_features_test::test_wide_bit_matches_cpuinfo
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_wide_bit_matches_cpuinfo --nocapture
+        PASS [   0.023s] (103/234) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+       START [         ] (104/234) blake3-servil platform::x86_features_test::test_wide_cpu_and_family
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_wide_cpu_and_family --nocapture
+        PASS [   0.016s] (104/234) blake3-servil park::test::wakes_made_and_owed_exactly
+       START [         ] (105/234) blake3-servil platform::x86_features_test::test_x86_detection_matches_std
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_x86_detection_matches_std --nocapture
+        PASS [   0.018s] (105/234) blake3-servil platform::x86_degree_test::test_detected_degree_is_the_widest_kernel
+       START [         ] (106/234) blake3-servil platform::x86_features_test::test_x86_features_match_std
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_x86_features_match_std --nocapture
+        PASS [   0.015s] (106/234) blake3-servil platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none
+       START [         ] (107/234) blake3-servil self_test::stops::test_a_failing_self_test_stops_the_process
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::stops::test_a_failing_self_test_stops_the_process --nocapture
+        PASS [   0.018s] (107/234) blake3-servil platform::x86_features_test::test_wide_bit_matches_cpuinfo
+       START [         ] (108/234) blake3-servil self_test::stops::test_a_wrong_digest_in_any_case_stops_the_process
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::stops::test_a_wrong_digest_in_any_case_stops_the_process --nocapture
+        PASS [   0.019s] (108/234) blake3-servil platform::x86_features_test::test_wide_cpu_and_family
+       START [         ] (109/234) blake3-servil self_test::test::self_test_matches_official_blake3
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::test::self_test_matches_official_blake3 --nocapture
+        PASS [   0.019s] (109/234) blake3-servil platform::x86_features_test::test_x86_detection_matches_std
+       START [         ] (110/234) blake3-servil self_test::test::test_a_waiting_thread_takes_the_verdict
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::test::test_a_waiting_thread_takes_the_verdict --nocapture
+        PASS [   0.107s] (110/234) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+       START [         ] (111/234) blake3-servil self_test::test::test_self_test_run_checks_every_case
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::test::test_self_test_run_checks_every_case --nocapture
+        PASS [   0.020s] (111/234) blake3-servil platform::x86_features_test::test_x86_features_match_std
+       START [         ] (112/234) blake3-servil self_test::test::wide_self_test_matches_reference
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::test::wide_self_test_matches_reference --nocapture
+        PASS [   0.023s] (112/234) blake3-servil self_test::test::self_test_matches_official_blake3
+       START [         ] (113/234) blake3-servil self_test::test::wide_self_test_rejects_corruption
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact self_test::test::wide_self_test_rejects_corruption --nocapture
+        PASS [   0.024s] (113/234) blake3-servil self_test::test::test_a_waiting_thread_takes_the_verdict
+       START [         ] (114/234) blake3-servil stream::frontend::tests::a_borrowed_batch_fills_the_producers_places
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::a_borrowed_batch_fills_the_producers_places --nocapture
+        PASS [   0.031s] (114/234) blake3-servil self_test::test::test_self_test_run_checks_every_case
+       START [         ] (115/234) blake3-servil stream::frontend::tests::a_later_message_is_delivered_before_an_earlier_held_one
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::a_later_message_is_delivered_before_an_earlier_held_one --nocapture
+        PASS [   0.039s] (115/234) blake3-servil self_test::test::wide_self_test_matches_reference
+       START [         ] (116/234) blake3-servil stream::frontend::tests::batches_and_places_come_back_to_be_refilled
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::batches_and_places_come_back_to_be_refilled --nocapture
+        PASS [   0.034s] (116/234) blake3-servil self_test::test::wide_self_test_rejects_corruption
+       START [         ] (117/234) blake3-servil stream::frontend::tests::end_carries_the_last_bytes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::end_carries_the_last_bytes --nocapture
+        PASS [   0.035s] (117/234) blake3-servil stream::frontend::tests::a_borrowed_batch_fills_the_producers_places
+       START [         ] (118/234) blake3-servil stream::frontend::tests::interleaved_messages_in_random_fragments_match_official
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::interleaved_messages_in_random_fragments_match_official --nocapture
+        PASS [   0.123s] (118/234) blake3-servil many::test::test_small_batches_after_a_pause
+       START [         ] (119/234) blake3-servil stream::frontend::tests::messages_batches_and_an_abort_reach_the_handler
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::messages_batches_and_an_abort_reach_the_handler --nocapture
+        PASS [   0.032s] (119/234) blake3-servil stream::frontend::tests::a_later_message_is_delivered_before_an_earlier_held_one
+       START [         ] (120/234) blake3-servil stream::frontend::tests::parts_of_a_long_message_spread_over_the_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::frontend::tests::parts_of_a_long_message_spread_over_the_workers --nocapture
+        PASS [   0.027s] (120/234) blake3-servil stream::frontend::tests::batches_and_places_come_back_to_be_refilled
+       START [         ] (121/234) blake3-servil stream::prototype::one_message_accepts_callback_pieces_and_finishes_on_the_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::prototype::one_message_accepts_callback_pieces_and_finishes_on_the_workers --nocapture
+        PASS [   0.029s] (121/234) blake3-servil stream::frontend::tests::end_carries_the_last_bytes
+       START [         ] (122/234) blake3-servil stream::prototype::reserved_buffer_returns_from_an_actual_worker
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::prototype::reserved_buffer_returns_from_an_actual_worker --nocapture
+        PASS [   0.031s] (122/234) blake3-servil stream::frontend::tests::interleaved_messages_in_random_fragments_match_official
+       START [         ] (123/234) blake3-servil stream::receiver::ring_bound::the_task_ring_holds_a_batch_per_message_beside_every_part
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::ring_bound::the_task_ring_holds_a_batch_per_message_beside_every_part --nocapture
+        PASS [   0.037s] (123/234) blake3-servil stream::frontend::tests::messages_batches_and_an_abort_reach_the_handler
+       START [         ] (124/234) blake3-servil stream::receiver::sketch::the_sketchs_receive_loop_runs_on_the_engine
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::sketch::the_sketchs_receive_loop_runs_on_the_engine --nocapture
+        PASS [   0.037s] (124/234) blake3-servil stream::prototype::one_message_accepts_callback_pieces_and_finishes_on_the_workers
+       START [         ] (125/234) blake3-servil stream::receiver::tests::a_closed_receivers_core_serves_the_next_receiver_in_another_mode
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::a_closed_receivers_core_serves_the_next_receiver_in_another_mode --nocapture
+        PASS [   0.029s] (125/234) blake3-servil stream::prototype::reserved_buffer_returns_from_an_actual_worker
+       START [         ] (126/234) blake3-servil stream::receiver::tests::a_later_message_completes_while_an_earlier_one_is_unfinished
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::a_later_message_completes_while_an_earlier_one_is_unfinished --nocapture
+        PASS [   0.026s] (126/234) blake3-servil stream::receiver::ring_bound::the_task_ring_holds_a_batch_per_message_beside_every_part
+       START [         ] (127/234) blake3-servil stream::receiver::tests::a_prepared_batch_completes_as_one_group_beside_incremental_messages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::a_prepared_batch_completes_as_one_group_beside_incremental_messages --nocapture
+        PASS [   0.133s] (127/234) blake3-servil self_test::stops::test_a_failing_self_test_stops_the_process
+       START [         ] (128/234) blake3-servil stream::receiver::tests::a_second_part_runs_while_every_free_worker_is_parked
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::a_second_part_runs_while_every_free_worker_is_parked --nocapture
+        PASS [   0.026s] (128/234) blake3-servil stream::receiver::sketch::the_sketchs_receive_loop_runs_on_the_engine
+       START [         ] (129/234) blake3-servil stream::receiver::tests::aborting_a_writer_returns_its_resources_after_the_drain
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::aborting_a_writer_returns_its_resources_after_the_drain --nocapture
+        PASS [   0.019s] (129/234) blake3-servil stream::receiver::tests::a_closed_receivers_core_serves_the_next_receiver_in_another_mode
+       START [         ] (130/234) blake3-servil stream::receiver::tests::empty_and_borrowed_batches_complete
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::empty_and_borrowed_batches_complete --nocapture
+        PASS [   0.020s] (130/234) blake3-servil stream::receiver::tests::a_later_message_completes_while_an_earlier_one_is_unfinished
+       START [         ] (131/234) blake3-servil stream::receiver::tests::irregular_pieces_match_official_in_every_mode
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::irregular_pieces_match_official_in_every_mode --nocapture
+        PASS [   0.022s] (131/234) blake3-servil stream::receiver::tests::a_prepared_batch_completes_as_one_group_beside_incremental_messages
+       START [         ] (132/234) blake3-servil stream::receiver::tests::parts_completed_out_of_order_fold_in_message_order
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::parts_completed_out_of_order_fold_in_message_order --nocapture
+        PASS [   0.075s] (132/234) blake3-servil stream::frontend::tests::parts_of_a_long_message_spread_over_the_workers
+       START [         ] (133/234) blake3-servil stream::receiver::tests::unwinding_with_accepted_work_aborts_the_process
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::receiver::tests::unwinding_with_accepted_work_aborts_the_process --nocapture
+        PASS [   0.021s] (133/234) blake3-servil stream::receiver::tests::a_second_part_runs_while_every_free_worker_is_parked
+       START [         ] (134/234) blake3-servil stream::test::test_a_batch_is_cut_into_task_sized_parts
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_a_batch_is_cut_into_task_sized_parts --nocapture
+        PASS [   0.026s] (134/234) blake3-servil stream::receiver::tests::aborting_a_writer_returns_its_resources_after_the_drain
+       START [         ] (135/234) blake3-servil stream::test::test_a_finished_stream_gives_back_its_slot_and_storage
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_a_finished_stream_gives_back_its_slot_and_storage --nocapture
+        PASS [   0.028s] (135/234) blake3-servil stream::receiver::tests::empty_and_borrowed_batches_complete
+       START [         ] (136/234) blake3-servil stream::test::test_a_panic_in_a_stream_ends_the_process
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_a_panic_in_a_stream_ends_the_process --nocapture
+        PASS [   0.030s] (136/234) blake3-servil stream::receiver::tests::irregular_pieces_match_official_in_every_mode
+       START [         ] (137/234) blake3-servil stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait --nocapture
+        PASS [   0.032s] (137/234) blake3-servil stream::receiver::tests::parts_completed_out_of_order_fold_in_message_order
+       START [         ] (138/234) blake3-servil stream::test::test_batch_with_zeroes_past_each_message
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_batch_with_zeroes_past_each_message --nocapture
+        PASS [   0.038s] (138/234) blake3-servil stream::test::test_a_batch_is_cut_into_task_sized_parts
+       START [         ] (139/234) blake3-servil stream::test::test_batch_with_zeroes_where_bytes_follow_a_message_and_nowhere_else
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_batch_with_zeroes_where_bytes_follow_a_message_and_nowhere_else --nocapture
+        PASS [   0.033s] (139/234) blake3-servil stream::test::test_a_finished_stream_gives_back_its_slot_and_storage
+       START [         ] (140/234) blake3-servil stream::test::test_fill_with_a_plain_read
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_fill_with_a_plain_read --nocapture
+        PASS [   0.034s] (140/234) blake3-servil stream::test::test_a_reservation_that_fits_to_the_ring_s_end_takes_no_lap_and_no_wait
+       START [         ] (141/234) blake3-servil stream::test::test_has_room_counts_the_bytes_in_flight
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_has_room_counts_the_bytes_in_flight --nocapture
+        PASS [   0.028s] (141/234) blake3-servil stream::test::test_batch_with_zeroes_past_each_message
+       START [         ] (142/234) blake3-servil stream::test::test_long_messages_against_hash_with
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_long_messages_against_hash_with --nocapture
+        PASS [   0.029s] (142/234) blake3-servil stream::test::test_batch_with_zeroes_where_bytes_follow_a_message_and_nowhere_else
+       START [         ] (143/234) blake3-servil stream::test::test_long_messages_fill_the_long_ring_to_its_end
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_long_messages_fill_the_long_ring_to_its_end --nocapture
+        PASS [   0.027s] (143/234) blake3-servil stream::test::test_has_room_counts_the_bytes_in_flight
+       START [         ] (144/234) blake3-servil stream::test::test_short_messages_gather_into_tasks_as_designed
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_short_messages_gather_into_tasks_as_designed --nocapture
+        PASS [   0.043s] (144/234) blake3-servil stream::test::test_fill_with_a_plain_read
+       START [         ] (145/234) blake3-servil stream::test::test_small_stream
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_small_stream --nocapture
+        PASS [   0.041s] (145/234) blake3-servil stream::test::test_long_messages_fill_the_long_ring_to_its_end
+       START [         ] (146/234) blake3-servil stream::test::test_stream_against_hash_with
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_stream_against_hash_with --nocapture
+        PASS [   0.031s] (146/234) blake3-servil stream::test::test_small_stream
+       START [         ] (147/234) blake3-servil stream::test::test_submit_reader_failing_where_its_piece_skips_the_lap_end
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_submit_reader_failing_where_its_piece_skips_the_lap_end --nocapture
+        PASS [   0.039s] (147/234) blake3-servil stream::test::test_short_messages_gather_into_tasks_as_designed
+       START [         ] (148/234) blake3-servil stream::test::test_submit_reader_reads_and_fails_at_every_point
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::test_submit_reader_reads_and_fails_at_every_point --nocapture
+        PASS [   0.042s] (148/234) blake3-servil stream::test::test_submit_reader_reads_and_fails_at_every_point
+       START [         ] (149/234) blake3-servil stream::test::waiting_help_runs_one_task
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact stream::test::waiting_help_runs_one_task --nocapture
+        PASS [   0.062s] (149/234) blake3-servil stream::test::test_submit_reader_failing_where_its_piece_skips_the_lap_end
+       START [         ] (150/234) blake3-servil test::aaa_require_nextest
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::aaa_require_nextest --nocapture
+        PASS [   0.038s] (150/234) blake3-servil stream::test::waiting_help_runs_one_task
+       START [         ] (151/234) blake3-servil test::guard_pages::test_chunk_root_against_a_guard_page
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_chunk_root_against_a_guard_page --nocapture
+        PASS [   0.369s] (151/234) blake3-servil self_test::stops::test_a_wrong_digest_in_any_case_stops_the_process
+       START [         ] (152/234) blake3-servil test::guard_pages::test_each_item_against_a_guard_page
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_each_item_against_a_guard_page --nocapture
+        PASS [   0.043s] (152/234) blake3-servil test::aaa_require_nextest
+       START [         ] (153/234) blake3-servil test::guard_pages::test_every_call_inside_guard_pages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_every_call_inside_guard_pages --nocapture
+        PASS [   0.034s] (153/234) blake3-servil test::guard_pages::test_chunk_root_against_a_guard_page
+       START [         ] (154/234) blake3-servil test::guard_pages::test_hash_inside_guard_pages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_hash_inside_guard_pages --nocapture
+        PASS [   0.252s] (154/234) blake3-servil stream::receiver::tests::unwinding_with_accepted_work_aborts_the_process
+       START [         ] (155/234) blake3-servil test::guard_pages::test_hash_many_each_input_against_a_guard_page
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_hash_many_each_input_against_a_guard_page --nocapture
+        PASS [   0.220s] (155/234) blake3-servil stream::test::test_long_messages_against_hash_with
+       START [         ] (156/234) blake3-servil test::guard_pages::test_hash_many_inside_guard_pages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_hash_many_inside_guard_pages --nocapture
+        PASS [   0.054s] (156/234) blake3-servil test::guard_pages::test_hash_many_each_input_against_a_guard_page
+       START [         ] (157/234) blake3-servil test::guard_pages::test_xof_inside_guard_pages
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::guard_pages::test_xof_inside_guard_pages --nocapture
+        PASS [   0.538s] (157/234) blake3-servil many::test::test_whole_blocks_x86_full_width
+       START [         ] (158/234) blake3-servil test::test_block_buffer_alignment
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_block_buffer_alignment --nocapture
+        PASS [   0.055s] (158/234) blake3-servil test::guard_pages::test_xof_inside_guard_pages
+       START [         ] (159/234) blake3-servil test::test_compress_chunks_parallel_every_cpu_platform
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_compress_chunks_parallel_every_cpu_platform --nocapture
+        PASS [   0.147s] (159/234) blake3-servil test::guard_pages::test_every_call_inside_guard_pages
+       START [         ] (160/234) blake3-servil test::test_debug_leaves_out_the_bytes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_debug_leaves_out_the_bytes --nocapture
+        PASS [   0.040s] (160/234) blake3-servil test::test_block_buffer_alignment
+       START [         ] (161/234) blake3-servil test::test_empty_subtree_should_panic
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_empty_subtree_should_panic --nocapture
+        PASS [   0.157s] (161/234) blake3-servil test::guard_pages::test_hash_inside_guard_pages
+       START [         ] (162/234) blake3-servil test::test_every_assembly_symbol_carries_the_crate_prefix
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_every_assembly_symbol_carries_the_crate_prefix --nocapture
+        PASS [   0.055s] (162/234) blake3-servil test::test_compress_chunks_parallel_every_cpu_platform
+       START [         ] (163/234) blake3-servil test::test_fill_computes_each_block_once
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_fill_computes_each_block_once --nocapture
+        PASS [   0.057s] (163/234) blake3-servil test::test_debug_leaves_out_the_bytes
+       START [         ] (164/234) blake3-servil test::test_grouped_hash
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_grouped_hash --nocapture
+        PASS [   0.067s] (164/234) blake3-servil test::test_empty_subtree_should_panic
+       START [         ] (165/234) blake3-servil test::test_hash_comparisons_and_formats
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hash_comparisons_and_formats --nocapture
+        PASS [   0.090s] (165/234) blake3-servil test::test_every_assembly_symbol_carries_the_crate_prefix
+       START [         ] (166/234) blake3-servil test::test_hash_const_conversions
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hash_const_conversions --nocapture
+        PASS [   0.057s] (166/234) blake3-servil test::test_hash_comparisons_and_formats
+       START [         ] (167/234) blake3-servil test::test_hash_conversions
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hash_conversions --nocapture
+        PASS [   0.113s] (167/234) blake3-servil test::test_fill_computes_each_block_once
+       START [         ] (168/234) blake3-servil test::test_hasher_already_accepted_input_should_panic
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hasher_already_accepted_input_should_panic --nocapture
+        PASS [   0.126s] (168/234) blake3-servil test::test_grouped_hash
+       START [         ] (169/234) blake3-servil test::test_hasher_gathers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hasher_gathers --nocapture
+        PASS [   0.088s] (169/234) blake3-servil test::test_hash_const_conversions
+       START [         ] (170/234) blake3-servil test::test_hasher_io_write
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hasher_io_write --nocapture
+        PASS [   0.299s] (170/234) blake3-servil test::guard_pages::test_hash_many_inside_guard_pages
+       START [         ] (171/234) blake3-servil test::test_hex_encoding_decoding
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_hex_encoding_decoding --nocapture
+        PASS [   0.077s] (171/234) blake3-servil test::test_hash_conversions
+       START [         ] (172/234) blake3-servil test::test_official_kernels_and_ours_stay_apart
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_official_kernels_and_ours_stay_apart --nocapture
+        PASS [   0.060s] (172/234) blake3-servil test::test_hasher_already_accepted_input_should_panic
+       START [         ] (173/234) blake3-servil test::test_pair_hash_many_blocks_every_platform
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_pair_hash_many_blocks_every_platform --nocapture
+        PASS [   0.048s] (173/234) blake3-servil test::test_hasher_gathers
+       START [         ] (174/234) blake3-servil test::test_reset
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_reset --nocapture
+        PASS [   0.030s] (174/234) blake3-servil test::test_hasher_io_write
+       START [         ] (175/234) blake3-servil test::test_serde
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_serde --nocapture
+        PASS [   0.030s] (175/234) blake3-servil test::test_hex_encoding_decoding
+       START [         ] (176/234) blake3-servil test::test_set_input_offset_cant_finalize
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_set_input_offset_cant_finalize --nocapture
+        PASS [   0.031s] (176/234) blake3-servil test::test_official_kernels_and_ours_stay_apart
+       START [         ] (177/234) blake3-servil test::test_set_input_offset_cant_finalize_xof
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_set_input_offset_cant_finalize_xof --nocapture
+        PASS [   0.029s] (177/234) blake3-servil test::test_pair_hash_many_blocks_every_platform
+       START [         ] (178/234) blake3-servil test::test_the_paths_chosen_exactly
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_the_paths_chosen_exactly --nocapture
+        PASS [   0.024s] (178/234) blake3-servil test::test_reset
+       START [         ] (179/234) blake3-servil test::test_too_much_input_should_panic
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_too_much_input_should_panic --nocapture
+        PASS [   0.027s] (179/234) blake3-servil test::test_serde
+       START [         ] (180/234) blake3-servil test::test_unaligned_offset_should_panic
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_unaligned_offset_should_panic --nocapture
+        PASS [   0.025s] (180/234) blake3-servil test::test_set_input_offset_cant_finalize
+       START [         ] (181/234) blake3-servil test::test_update_reader_interrupted
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_update_reader_interrupted --nocapture
+        PASS [   0.021s] (181/234) blake3-servil test::test_set_input_offset_cant_finalize_xof
+       START [         ] (182/234) blake3-servil test::test_update_reader_keeps_every_byte_across_errors
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_update_reader_keeps_every_byte_across_errors --nocapture
+        PASS [   0.020s] (182/234) blake3-servil test::test_the_paths_chosen_exactly
+       START [         ] (183/234) blake3-servil test::test_xof_clone_and_empty_fill
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_xof_clone_and_empty_fill --nocapture
+        PASS [   0.018s] (183/234) blake3-servil test::test_too_much_input_should_panic
+       START [         ] (184/234) blake3-servil test::test_xof_groups_sweep_on_this_cpu
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_xof_groups_sweep_on_this_cpu --nocapture
+        PASS [   0.019s] (184/234) blake3-servil test::test_unaligned_offset_should_panic
+       START [         ] (185/234) blake3-servil test::test_xof_many_every_cpu_platform
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_xof_many_every_cpu_platform --nocapture
+        PASS [   0.019s] (185/234) blake3-servil test::test_update_reader_interrupted
+       START [         ] (186/234) blake3-servil test::test_xof_partial_block_cache_seeks_and_clones
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_xof_partial_block_cache_seeks_and_clones --nocapture
+        PASS [   0.019s] (186/234) blake3-servil test::test_xof_clone_and_empty_fill
+       START [         ] (187/234) blake3-servil test::test_xof_seek
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_xof_seek --nocapture
+        PASS [   0.025s] (187/234) blake3-servil test::test_update_reader_keeps_every_byte_across_errors
+       START [         ] (188/234) blake3-servil test::test_zeroize
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::test_zeroize --nocapture
+        PASS [   0.019s] (188/234) blake3-servil test::test_xof_groups_sweep_on_this_cpu
+       START [         ] (189/234) blake3-servil test::unsafe_paths::test_batches_small
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::unsafe_paths::test_batches_small --nocapture
+        PASS [   0.019s] (189/234) blake3-servil test::test_xof_many_every_cpu_platform
+       START [         ] (190/234) blake3-servil test::unsafe_paths::test_pool_from_two_callers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact test::unsafe_paths::test_pool_from_two_callers --nocapture
+        PASS [   0.018s] (190/234) blake3-servil test::test_xof_partial_block_cache_seeks_and_clones
+       START [         ] (191/234) blake3-servil tree::test::test_root_children_arrays_are_the_smallest_that_hold_the_walk
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact tree::test::test_root_children_arrays_are_the_smallest_that_hold_the_walk --nocapture
+        PASS [   0.015s] (191/234) blake3-servil test::test_xof_seek
+       START [         ] (192/234) blake3-servil::admission a_dropped_request_leaves_the_queue_at_every_position
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact a_dropped_request_leaves_the_queue_at_every_position --nocapture
+        PASS [   0.015s] (192/234) blake3-servil test::unsafe_paths::test_batches_small
+       START [         ] (193/234) blake3-servil::admission a_moved_pending_future_replaces_its_notification
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact a_moved_pending_future_replaces_its_notification --nocapture
+        PASS [   0.019s] (193/234) blake3-servil test::test_zeroize
+       START [         ] (194/234) blake3-servil::admission an_owned_grant_keeps_the_pool_alive_after_the_original_handle_drops
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact an_owned_grant_keeps_the_pool_alive_after_the_original_handle_drops --nocapture
+        PASS [   0.018s] (194/234) blake3-servil test::unsafe_paths::test_pool_from_two_callers
+       START [         ] (195/234) blake3-servil::admission an_unreleased_resource_aborts_the_process
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact an_unreleased_resource_aborts_the_process --nocapture
+        PASS [   0.017s] (195/234) blake3-servil tree::test::test_root_children_arrays_are_the_smallest_that_hold_the_walk
+       START [         ] (196/234) blake3-servil::admission capacity_returned_while_cloning_the_notification_is_taken
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact capacity_returned_while_cloning_the_notification_is_taken --nocapture
+        PASS [   0.017s] (196/234) blake3-servil::admission a_dropped_request_leaves_the_queue_at_every_position
+       START [         ] (197/234) blake3-servil::admission dropping_the_woken_waiter_wakes_the_next
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact dropping_the_woken_waiter_wakes_the_next --nocapture
+        PASS [   0.017s] (197/234) blake3-servil::admission a_moved_pending_future_replaces_its_notification
+       START [         ] (198/234) blake3-servil::admission granted_capacity_is_reserved_before_notification
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact granted_capacity_is_reserved_before_notification --nocapture
+        PASS [   0.018s] (198/234) blake3-servil::admission an_owned_grant_keeps_the_pool_alive_after_the_original_handle_drops
+       START [         ] (199/234) blake3-servil::admission owned_and_borrowed_requests_share_one_fifo
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact owned_and_borrowed_requests_share_one_fifo --nocapture
+        PASS [   0.018s] (199/234) blake3-servil::admission capacity_returned_while_cloning_the_notification_is_taken
+       START [         ] (200/234) blake3-servil::admission require_nextest::aaa_require_nextest
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact require_nextest::aaa_require_nextest --nocapture
+        PASS [   0.018s] (200/234) blake3-servil::admission dropping_the_woken_waiter_wakes_the_next
+       START [         ] (201/234) blake3-servil::admission unused_requests_leave_capacity_available
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact unused_requests_leave_capacity_available --nocapture
+        PASS [   0.695s] (201/234) blake3-servil stream::test::test_a_panic_in_a_stream_ends_the_process
+       START [         ] (202/234) blake3-servil::admission worker_writes_are_visible_when_the_buffer_returns
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/admission-1d64eb2c84dae60b --exact worker_writes_are_visible_when_the_buffer_returns --nocapture
+        PASS [   0.019s] (202/234) blake3-servil::admission granted_capacity_is_reserved_before_notification
+       START [         ] (203/234) blake3-servil::allocations allocation_counter_sees_a_callers_allocation
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/allocations-a4ee843bca8a049f --exact allocation_counter_sees_a_callers_allocation --nocapture
+        PASS [   0.019s] (203/234) blake3-servil::admission owned_and_borrowed_requests_share_one_fifo
+       START [         ] (204/234) blake3-servil::allocations held_allocations_ignore_key_equality_and_prefixes
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/allocations-a4ee843bca8a049f --exact held_allocations_ignore_key_equality_and_prefixes --nocapture
+        PASS [   0.015s] (204/234) blake3-servil::admission require_nextest::aaa_require_nextest
+       START [         ] (205/234) blake3-servil::allocations require_nextest::aaa_require_nextest
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/allocations-a4ee843bca8a049f --exact require_nextest::aaa_require_nextest --nocapture
+        PASS [   0.015s] (205/234) blake3-servil::admission unused_requests_leave_capacity_available
+       START [         ] (206/234) blake3-servil::allocations resource_admission_allocates_nothing_when_ready_or_waiting
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/allocations-a4ee843bca8a049f --exact resource_admission_allocates_nothing_when_ready_or_waiting --nocapture
+        PASS [   0.018s] (206/234) blake3-servil::admission worker_writes_are_visible_when_the_buffer_returns
+       START [         ] (207/234) blake3-servil::allocations single_threaded_calls_allocate_as_the_memory_section_says
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/allocations-a4ee843bca8a049f --exact single_threaded_calls_allocate_as_the_memory_section_says --nocapture
+        PASS [   0.018s] (207/234) blake3-servil::allocations allocation_counter_sees_a_callers_allocation
+       START [         ] (208/234) blake3-servil::api_plan a_batch_whose_buffer_is_short_of_its_messages_is_refused
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact a_batch_whose_buffer_is_short_of_its_messages_is_refused --nocapture
+        PASS [   0.018s] (208/234) blake3-servil::allocations require_nextest::aaa_require_nextest
+       START [         ] (209/234) blake3-servil::api_plan a_message_in_pieces_matches_the_fixed_values
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact a_message_in_pieces_matches_the_fixed_values --nocapture
+        PASS [   0.017s] (209/234) blake3-servil::allocations resource_admission_allocates_nothing_when_ready_or_waiting
+       START [         ] (210/234) blake3-servil::api_plan a_stream_cycles_a_fixed_set_of_places
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact a_stream_cycles_a_fixed_set_of_places --nocapture
+        PASS [   0.017s] (210/234) blake3-servil::allocations single_threaded_calls_allocate_as_the_memory_section_says
+       START [         ] (211/234) blake3-servil::api_plan a_stream_puts_every_digest_in_its_place_and_hands_the_places_back_in_order
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact a_stream_puts_every_digest_in_its_place_and_hands_the_places_back_in_order --nocapture
+        PASS [   0.030s] (211/234) blake3-servil::allocations held_allocations_ignore_key_equality_and_prefixes
+       START [         ] (212/234) blake3-servil::api_plan a_streams_batches_fill_the_callers_places
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact a_streams_batches_fill_the_callers_places --nocapture
+        PASS [   0.017s] (212/234) blake3-servil::api_plan a_batch_whose_buffer_is_short_of_its_messages_is_refused
+       START [         ] (213/234) blake3-servil::api_plan batches_every_form_match_the_fixed_values
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact batches_every_form_match_the_fixed_values --nocapture
+        PASS [   0.023s] (213/234) blake3-servil::api_plan a_stream_cycles_a_fixed_set_of_places
+       START [         ] (214/234) blake3-servil::api_plan bursts_of_large_batches_after_pauses_complete
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact bursts_of_large_batches_after_pauses_complete --nocapture
+        PASS [   0.025s] (214/234) blake3-servil::api_plan a_streams_batches_fill_the_callers_places
+       START [         ] (215/234) blake3-servil::api_plan one_message_every_form_matches_the_vectors
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact one_message_every_form_matches_the_vectors --nocapture
+        PASS [   0.028s] (215/234) blake3-servil::api_plan a_stream_puts_every_digest_in_its_place_and_hands_the_places_back_in_order
+       START [         ] (216/234) blake3-servil::api_plan one_message_large_inputs_match_the_fixed_values
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact one_message_large_inputs_match_the_fixed_values --nocapture
+        PASS [   0.562s] (216/234) blake3-servil test::guard_pages::test_each_item_against_a_guard_page
+       START [         ] (217/234) blake3-servil::api_plan streams_on_several_threads_keep_their_own_order
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/api_plan-633d83994da83b57 --exact streams_on_several_threads_keep_their_own_order --nocapture
+        PASS [   0.049s] (217/234) blake3-servil::api_plan a_message_in_pieces_matches_the_fixed_values
+       START [         ] (218/234) blake3-servil::forked_child a_forked_childs_multithreaded_calls_panic_and_its_single_threaded_ones_work
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/forked_child-e1a424fda4a862f3 --exact a_forked_childs_multithreaded_calls_panic_and_its_single_threaded_ones_work --nocapture
+        PASS [   0.016s] (218/234) blake3-servil::api_plan one_message_every_form_matches_the_vectors
+       START [         ] (219/234) blake3-servil::initialize_contract a_call_before_initialize_panics
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/initialize_contract-8862068ad1c1b768 --exact a_call_before_initialize_panics --nocapture
+        PASS [   0.107s] (219/234) blake3-servil::admission an_unreleased_resource_aborts_the_process
+       START [         ] (220/234) blake3-servil::initialize_multithreaded_contract a_multithreaded_call_before_initialize_multithreaded_panics
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/initialize_multithreaded_contract-08de846ea6f8923e --exact a_multithreaded_call_before_initialize_multithreaded_panics --nocapture
+        PASS [   0.047s] (220/234) blake3-servil::api_plan batches_every_form_match_the_fixed_values
+       START [         ] (221/234) blake3-servil::pool_threads one_thread_starts_no_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/pool_threads-cf6c38b57edf4824 --exact one_thread_starts_no_workers --nocapture
+        PASS [   0.018s] (221/234) blake3-servil::forked_child a_forked_childs_multithreaded_calls_panic_and_its_single_threaded_ones_work
+       START [         ] (222/234) blake3-servil::stream_collect_no_workers a_caller_looping_on_collect_makes_progress_without_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_collect_no_workers-848dd18e79f861bc --exact a_caller_looping_on_collect_makes_progress_without_workers --nocapture
+        PASS [   0.020s] (222/234) blake3-servil::initialize_contract a_call_before_initialize_panics
+       START [         ] (223/234) blake3-servil::stream_collect_one_worker a_caller_looping_on_collect_makes_progress_without_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_collect_one_worker-2b9240fc9ce14955 --exact a_caller_looping_on_collect_makes_progress_without_workers --nocapture
+        PASS [   0.039s] (223/234) blake3-servil::api_plan one_message_large_inputs_match_the_fixed_values
+       START [         ] (224/234) blake3-servil::stream_collect_parked_workers a_caller_looping_on_collect_wakes_a_parked_worker
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_collect_parked_workers-46a6f9a14d103327 --exact a_caller_looping_on_collect_wakes_a_parked_worker --nocapture
+        PASS [   0.023s] (224/234) blake3-servil::initialize_multithreaded_contract a_multithreaded_call_before_initialize_multithreaded_panics
+       START [         ] (225/234) blake3-servil::stream_collect_with_workers a_caller_looping_on_collect_makes_progress_with_sleeping_workers
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_collect_with_workers-8a5a1cd9918f3045 --exact a_caller_looping_on_collect_makes_progress_with_sleeping_workers --nocapture
+        PASS [   0.021s] (225/234) blake3-servil::stream_collect_no_workers a_caller_looping_on_collect_makes_progress_without_workers
+       START [         ] (226/234) blake3-servil::stream_finish_parked_workers a_finishing_caller_hashes_its_lone_task_with_every_worker_parked
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_finish_parked_workers-0893ef3d4ea5ad44 --exact a_finishing_caller_hashes_its_lone_task_with_every_worker_parked --nocapture
+        PASS [   0.022s] (226/234) blake3-servil::stream_collect_one_worker a_caller_looping_on_collect_makes_progress_without_workers
+       START [         ] (227/234) blake3-servil::stream_one_cpu every_stream_completes_on_one_cpu
+             command: sh /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/library/tools/mutants/test-runner /root/pinned-runs/reviewed-independent-quality-epyc-20261109T055005-51b8611d/target/mutants/run-5/mutants/deps/stream_one_cpu-4441be8fb1973c91 --exact every_stream_completes_on_one_cpu --nocapture
+        PASS [   0.036s] (227/234) blake3-servil::pool_threads one_thread_starts_no_workers
+        PASS [   0.021s] (228/234) blake3-servil::stream_collect_parked_workers a_caller_looping_on_collect_wakes_a_parked_worker
+        PASS [   0.054s] (229/234) blake3-servil::api_plan streams_on_several_threads_keep_their_own_order
+        PASS [   0.016s] (230/234) blake3-servil::stream_finish_parked_workers a_finishing_caller_hashes_its_lone_task_with_every_worker_parked
+        PASS [   0.028s] (231/234) blake3-servil::stream_one_cpu every_stream_completes_on_one_cpu
+        PASS [   0.150s] (232/234) blake3-servil::api_plan bursts_of_large_batches_after_pauses_complete
+        PASS [   0.861s] (233/234) blake3-servil stream::test::test_stream_against_hash_with
+        PASS [   0.232s] (234/234) blake3-servil::stream_collect_with_workers a_caller_looping_on_collect_makes_progress_with_sleeping_workers
+────────────
+     Summary [   1.681s] 234 tests run: 234 passed, 0 skipped
+
+*** result: Success

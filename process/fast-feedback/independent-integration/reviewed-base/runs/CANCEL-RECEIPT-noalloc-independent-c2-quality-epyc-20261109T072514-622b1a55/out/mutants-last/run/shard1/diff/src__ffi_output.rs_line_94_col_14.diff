@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace == with != in held_groups
+@@ -86,17 +86,17 @@
+ /// Each leaf pass consumes a whole stage before its CVs replace the input.
+ /// Parent batches consume whole current levels before scattering into their
+ /// prefixes; descriptor borrows end before the shared stage writer runs.
+ pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {
+     if held.is_empty() {
+         return true;
+     }
+     let width = lanes(platform);
+-    if width == 0 {
++    if width != /* ~ changed by cargo-mutants ~ */ 0 {
+         return false;
+     }
+     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
+     const { assert!(PER == 16) };
+     debug_assert!(held.len() <= crate::many::TABLE, "the ready table bounds held groups");
+     // Selecting AVX2 already requires this capability. AVX512 can retain
+     // scalar remainders if eight-lane execution is unavailable.
+     let eight = crate::platform::avx2_detected();

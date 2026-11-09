@@ -1,0 +1,13 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -97,8 +97,8 @@
+     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
+     const { assert!(PER == 16) };
+     let n = held.len();
+-    let mut level = vec![[0u8; OUT_LEN]; n * PER];
+-    let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];
++    let mut work = crate::each::HeldWorkspace::<{ crate::many::TABLE }>::new(n);
++    let (mut level, mut next) = work.buffers();
+     for (k, &i) in held.iter().enumerate() {
+         let h = &hashers[i];
+         let (counter, bytes) = h.held_group().expect("a held group");

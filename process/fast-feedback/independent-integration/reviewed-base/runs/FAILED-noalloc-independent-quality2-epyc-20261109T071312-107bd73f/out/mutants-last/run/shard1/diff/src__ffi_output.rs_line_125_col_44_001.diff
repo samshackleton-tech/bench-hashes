@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace * with / in held_groups
+@@ -117,17 +117,17 @@
+         }
+         hashers[i].write_stage(0, output.as_flattened());
+     }
+     let mut per = PER / 2;
+     while per != 0 {
+         if per == 1 {
+             for &i in held {
+                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();
+-                hashers[i].write_stage(PER * OUT_LEN, &halves);
++                hashers[i].write_stage(PER / /* ~ changed by cargo-mutants ~ */ OUT_LEN, &halves);
+             }
+         }
+         let count = held.len() * per;
+         let mut base = 0;
+         while base < count {
+             let left = count - base;
+             let batch = if left >= width {
+                 width

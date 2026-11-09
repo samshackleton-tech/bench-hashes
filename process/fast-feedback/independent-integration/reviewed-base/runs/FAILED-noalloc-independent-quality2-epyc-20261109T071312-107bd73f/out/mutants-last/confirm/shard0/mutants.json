@@ -1,0 +1,194 @@
+[
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -86,17 +86,17 @@\n /// Each leaf pass consumes a whole stage before its CVs replace the input.\n /// Parent batches consume whole current levels before scattering into their\n /// prefixes; descriptor borrows end before the shared stage writer runs.\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n-    if width == 0 {\n+    if width != /* ~ changed by cargo-mutants ~ */ 0 {\n         return false;\n     }\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     debug_assert!(held.len() <= crate::many::TABLE, \"the ready table bounds held groups\");\n     let eight = width == 8 || crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:94:14: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 94
+      },
+      "start": {
+        "column": 14,
+        "line": 94
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -92,17 +92,17 @@\n     }\n     let width = lanes(platform);\n     if width == 0 {\n         return false;\n     }\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     debug_assert!(held.len() <= crate::many::TABLE, \"the ready table bounds held groups\");\n-    let eight = width == 8 || crate::platform::avx2_detected();\n+    let eight = width != /* ~ changed by cargo-mutants ~ */ 8 || crate::platform::avx2_detected();\n     let mut output = [[0u8; OUT_LEN]; PER];\n     for &i in held {\n         {\n             let h = &hashers[i];\n             let (counter, bytes) = h.held_group().expect(\"a held group\");\n             let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n             platform.hash_many(\n                 &refs,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:100:23: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 100
+      },
+      "start": {
+        "column": 23,
+        "line": 100
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -114,17 +114,17 @@\n                 CHUNK_END,\n                 output.as_flattened_mut(),\n             );\n         }\n         hashers[i].write_stage(0, output.as_flattened());\n     }\n     let mut per = PER / 2;\n     while per != 0 {\n-        if per == 1 {\n+        if per != /* ~ changed by cargo-mutants ~ */ 1 {\n             for &i in held {\n                 let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();\n                 hashers[i].write_stage(PER * OUT_LEN, &halves);\n             }\n         }\n         let count = held.len() * per;\n         let mut base = 0;\n         while base < count {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:122:16: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 18,
+        "line": 122
+      },
+      "start": {
+        "column": 16,
+        "line": 122
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -145,17 +145,17 @@\n                         block: h.held_group().unwrap().1[offset..offset + BLOCK_LEN].try_into().unwrap(),\n                         cv: &h.core.key,\n                         len: BLOCK_LEN as u8,\n                         flags: h.core.chunk_state.flags | crate::PARENT,\n                     }\n                 };\n                 // Sound: width comes from the detected ISA. A batch holds\n                 // real readable blocks/keys and writes disjoint stack outputs.\n-                if batch == 16 {\n+                if batch != /* ~ changed by cargo-mutants ~ */ 16 {\n                     let inputs = core::array::from_fn(input);\n                     unsafe { hash_group::<16>(&inputs, &mut output) };\n                 } else if batch == 8 && eight {\n                     let inputs = core::array::from_fn(input);\n                     unsafe { hash_group::<8>(&inputs, &mut output[..8]) };\n                 } else {\n                     for (j, out) in output[..batch].iter_mut().enumerate() {\n                         let input = input(j);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:153:26: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 28,
+        "line": 153
+      },
+      "start": {
+        "column": 26,
+        "line": 153
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -148,17 +148,17 @@\n                         flags: h.core.chunk_state.flags | crate::PARENT,\n                     }\n                 };\n                 // Sound: width comes from the detected ISA. A batch holds\n                 // real readable blocks/keys and writes disjoint stack outputs.\n                 if batch == 16 {\n                     let inputs = core::array::from_fn(input);\n                     unsafe { hash_group::<16>(&inputs, &mut output) };\n-                } else if batch == 8 && eight {\n+                } else if batch != /* ~ changed by cargo-mutants ~ */ 8 && eight {\n                     let inputs = core::array::from_fn(input);\n                     unsafe { hash_group::<8>(&inputs, &mut output[..8]) };\n                 } else {\n                     for (j, out) in output[..batch].iter_mut().enumerate() {\n                         let input = input(j);\n                         let mut cv = *input.cv;\n                         platform.compress_in_place(&mut cv, input.block, input.len, 0, input.flags);\n                         *out = crate::hasher::le_bytes(&cv);\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:156:33: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 35,
+        "line": 156
+      },
+      "start": {
+        "column": 33,
+        "line": 156
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -177,17 +177,17 @@\n         }\n         let before = per;\n         per /= 2;\n         assert!(per < before, \"a parent level shrinks\");\n     }\n     for &i in held {\n         let (counter, stage) = hashers[i].held_group().unwrap();\n         let mut result = [0u8; BLOCK_LEN];\n-        if counter == 0 {\n+        if counter != /* ~ changed by cargo-mutants ~ */ 0 {\n             result.copy_from_slice(&stage[PER * OUT_LEN..PER * OUT_LEN + BLOCK_LEN]);\n         } else {\n             result[..OUT_LEN].copy_from_slice(&stage[..OUT_LEN]);\n         }\n         hashers[i].take_held(&result);\n     }\n     true\n }\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 193
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:185:20: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 185
+      },
+      "start": {
+        "column": 20,
+        "line": 185
+      }
+    }
+  }
+]

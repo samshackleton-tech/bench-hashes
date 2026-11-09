@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace + with * in held_groups
+@@ -100,17 +100,17 @@
+     // Selecting AVX2 already requires this capability. AVX512 can retain
+     // scalar remainders if eight-lane execution is unavailable.
+     let eight = crate::platform::avx2_detected();
+     let mut output = [[0u8; OUT_LEN]; PER];
+     for &i in held {
+         {
+             let h = &hashers[i];
+             let (counter, bytes) = h.held_group().expect("a held group");
+-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());
++            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j * /* ~ changed by cargo-mutants ~ */ 1) * CHUNK_LEN].try_into().unwrap());
+             platform.hash_many(
+                 &refs,
+                 &h.core.key,
+                 counter,
+                 crate::IncrementCounter::Yes,
+                 h.core.chunk_state.flags,
+                 CHUNK_START,
+                 CHUNK_END,

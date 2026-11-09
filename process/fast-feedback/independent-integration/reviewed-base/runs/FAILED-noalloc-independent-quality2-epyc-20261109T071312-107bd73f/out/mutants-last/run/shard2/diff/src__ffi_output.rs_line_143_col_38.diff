@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace % with / in held_groups
+@@ -135,17 +135,17 @@
+                 8
+             } else {
+                 left
+             };
+             {
+                 let input = |j: usize| {
+                     let at = base + j;
+                     let h = &hashers[held[at / per]];
+-                    let offset = (at % per) * BLOCK_LEN;
++                    let offset = (at / /* ~ changed by cargo-mutants ~ */ per) * BLOCK_LEN;
+                     Input {
+                         block: h.held_group().unwrap().1[offset..offset + BLOCK_LEN].try_into().unwrap(),
+                         cv: &h.core.key,
+                         len: BLOCK_LEN as u8,
+                         flags: h.core.chunk_state.flags | crate::PARENT,
+                     }
+                 };
+                 // Sound: width comes from the detected ISA. A batch holds

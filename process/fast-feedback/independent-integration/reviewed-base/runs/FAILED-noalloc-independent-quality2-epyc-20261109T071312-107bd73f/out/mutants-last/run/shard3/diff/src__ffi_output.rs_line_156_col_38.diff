@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace && with || in held_groups
+@@ -148,17 +148,17 @@
+                         flags: h.core.chunk_state.flags | crate::PARENT,
+                     }
+                 };
+                 // Sound: width comes from the detected ISA. A batch holds
+                 // real readable blocks/keys and writes disjoint stack outputs.
+                 if batch == 16 {
+                     let inputs = core::array::from_fn(input);
+                     unsafe { hash_group::<16>(&inputs, &mut output) };
+-                } else if batch == 8 && eight {
++                } else if batch == 8 || /* ~ changed by cargo-mutants ~ */ eight {
+                     let inputs = core::array::from_fn(input);
+                     unsafe { hash_group::<8>(&inputs, &mut output[..8]) };
+                 } else {
+                     for (j, out) in output[..batch].iter_mut().enumerate() {
+                         let input = input(j);
+                         let mut cv = *input.cv;
+                         platform.compress_in_place(&mut cv, input.block, input.len, 0, input.flags);
+                         *out = crate::hasher::le_bytes(&cv);

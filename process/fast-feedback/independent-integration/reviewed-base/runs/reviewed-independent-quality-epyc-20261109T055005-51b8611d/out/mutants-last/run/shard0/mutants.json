@@ -1,0 +1,578 @@
+[
+  {
+    "diff": "--- src/each.rs\n+++ replace finalize_each with ()\n@@ -102,48 +102,17 @@\n /// `out.len() == which.len()`, each index `< hashers.len()`, and distinct indices.\n ///\n /// # Key-dependent timing\n ///\n /// Selected hashers may use different secret keys. Key values and key equality\n /// select neither the finalization path nor its amount of work.\n /// See the [key-independence contract](crate#key-dependent-timing).\n pub fn finalize_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n-    assert_eq!(which.len(), out.len(), \"one digest per message named\");\n-    debug_assert!(which.iter().enumerate().all(|(at, i)| !which[..at].contains(i)), \"each finalized index is distinct\");\n-    #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    if which.len() >= 16 && matches!(Platform::detect(), Platform::AVX512) {\n-        #[cfg(all(test, feature = \"std\"))]\n-        crate::counted(crate::Counted::OutputGroupTurn);\n-        for (which, out) in which.chunks(16).zip(out.chunks_mut(16)) {\n-            if which.len() == 16 {\n-                let hashed = {\n-                    let inputs: Option<arrayvec::ArrayVec<_, 16>> = which.iter().map(|&i| crate::ffi_output::input(&hashers[i])).collect();\n-                    match inputs {\n-                        Some(inputs) => {\n-                            // Sound: the detected platform supplies AVX-512F+VL;\n-                            // borrowed descriptors keep every block/CV readable.\n-                            unsafe { crate::ffi_output::hash_group::<16>(inputs.as_slice().try_into().unwrap(), out) };\n-                            true\n-                        }\n-                        None => false,\n-                    }\n-                };\n-                if hashed {\n-                    for &i in which {\n-                        hashers[i].reset(None);\n-                    }\n-                    continue;\n-                }\n-            }\n-            finish_each(hashers, which, out);\n-        }\n-        return;\n-    }\n-    finish_each(hashers, which, out);\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Each hasher `which` names finished in place and reset, its digest into\n /// `out`: the path every message takes but a sixteen-lane group.\n fn finish_each(hashers: &mut [Hasher], which: &[usize], out: &mut [[u8; OUT_LEN]]) {\n     for (&i, out) in which.iter().zip(out) {\n         *out = *hashers[i].take_output().root_hash().as_bytes();\n         hashers[i].reset(None);\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "finalize_each",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 142
+        },
+        "start": {
+          "column": 1,
+          "line": 99
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/each.rs:110:5: replace finalize_each with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 38,
+        "line": 141
+      },
+      "start": {
+        "column": 5,
+        "line": 110
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace hash_held with ()\n@@ -202,44 +202,17 @@\n     static HELD_GROUPS: core::cell::RefCell<Vec<Vec<usize>>> = const { core::cell::RefCell::new(Vec::new()) };\n }\n \n /// Hash held stages with an independent key per parent lane where\n /// available. Elsewhere, public mode chooses the cohorts; key values\n /// never determine grouping, allocation or dispatch.\n #[cfg(feature = \"std\")]\n fn hash_held(hashers: &mut [Hasher], held: &[usize]) {\n-    let Some(&_first) = held.first() else { return };\n-    // Public plain mode fixes every key to the IV; use the existing\n-    // shared-key kernel without gathering per-lane key descriptors.\n-    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {\n-        hash_cohort(hashers, held);\n-        return;\n-    }\n-    #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n-    {\n-        let platform = hashers[_first].core.chunk_state.platform;\n-        if crate::ffi_output::held_groups(hashers, held, platform) {\n-            #[cfg(all(test, feature = \"std\"))]\n-            HELD_GROUPS.with(|groups| groups.borrow_mut().push(held.to_vec()));\n-            crate::counted(crate::Counted::HeldPass);\n-            return;\n-        }\n-    }\n-    // Plain hashers all use the IV. Keyed and derive-key hashers take\n-    // individual cohorts until this platform has independent parent lanes.\n-    let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0).collect();\n-    if !plain.is_empty() {\n-        hash_cohort(hashers, &plain);\n-    }\n-    for &i in held {\n-        if hashers[i].core.chunk_state.flags != 0 {\n-            hash_cohort(hashers, &[i]);\n-        }\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n /// Hash one nonempty cohort: plain hashers together, or exactly one\n /// keyed or key-derivation hasher, selected by public mode.\n #[cfg(feature = \"std\")]\n fn hash_cohort(hashers: &mut [Hasher], alike: &[usize]) {\n     use crate::{BLOCK_LEN, PARENT};\n     let first = alike[0];\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "hash_held",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 238
+        },
+        "start": {
+          "column": 1,
+          "line": 205
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/each.rs:210:5: replace hash_held with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 237
+      },
+      "start": {
+        "column": 5,
+        "line": 210
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace == with != in hash_held\n@@ -205,17 +205,17 @@\n /// Hash held stages with an independent key per parent lane where\n /// available. Elsewhere, public mode chooses the cohorts; key values\n /// never determine grouping, allocation or dispatch.\n #[cfg(feature = \"std\")]\n fn hash_held(hashers: &mut [Hasher], held: &[usize]) {\n     let Some(&_first) = held.first() else { return };\n     // Public plain mode fixes every key to the IV; use the existing\n     // shared-key kernel without gathering per-lane key descriptors.\n-    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {\n+    if held.iter().all(|&i| hashers[i].core.chunk_state.flags != /* ~ changed by cargo-mutants ~ */ 0) {\n         hash_cohort(hashers, held);\n         return;\n     }\n     #[cfg(all(blake3_avx512_ffi, target_os = \"linux\"))]\n     {\n         let platform = hashers[_first].core.chunk_state.platform;\n         if crate::ffi_output::held_groups(hashers, held, platform) {\n             #[cfg(all(test, feature = \"std\"))]\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "hash_held",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 238
+        },
+        "start": {
+          "column": 1,
+          "line": 205
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/each.rs:213:63: replace == with != in hash_held",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 65,
+        "line": 213
+      },
+      "start": {
+        "column": 63,
+        "line": 213
+      }
+    }
+  },
+  {
+    "diff": "--- src/each.rs\n+++ replace hash_cohort with ()\n@@ -236,83 +236,17 @@\n         }\n     }\n }\n \n /// Hash one nonempty cohort: plain hashers together, or exactly one\n /// keyed or key-derivation hasher, selected by public mode.\n #[cfg(feature = \"std\")]\n fn hash_cohort(hashers: &mut [Hasher], alike: &[usize]) {\n-    use crate::{BLOCK_LEN, PARENT};\n-    let first = alike[0];\n-    #[cfg(all(test, feature = \"std\"))]\n-    HELD_GROUPS.with(|groups| groups.borrow_mut().push(alike.to_vec()));\n-    #[cfg(all(test, feature = \"std\"))]\n-    crate::counted(crate::Counted::HeldPass);\n-    let (key, flags) = (hashers[first].core.key, hashers[first].core.chunk_state.flags);\n-    let turn = crate::platform::Sme2Turn::take(hashers[first].core.chunk_state.platform, true);\n-    let platform = turn.platform();\n-    let n = alike.len();\n-    let per = crate::STAGE_LEN / CHUNK_LEN;\n-    let chunks = n * per;\n-    let mut level = vec![0u8; chunks * OUT_LEN];\n-    let refs: Vec<&[u8; CHUNK_LEN]> =\n-        alike.iter().flat_map(|&i| hashers[i].held_group().expect(\"a held group\").1.chunks_exact(CHUNK_LEN)).map(|c| c.try_into().unwrap()).collect();\n-    let counters: Vec<u64> = alike.iter().map(|&i| hashers[i].held_group().unwrap().0).collect();\n-    // On SME2, every group in one kernel call, each at its own counter;\n-    // elsewhere a call per group.\n-    #[cfg(blake3_sme2)]\n-    let on_sme2 = matches!(platform, Platform::SME2);\n-    #[cfg(not(blake3_sme2))]\n-    let on_sme2 = false;\n-    if on_sme2 {\n-        // Sound: the turn's platform is SME2 only where detect() found it.\n-        #[cfg(blake3_sme2)]\n-        unsafe {\n-            crate::sme2::hash_groups_at(&refs, &counters, &key, flags, CHUNK_START, CHUNK_END, &mut level)\n-        };\n-    } else {\n-        for (k, &counter) in counters.iter().enumerate() {\n-            platform.hash_many(\n-                &refs[k * per..(k + 1) * per],\n-                &key,\n-                counter,\n-                IncrementCounter::Yes,\n-                flags,\n-                CHUNK_START,\n-                CHUNK_END,\n-                &mut level[k * per * OUT_LEN..(k + 1) * per * OUT_LEN],\n-            );\n-        }\n-    }\n-    // Three levels of parents to each group's two halves, then a fourth to\n-    // its own value.\n-    let mut values = chunks;\n-    let mut next = vec![0u8; chunks / 2 * OUT_LEN];\n-    let mut halves = vec![0u8; 2 * n * OUT_LEN];\n-    for depth in 0..4 {\n-        if depth == 3 {\n-            halves.copy_from_slice(&level[..2 * n * OUT_LEN]);\n-        }\n-        let blocks: Vec<&[u8; BLOCK_LEN]> = level[..values * OUT_LEN].chunks_exact(BLOCK_LEN).map(|b| b.try_into().unwrap()).collect();\n-        platform.hash_many(&blocks, &key, 0, IncrementCounter::No, flags | PARENT, 0, 0, &mut next[..values / 2 * OUT_LEN]);\n-        values /= 2;\n-        level[..values * OUT_LEN].copy_from_slice(&next[..values * OUT_LEN]);\n-    }\n-    drop(turn);\n-    for (k, &i) in alike.iter().enumerate() {\n-        let (counter, _) = hashers[i].held_group().unwrap();\n-        let mut result = [0u8; BLOCK_LEN];\n-        if counter == 0 {\n-            result.copy_from_slice(&halves[k * BLOCK_LEN..(k + 1) * BLOCK_LEN]);\n-        } else {\n-            result[..OUT_LEN].copy_from_slice(&level[k * OUT_LEN..(k + 1) * OUT_LEN]);\n-        }\n-        hashers[i].take_held(&result);\n-    }\n+    () /* ~ changed by cargo-mutants ~ */\n }\n \n #[cfg(not(feature = \"std\"))]\n fn hash_held(_: &mut [Hasher], held: &[usize]) {\n     assert!(held.is_empty(), \"nothing held without std\");\n }\n \n /// Messages of this many chunks or more fill the lanes alone.\n",
+    "file": "src/each.rs",
+    "function": {
+      "function_name": "hash_cohort",
+      "return_type": "",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 311
+        },
+        "start": {
+          "column": 1,
+          "line": 240
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/each.rs:244:5: replace hash_cohort with ()",
+    "package": "blake3-servil",
+    "replacement": "()",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 310
+      },
+      "start": {
+        "column": 5,
+        "line": 244
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace lanes -> usize with 0\n@@ -33,21 +33,17 @@\n     assert!(core::mem::offset_of!(Params8, flags) == 352);\n };\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n     fn blake3_servil_output8(params: *const Params8, out: *mut u8);\n }\n \n pub(crate) fn lanes(platform: Platform) -> usize {\n-    match platform {\n-        Platform::AVX512 => 16,\n-        Platform::AVX2 => 8,\n-        _ => 0,\n-    }\n+    0 /* ~ changed by cargo-mutants ~ */\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "lanes",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:41:5: replace lanes -> usize with 0",
+    "package": "blake3-servil",
+    "replacement": "0",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 41
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace lanes -> usize with 1\n@@ -33,21 +33,17 @@\n     assert!(core::mem::offset_of!(Params8, flags) == 352);\n };\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n     fn blake3_servil_output8(params: *const Params8, out: *mut u8);\n }\n \n pub(crate) fn lanes(platform: Platform) -> usize {\n-    match platform {\n-        Platform::AVX512 => 16,\n-        Platform::AVX2 => 8,\n-        _ => 0,\n-    }\n+    1 /* ~ changed by cargo-mutants ~ */\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "lanes",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:41:5: replace lanes -> usize with 1",
+    "package": "blake3-servil",
+    "replacement": "1",
+    "span": {
+      "end": {
+        "column": 6,
+        "line": 45
+      },
+      "start": {
+        "column": 5,
+        "line": 41
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ delete match arm Platform::AVX512 in lanes\n@@ -34,17 +34,17 @@\n };\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n     fn blake3_servil_output8(params: *const Params8, out: *mut u8);\n }\n \n pub(crate) fn lanes(platform: Platform) -> usize {\n     match platform {\n-        Platform::AVX512 => 16,\n+         /* ~ changed by cargo-mutants ~ */\n         Platform::AVX2 => 8,\n         _ => 0,\n     }\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "lanes",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_output.rs:42:9: delete match arm Platform::AVX512 in lanes",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 42
+      },
+      "start": {
+        "column": 9,
+        "line": 42
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ delete match arm Platform::AVX2 in lanes\n@@ -35,17 +35,17 @@\n unsafe extern \"C\" {\n     fn blake3_servil_output16(inputs: *const Input<'_>, out: *mut u8);\n     fn blake3_servil_output8(params: *const Params8, out: *mut u8);\n }\n \n pub(crate) fn lanes(platform: Platform) -> usize {\n     match platform {\n         Platform::AVX512 => 16,\n-        Platform::AVX2 => 8,\n+         /* ~ changed by cargo-mutants ~ */\n         _ => 0,\n     }\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "lanes",
+      "return_type": "-> usize",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 46
+        },
+        "start": {
+          "column": 1,
+          "line": 40
+        }
+      }
+    },
+    "genre": "MatchArm",
+    "name": "src/ffi_output.rs:43:9: delete match arm Platform::AVX2 in lanes",
+    "package": "blake3-servil",
+    "replacement": "",
+    "span": {
+      "end": {
+        "column": 29,
+        "line": 43
+      },
+      "start": {
+        "column": 9,
+        "line": 43
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace input -> Option<Input<'_>> with None\n@@ -44,23 +44,17 @@\n         _ => 0,\n     }\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n-    let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n-        block: &c.buf,\n-        cv: &c.cv,\n-        len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n-    })\n+    None /* ~ changed by cargo-mutants ~ */\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n         crate::ran_kernel(blake3_servil_output16 as *const ());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:52:5: replace input -> Option<Input<'_>> with None",
+    "package": "blake3-servil",
+    "replacement": "None",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 58
+      },
+      "start": {
+        "column": 5,
+        "line": 52
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace input -> Option<Input<'_>> with Some(Default::default())\n@@ -44,23 +44,17 @@\n         _ => 0,\n     }\n }\n \n /// A whole message still in its first chunk, with no staged suffix or\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n-    let c = &hasher.core.chunk_state;\n-    (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n-        block: &c.buf,\n-        cv: &c.cv,\n-        len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n-    })\n+    Some(Default::default()) /* ~ changed by cargo-mutants ~ */\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n         crate::ran_kernel(blake3_servil_output16 as *const ());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:52:5: replace input -> Option<Input<'_>> with Some(Default::default())",
+    "package": "blake3-servil",
+    "replacement": "Some(Default::default())",
+    "span": {
+      "end": {
+        "column": 7,
+        "line": 58
+      },
+      "start": {
+        "column": 5,
+        "line": 52
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with & in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags | c.start_flag() | CHUNK_END & /* ~ changed by cargo-mutants ~ */ ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:53: replace | with & in input",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 57
+      },
+      "start": {
+        "column": 53,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags | c.start_flag() | CHUNK_END ^ /* ~ changed by cargo-mutants ~ */ ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:53: replace | with ^ in input",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 54,
+        "line": 57
+      },
+      "start": {
+        "column": 53,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with & in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags | c.start_flag() & /* ~ changed by cargo-mutants ~ */ CHUNK_END | ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:41: replace | with & in input",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 57
+      },
+      "start": {
+        "column": 41,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags | c.start_flag() ^ /* ~ changed by cargo-mutants ~ */ CHUNK_END | ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:41: replace | with ^ in input",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 57
+      },
+      "start": {
+        "column": 41,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with & in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags & /* ~ changed by cargo-mutants ~ */ c.start_flag() | CHUNK_END | ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:24: replace | with & in input",
+    "package": "blake3-servil",
+    "replacement": "&",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 57
+      },
+      "start": {
+        "column": 24,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace | with ^ in input\n@@ -49,17 +49,17 @@\n /// stacked subtree. Its final block is already padded by ChunkState.\n /// Other states keep Hasher's existing finalization path.\n pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {\n     let c = &hasher.core.chunk_state;\n     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {\n         block: &c.buf,\n         cv: &c.cv,\n         len: c.buf_len,\n-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,\n+        flags: c.flags ^ /* ~ changed by cargo-mutants ~ */ c.start_flag() | CHUNK_END | ROOT,\n     })\n }\n \n /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor\n /// borrows a readable padded block/CV, length 0..64. All counters are zero.\n pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {\n     assert_eq!(out.len(), W, \"one compression output per lane\");\n     if W == 16 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "input",
+      "return_type": "-> Option<Input<'_>>",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 59
+        },
+        "start": {
+          "column": 1,
+          "line": 48
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:57:24: replace | with ^ in input",
+    "package": "blake3-servil",
+    "replacement": "^",
+    "span": {
+      "end": {
+        "column": 25,
+        "line": 57
+      },
+      "start": {
+        "column": 24,
+        "line": 57
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace held_groups -> bool with true\n@@ -81,94 +81,17 @@\n         unsafe { blake3_servil_output8(&p, out.as_mut_ptr().cast()) };\n     }\n }\n \n /// Hash complete held stages without grouping by their keys. Leaf calls\n /// already fill their chunk lanes; parents borrow each message's own key\n /// and flags in the existing independent-compression descriptors.\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n-    if held.is_empty() {\n-        return true;\n-    }\n-    let width = lanes(platform);\n-    if width == 0 {\n-        return false;\n-    }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n-    const { assert!(PER == 16) };\n-    let n = held.len();\n-    let mut level = vec![[0u8; OUT_LEN]; n * PER];\n-    let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n-    for (k, &i) in held.iter().enumerate() {\n-        let h = &hashers[i];\n-        let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n-        platform.hash_many(\n-            &refs,\n-            &h.core.key,\n-            counter,\n-            crate::IncrementCounter::Yes,\n-            h.core.chunk_state.flags,\n-            CHUNK_START,\n-            CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n-        );\n-    }\n-    for depth in 0..4 {\n-        let per_message = PER >> (depth + 1);\n-        let count = n * per_message;\n-        let input = |j: usize| {\n-            let h = &hashers[held[j / per_message]];\n-            Input {\n-                block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),\n-                cv: &h.core.key,\n-                len: BLOCK_LEN as u8,\n-                flags: h.core.chunk_state.flags | crate::PARENT,\n-            }\n-        };\n-        let mut full = count / width * width;\n-        for base in (0..full).step_by(width) {\n-            // Sound: width matches the detected ISA. All blocks and keys\n-            // are readable; next supplies disjoint complete outputs.\n-            if width == 16 {\n-                let inputs = core::array::from_fn(|j| input(base + j));\n-                unsafe { hash_group::<16>(&inputs, &mut next[base..base + 16]) };\n-            } else {\n-                let inputs = core::array::from_fn(|j| input(base + j));\n-                unsafe { hash_group::<8>(&inputs, &mut next[base..base + 8]) };\n-            }\n-        }\n-        if width == 16 && count - full >= 8 && crate::platform::avx2_detected() {\n-            let inputs = core::array::from_fn(|j| input(full + j));\n-            // Sound: AVX2 is detected; eight real parent blocks and keys\n-            // remain, and next has disjoint room for all eight outputs.\n-            unsafe { hash_group::<8>(&inputs, &mut next[full..full + 8]) };\n-            full += 8;\n-        }\n-        for (j, out) in next.iter_mut().enumerate().take(count).skip(full) {\n-            let input = input(j);\n-            let mut cv = *input.cv;\n-            platform.compress_in_place(&mut cv, input.block, input.len, 0, input.flags);\n-            *out = crate::hasher::le_bytes(&cv);\n-        }\n-        core::mem::swap(&mut level, &mut next);\n-    }\n-    for (k, &i) in held.iter().enumerate() {\n-        let (counter, _) = hashers[i].held_group().unwrap();\n-        let mut result = [0u8; BLOCK_LEN];\n-        if counter == 0 {\n-            // Four swaps leave each final parent's two children in next.\n-            result.copy_from_slice(next[2 * k..2 * k + 2].as_flattened());\n-        } else {\n-            result[..OUT_LEN].copy_from_slice(&level[k]);\n-        }\n-        hashers[i].take_held(&result);\n-    }\n-    true\n+    true /* ~ changed by cargo-mutants ~ */\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x153e0dfbeac2bb44;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:89:5: replace held_groups -> bool with true",
+    "package": "blake3-servil",
+    "replacement": "true",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 166
+      },
+      "start": {
+        "column": 5,
+        "line": 89
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace held_groups -> bool with false\n@@ -81,94 +81,17 @@\n         unsafe { blake3_servil_output8(&p, out.as_mut_ptr().cast()) };\n     }\n }\n \n /// Hash complete held stages without grouping by their keys. Leaf calls\n /// already fill their chunk lanes; parents borrow each message's own key\n /// and flags in the existing independent-compression descriptors.\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n-    if held.is_empty() {\n-        return true;\n-    }\n-    let width = lanes(platform);\n-    if width == 0 {\n-        return false;\n-    }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n-    const { assert!(PER == 16) };\n-    let n = held.len();\n-    let mut level = vec![[0u8; OUT_LEN]; n * PER];\n-    let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n-    for (k, &i) in held.iter().enumerate() {\n-        let h = &hashers[i];\n-        let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n-        platform.hash_many(\n-            &refs,\n-            &h.core.key,\n-            counter,\n-            crate::IncrementCounter::Yes,\n-            h.core.chunk_state.flags,\n-            CHUNK_START,\n-            CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n-        );\n-    }\n-    for depth in 0..4 {\n-        let per_message = PER >> (depth + 1);\n-        let count = n * per_message;\n-        let input = |j: usize| {\n-            let h = &hashers[held[j / per_message]];\n-            Input {\n-                block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),\n-                cv: &h.core.key,\n-                len: BLOCK_LEN as u8,\n-                flags: h.core.chunk_state.flags | crate::PARENT,\n-            }\n-        };\n-        let mut full = count / width * width;\n-        for base in (0..full).step_by(width) {\n-            // Sound: width matches the detected ISA. All blocks and keys\n-            // are readable; next supplies disjoint complete outputs.\n-            if width == 16 {\n-                let inputs = core::array::from_fn(|j| input(base + j));\n-                unsafe { hash_group::<16>(&inputs, &mut next[base..base + 16]) };\n-            } else {\n-                let inputs = core::array::from_fn(|j| input(base + j));\n-                unsafe { hash_group::<8>(&inputs, &mut next[base..base + 8]) };\n-            }\n-        }\n-        if width == 16 && count - full >= 8 && crate::platform::avx2_detected() {\n-            let inputs = core::array::from_fn(|j| input(full + j));\n-            // Sound: AVX2 is detected; eight real parent blocks and keys\n-            // remain, and next has disjoint room for all eight outputs.\n-            unsafe { hash_group::<8>(&inputs, &mut next[full..full + 8]) };\n-            full += 8;\n-        }\n-        for (j, out) in next.iter_mut().enumerate().take(count).skip(full) {\n-            let input = input(j);\n-            let mut cv = *input.cv;\n-            platform.compress_in_place(&mut cv, input.block, input.len, 0, input.flags);\n-            *out = crate::hasher::le_bytes(&cv);\n-        }\n-        core::mem::swap(&mut level, &mut next);\n-    }\n-    for (k, &i) in held.iter().enumerate() {\n-        let (counter, _) = hashers[i].held_group().unwrap();\n-        let mut result = [0u8; BLOCK_LEN];\n-        if counter == 0 {\n-            // Four swaps leave each final parent's two children in next.\n-            result.copy_from_slice(next[2 * k..2 * k + 2].as_flattened());\n-        } else {\n-            result[..OUT_LEN].copy_from_slice(&level[k]);\n-        }\n-        hashers[i].take_held(&result);\n-    }\n-    true\n+    false /* ~ changed by cargo-mutants ~ */\n }\n \n const SELF_TEST_EXPECTED: u64 = 0x153e0dfbeac2bb44;\n fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {\n     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];\n     let flags: [u8; 16] = core::array::from_fn(|i| {\n         let shape = [3u8, 2, 4][i % 3];\n         if shape == 4 {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "FnValue",
+    "name": "src/ffi_output.rs:89:5: replace held_groups -> bool with false",
+    "package": "blake3-servil",
+    "replacement": "false",
+    "span": {
+      "end": {
+        "column": 9,
+        "line": 166
+      },
+      "start": {
+        "column": 5,
+        "line": 89
+      }
+    }
+  }
+]

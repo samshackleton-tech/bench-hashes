@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace / with % in held_groups
+@@ -134,17 +134,17 @@
+             } else if left >= 8 && eight {
+                 8
+             } else {
+                 left
+             };
+             {
+                 let input = |j: usize| {
+                     let at = base + j;
+-                    let h = &hashers[held[at / per]];
++                    let h = &hashers[held[at % /* ~ changed by cargo-mutants ~ */ per]];
+                     let offset = (at % per) * BLOCK_LEN;
+                     Input {
+                         block: h.held_group().unwrap().1[offset..offset + BLOCK_LEN].try_into().unwrap(),
+                         cv: &h.core.key,
+                         len: BLOCK_LEN as u8,
+                         flags: h.core.chunk_state.flags | crate::PARENT,
+                     }
+                 };

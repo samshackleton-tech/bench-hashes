@@ -1,0 +1,123 @@
+--- src/ffi_output.rs
++++ replace held_groups -> bool with false
+@@ -82,119 +82,17 @@
+     }
+ }
+ 
+ /// Hash 1..=TABLE distinct held stages with independent parent keys.
+ /// Each leaf pass consumes a whole stage before its CVs replace the input.
+ /// Parent batches consume whole current levels before scattering into their
+ /// prefixes; descriptor borrows end before the shared stage writer runs.
+ pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {
+-    if held.is_empty() {
+-        return true;
+-    }
+-    let width = lanes(platform);
+-    if width == 0 {
+-        return false;
+-    }
+-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
+-    const { assert!(PER == 16) };
+-    debug_assert!(held.len() <= crate::many::TABLE, "the ready table bounds held groups");
+-    let eight = width == 8 || crate::platform::avx2_detected();
+-    let mut output = [[0u8; OUT_LEN]; PER];
+-    for &i in held {
+-        {
+-            let h = &hashers[i];
+-            let (counter, bytes) = h.held_group().expect("a held group");
+-            let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());
+-            platform.hash_many(
+-                &refs,
+-                &h.core.key,
+-                counter,
+-                crate::IncrementCounter::Yes,
+-                h.core.chunk_state.flags,
+-                CHUNK_START,
+-                CHUNK_END,
+-                output.as_flattened_mut(),
+-            );
+-        }
+-        hashers[i].write_stage(0, output.as_flattened());
+-    }
+-    let mut per = PER / 2;
+-    while per != 0 {
+-        if per == 1 {
+-            for &i in held {
+-                let halves: [u8; BLOCK_LEN] = hashers[i].held_group().unwrap().1[..BLOCK_LEN].try_into().unwrap();
+-                hashers[i].write_stage(PER * OUT_LEN, &halves);
+-            }
+-        }
+-        let count = held.len() * per;
+-        let mut base = 0;
+-        while base < count {
+-            let left = count - base;
+-            let batch = if left >= width {
+-                width
+-            } else if left >= 8 && eight {
+-                8
+-            } else {
+-                left
+-            };
+-            {
+-                let input = |j: usize| {
+-                    let at = base + j;
+-                    let h = &hashers[held[at / per]];
+-                    let offset = (at % per) * BLOCK_LEN;
+-                    Input {
+-                        block: h.held_group().unwrap().1[offset..offset + BLOCK_LEN].try_into().unwrap(),
+-                        cv: &h.core.key,
+-                        len: BLOCK_LEN as u8,
+-                        flags: h.core.chunk_state.flags | crate::PARENT,
+-                    }
+-                };
+-                // Sound: width comes from the detected ISA. A batch holds
+-                // real readable blocks/keys and writes disjoint stack outputs.
+-                if batch == 16 {
+-                    let inputs = core::array::from_fn(input);
+-                    unsafe { hash_group::<16>(&inputs, &mut output) };
+-                } else if batch == 8 && eight {
+-                    let inputs = core::array::from_fn(input);
+-                    unsafe { hash_group::<8>(&inputs, &mut output[..8]) };
+-                } else {
+-                    for (j, out) in output[..batch].iter_mut().enumerate() {
+-                        let input = input(j);
+-                        let mut cv = *input.cv;
+-                        platform.compress_in_place(&mut cv, input.block, input.len, 0, input.flags);
+-                        *out = crate::hasher::le_bytes(&cv);
+-                    }
+-                }
+-            }
+-            // per divides both kernel widths, so the batch has read each
+-            // touched hasher's complete level before any prefix is overwritten.
+-            for (j, value) in output[..batch].iter().enumerate() {
+-                let at = base + j;
+-                hashers[held[at / per]].write_stage((at % per) * OUT_LEN, value);
+-            }
+-            let before = base;
+-            base += batch;
+-            assert!(base > before, "a parent batch advances");
+-        }
+-        let before = per;
+-        per /= 2;
+-        assert!(per < before, "a parent level shrinks");
+-    }
+-    for &i in held {
+-        let (counter, stage) = hashers[i].held_group().unwrap();
+-        let mut result = [0u8; BLOCK_LEN];
+-        if counter == 0 {
+-            result.copy_from_slice(&stage[PER * OUT_LEN..PER * OUT_LEN + BLOCK_LEN]);
+-        } else {
+-            result[..OUT_LEN].copy_from_slice(&stage[..OUT_LEN]);
+-        }
+-        hashers[i].take_held(&result);
+-    }
+-    true
++    false /* ~ changed by cargo-mutants ~ */
+ }
+ 
+ const SELF_TEST_EXPECTED: u64 = 0x153e0dfbeac2bb44;
+ fn self_test_shape(mut hash: impl FnMut(&[Input<'_>; 16], &mut [[u8; OUT_LEN]])) -> u64 {
+     let mut lens: [u8; 16] = [0, 1, 31, 63, 64, 7, 32, 55, 3, 15, 48, 60, 2, 33, 62, 64];
+     let flags: [u8; 16] = core::array::from_fn(|i| {
+         let shape = [3u8, 2, 4][i % 3];
+         if shape == 4 {
