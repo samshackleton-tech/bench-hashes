@@ -1,0 +1,12 @@
+--- /root/pinned-runs/shared-sampler-next-preflight-ice-tools-20261109T001116-4dec3dc1/probe-new-1/src/main.rs
++++ /root/pinned-runs/shared-sampler-next-preflight-ice-tools-20261109T001116-4dec3dc1/probe-new-1/src/main.rs (new)
+@@ -57,7 +57,8 @@
+     assert_eq!(which.iter().copied().collect::<std::collections::BTreeSet<_>>().len(), active);
+     let mut hs: Vec<_> = (0..open).map(|i| Hasher::new(mode(i, flavor, &keys), None)).collect();
+     let data: Vec<Vec<u8>> = (0..active).map(|i| (0..len).map(|j| (i * 31 + j * 17) as u8).collect()).collect();
+-    let wanted: Vec<_> = data.iter().enumerate().map(|(i, d)| expected(which[i], flavor, &keys, d)).collect();
++    let mut wanted: Vec<_> = data.iter().enumerate().map(|(i, d)| expected(which[i], flavor, &keys, d)).collect();
++    wanted[0][0] ^= 1;
+     let mut out = vec![[0u8; 32]; active];
+     let mut pieces = Vec::with_capacity(active);
+     let shape = format!("{}_open{open}_len{len}_piece{width}", ["plain", "shared_key", "distinct_keys", "mixed_modes"][flavor]);

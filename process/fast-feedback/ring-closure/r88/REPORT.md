@@ -75,6 +75,10 @@ This one is unrequested: two timing hosts were idle. Devon's head **fe60dc85bdb8
 
 Devon's i7 runs and the Mac's are separate. 257 points are unmeasured, and no mutation gate was run here.
 
+## Shared sampler preparation (John's November 9 native-study request)
+
+[One shared sampler with compile-time main/next contracts](sampler-2355/REPORT.md), source SHA-256 **3a0595df2a83d2c2c42b5decf50ebad56449f26d82721ac3c32ba89cdd3782cb**: preserves explicit main reset, avoids a second next reset, adds P/E diagnostics outside counters, integer display rounding and the existing load wait/abstention. Both x86 API-family compile/preflights, wrong-digest/invalid-feature controls and frozen-judge decision comparisons pass. No new timing measurements. ARM VM shell-wrapper setup failed twice and was stopped; no ARM/Mac compile or performance result claimed. All failures and original instruments remain archived.
+
 ## Released-line costs and security regression tests (23:16 UTC follow-up)
 
 [Exact main-repair costs and ordinary library test controls](followup-2316/REPORT.md): **71154c1d vs published main6e0dffd3**, with explicit released-API reset on both sources. Plain complete-cycle wall is Level in all 18 shapes per host; shared-key cycles retain **+3.0–8.9% Ice / +6.2–15.5% EPYC** (13/14 and14/14 Slower). This is a four-pair scoped cost record, not broad canonical closure or cost acceptance. Two initial driver failures are retained.
