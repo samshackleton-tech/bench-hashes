@@ -1,0 +1,389 @@
+
+*** src/ffi_output.rs:57:41: replace | with ^ in input
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace | with ^ in input
+@@ -49,17 +49,17 @@
+ /// stacked subtree. Its final block is already padded by ChunkState.
+ /// Other states keep Hasher's existing finalization path.
+ pub(crate) fn input(hasher: &Hasher) -> Option<Input<'_>> {
+     let c = &hasher.core.chunk_state;
+     (hasher.staged == 0 && hasher.core.initial_chunk_counter == 0 && c.chunk_counter == 0 && hasher.core.cv_stack.len() == 0).then(|| Input {
+         block: &c.buf,
+         cv: &c.cv,
+         len: c.buf_len,
+-        flags: c.flags | c.start_flag() | CHUNK_END | ROOT,
++        flags: c.flags | c.start_flag() ^ /* ~ changed by cargo-mutants ~ */ CHUNK_END | ROOT,
+     })
+ }
+ 
+ /// Requires AVX2 for W=8, AVX-512F+VL for W=16, on Linux. Every descriptor
+ /// borrows a readable padded block/CV, length 0..64. All counters are zero.
+ pub(crate) unsafe fn hash_group<const W: usize>(inputs: &[Input<'_>; W], out: &mut [[u8; OUT_LEN]]) {
+     assert_eq!(out.len(), W, "one compression output per lane");
+     if W == 16 {
+
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/tmp/blake3-servil-mutants/mutants-4fll92ob)
+    Finished `mutants` profile [optimized] target(s) in 1.91s
+info: using target runner `sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/1.99.1-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Finished `mutants` profile [optimized] target(s) in 0.05s
+info: using target runner `sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID f1b79f55-fa74-4c56-b88c-07f1ee88acea with nextest profile: mutants
+    Starting 233 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/233) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/233) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/233) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/233) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/233) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/233) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/233) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/233) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+       START [         ] (  1/233) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+       START [         ] (  1/233) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_describes_itself --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+       START [         ] (  1/233) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+       START [         ] (  1/233) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+       START [         ] (  1/233) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::finalize_each_groups_only_full_output_lanes --nocapture
+       START [         ] (  1/233) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+       START [         ] (  1/233) blake3-servil each::test::held_groups_pass_by_mode_not_key
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_groups_pass_by_mode_not_key --nocapture
+       START [         ] (  1/233) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+       START [         ] (  1/233) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_dispatch_ignores_key_equality_and_prefixes --nocapture
+       START [         ] (  1/233) blake3-servil each::test::held_passes_do_not_depend_on_keys
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::held_passes_do_not_depend_on_keys --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_matches_hash_with
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_matches_hash_with --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded_past_the_split --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_multithreaded
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_on_counts_its_alone_messages_and_rounds --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_held_key_groups_take_one_partition_pass --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_hash_each_small_items_by_blocks
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_hash_each_small_items_by_blocks --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_update_each_at_offsets
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each_at_offsets --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_update_each
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each --nocapture
+       START [         ] (  1/233) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices --nocapture
+       START [         ] (  1/233) blake3-servil each::test::test_update_each_holds_groups_together
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact each::test::test_update_each_holds_groups_together --nocapture
+       START [         ] (  1/233) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::staged_long_roots_keep_the_existing_path --nocapture
+       START [         ] (  1/233) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages --nocapture
+       START [         ] (  1/233) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::startup_rejects_corrupted_answer --nocapture
+       START [         ] (  1/233) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_output::tests::startup_answers_match_independent_compression --nocapture
+       START [         ] (  1/233) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_partial::test::test_partial_kernels_against_portable --nocapture
+       START [         ] (  1/233) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact ffi_partial::test::test_params_layout_is_the_generators --nocapture
+       START [         ] (  1/233) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::every_atomic_in_the_handshake_files_is_seqcst --nocapture
+       START [         ] (  1/233) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::a_spurious_wake_is_slept_through --nocapture
+       START [         ] (  1/233) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input --nocapture
+       START [         ] (  1/233) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece --nocapture
+       START [         ] (  1/233) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::clone_from_copies_only_the_live_stage_prefix --nocapture
+       START [         ] (  1/233) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first --nocapture
+       START [         ] (  1/233) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_the_length_hint_never_changes_the_digest --nocapture
+       START [         ] (  1/233) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_gather_part_holds_a_whole_group --nocapture
+       START [         ] (  1/233) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_update_stages_to_the_message_boundary_from_an_offset --nocapture
+       START [         ] (  1/233) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact incremental::test::test_update_stages_exactly_what_it_must --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_a_finished_threads_source_is_the_next_threads --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_unregister_gives_the_slot_back --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_find_reaches_every_registered_source --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::test_unregister_leaves_the_other_sources_registered --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::equal_members_match_the_reference
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::equal_members_match_the_reference --nocapture
+       START [         ] (  1/233) blake3-servil lanes::sources::test::waiting_help_runs_one_task
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::sources::test::waiting_help_runs_one_task --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_caller_gives_its_place_back --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_poller_yields_every_yield_every --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_claim_takes_a_share_of_what_waits --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_parked_caller_is_woken_by_the_last_piece --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_source_unregistered_leaves_its_slot --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_wake_is_tried_for_the_second_task_waiting
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_wake_is_tried_for_the_second_task_waiting --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_a_stream_is_what_opens_the_sources --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_concurrent_callers_agree
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_concurrent_callers_agree --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_concurrent_batch_callers_agree --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_cut_messages_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_messages_exactly --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_cut_items_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_items_exactly --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_cut_with_prefix_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_with_prefix_exactly --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_hash_many_pool_agrees
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_hash_many_pool_agrees --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_with_prefix_shapes_and_hashes --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_cut_messages_shapes
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_cut_messages_shapes --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_idle_workers_park_while_a_stream_is_open --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_hash_matches_serial
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_hash_matches_serial --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_one_member_runs_alone
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_one_member_runs_alone --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_next_piece_len
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_next_piece_len --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_sme2_prefix_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_sme2_prefix_exactly --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_simd_merge_matches_recursive
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_simd_merge_matches_recursive --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_pool_begins_at_min_split_len --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_spin_ends_after_spin_or_with_no_stream_open --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_workers_are_every_thread_but_the_caller --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_the_pool_reads_time_through_now --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_update_multithreaded_matches_hash --nocapture
+       START [         ] (  1/233) blake3-servil lanes::test::test_tree_thread_budget
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact lanes::test::test_tree_thread_budget --nocapture
+       START [         ] (  1/233) blake3-servil many::test::four_chunk_batch_matches_published_vectors
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::four_chunk_batch_matches_published_vectors --nocapture
+       START [         ] (  1/233) blake3-servil many::test::across_partial_chunks_matches_published_vectors
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::across_partial_chunks_matches_published_vectors --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_across_from_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_across_from_exactly --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_a_short_input_is_refused_before_the_kernels --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_four_at_a_time_arrangement
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_four_at_a_time_arrangement --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_blocks_without_plans
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_blocks_without_plans --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_needs_the_input_it_names --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_many_modes_every_platform
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_modes_every_platform --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_many_whole_blocks
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_whole_blocks --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_hash_many_on_paths_by_count
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_hash_many_on_paths_by_count --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_sme2_sized_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_sme2_sized_exactly --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_small_batches_after_a_pause
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_small_batches_after_a_pause --nocapture
+       START [         ] (  1/233) blake3-servil many::test::two_chunk_batch_matches_published_vectors
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::two_chunk_batch_matches_published_vectors --nocapture
+       START [         ] (  1/233) blake3-servil many::test::test_whole_blocks_x86_full_width
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact many::test::test_whole_blocks_x86_full_width --nocapture
+       START [         ] (  1/233) blake3-servil park::test::wakes_made_and_owed_exactly
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact park::test::wakes_made_and_owed_exactly --nocapture
+       START [         ] (  1/233) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_degree_test::test_detected_degree_is_the_widest_kernel
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_degree_test::test_detected_degree_is_the_widest_kernel --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_features_test::test_wide_cpu_and_family
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_wide_cpu_and_family --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_features_test::test_wide_bit_matches_cpuinfo
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_wide_bit_matches_cpuinfo --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_features_test::test_x86_features_match_std
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_x86_features_match_std --nocapture
+       START [         ] (  1/233) blake3-servil platform::x86_features_test::test_x86_detection_matches_std
+             command: sh /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality-ice-20261109T030827-45aecb8c/target/mutants/confirm-0/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact platform::x86_features_test::test_x86_detection_matches_std --nocapture
+        FAIL [   0.218s] (  1/233) blake3-servil avx512::test::test_xof_many
+  stderr ───
+    mutants: same code: every test binary hashes as the unmutated build's
+
+    (test failed with exit code 99)
+
+  Cancelling due to test failure: immediately terminating 111 tests still running
+     SIGTERM [   0.219s] (  2/233) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+     SIGTERM [   0.220s] (  3/233) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+     SIGTERM [   0.220s] (  4/233) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+     SIGTERM [   0.200s] (  5/233) blake3-servil lanes::test::test_a_job_wakes_one_worker_a_piece_past_its_own
+     SIGTERM [   0.220s] (  6/233) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+     SIGTERM [   0.200s] (  7/233) blake3-servil lanes::test::test_cut_with_prefix_exactly
+     SIGTERM [   0.201s] (  8/233) blake3-servil many::test::test_small_batches_after_a_pause
+     SIGTERM [   0.220s] (  9/233) blake3-servil ffi_output::tests::incremental_roots_batch_all_modes_and_selected_indices
+     SIGTERM [   0.201s] ( 10/233) blake3-servil lanes::test::test_cut_with_prefix_shapes_and_hashes
+     SIGTERM [   0.220s] ( 11/233) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGTERM [   0.219s] ( 12/233) blake3-servil lanes::test::equal_members_match_the_reference
+     SIGTERM [   0.201s] ( 13/233) blake3-servil park::test::wakes_made_and_owed_exactly
+     SIGTERM [   0.220s] ( 14/233) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+     SIGTERM [   0.220s] ( 15/233) blake3-servil each::test::held_dispatch_ignores_key_equality_and_prefixes
+     SIGTERM [   0.180s] ( 16/233) blake3-servil lanes::sources::test::waiting_help_runs_one_task
+     SIGTERM [   0.221s] ( 17/233) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+     SIGTERM [   0.221s] ( 18/233) blake3-servil block::test::test_blocks_mut_writes_the_messages
+     SIGTERM [   0.201s] ( 19/233) blake3-servil many::test::two_chunk_batch_matches_published_vectors
+     SIGTERM [   0.180s] ( 20/233) blake3-servil each::test::test_hash_each_multithreaded_splits_at_min_split_len_exactly
+     SIGTERM [   0.220s] ( 21/233) blake3-servil lanes::test::test_a_source_unregistered_leaves_its_slot
+     SIGTERM [   0.221s] ( 22/233) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+     SIGTERM [   0.220s] ( 23/233) blake3-servil lanes::sources::test::test_visible_sees_a_waiting_item_and_its_kind
+     SIGTERM [   0.180s] ( 24/233) blake3-servil each::test::test_update_each
+     SIGTERM [   0.201s] ( 25/233) blake3-servil lanes::test::test_the_pool_reads_time_through_now
+     SIGTERM [   0.221s] ( 26/233) blake3-servil avx512_32::tests::generated_assembly_matches
+     SIGTERM [   0.221s] ( 27/233) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+     SIGTERM [   0.201s] ( 28/233) blake3-servil platform::x86_degree_test::test_detected_degree_is_the_widest_kernel
+     SIGTERM [   0.220s] ( 29/233) blake3-servil hasher::test::test_feed_asks_for_a_flat_subtree_after_the_first
+     SIGTERM [   0.220s] ( 30/233) blake3-servil incremental::test::test_update_stages_exactly_what_it_must
+     SIGTERM [   0.201s] ( 31/233) blake3-servil ffi_output::tests::startup_rejects_corrupted_answer
+     SIGTERM [   0.221s] ( 32/233) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+     SIGTERM [   0.180s] ( 33/233) blake3-servil finish::tests::a_spurious_wake_is_slept_through
+     SIGTERM [   0.219s] ( 34/233) blake3-servil platform::x86_features_test::test_x86_detection_matches_std
+     SIGTERM [   0.201s] ( 35/233) blake3-servil platform::x86_features_test::test_wide_bit_matches_cpuinfo
+     SIGTERM [   0.201s] ( 36/233) blake3-servil lanes::test::test_cut_messages_exactly
+     SIGTERM [   0.201s] ( 37/233) blake3-servil lanes::test::test_concurrent_batch_callers_agree
+     SIGTERM [   0.220s] ( 38/233) blake3-servil lanes::sources::test::test_a_finished_threads_source_is_the_next_threads
+     SIGTERM [   0.201s] ( 39/233) blake3-servil many::test::test_hash_many_whole_blocks
+     SIGTERM [   0.221s] ( 40/233) blake3-servil each::test::held_groups_pass_by_mode_not_key
+     SIGTERM [   0.180s] ( 41/233) blake3-servil each::test::test_update_each_at_offsets
+     SIGTERM [   0.201s] ( 42/233) blake3-servil many::test::test_across_from_exactly
+     SIGTERM [   0.201s] ( 43/233) blake3-servil platform::x86_features_test::test_wide_cpu_and_family
+     SIGTERM [   0.201s] ( 44/233) blake3-servil park::test::a_waker_wakes_at_most_its_fanout_and_owes_the_rest
+     SIGTERM [   0.221s] ( 45/233) blake3-servil each::test::finalize_each_groups_only_full_output_lanes
+     SIGTERM [   0.220s] ( 46/233) blake3-servil lanes::sources::test::test_a_worker_serves_the_lowest_source_until_it_is_empty
+     SIGTERM [   0.201s] ( 47/233) blake3-servil many::test::across_partial_chunks_matches_published_vectors
+     SIGTERM [   0.180s] ( 48/233) blake3-servil hasher::test::test_absorb_takes_whole_blocks_straight_from_the_input
+     SIGTERM [   0.221s] ( 49/233) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+     SIGTERM [   0.201s] ( 50/233) blake3-servil many::test::test_hash_four_at_a_time_arrangement
+     SIGTERM [   0.201s] ( 51/233) blake3-servil lanes::test::test_one_member_runs_alone
+     SIGTERM [   0.201s] ( 52/233) blake3-servil many::test::test_hash_many_on_paths_by_count
+     SIGTERM [   0.220s] ( 53/233) blake3-servil ffi_output::tests::staged_long_roots_keep_the_existing_path
+     SIGTERM [   0.220s] ( 54/233) blake3-servil incremental::test::test_the_length_hint_never_changes_the_digest
+     SIGTERM [   0.201s] ( 55/233) blake3-servil lanes::test::test_next_piece_len
+     SIGTERM [   0.180s] ( 56/233) blake3-servil each::test::test_held_key_groups_take_one_partition_pass
+     SIGTERM [   0.220s] ( 57/233) blake3-servil each::test::test_update_each_holds_groups_together
+     SIGTERM [   0.201s] ( 58/233) blake3-servil lanes::test::test_simd_merge_matches_recursive
+     SIGTERM [   0.220s] ( 59/233) blake3-servil incremental::test::test_update_stages_to_the_message_boundary_from_an_offset
+     SIGTERM [   0.201s] ( 60/233) blake3-servil many::test::test_sme2_sized_exactly
+     SIGTERM [   0.221s] ( 61/233) blake3-servil each::test::held_passes_do_not_depend_on_keys
+     SIGTERM [   0.201s] ( 62/233) blake3-servil many::test::test_hash_many_modes_every_platform
+     SIGTERM [   0.201s] ( 63/233) blake3-servil many::test::test_hash_many_needs_the_input_it_names
+     SIGTERM [   0.220s] ( 64/233) blake3-servil lanes::test::test_concurrent_callers_agree
+     SIGTERM [   0.220s] ( 65/233) blake3-servil lanes::sources::test::test_find_reaches_every_registered_source
+     SIGTERM [   0.221s] ( 66/233) blake3-servil ffi_output::tests::independent_blocks_cvs_descriptors_and_output_against_guard_pages
+     SIGTERM [   0.201s] ( 67/233) blake3-servil lanes::test::test_the_pool_begins_at_min_split_len
+     SIGTERM [   0.221s] ( 68/233) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+     SIGTERM [   0.201s] ( 69/233) blake3-servil lanes::test::test_a_poller_yields_every_yield_every
+     SIGTERM [   0.180s] ( 70/233) blake3-servil lanes::test::test_a_caller_polls_for_spin_before_sleep_then_sleeps
+     SIGTERM [   0.221s] ( 71/233) blake3-servil each::test::test_hash_each_matches_hash_with
+     SIGTERM [   0.221s] ( 72/233) blake3-servil block::test::test_a_batch_describes_itself
+     SIGTERM [   0.201s] ( 73/233) blake3-servil lanes::test::test_spin_ends_after_spin_or_with_no_stream_open
+     SIGTERM [   0.221s] ( 74/233) blake3-servil each::test::test_hash_each_multithreaded_past_the_split
+     SIGTERM [   0.220s] ( 75/233) blake3-servil incremental::test::test_gather_part_holds_a_whole_group
+     SIGTERM [   0.221s] ( 76/233) blake3-servil each::test::test_hash_each_on_counts_its_alone_messages_and_rounds
+     SIGTERM [   0.221s] ( 77/233) blake3-servil each::test::test_hash_each_multithreaded
+     SIGTERM [   0.180s] ( 78/233) blake3-servil each::test::test_hash_each_small_items_by_blocks
+     SIGTERM [   0.201s] ( 79/233) blake3-servil lanes::test::test_the_workers_are_every_thread_but_the_caller
+     SIGTERM [   0.201s] ( 80/233) blake3-servil lanes::test::test_sme2_prefix_exactly
+     SIGTERM [   0.201s] ( 81/233) blake3-servil lanes::test::test_hash_many_pool_agrees
+     SIGTERM [   0.201s] ( 82/233) blake3-servil lanes::test::test_hash_matches_serial
+     SIGTERM [   0.201s] ( 83/233) blake3-servil lanes::test::test_a_caller_gives_its_place_back
+     SIGTERM [   0.201s] ( 84/233) blake3-servil many::test::test_a_short_input_is_refused_before_the_kernels
+     SIGTERM [   0.220s] ( 85/233) blake3-servil lanes::sources::test::test_unregister_gives_the_slot_back
+     SIGTERM [   0.221s] ( 86/233) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+     SIGTERM [   0.220s] ( 87/233) blake3-servil lanes::test::test_a_worker_spins_for_spin_while_a_stream_is_open
+     SIGTERM [   0.202s] ( 88/233) blake3-servil lanes::test::test_a_wake_is_tried_for_the_second_task_waiting
+     SIGTERM [   0.201s] ( 89/233) blake3-servil lanes::test::test_cut_messages_shapes
+     SIGTERM [   0.201s] ( 90/233) blake3-servil many::test::test_hash_blocks_without_plans
+     SIGTERM [   0.202s] ( 91/233) blake3-servil lanes::test::test_update_multithreaded_matches_hash
+     SIGTERM [   0.221s] ( 92/233) blake3-servil ffi_partial::test::test_partial_kernels_against_portable
+     SIGTERM [   0.201s] ( 93/233) blake3-servil lanes::test::test_tree_thread_budget
+     SIGTERM [   0.220s] ( 94/233) blake3-servil lanes::test::test_a_claim_takes_a_share_of_what_waits
+     SIGTERM [   0.201s] ( 95/233) blake3-servil platform::x86_features_test::test_x86_features_match_std
+     SIGTERM [   0.201s] ( 96/233) blake3-servil many::test::test_whole_blocks_x86_full_width
+     SIGTERM [   0.220s] ( 97/233) blake3-servil finish::tests::finished_unparks_only_a_sleeper_on_the_last_piece
+     SIGTERM [   0.220s] ( 98/233) blake3-servil incremental::test::clone_from_copies_only_the_live_stage_prefix
+     SIGTERM [   0.180s] ( 99/233) blake3-servil ffi_partial::test::test_params_layout_is_the_generators
+     SIGTERM [   0.201s] (100/233) blake3-servil many::test::four_chunk_batch_matches_published_vectors
+     SIGTERM [   0.202s] (101/233) blake3-servil platform::x86_features_test::test_a_cpu_runs_its_widest_kernel_and_one_without_sse41_none
+     SIGTERM [   0.202s] (102/233) blake3-servil lanes::test::test_cut_items_exactly
+     SIGTERM [   0.221s] (103/233) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+     SIGTERM [   0.220s] (104/233) blake3-servil lanes::test::test_a_stream_is_what_opens_the_sources
+     SIGTERM [   0.221s] (105/233) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+     SIGTERM [   0.202s] (106/233) blake3-servil lanes::test::test_idle_workers_park_while_a_stream_is_open
+     SIGTERM [   0.220s] (107/233) blake3-servil lanes::test::test_a_parked_caller_is_woken_by_the_last_piece
+     SIGTERM [   0.221s] (108/233) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+     SIGTERM [   0.181s] (109/233) blake3-servil ffi_output::tests::startup_answers_match_independent_compression
+     SIGTERM [   0.221s] (110/233) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+     SIGTERM [   0.180s] (111/233) blake3-servil finish::tests::every_atomic_in_the_handshake_files_is_seqcst
+     SIGTERM [   0.220s] (112/233) blake3-servil lanes::sources::test::test_unregister_leaves_the_other_sources_registered
+────────────
+     Summary [   0.222s] 112/233 tests run: 0 passed, 112 failed, 0 skipped
+warning: 121/233 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)

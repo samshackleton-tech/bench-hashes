@@ -1,0 +1,24 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -192,16 +192,11 @@
+ /// (BLAKE3 #312): the mode alone, public, groups them.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+-    // Plain's key is the IV, the same for every plain hasher.
+-    let plain: Vec<usize> = held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0).collect();
+-    if !plain.is_empty() {
+-        hash_cohort(hashers, &plain);
+-    }
+-    for &i in held {
+-        if hashers[i].core.chunk_state.flags != 0 {
+-            hash_cohort(hashers, &[i]);
+-        }
+-    }
++    let Some(&first) = held.first() else { return };
++    let (key, flags) = (hashers[first].core.key, hashers[first].core.chunk_state.flags);
++    let (alike, others): (Vec<usize>, Vec<usize>) = held.iter().partition(|&&i| hashers[i].core.key == key && hashers[i].core.chunk_state.flags == flags);
++    hash_cohort(hashers, &alike);
++    hash_held(hashers, &others);
+ }
+ 
+ /// Hash one nonempty cohort: plain hashers together, or exactly one

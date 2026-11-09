@@ -1,0 +1,37 @@
+--- src/ffi_output.rs
++++ replace self_test -> usize with 1
+@@ -197,33 +197,17 @@
+     if lanes(platform) == 16 {
+         unsafe { hash_group::<16>(inputs, out) };
+     } else {
+         assert_eq!(lanes(platform), 8);
+         unsafe { hash_eight_groups(inputs, out) };
+     }
+ }
+ pub(crate) fn self_test(platform: Platform) -> usize {
+-    if lanes(platform) == 0 {
+-        return 0;
+-    }
+-    let answer = self_test_shape(|inputs, out| {
+-        // Sound: initialize detected this platform before testing its kernels.
+-        unsafe { hash_on_platform(platform, inputs, out) };
+-    });
+-    check_self_test(answer);
+-    if lanes(platform) == 8 {
+-        return 1;
+-    }
+-    if !crate::platform::avx2_detected() {
+-        return 1;
+-    }
+-    // The sixteen-lane platform also uses eight real lanes for remainders.
+-    check_self_test(self_test_shape(|inputs, out| unsafe { hash_eight_groups(inputs, out) }));
+-    2
++    1 /* ~ changed by cargo-mutants ~ */
+ }
+ #[cfg(test)]
+ pub(crate) fn entry() -> *const () {
+     blake3_servil_output16 as *const ()
+ }
+ #[cfg(test)]
+ pub(crate) fn entry8() -> *const () {
+     blake3_servil_output8 as *const ()

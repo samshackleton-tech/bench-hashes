@@ -1,0 +1,21 @@
+--- src/ffi_output.rs
++++ replace == with != in self_test
+@@ -205,17 +205,17 @@
+     if lanes(platform) == 0 {
+         return 0;
+     }
+     let answer = self_test_shape(|inputs, out| {
+         // Sound: initialize detected this platform before testing its kernels.
+         unsafe { hash_on_platform(platform, inputs, out) };
+     });
+     check_self_test(answer);
+-    if lanes(platform) == 8 {
++    if lanes(platform) != /* ~ changed by cargo-mutants ~ */ 8 {
+         return 1;
+     }
+     if !crate::platform::avx2_detected() {
+         return 1;
+     }
+     // The sixteen-lane platform also uses eight real lanes for remainders.
+     check_self_test(self_test_shape(|inputs, out| unsafe { hash_eight_groups(inputs, out) }));
+     2

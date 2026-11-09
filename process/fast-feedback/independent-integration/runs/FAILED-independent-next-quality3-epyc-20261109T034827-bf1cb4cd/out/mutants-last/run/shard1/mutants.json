@@ -1,0 +1,578 @@
+[
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace == with != in held_groups\n@@ -85,17 +85,17 @@\n /// Hash complete held stages without grouping by their keys. Leaf calls\n /// already fill their chunk lanes; parents borrow each message's own key\n /// and flags in the existing independent-compression descriptors.\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n-    if width == 0 {\n+    if width != /* ~ changed by cargo-mutants ~ */ 0 {\n         return false;\n     }\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:93:14: replace == with != in held_groups",
+    "package": "blake3-servil",
+    "replacement": "!=",
+    "span": {
+      "end": {
+        "column": 16,
+        "line": 93
+      },
+      "start": {
+        "column": 14,
+        "line": 93
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with % in held_groups\n@@ -88,17 +88,17 @@\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n     if width == 0 {\n         return false;\n     }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n+    const PER: usize = crate::STAGE_LEN % /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n         let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:96:41: replace / with % in held_groups",
+    "package": "blake3-servil",
+    "replacement": "%",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 96
+      },
+      "start": {
+        "column": 41,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace / with * in held_groups\n@@ -88,17 +88,17 @@\n pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {\n     if held.is_empty() {\n         return true;\n     }\n     let width = lanes(platform);\n     if width == 0 {\n         return false;\n     }\n-    const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n+    const PER: usize = crate::STAGE_LEN * /* ~ changed by cargo-mutants ~ */ CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n         let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:96:41: replace / with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 96
+      },
+      "start": {
+        "column": 41,
+        "line": 96
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:78: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 79,
+        "line": 104
+      },
+      "start": {
+        "column": 78,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:78: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 79,
+        "line": 104
+      },
+      "start": {
+        "column": 78,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) + /* ~ changed by cargo-mutants ~ */ CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:99: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 100,
+        "line": 104
+      },
+      "start": {
+        "column": 99,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) / /* ~ changed by cargo-mutants ~ */ CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:99: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 100,
+        "line": 104
+      },
+      "start": {
+        "column": 99,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with - in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j - /* ~ changed by cargo-mutants ~ */ 1) * CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:94: replace + with - in held_groups",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 95,
+        "line": 104
+      },
+      "start": {
+        "column": 94,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with * in held_groups\n@@ -96,17 +96,17 @@\n     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;\n     const { assert!(PER == 16) };\n     let n = held.len();\n     let mut level = vec![[0u8; OUT_LEN]; n * PER];\n     let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];\n     for (k, &i) in held.iter().enumerate() {\n         let h = &hashers[i];\n         let (counter, bytes) = h.held_group().expect(\"a held group\");\n-        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j + 1) * CHUNK_LEN].try_into().unwrap());\n+        let refs: [&[u8; CHUNK_LEN]; PER] = core::array::from_fn(|j| bytes[j * CHUNK_LEN..(j * /* ~ changed by cargo-mutants ~ */ 1) * CHUNK_LEN].try_into().unwrap());\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:104:94: replace + with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 95,
+        "line": 104
+      },
+      "start": {
+        "column": 94,
+        "line": 104
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k + /* ~ changed by cargo-mutants ~ */ PER..(k + 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:21: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 113
+      },
+      "start": {
+        "column": 21,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k / /* ~ changed by cargo-mutants ~ */ PER..(k + 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:21: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 22,
+        "line": 113
+      },
+      "start": {
+        "column": 21,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with + in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k * PER..(k + 1) + /* ~ changed by cargo-mutants ~ */ PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:36: replace * with + in held_groups",
+    "package": "blake3-servil",
+    "replacement": "+",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 113
+      },
+      "start": {
+        "column": 36,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace * with / in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k * PER..(k + 1) / /* ~ changed by cargo-mutants ~ */ PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:36: replace * with / in held_groups",
+    "package": "blake3-servil",
+    "replacement": "/",
+    "span": {
+      "end": {
+        "column": 37,
+        "line": 113
+      },
+      "start": {
+        "column": 36,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with - in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k * PER..(k - /* ~ changed by cargo-mutants ~ */ 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:31: replace + with - in held_groups",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 113
+      },
+      "start": {
+        "column": 31,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with * in held_groups\n@@ -105,17 +105,17 @@\n         platform.hash_many(\n             &refs,\n             &h.core.key,\n             counter,\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n-            level[k * PER..(k + 1) * PER].as_flattened_mut(),\n+            level[k * PER..(k * /* ~ changed by cargo-mutants ~ */ 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n         let per_message = PER >> (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:113:31: replace + with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 32,
+        "line": 113
+      },
+      "start": {
+        "column": 31,
+        "line": 113
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace >> with << in held_groups\n@@ -109,17 +109,17 @@\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n             level[k * PER..(k + 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n-        let per_message = PER >> (depth + 1);\n+        let per_message = PER << /* ~ changed by cargo-mutants ~ */ (depth + 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n                 block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),\n                 cv: &h.core.key,\n                 len: BLOCK_LEN as u8,\n                 flags: h.core.chunk_state.flags | crate::PARENT,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:117:31: replace >> with << in held_groups",
+    "package": "blake3-servil",
+    "replacement": "<<",
+    "span": {
+      "end": {
+        "column": 33,
+        "line": 117
+      },
+      "start": {
+        "column": 31,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with - in held_groups\n@@ -109,17 +109,17 @@\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n             level[k * PER..(k + 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n-        let per_message = PER >> (depth + 1);\n+        let per_message = PER >> (depth - /* ~ changed by cargo-mutants ~ */ 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n                 block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),\n                 cv: &h.core.key,\n                 len: BLOCK_LEN as u8,\n                 flags: h.core.chunk_state.flags | crate::PARENT,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:117:41: replace + with - in held_groups",
+    "package": "blake3-servil",
+    "replacement": "-",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 117
+      },
+      "start": {
+        "column": 41,
+        "line": 117
+      }
+    }
+  },
+  {
+    "diff": "--- src/ffi_output.rs\n+++ replace + with * in held_groups\n@@ -109,17 +109,17 @@\n             crate::IncrementCounter::Yes,\n             h.core.chunk_state.flags,\n             CHUNK_START,\n             CHUNK_END,\n             level[k * PER..(k + 1) * PER].as_flattened_mut(),\n         );\n     }\n     for depth in 0..4 {\n-        let per_message = PER >> (depth + 1);\n+        let per_message = PER >> (depth * /* ~ changed by cargo-mutants ~ */ 1);\n         let count = n * per_message;\n         let input = |j: usize| {\n             let h = &hashers[held[j / per_message]];\n             Input {\n                 block: level.as_flattened()[j * BLOCK_LEN..(j + 1) * BLOCK_LEN].try_into().unwrap(),\n                 cv: &h.core.key,\n                 len: BLOCK_LEN as u8,\n                 flags: h.core.chunk_state.flags | crate::PARENT,\n",
+    "file": "src/ffi_output.rs",
+    "function": {
+      "function_name": "held_groups",
+      "return_type": "-> bool",
+      "span": {
+        "end": {
+          "column": 2,
+          "line": 167
+        },
+        "start": {
+          "column": 1,
+          "line": 85
+        }
+      }
+    },
+    "genre": "BinaryOperator",
+    "name": "src/ffi_output.rs:117:41: replace + with * in held_groups",
+    "package": "blake3-servil",
+    "replacement": "*",
+    "span": {
+      "end": {
+        "column": 42,
+        "line": 117
+      },
+      "start": {
+        "column": 41,
+        "line": 117
+      }
+    }
+  }
+]

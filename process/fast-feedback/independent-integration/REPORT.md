@@ -1,8 +1,22 @@
-# Independent-key integration: safety-source test children
+# Independent-key integration: current-source minimal port
 
-## Completed prerequisite
+## Current checkpoint,04:12UTC
 
-John requested test-only children of the reviewed safety sources in #312 comment6730719183 while his separate native timing runs use the user's three-hour quiet window. Sam's integration-base request is comment6730811369. The independent-key runtime integration has not yet been prepared or measured in this checkpoint.
+Personal candidate **69d9256b2ef3e0f14d0477bc0221c9498ae6cd6e**, `candidate/sam-independent-next`, minimally ports the existing independent-key backend onto reviewed next6eefdc65 plus its ordinary security tests. John has been asked to confirm the base; this remains a personal proposed-base draft, not an owner-selected shipping composition. Core/ring/stream/API files stay unchanged. First-chunk gathering and widened finalization are omitted.
+
+**Direct preservation comparison against old fast nexta930b4c1:** plain18Level/shared-key14Level on each x86 host, no Slower in any of320cycle+320update+256finish judgments/host. Shared-cycle means Ice99.4–101.0% /EPYC99.3–102.5% of old; Level is not exact equality. Distinct/mixed gains do not waive common-workload costs.
+
+**Direct recovery comparison against secure singleton6eefdc65:** shared-key14Faster each, cycle wall -3.2–8.2%Ice/-4.3–14.1%EPYC; plain18Level each; no Slower metric/phase. AA69d9256b has896Level each host. Frozen shared sampler3a0595df/clocks9994de19, fourfreshpairedlayouts/all64shapes/API_FAMILY=next. `timing-summary.tsv` and raw judgments give every phase/mode; ratios are not composed with released-main or other-source results.
+
+**Quality is not a wholly green runner result:**234tests/22docs, builds and four rejecting/restored controls pass; final full change mutation106/no new survivor/57s onEPYC. The outer quality wrapper then fails on its own generated `?? tmp/` directory. That is the second setup failure after a control-driver anchor fix, so the quality item is stopped without another green-seeking rerun. Initial9bdfe0e9's missing narrow-startup work coverage/equivalent-flag metadata and227s mutation failure are retained. See [VALIDATION.md](VALIDATION.md) for exact sources, evidence and stops. Assembly proofs/eight controls/model cross-check passed on9bdfe0e9 and carry to69d9256b only through explicitly identical complete proof inputs/driver.
+
+**Canonical gate is active:**69d9256b against old fasta930b4c1, frozenbench7ea20449,25namedplainpoints onIce/EPYC, default4layouts/full64pairconfirmation. No result inferred before completion. Startup cost is still open: initialization is outside calibration/cost counters, and earlier startup acceptance does not quantify this source. PhysicalAVX2/nativeARM/owner-selected composition/release acceptance remain separate.
+
+**ARM work requested by John is ready, counting only:** [ARM-WORK.md](ARM-WORK.md). Test child5dcaff05, existing observers/meters, exactoldselector/restoration, separate rentedNEONVM. At512equal-key states/32KiB: allocation requests76→9240, cohort passes2→1024, requested bytes1,375,872→1,228,736. More requests, not more total bytes. Native SME2 execution and recovery remain John's; no new ARM timing or assembly.
+
+## Completed independent safety prerequisite
+
+John requested the following test-only children in #312 comment6730719183 during his separate native timing work. Sam's base request is6730811369; safety handoff6730982769; ARM/counting ack6731362729. These safety children remain independent of the optimization.
 
 | Reviewed safety source | Personal test-only child | Branch | Native quality |
 |---|---|---|---|
@@ -33,10 +47,10 @@ Runs:
 - safety-prefix-main-x86-20261109T023727-b685582b (EPYC)
 - safety-prefix-next-x86-20261109T023730-538d2604 (Ice)
 
-## Next: owner-coordinated runtime integration
+## Integration boundary
 
-The user wants the existing independent-key implementation integrated and plain/shared-key performance retained. John owns the base/integration and nativeARM design. Proposed reviewed next6eefdc65 or an owner-selected successor; confirmation pending at this checkpoint. Current organization next is5d966a0c9f2f1f53bc53a266e7913addcb936873, and #323 remains open at6eefdc65. The reviewed next source is not assumed to contain the separate ring correction.
+The user wants the existing independent-key implementation integrated and plain/shared-key performance retained. John owns the base/integration and nativeARM design. The draft uses reviewed next6eefdc65 provisionally; owner confirmation/safety-composed successor remains pending. Organization next was5d966a0c9f2f1f53bc53a266e7913addcb936873 at refresh, and #323 open at6eefdc65. The draft does not assume this reviewed next source contains the separate ring correction.
 
 The minimum backend prerequisites appear narrower than the historical optimization stack: output8 registration, existing output16 raw-CV mode, per-message held-parent descriptors, public plain-mode fast path, startup/guard/security tests and proof registration. First-chunk gathering/grouped-finalization changes, old ring/protocol code and unrelated proof/mutation-driver rewrites should stay out unless demonstrated necessary. Reuse existing code; no second backend/new assembly design. Do not merge historicalb817ac85 wholesale over current safety fixes.
 
-Until an integrated source exists and is checked directly, its speed, mutation budget, nativeARM portability and release acceptance are open. The released7b1ba7b9 shared-key/finish costs remain the separate exact-source findings in the released-bundle report. Nothing merged, released, tagged, uploaded, yanked or advised by Sam.
+The direct results above belong only to the named personal draft and the stated machines/scopes. Canonical completion, a clean outer quality-run protocol result, startup cost, nativeARM speed and owner-selected integration/release acceptance remain open. The released7b1ba7b9 shared-key/finish costs remain the separate exact-source findings in the released-bundle report. Nothing merged, released, tagged, uploaded, yanked or advised by Sam.

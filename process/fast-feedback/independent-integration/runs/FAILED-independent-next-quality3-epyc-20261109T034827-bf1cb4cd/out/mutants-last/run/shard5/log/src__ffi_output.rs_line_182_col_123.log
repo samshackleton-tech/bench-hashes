@@ -1,0 +1,216 @@
+
+*** src/ffi_output.rs:182:123: replace * with + in self_test_shape
+
+*** mutation diff:
+--- src/ffi_output.rs
++++ replace * with + in self_test_shape
+@@ -174,17 +174,17 @@
+         if shape == 4 {
+             lens[i] = 64;
+         }
+         shape | [0u8, 16, 32, 64][i % 4]
+     });
+     let cvs: [[u32; 8]; 16] = core::array::from_fn(|i| {
+         core::array::from_fn(|w| (0x1234abcdu32.wrapping_add(i as u32 * 0x9e37).wrapping_add(w as u32 * 0x1020304)).wrapping_mul(0x85ebca6b))
+     });
+-    let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j * 17) ^ 0x5a) as u8 } else { 0 }));
++    let blocks: [[u8; 64]; 16] = core::array::from_fn(|i| core::array::from_fn(|j| if j < lens[i] as usize { ((i * 37 + j + /* ~ changed by cargo-mutants ~ */ 17) ^ 0x5a) as u8 } else { 0 }));
+     let inputs = core::array::from_fn(|i| Input { block: &blocks[i], cv: &cvs[i], len: lens[i], flags: flags[i] | if (i / 4) % 2 == 0 { ROOT } else { 0 } });
+     let mut out = [[0u8; OUT_LEN]; 16];
+     hash(&inputs, &mut out);
+     crate::self_test::fold(out.as_flattened())
+ }
+ fn check_self_test(answer: u64) {
+     assert_eq!(answer, SELF_TEST_EXPECTED, "blake3-servil startup self-test failed: independent counter-zero compressions");
+ }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+warning: ignoring --test-threads because --no-run is specified
+    Blocking waiting for file lock on package cache
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/tmp/blake3-servil-mutants/mutants-2hjl6bmh)
+    Finished `mutants` profile [optimized] target(s) in 0.77s
+info: using target runner `sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+
+*** result: Success
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize --lib --tests
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Finished `mutants` profile [optimized] target(s) in 0.02s
+info: using target runner `sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner` defined by environment variable `CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER`
+────────────
+ Nextest run ID 7523112a-58c0-4213-a6e7-961a376c91a4 with nextest profile: mutants
+    Starting 234 tests across 17 binaries (1 binary skipped via profile.mutants.default-filter)
+       START [         ] (  1/234) blake3-servil avx512_32::tests::generated_assembly_matches
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::generated_assembly_matches --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_parent16_dispatch_and_legacy_incrementing_route --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_xof_many
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_xof_many --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::parent16_unaligned_overlapping_output --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds --nocapture
+       START [         ] (  1/234) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512::test::test_wide_dispatch_groups_tails_and_bounds --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output --nocapture
+       START [         ] (  1/234) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact avx512_32::tests::randomized_counters_flags_and_block_counts --nocapture
+        PASS [   0.051s] (  1/234) blake3-servil avx512::test::test_wide_dispatch_groups_tails_and_bounds
+       START [         ] (  2/234) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_messages_hash_as_each_message_alone --nocapture
+        PASS [   0.055s] (  2/234) blake3-servil avx512_32::tests::short_last_blocks_unaligned_and_overlapping_output
+       START [         ] (  3/234) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree --nocapture
+        PASS [   0.058s] (  3/234) blake3-servil avx512::test::test_xof_many
+       START [         ] (  4/234) blake3-servil block::test::test_a_batch_describes_itself
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_describes_itself --nocapture
+        PASS [   0.060s] (  4/234) blake3-servil avx512_32::tests::generated_assembly_matches
+       START [         ] (  5/234) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero --nocapture
+        PASS [   0.062s] (  5/234) blake3-servil avx512_32::tests::parent16_unaligned_overlapping_output
+       START [         ] (  6/234) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks --nocapture
+        PASS [   0.068s] (  6/234) blake3-servil avx512::test::test_parent16_dispatch_and_legacy_incrementing_route
+       START [         ] (  7/234) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_refuses_messages_with_padding --nocapture
+        PASS [   0.076s] (  7/234) blake3-servil avx512_32::tests::guarded_input_key_pointer_table_and_output_bounds
+       START [         ] (  8/234) blake3-servil block::test::test_blocks_mut_writes_the_messages
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_blocks_mut_writes_the_messages --nocapture
+        PASS [   0.025s] (  8/234) blake3-servil block::test::test_a_batch_describes_itself
+       START [         ] (  9/234) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_digests_mut_takes_64_byte_messages --nocapture
+        PASS [   0.087s] (  9/234) blake3-servil avx512_32::tests::randomized_counters_flags_and_block_counts
+       START [         ] ( 10/234) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_blocks_borrows_messages_that_fill_their_blocks --nocapture
+        PASS [   0.026s] ( 10/234) blake3-servil block::test::test_blocks_mut_refuses_messages_with_padding
+       START [         ] ( 11/234) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact block::test::test_from_bytes_takes_aligned_whole_blocks_only --nocapture
+        PASS [   0.022s] ( 11/234) blake3-servil block::test::test_digests_mut_takes_64_byte_messages
+       START [         ] ( 12/234) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_kernel_touches_no_stack --nocapture
+        PASS [   0.020s] ( 12/234) blake3-servil block::test::test_from_bytes_takes_aligned_whole_blocks_only
+       START [         ] ( 13/234) blake3-servil chunk_root::test::test_chunk_root_line_placements
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_line_placements --nocapture
+        PASS [   0.017s] ( 13/234) blake3-servil chunk_root::test::test_chunk_root_kernel_touches_no_stack
+       START [         ] ( 14/234) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+             command: sh /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/library/tools/mutants/test-runner /root/pinned-runs/independent-next-quality3-epyc-20261109T034827-bf1cb4cd/target/mutants/run-5/mutants/deps/blake3_servil-bc509f9e49a01df8 --exact chunk_root::test::test_chunk_root_matches_chunk_state --nocapture
+     SIGABRT [   0.120s] ( 14/234) blake3-servil block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_merkle_layer_lands_in_the_next_layers_blocks' (1994799) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 6: SIGABRT)
+
+  Cancelling due to test failure: immediately terminating 7 tests still running
+     SIGKILL [   0.106s] ( 15/234) blake3-servil block::test::test_blocks_mut_writes_the_messages
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_blocks_mut_writes_the_messages' (1995057) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.128s] ( 16/234) blake3-servil block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::packed_test::packed_storage_is_aligned_and_chains_into_a_tree' (1994739) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.131s] ( 17/234) blake3-servil block::packed_test::packed_messages_hash_as_each_message_alone
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::packed_test::packed_messages_hash_as_each_message_alone' (1994719) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.061s] ( 18/234) blake3-servil chunk_root::test::test_chunk_root_matches_chunk_state
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'chunk_root::test::test_chunk_root_matches_chunk_state' (1995333) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGTERM [   0.068s] ( 19/234) blake3-servil chunk_root::test::test_chunk_root_line_placements
+     SIGKILL [   0.096s] ( 20/234) blake3-servil block::test::test_from_blocks_borrows_messages_that_fill_their_blocks
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_from_blocks_borrows_messages_that_fill_their_blocks' (1995267) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+     SIGKILL [   0.123s] ( 21/234) blake3-servil block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero
+  stdout ───
+
+    running 1 test
+  stderr ───
+
+    thread 'block::test::test_a_batch_keeps_the_bytes_past_its_messages_zero' (1994777) panicked at src/ffi_output.rs:189:5:
+    assertion `left == right` failed: blake3-servil startup self-test failed: independent counter-zero compressions
+      left: 3156346735251637335
+     right: 1530676298979130180
+    note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+    blake3-servil startup self-test failed: a kernel panicked on this build or this CPU
+
+    (test aborted with signal 9: SIGKILL)
+
+────────────
+     Summary [   0.184s] 21/234 tests run: 13 passed, 8 failed, 0 skipped
+warning: 213/234 tests were not run due to test failure (run with --no-fail-fast to run all tests, or run with --max-fail)
+error: test run failed
+
+*** result: Failure(100)
