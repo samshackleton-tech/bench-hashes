@@ -1,8 +1,10 @@
 # Blaze build experiment — November9,2026
 
-## Current result —16:30UTC
+## Current result —17:54UTC
 
-**Canary now builds/runs BLAKE3-Servil, detects a planted source edit, and restores the correct result after byte-exact restoration.** See [CANARY-WORKING.md](CANARY-WORKING.md) for the passing result, isolated prerequisites and all intervening failures. No Cargo-versus-Blaze speed comparison has been measured; existing acceptance gates remain Cargo/rustc-built.
+**Keep Cargo/rustc for this workflow. Canary passes the functional/edit/restoration controls, but both four-pair build-speed comparisons favor Cargo in every measured case.** Release library edits average0.966s versus6.676s; development edits0.253s versus7.156s (Cargo versus canary). Canary's daemon also has substantial resident-memory cost. See [BUILD-SPEED.md](BUILD-SPEED.md) for both complete paired comparisons, daemon resources, preserved failures and scope. Existing acceptance gates remain Cargo/rustc-built; this is not a full mutation/nextest/compile-fail or runtime-equivalence gate.
+
+The earlier passing functional/invalidation gate and its isolated prerequisites remain in [CANARY-WORKING.md](CANARY-WORKING.md). Historical decisions below retain their original scope.
 
 ## Initial decision —15:30UTC (historical)
 

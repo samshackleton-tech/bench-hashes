@@ -39,6 +39,6 @@ Everything continues to execute as uid65534 with an explicit environment, withou
 
 ## Scope still open
 
-There is **no measured Cargo-versus-Blaze speed verdict**. Tools' own times remain in raw logs and are not our benchmark. Full nextest, mutation equivalence, compile-fail safety checks and runtime performance preservation have not been established for Blaze. The successful release build emits an unreachable-code warning at`src/platform.rs:202`, retained rather than suppressed.
+At this16:30functional handoff there was **no measured Cargo-versus-Blaze speed verdict**. The later independent paired measurements are in [BUILD-SPEED.md](BUILD-SPEED.md). Tools' own times remain in raw logs and are not our benchmark. Full nextest, mutation equivalence, compile-fail safety checks and runtime performance preservation have not been established for Blaze. The successful release build emits an unreachable-code warning at`src/platform.rs:202`, retained rather than suppressed.
 
-Canary is now usable for the next bounded build-speed/coverage experiment. Its distinct compiler, linker and pinned nightly remain separate from the existing rustc acceptance gates. The stable diversion was unnecessary and has ended.
+This functional gate established canary's usability for the subsequent bounded build-speed/coverage experiment. Its distinct compiler, linker and pinned nightly remain separate from the existing rustc acceptance gates. The stable diversion was unnecessary and has ended.

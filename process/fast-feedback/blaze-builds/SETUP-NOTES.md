@@ -1,6 +1,6 @@
 # Setup receipts and limits
 
-This study made no speed measurement. Shell/network observations below are setup outcomes, not performance samples.
+These initial receipts precede the later measured comparison in `BUILD-SPEED.md`. Shell/network observations below are setup outcomes, not performance samples.
 
 - Discovery found main d42956161394326e6329acca15180739cf278259, stable pointer0.20261027.0 and canary pointer0.20261105.4. The optional main rust-toolchain.toml URL returned404; the toolchain is documented elsewhere.
 - The first release-document downloader selected `discovery/stable/docs` and `discovery/canary/docs`, but stable/canary already named pointer files. Writes failed with ENOTDIR. Those documents were fetched into `discovery/release-stable/docs` and `discovery/release-canary/docs`; no measurement used either failed destination.
