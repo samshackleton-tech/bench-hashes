@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""procs: find (and optionally signal) processes without pgrep/pkill's footguns.
+
+    procs [-q] [--signal SIG] [--wait SECONDS] SELECTOR...
+
+Selectors (all given must hold; at least one):
+  --script NAME   a process running the script NAME: argv[0], or argv[1] after an
+                  interpreter (bash, sh, python3, ...), whose basename is NAME
+                  (or whose path is NAME, when NAME holds a '/')
+  --script-glob G the script's basename matches the shell glob G (fnmatch), e.g. 'AnsiballZ_*'
+  --exe NAME      argv[0]'s basename (or path) is NAME
+  --comm NAME     the kernel's name for it (/proc/PID/comm, 15 bytes) is NAME
+--script, --script-glob, --exe and --comm may repeat: any one of the given names.
+  --arg STRING    some argv element equals STRING exactly
+  --pid PID       that process, if alive
+  --parent PID    its parent is PID
+  --user NAME     owned by NAME
+Matching is exact, element by element: never a regex over a whole command line,
+so a `bash -c '...'` whose text mentions a name does not match it (pgrep -f's
+self-match). The caller, its ancestors and its descendants are never matched.
+
+  -q              print nothing; the exit status says
+  --signal SIG    send SIG (name or number) to each match
+  --wait SECONDS  with --signal: wait up to SECONDS for the matches to exit
+Exit status: 0 some matched, 1 none, 2 bad usage, 3 still alive after --wait.
+Linux only (/proc).
+"""
+import argparse, fnmatch, os, pwd, signal, sys, time
+
+INTERPRETERS = {"bash", "sh", "dash", "zsh", "python", "python3", "perl", "env", "node", "ruby"}
+
+
+def table():
+    out = {}
+    for d in os.listdir("/proc"):
+        if not d.isdigit():
+            continue
+        pid = int(d)
+        try:
+            with open(f"/proc/{pid}/cmdline", "rb") as f:
+                argv = [a.decode(errors="replace") for a in f.read().split(b"\0")]
+            if argv and argv[-1] == "":
+                argv.pop()
+            with open(f"/proc/{pid}/stat") as f:
+                stat = f.read()
+            with open(f"/proc/{pid}/comm") as f:
+                comm = f.read().rstrip("\n")
+            uid = os.stat(f"/proc/{pid}").st_uid
+        except (FileNotFoundError, ProcessLookupError, PermissionError):
+            continue
+        ppid = int(stat[stat.rindex(")") + 2:].split()[1])
+        out[pid] = (ppid, argv, comm, uid)
+    return out
+
+
+def running(pid):
+    """Alive and not a zombie (one that has exited and waits for its parent's wait)."""
+    try:
+        with open(f"/proc/{pid}/stat") as f:
+            stat = f.read()
+    except (FileNotFoundError, ProcessLookupError):
+        return False
+    return stat[stat.rindex(")") + 2] != "Z"
+
+
+def same(path, name):
+    return path == name if "/" in name else os.path.basename(path) == name
+
+
+def script_of(argv):
+    """The script a process runs: argv[0], or the first non-option argument
+    after an interpreter (and after `env`)."""
+    if not argv:
+        return None
+    i = 0
+    while i < len(argv) and os.path.basename(argv[i]) in INTERPRETERS:
+        i += 1
+        while i < len(argv) and argv[i].startswith("-"):
+            if argv[i] in ("-c", "-m"):
+                return None  # code given inline, no script file
+            i += 1
+    return argv[i] if i < len(argv) else None
+
+
+def main():
+    p = argparse.ArgumentParser(add_help=True, description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    p.add_argument("-q", action="store_true")
+    for o in ("--script", "--script-glob", "--exe", "--comm", "--arg"):
+        p.add_argument(o, action="append")
+    p.add_argument("--pid", type=int); p.add_argument("--parent", type=int); p.add_argument("--user")
+    p.add_argument("--signal"); p.add_argument("--wait", type=float)
+    a = p.parse_args()
+    if not any([a.script, a.script_glob, a.exe, a.comm, a.arg, a.pid is not None, a.parent is not None, a.user]):
+        p.print_usage(sys.stderr); sys.exit(2)
+    if a.wait is not None and a.signal is None:
+        sys.exit("procs: --wait needs --signal")
+    sig = None
+    if a.signal is not None:
+        s = a.signal.upper()
+        sig = int(s) if s.isdigit() else getattr(signal, s if s.startswith("SIG") else "SIG" + s, None)
+        if sig is None:
+            sys.exit(f"procs: no signal {a.signal}")
+    uid = pwd.getpwnam(a.user).pw_uid if a.user else None
+
+    procs = table()
+    me = os.getpid()
+    # Never the caller's own line: itself, its ancestors, its descendants.
+    keep_out, q = set(), me
+    while q in procs and q not in keep_out:
+        keep_out.add(q); q = procs[q][0]
+    children = {}
+    for pid, (ppid, *_r) in procs.items():
+        children.setdefault(ppid, []).append(pid)
+    stack = [me]
+    while stack:
+        for c in children.get(stack.pop(), []):
+            if c not in keep_out:
+                keep_out.add(c); stack.append(c)
+
+    hits = []
+    for pid, (ppid, argv, comm, owner) in sorted(procs.items()):
+        if pid in keep_out or not argv:
+            continue
+        if a.pid is not None and pid != a.pid: continue
+        if a.parent is not None and ppid != a.parent: continue
+        if uid is not None and owner != uid: continue
+        if a.comm and comm not in a.comm: continue
+        if a.exe and not any(same(argv[0], e) for e in a.exe): continue
+        if a.script or a.script_glob:
+            sc = script_of(argv)
+            if sc is None: continue
+            if a.script and not any(same(sc, x) for x in a.script): continue
+            if a.script_glob and not any(fnmatch.fnmatch(os.path.basename(sc), g) for g in a.script_glob): continue
+        if a.arg and not all(x in argv for x in a.arg): continue
+        hits.append((pid, argv))
+
+    for pid, argv in hits:
+        if not a.q:
+            print(pid, " ".join(argv)[:300])
+        if sig is not None:
+            try:
+                os.kill(pid, sig)
+            except ProcessLookupError:
+                pass
+    if not hits:
+        sys.exit(1)
+    if a.wait is not None:
+        end = time.time() + a.wait
+        alive = [pid for pid, _ in hits]
+        while alive and time.time() < end:
+            time.sleep(0.1)
+            alive = [pid for pid in alive if running(pid)]
+        if alive:
+            if not a.q:
+                print("still alive:", *alive, file=sys.stderr)
+            sys.exit(3)
+
+
+main()
