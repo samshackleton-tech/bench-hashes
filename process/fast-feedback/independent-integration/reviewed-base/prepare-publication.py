@@ -3,13 +3,16 @@
 from pathlib import Path
 import hashlib
 import json
-import os
 import shutil
 import stat
 import subprocess
+import sys
 
-SOURCE = Path(__file__).resolve().parent
-TARGET = Path('/home/samshackleton/work/bench-fast-feedback/process/fast-feedback/independent-integration/reviewed-base')
+assert len(sys.argv) in (1, 3), 'optional arguments: SOURCE TARGET'
+SOURCE = Path(sys.argv[1]).resolve() if len(sys.argv) == 3 else Path(__file__).resolve().parent
+TARGET = Path(sys.argv[2]).resolve() if len(sys.argv) == 3 else Path('/home/samshackleton/work/bench-fast-feedback/process/fast-feedback/independent-integration/reviewed-base')
+assert SOURCE.is_relative_to('/home/samshackleton/blake3-reports')
+assert TARGET.is_relative_to('/home/samshackleton/work/bench-fast-feedback/process/fast-feedback')
 GENERATED = {'FILES.json', 'SHA256SUMS', 'BLAKE3SUMS', 'EXCLUDED.json'}
 excluded = []
 for p in sorted(SOURCE.rglob('*')):

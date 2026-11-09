@@ -94,6 +94,14 @@ EPYC has no Slower metric/phase in any direct comparison; neither recovery study
 
 The first3f1 quality wrapper attempt selected an ambiguous shortened production anchor that also matched an indented test. No planted edit ran; the rawFAILED item is included. One repair uses the full production declaration/debug-assert block; all nine changed control inputs were constructed and checked before the successful fresh execution. Physical AVX2/native ARM decisions remain separate.
 
+## Bounded512diagnosis and new coverage hold
+
+[BOUNDED-DIAGNOSIS.md](BOUNDED-DIAGNOSIS.md) records the completed caller-only experiments. Unchanged91 with a split512caller reproduces Icecyclewall+4.1…+4.4%Slower, without the new backend/stack workspace; unchanged1cbdf's split isLevel on both hosts. Four source/host split matrices and four caller-order matrices retain all phases/metrics, four fresh paired layouts and384checked counterrows/run. Identity order improves Ice512finishwall6.7…11.2% with cycle/updateLevel. These are16-shape diagnostics, not a new preservation/canonical gate or a library fix. Matched observers establish actual cohorts/requests/native layout; the extended scalar-entry observer records one compress_in_place per selected message during finish. The first count wrapper's unsupportedforbid schema/lost status and corrected matched execution are retained.
+
+The same report links offline native2062counter attribution from John's immutable evidence; Sam executed nothing on the Mac/VM. P/Eresidency does not change in the four finish-cycle suspects; the counter and wall intervals differ, and the wider interval's extra cost remains for an owner-run reader/state control. Original Slower verdicts stay intact.
+
+Devon #3256739087547 reports12new-survivor names on physicalAVX2 for1cbdf/0b5,163mutants/406s, including held_groups arithmetic and the intentionallyAVX512-only input/finalize path. This is an additional coverage/budget hold. Sam requested immutable selected-test/outcome/config evidence in6739412944; no arithmetic survivor was excluded or assumed unreachable. Pure mapping and descriptor semantics can get direct tests without widening production finalization or executing unsupported instructions.
+
 ## Retained stage experiment and operational history
 
 Before the new handoff, personal41a7db35 composed b343ed4c with the stage-scatter backend.235release/22docs and seven controls passed; its mutation **failed104mutants/one new width-comparison survivor/97s over60**. The first driver attempt mistakenly selected a NEON-only startup test; one filter repair and the original failure are included. c2accbc6 removes the redundant platform predicate rather than exclude its survivor; same execution ultimately completes102mutants/no new survivor/53s,235/22/sevencontrols.

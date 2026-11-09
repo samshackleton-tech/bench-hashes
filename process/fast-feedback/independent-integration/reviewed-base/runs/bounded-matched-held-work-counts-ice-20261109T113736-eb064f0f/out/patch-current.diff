@@ -1,0 +1,92 @@
+diff --git a/src/each.rs b/src/each.rs
+index e4f9af3..751f923 100644
+--- a/src/each.rs
++++ b/src/each.rs
+@@ -615,6 +615,61 @@ fn left_len(n: usize) -> usize {
+     1 << (usize::BITS - 1 - (n - 1).leading_zeros())
+ }
+ 
++#[cfg(all(test, feature = "std"))]
++mod bounded_diagnosis {
++    use super::*;
++    fn clear() {
++        crate::COUNTED.with(|c| c.iter().for_each(|x| x.set(0)));
++        crate::RAN_ENTRIES.with(|x| x.borrow_mut().clear());
++        crate::RAN.with(|x| x.set(0));
++        HELD_GROUPS.with(|x| x.borrow_mut().clear());
++    }
++    fn snapshot() {
++        let counts: [u64; 6] = crate::COUNTED.with(|c| core::array::from_fn(|i| c[i].get()));
++        eprintln!("S counts={counts:?} selector={}", crate::RAN.with(|x| x.get()));
++        HELD_GROUPS.with(|x| eprintln!("G {:?}", &*x.borrow()));
++        crate::RAN_ENTRIES.with(|x| eprintln!("K {:?}", &*x.borrow()));
++        eprintln!("END");
++    }
++    #[test]
++    fn work_order() {
++        eprintln!("ANCHOR {:x}", crate::initialize as *const () as usize);
++        clear();eprintln!("BEGIN startup");crate::initialize();snapshot();
++        for n in [128usize, 512] {
++            for len in [16384usize, 32768] {
++                let data: Vec<Vec<u8>> = (0..n).map(|i| (0..len).map(|j| (i * 31 + j * 17) as u8).collect()).collect();
++                let keys: Vec<[u8; 32]> = (0..n).map(|i| core::array::from_fn(|j| (i * 37 + j * 11) as u8)).collect();
++                for flavor in 0..4 {
++                    let mode = |i: usize| match flavor { 0 => Mode::Plain, 1 => Mode::Keyed(&keys[0]), 2 => Mode::Keyed(&keys[i]), _ => match i % 3 { 0 => Mode::Plain, 1 => Mode::Keyed(&keys[i]), _ => Mode::DeriveKey("bounded work-order diagnosis") } };
++                    for partition in [usize::MAX, 128] {
++                        let mut hashers: Vec<_> = (0..n).map(|i| Hasher::new(mode(i), None)).collect();
++                        let first = &hashers[0];
++                        eprintln!("LAYOUT n={n} flavor={flavor} partition={partition} size={} align={} base={:x} stride={} core_offset={} key_offset={} stage_offset={} stage_len={}", core::mem::size_of::<Hasher>(), core::mem::align_of::<Hasher>(), first as *const _ as usize, (&hashers[1] as *const _ as usize) - (first as *const _ as usize), (&first.core as *const _ as usize) - (first as *const _ as usize), first.core.key.as_ptr() as usize - (first as *const _ as usize), first.stage.as_ptr() as usize - (first as *const _ as usize), first.stage.len());
++                        let mut out = vec![[0u8; OUT_LEN]; n];
++                        // Same allocated states/data for both public caller orders.
++                        for order in [0usize, 61] {
++                        let which: Vec<_> = (0..n).map(|i| if order == 0 { i } else { (i * order) % n }).collect();
++                        let expected: Vec<_> = data.iter().enumerate().map(|(i, bytes)| crate::test::official::hash(mode(which[i]), bytes)).collect();
++                        for cycle in 0..2 {
++                            for (piece, from) in (0..len).step_by(4096).enumerate() {
++                                let pieces: Vec<_> = data.iter().enumerate().map(|(i, bytes)| (which[i], &bytes[from..from + 4096])).collect();
++                                clear();eprintln!("BEGIN update n={n} len={len} flavor={flavor} partition={partition} order={order} cycle={cycle} piece={piece}");
++                                for part in pieces.chunks(partition) { update_each(&mut hashers, part); }
++                                snapshot();
++                                assert!(hashers.iter().all(|h| h.held_group().is_none()), "each caller turn completes its ready stages");
++                            }
++                            clear();eprintln!("BEGIN finish n={n} len={len} flavor={flavor} partition={partition} order={order} cycle={cycle}");
++                            finalize_each(&mut hashers, &which, &mut out);snapshot();
++                            assert_eq!(out, expected, "diagnostic rows must produce their actual digests");
++                        }
++                        }
++                    }
++                }
++            }
++        }
++    }
++}
++
+ #[cfg(test)]
+ mod test {
+     use super::*;
+diff --git a/src/lib.rs b/src/lib.rs
+index e2353c8..613ad3e 100644
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -411,7 +411,7 @@ std::thread_local! {
+ #[allow(dead_code)]
+ pub(crate) fn ran_kernel(entry: *const ()) {
+     #[cfg(all(test, feature = "std"))]
+-    RAN_ENTRIES.with(|r| r.borrow_mut().insert(entry as usize));
++    RAN_ENTRIES.with(|r| { eprintln!("E {:x}", entry as usize); r.borrow_mut().insert(entry as usize) });
+     let _ = entry;
+ }
+ 
+diff --git a/src/platform.rs b/src/platform.rs
+index 8820c04..a9ac919 100644
+--- a/src/platform.rs
++++ b/src/platform.rs
+@@ -327,6 +327,8 @@ impl Platform {
+     ) {
+         // Every kernel hashes whole blocks: an input of another length
+         // would lose its tail, so it cannot compile.
++        #[cfg(all(test, feature = "std"))]
++        eprintln!("H {:?} {} {} {} {} {} {} {:x} {:x} {:x}", self, N, inputs.len(), counter, increment_counter.yes() as u8, flags, out.len(), inputs.first().map_or(0, |b| b.as_ptr() as usize), out.as_mut_ptr() as usize, key.as_ptr() as usize);
+         const { assert!(N > 0 && N % BLOCK_LEN == 0, "hash_many inputs are whole blocks") };
+         // The shapes the crate makes, which every kernel takes: whole chunks
+         // at counters counting up, or 1 to 16 whole blocks at one counter.

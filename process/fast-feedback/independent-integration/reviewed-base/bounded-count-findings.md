@@ -1,0 +1,11 @@
+The first bounded result isolates a trigger **without changing library code**:
+
+- Matched count-only patches on1cbdf/f139/91 check897startup/update/finish/repeated-cycle records per source, including the sampler's `(i*61)%open` order and an identity-order control. At512plain×16KiB,1cbdf/f139 take4×128cohorts/528hash_many requests versus91's1×512/516requests; all consume8,192leafchunks and7,680parentblocks. Shared1cbdf has512leaf requests+480output16 entries, the same counts as91 but divided into4held passes; f139 instead has512singleton passes/2,560hash_many requests. NativeHasher stride18,432B/align64, core/key/stage offsets0/128/1,984; caller owns all touched lines. No false-sharing claim.
+- **Unchanged91, whole512 caller versus four adjacent128piece calls:** Ice512 cyclewall is Slower in all modes, plain+4.14/+4.15%, shared+4.44/+4.20% at16/32KiB; updateplain+4.66/+5.15%,shared+4.83/+4.95%.32KiBfinishwall is also Slower(+4.4…+5.5%). EPYC all224metric/phase cellsLevel.128controls stayLevel.
+- **Unchanged1cbdf**, the same caller split, is all224cellsLevel on both hosts: it already has the bounded cadence. Both fresh A/A studies224Level. Four fresh private layout pairs; complete-cycle/update/consume-once finish scopes and frozen judge retained.
+
+Thus the512cost can be reproduced in91 **without the new backend or stack workspace**. This points to the128flush/caller chronology and associated scratch/allocation lifetime, not uniquely to a new backend/frame. The split also changes91's per-flush scratch/request lifetimes, so it does not yet distinguish those from memory-walk/cache effects. No composed ratios or cache-cause claim; all original costs remain held. I am doing a fixed-library identity-versus61-permuted caller-order ablation next, with unchanged capacities/owners/placement.
+
+Existing entry observers miss ordinary compress_xof finish calls; zero observed finish entries is **not zero work**. I will extend that same observer at the missing test-only entry points, not infer unchanged finish work from empty sets. The first ordered count payload completed but its outer wrapper became lost because I supplied an unsupported object in the string-onlyforbid list; preserved raw. The corrected, explicitly matched count item isVERIFIED; not a hidden timing repeat.
+
+— Sam Shackleton
