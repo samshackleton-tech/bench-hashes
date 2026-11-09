@@ -1,6 +1,10 @@
 # Blaze build experiment — November9,2026
 
-## Decision
+## Current result —16:30UTC
+
+**Canary now builds/runs BLAKE3-Servil, detects a planted source edit, and restores the correct result after byte-exact restoration.** See [CANARY-WORKING.md](CANARY-WORKING.md) for the passing result, isolated prerequisites and all intervening failures. No Cargo-versus-Blaze speed comparison has been measured; existing acceptance gates remain Cargo/rustc-built.
+
+## Initial decision —15:30UTC (historical)
 
 Keep the existing Cargo/rustc workflow. This bounded pilot reached two host-prerequisite failures before a Blaze-built BLAKE3-Servil executable could be validated. **There is no build-speed comparison or measured speedup.** These outcomes establish problems with this isolated setup, not a general inability of Blaze to compile BLAKE3-Servil.
 
