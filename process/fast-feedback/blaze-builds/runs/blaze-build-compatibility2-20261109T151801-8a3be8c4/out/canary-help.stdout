@@ -1,0 +1,48 @@
+blaze: Rust's cargo, built by blaze's daemon
+
+Usage: blaze <COMMAND> [OPTIONS]
+       cargo blaze <COMMAND> [OPTIONS]
+
+Commands:
+    build, b    Compile the current package
+    check, c    Analyze the current package with every lint (rustc's, clippy's, blaze's) and report
+                errors, but don't build object files; `--fix [--lint NAME]...` makes the
+                machine-applicable suggestions, `--replace FROM=TO` retargets every reference to
+                the item FROM to TO by name resolution, `--baselines DIR` holds lint counts to DIR's
+    run, r      Run a binary or example of the local package
+    test, t     Run the tests
+    bench       Run the benchmarks
+    doc, d      Build a package's documentation, from blaze's front end: no rustdoc runs
+    lock        Resolve the workspace and write Cargo.lock and blaze.lock, saying what moved, even
+                under CI or `lock = "required"`; nothing is checked or built
+    clean       Remove the workspace's build directory (under blaze's root, never in the checkout);
+                `--list` every workspace's with its size, `--all` removes them all
+    cache gc    Collect what blaze keeps on disk now (`--dry-run` removes nothing, `--last`
+                prints the daemon's last runs)
+    fmt         Format the workspace's packages with blaze's own rustfmt (`--check`, `-p NAME`,
+                `--all`, `-- RUSTFMT_ARGS`), or the `.rs` files named; `blaze fmt --help`
+    serve       Run the daemon the other commands are clients of
+    stop        Make the daemon's state durable and stop it
+    status      What the daemon is doing (`--json`: one object, docs/cargo.md)
+    toolchain   Download the Rust blaze builds with, once (`--json`: its name, host and sysroot)
+    daemon      install: the system starts the daemon on demand; uninstall
+    codegen-inputs --format=json   Each instance the last build made, with its code hash
+    trace --out PATH               Every result of the last build, with its edges, as CBOR
+    tables --format=json           The size of each of the daemon's long-lived tables
+    pack -p PACKAGE --out PATH     The program checked for wasm32, packed for the in-browser compiler
+    explore [--dev] [--print]      The explorer: the daemon's builds and spans at https://ix.dev/explore
+    debug profile [--seconds N]    The daemon's flight recorder as a Chrome trace
+    debug live                     The daemon's threads as they run
+    debug sql QUERY                SQL over the profile history, flushed first (every row recorded so far)
+    explain RULE|PACKAGE|VIEW      A rule's long text, the last failure of PACKAGE with all it blocks, or a history view
+    why [ITEM] [--all] [--json]    What the last build computed again instead of reusing, and why
+    reach [ROOT] [--json]          What the edits since ROOT reach (items, functions, tests), and the root now
+    slow [--build N] [--top N] [--json]   What made the last build slow, ranked by the time each fix saves
+    pprof FILE|URL [top|peek|tree|list|flame|diff|export|--http]   Any program's profile (.ixprof or pprof), like `go tool pprof`
+    perf record|runs|diff          The performance history of programs blaze built: what changed between runs, and why
+
+Options:
+    -V, --version  Print version info and exit
+    -h, --help     Print help
+
+Every command takes cargo's flags; `blaze help <COMMAND>` lists them.
