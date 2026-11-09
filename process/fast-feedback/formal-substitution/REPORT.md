@@ -37,8 +37,16 @@ Imports, assembly/disassembly preparation and input-source copies occur outside 
 
 The separate driver-process resource means are diagnostic totals, **not separately judged**: the chunk process is30.8893→30.5432s, with peakRSS988.80–988.84MBold/988.56–988.91MBnew. The proof region is the11.60→11.32s interval above; do not call it the whole process. Direct-Python teardown and the production multiprocessing worker lifecycle differ, so those process totals are not production pool-throughput evidence. No memory-saving claim follows from these small peak variations.
 
+## Retired-instruction attribution
+
+A subsequent bounded diagnostic, `formal-proof-instruction-profile2-epyc-20261109T130317-985d333d`, isVERIFIED on the same58aa5767source/full chunk proof. It reuses the clocks callback/child and enables `perf` sampling only around that proof, one sample per100million retired user instructions.1,485samples, zero lost. Leaf attribution:1,036samples in CPython3.14,157inlibz3,165in_ctypes/libffi and117inlibc. `_PyEval_EvalFrameDefault` alone has346samples. These are **instruction-sample counts, not elapsed-time percentages**, from one diagnostic execution; its recorded clocks figures are not another speed comparison.
+
+The first profile attempt failed at its controller's disable ACK. Linuxperf writes `sizeof("ack\\n")`, including a terminating NUL; the text reader left that NUL for the next response. V1/raw remain. One repair validates the exact five bytes, with positive/reject-short preflight controls; both actual ACKs are recorded. Binary profile data stays local; complete text stacks/report are included.
+
+This narrows the next bounded speed investigation toward repeated Python/ctypes API and wrapper work, before another solver, cache or worker policy. Preserve API/error checks and existing fault controls while eliminating redundant boundary work. The profile does not yet identify which Python function earns a change.
+
 ## Remaining work
 
-The next speed question is where the useful proof region spends the remaining work, before adding another cache or changing worker policy. Independent theorem/definition binding and a second kernel remain a separate bounded pilot: compatible tool sources were inspected, but no checker was installed or executed in this window. The library's Lean4.34.1 pin remains unchanged. No new proof framework or incidental toolchain upgrade was adopted.
+The next speed question is which repeated Python-side operation can be removed while preserving the reference/model boundary. Independent theorem/definition binding and a second kernel remain a separate bounded pilot: compatible tool sources were inspected, but no checker was installed or executed in this window. The library's Lean4.34.1 pin remains unchanged. No new proof framework or incidental toolchain upgrade was adopted.
 
 The overnight runtime-integration diagnosis took priority under John's plan. Exact failures, controls, executing drivers and raw costs are retained so a reviewer can reproduce the result and choose the next bottleneck study.
