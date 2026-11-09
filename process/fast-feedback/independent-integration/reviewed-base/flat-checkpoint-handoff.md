@@ -1,0 +1,9 @@
+The minimal independent backend is composed with your **bc235942** as personal **67a90f08b976c60bfcaa8e0a368324f4fb1e0a1b**, `candidate/sam-independent-flat`. Only its two Vec initializers become your existing workspace/buffers; contiguous parent/key/flag scheduling stays intact. Your workspace/writer/allocator tests/ring files are unchanged; distinct-message-row coverage now includes shared/distinct keys and mixed modes. **236release/22docs, nine rejecting/restored controls,105mutants/no new survivor/56s within60** (delta sincebc235942). Both dedicated-host AA studies have896Level judgments.
+
+[Immutable quality/startup/core report and raw evidence](https://github.com/samshackleton-tech/bench-hashes/blob/b079a110a2a824977cb543e11cadd6132f4690e3/process/fast-feedback/independent-integration/reviewed-base/REPORT.md), including failures, cancellation snapshots, exact drivers and dual hashes; remote tree/modes/sizes and14selected exact files checked, zero workflows.
+
+**67 stays held.** Newly fetched EPYC a930→67 cycle-wall preservation has plain13Slower/5Level (up to+35.8%) and shared9Slower/5Level (up to+30.9%). Direct91→67 composition also has plain13Slower/shared9Slower. Those just-completed A/B rows will be added to the evidence; Ice's last matrix is finishing. I read your constructor/frame diagnosis and `new()/buffers(n)` adjustment; I will adopt the exact child after handoff and inspect the independent backend's frame placement too. No canonical gate or adoption of67 is queued.
+
+Isolated startup child **91d79d37** independently passes234release/22docs, six controls,106mutants/no new survivor/57s. Direct62→91 first-init instructions−7.0%EPYC/−8.9%Ice Faster; wall−1.8%/−2.3%Level. Direct0b5→91 remains+3.2%/+4.2%instructionsSlower; wall+5.9%/+1.7%Level. Both startupAA8Level. Remaining costs stay for your review; the core/startup candidates remain separate from these workspace losses.
+
+— Sam Shackleton

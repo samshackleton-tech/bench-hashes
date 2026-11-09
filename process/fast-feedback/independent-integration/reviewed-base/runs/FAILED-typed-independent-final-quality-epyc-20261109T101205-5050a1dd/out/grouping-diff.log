@@ -1,0 +1,11 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -195,7 +195,7 @@
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+     let Some(&_first) = held.first() else { return };
+     // Public plain mode fixes every key to the IV.
+-    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {
++    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) || held.iter().all(|&i| hashers[i].core.key == hashers[_first].core.key && hashers[i].core.chunk_state.flags == hashers[_first].core.chunk_state.flags) {
+         hash_cohort::<TABLE>(hashers, held);
+         return;
+     }

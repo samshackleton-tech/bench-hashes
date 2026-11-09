@@ -1,0 +1,28 @@
+--- src/each.rs
++++ src/each.rs (new)
+@@ -193,24 +193,7 @@
+ /// never determine grouping, allocation or dispatch.
+ #[cfg(feature = "std")]
+ fn hash_held(hashers: &mut [Hasher], held: &[usize]) {
+-    let Some(&_first) = held.first() else { return };
+-    // Public plain mode fixes every key to the IV.
+-    if held.iter().all(|&i| hashers[i].core.chunk_state.flags == 0) {
+-        hash_cohort::<TABLE>(hashers, held);
+-        return;
+-    }
+-    #[cfg(all(blake3_avx512_ffi, target_os = "linux"))]
+-    {
+-        let platform = hashers[_first].core.chunk_state.platform;
+-        if matches!(platform, Platform::AVX2 | Platform::AVX512) {
+-            crate::ffi_output::held_groups(hashers, held, platform);
+-            #[cfg(all(test, feature = "std"))]
+-            HELD_GROUPS.with(|groups| groups.borrow_mut().push(held.to_vec()));
+-            crate::counted(crate::Counted::HeldPass);
+-            return;
+-        }
+-    }
+-    // Other platforms retain public-mode cohorts in the same ready bound.
++    // Plain's key is the IV, the same for every plain hasher.
+     let mut plain = arrayvec::ArrayVec::<usize, TABLE>::new();
+     plain.extend(held.iter().copied().filter(|&i| hashers[i].core.chunk_state.flags == 0));
+     if !plain.is_empty() {

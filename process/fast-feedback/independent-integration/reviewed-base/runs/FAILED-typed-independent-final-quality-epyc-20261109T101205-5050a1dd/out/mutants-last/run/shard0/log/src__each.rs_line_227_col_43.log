@@ -1,0 +1,44 @@
+
+*** src/each.rs:227:43: replace / with %
+
+*** mutation diff:
+--- src/each.rs
++++ replace / with %
+@@ -219,17 +219,17 @@
+     for &i in held {
+         if hashers[i].core.chunk_state.flags != 0 {
+             hash_cohort::<1>(hashers, &[i]);
+         }
+     }
+ }
+ 
+ /// Parent blocks supplied by a full staged message's pairs of CVs.
+-const STAGE_PARENTS: usize = ALONE_CHUNKS / 2;
++const STAGE_PARENTS: usize = ALONE_CHUNKS % /* ~ changed by cargo-mutants ~ */ 2;
+ 
+ /// Contiguous parent inputs retain the kernels' direct path. Both CV
+ /// levels live on the stack; ping-pong leaves the final two children in
+ /// the other buffer. Block supplies the existing 64-byte alignment.
+ pub(crate) struct HeldWorkspace<const N: usize> {
+     level: arrayvec::ArrayVec<[Block; STAGE_PARENTS], N>,
+     next: arrayvec::ArrayVec<[Block; STAGE_PARENTS / 2], N>,
+ }
+
+
+*** /root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo nextest run --no-run --cargo-profile=mutants --verbose --package=blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features=serde,zeroize
+warning: ignoring --test-threads because --no-run is specified
+   Compiling blake3-servil v0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 (/root/pinned-runs/typed-independent-final-quality-epyc-20261109T101205-5050a1dd/tmp/blake3-servil-mutants/mutants-e1hmm34_)
+error: this operation will panic at runtime
+   --> src/each.rs:320:32
+    |
+320 |             let (full, tail) = bytes.as_chunks::<BLOCK_LEN>().0.as_chunks::<STAGE_PARENTS>();
+    |                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ const parameter `N` is zero
+    |
+    = note: `#[deny(unconditional_panic)]` on by default
+
+error: could not compile `blake3-servil` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `blake3-servil` (lib test) due to 1 previous error
+error: command `/root/.rustup/toolchains/stable-x86_64-unknown-linux-gnu/bin/cargo '--color=auto' test --no-run --message-format json-render-diagnostics --package blake3-servil@0.8.0+b3c5efc7c975d903762dea809066f7c0a0603861 --features serde,zeroize --profile mutants` exited with code 101
+
+*** result: Failure(101)

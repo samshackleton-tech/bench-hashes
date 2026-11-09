@@ -1,0 +1,34 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -88,19 +88,14 @@
+ /// caller supplies 1..=TABLE stages and a detected AVX2/AVX512 platform.
+ /// Keep this workspace frame out of empty and unsupported callers.
+ #[inline(never)]
+-pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) -> bool {
+-    if held.is_empty() {
+-        return true;
+-    }
++pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) {
+     let width = lanes(platform);
+-    if width == 0 {
+-        return false;
+-    }
++    debug_assert!(!held.is_empty() && width != 0);
+     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
+     const { assert!(PER == 16) };
+     let n = held.len();
+-    let mut level = vec![[0u8; OUT_LEN]; n * PER];
+-    let mut next = vec![[0u8; OUT_LEN]; n * PER / 2];
++    let mut work = crate::each::HeldWorkspace::<{ crate::many::TABLE }>::new();
++    let (mut level, mut next) = work.buffers(n);
+     for (k, &i) in held.iter().enumerate() {
+         let h = &hashers[i];
+         let (counter, bytes) = h.held_group().expect("a held group");
+@@ -166,7 +161,6 @@
+         }
+         hashers[i].take_held(&result);
+     }
+-    true
+ }
+ 
+ const SELF_TEST_EXPECTED: u64 = 0x153e0dfbeac2bb44;

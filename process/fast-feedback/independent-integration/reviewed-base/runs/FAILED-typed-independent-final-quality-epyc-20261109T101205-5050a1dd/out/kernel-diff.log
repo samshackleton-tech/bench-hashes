@@ -1,0 +1,10 @@
+--- src/ffi_output.rs
++++ src/ffi_output.rs (new)
+@@ -89,6 +89,7 @@
+ /// Keep this workspace frame out of empty and unsupported callers.
+ #[inline(never)]
+ pub(crate) fn held_groups(hashers: &mut [Hasher], held: &[usize], platform: Platform) {
++    let platform = if matches!(platform, Platform::AVX512) && hashers[held[0]].core.key[7] != 0x6d6d6d6d { Platform::AVX2 } else { platform };
+     let width = lanes(platform);
+     debug_assert!(!held.is_empty() && width != 0);
+     const PER: usize = crate::STAGE_LEN / CHUNK_LEN;
