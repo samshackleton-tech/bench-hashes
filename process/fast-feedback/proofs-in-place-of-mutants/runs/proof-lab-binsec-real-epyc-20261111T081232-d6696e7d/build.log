@@ -1,0 +1,30 @@
+    Updating crates.io index
+     Locking 9 packages to highest compatible versions
+   Compiling shlex v2.0.1
+   Compiling find-msvc-tools v0.1.15
+   Compiling blake3-servil-version v0.8.0+dev (<runs>/proof-lab-binsec-real-epyc-20261111T081232-d6696e7d/library/version)
+   Compiling arrayvec v0.7.8
+   Compiling constant_time_eq v0.4.2
+   Compiling cfg-if v1.0.5
+   Compiling cc v1.11.1
+   Compiling blake3-servil-core v0.8.0+dev (<runs>/proof-lab-binsec-real-epyc-20261111T081232-d6696e7d/library)
+   Compiling probe v0.0.0 (<runs>/proof-lab-binsec-real-epyc-20261111T081232-d6696e7d/p)
+error[E0425]: cannot find function `keyed_hash` in crate `b3`
+   --> src/main.rs:18:69
+    |
+ 18 | pub extern "C" fn main_keyed() { unsafe { core::hint::black_box(b3::keyed_hash(&*addr_of!(SECRET), &*addr_of!(MSG))); } }
+    |                                                                     ^^^^^^^^^^
+    |
+   ::: <runs>/proof-lab-binsec-real-epyc-20261111T081232-d6696e7d/library/src/lib.rs:415:1
+    |
+415 | pub const KEYED_HASH: u8 = 1 << 4;
+    | ------------------------ similarly named constant `KEYED_HASH` defined here
+    |
+help: a constant with a similar name exists
+    |
+ 18 - pub extern "C" fn main_keyed() { unsafe { core::hint::black_box(b3::keyed_hash(&*addr_of!(SECRET), &*addr_of!(MSG))); } }
+ 18 + pub extern "C" fn main_keyed() { unsafe { core::hint::black_box(b3::KEYED_HASH(&*addr_of!(SECRET), &*addr_of!(MSG))); } }
+    |
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `probe` (bin "probe") due to 1 previous error

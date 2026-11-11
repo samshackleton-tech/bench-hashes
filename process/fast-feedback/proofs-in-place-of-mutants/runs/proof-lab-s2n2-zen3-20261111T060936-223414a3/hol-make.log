@@ -1,0 +1,1223 @@
+\
+  cp update_database/`update_database/chooser.sh` update_database.ml
+\
+  cp pa_j/`pa_j/chooser.sh` pa_j.ml
+if test `ocamlc -version | cut -c1-3` = "3.0" ; \
+                   then ocamlc -c -pp "camlp4r pa_extend.cmo q_MLast.cmo" -I `camlp4 -where` pa_j.ml ; \
+                   elif test `ocamlc -version | cut -c1-3` = "3.1" -o `ocamlc -version | cut -c1-4` = "4.00" -o `ocamlc -version | cut -c1-4` = "4.01"  -o `ocamlc -version | cut -c1-4` = "4.02" -o `ocamlc -version | cut -c1-4` = "4.03" -o `ocamlc -version | cut -c1-4` = "4.04" -o `ocamlc -version | cut -c1-4` = "4.05" ; \
+                   then ocamlc -c -pp "camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo" -I `camlp5 -where` pa_j.ml ; \
+                   else ocamlc -safe-string -c -pp "camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo" -I `camlp5 -where` -I `ocamlfind query camlp-streams` pa_j.ml ; \
+                   fi
+\
+        if test `ocamlc -version | cut -c1-4` = "4.14" -o `ocamlc -version | cut -c1` = "5" ; \
+        then ocamlfind ocamlc -package zarith -c -o bignum.cmo bignum_zarith.ml ; \
+        else ocamlc -c -o bignum.cmo bignum_num.ml ; \
+        fi
+\
+        ocamlc -verbose -c hol_loader.ml -o hol_loader.cmo
+File "hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+echo "HOLLIGHT_USE_MODULE=1" > config.mk
+\
+        HOLLIGHT_DIR="`pwd`" ocaml inline_load.ml hol_lib.ml hol_lib_inlined.ml -omit-prelude
+File "./hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+File "lib.ml" already loaded
+File "fusion.ml" already loaded
+File "basics.ml" already loaded
+File "nets.ml" already loaded
+File "printer.ml" already loaded
+File "preterm.ml" already loaded
+File "printer.ml" already loaded
+File "equal.ml" already loaded
+File "bool.ml" already loaded
+File "drule.ml" already loaded
+File "tactics.ml" already loaded
+File "itab.ml" already loaded
+File "simp.ml" already loaded
+File "theorems.ml" already loaded
+File "ind_defs.ml" already loaded
+File "class.ml" already loaded
+File "trivia.ml" already loaded
+File "canon.ml" already loaded
+File "meson.ml" already loaded
+File "firstorder.ml" already loaded
+File "metis.ml" already loaded
+File "thecops.ml" already loaded
+File "quot.ml" already loaded
+File "impconv.ml" already loaded
+File "pair.ml" already loaded
+File "compute.ml" already loaded
+File "nums.ml" already loaded
+File "recursion.ml" already loaded
+File "arith.ml" already loaded
+File "wf.ml" already loaded
+File "calc_num.ml" already loaded
+File "normalizer.ml" already loaded
+File "grobner.ml" already loaded
+File "ind_types.ml" already loaded
+File "lists.ml" already loaded
+File "realax.ml" already loaded
+File "calc_int.ml" already loaded
+File "realarith.ml" already loaded
+File "real.ml" already loaded
+File "calc_rat.ml" already loaded
+File "int.ml" already loaded
+File "sets.ml" already loaded
+File "iterate.ml" already loaded
+File "cart.ml" already loaded
+\
+        ocamlc -verbose -c -pp "camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo -I . pa_j.cmo" hol_loader.cmo hol_lib_inlined.ml bignum.cmo -o hol_lib.cmo
++ camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo -I . pa_j.cmo 'hol_lib_inlined.ml' > /tmp/ocamlpp9002cf
+    * HOL-Light syntax in effect *
+
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", line 238, characters 19-71:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Tyapp ("fun", _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 235-239, characters 4-53:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 330-334, characters 4-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 443-456, characters 4-22:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Abs (Var (_, _), _), Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", line 594, characters 39-67:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const (_, _)|Comb (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/basics.ml", line 150, characters 18-24:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/basics.ml", lines 172-174, characters 2-29:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+("fun", _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nets.ml", line 93, characters 52-61:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/printer.ml", lines 662-667, characters 6-35:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/printer.ml", lines 669-677, characters 6-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/preterm.ml", lines 390-399, characters 4-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Typing (_, _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/preterm.ml", lines 407-417, characters 4-41:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Typing (_, _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/parser.ml", line 288, characters 15-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Combp (Combp (Varp ("", _), _), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/parser.ml", line 344, characters 10-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Resword _
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 169, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 174, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 186, characters 21-27:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 305, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 310, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 344, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 349, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 387, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 392, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 135, characters 24-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 136, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 178, characters 31-41:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 247, characters 10-54:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 338, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 360, characters 28-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 379-380, characters 14-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 389, characters 14-43:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 438, characters 14-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 443, characters 14-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 449, characters 10-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 455, characters 14-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 463, characters 13-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 469, characters 14-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 490, characters 14-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 503, characters 16-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 509, characters 10-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 533, characters 39-64:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 539, characters 32-66:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 545, characters 34-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 556, characters 16-71:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 560, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 567, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 592, characters 29-66:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 722, characters 14-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 735, characters 10-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 889, characters 16-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 984-985, characters 2-7:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+((_, (_, _, _)), [], _)::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 992-993, characters 2-16:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+((_, (_, _, _)), (_, _)::_, _)::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/itab.ml", line 21, characters 10-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/simp.ml", lines 95-117, characters 2-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Comb (Const ("", _), _), Comb (Comb (Const ("", _), _), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_defs.ml", lines 86-91, characters 6-22:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_defs.ml", line 341, characters 32-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/canon.ml", line 117, characters 6-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 234, characters 30-36:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 246, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 252, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 269, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 274, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 304, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 329, characters 31-37:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", lines 431-435, characters 16-76:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 318-321, characters 8-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var_ (_, _)|Const_ (_, _, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 459-460, characters 18-38:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1093, characters 18-34:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1121, characters 18-34:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1602, characters 19-36:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 1755-1756, characters 4-53:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 1784-1790, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 156, characters 4-39:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 261, characters 8-71:
+Warning 10 [non-unit-statement]: this expression should have type unit.
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 286, characters 33-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const (_, _)|Comb (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", line 222, characters 6-58:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (_, (Var (_, _)|Const (_, _)|Abs (_, _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 259-262, characters 4-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Const ("", _), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 280-292, characters 6-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const ("", _), Const ("", _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 399-401, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 403-405, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 395-405, characters 6-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+4
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 418-420, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 422-424, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 414-424, characters 6-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+4
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 573-581, characters 10-32:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 584-589, characters 12-75:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 592-595, characters 12-76:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 598-601, characters 12-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 699-700, characters 16-48:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 926-929, characters 20-58:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (_, Comb (_, Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 933-953, characters 14-56:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 977-981, characters 14-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 958-981, characters 14-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb
+  (Comb (_, _),
+  Comb
+    (Comb (_, _),
+    Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 895-981, characters 6-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Const ("", _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 1531-1560, characters 2-32:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/normalizer.ml", lines 95-535, characters 4-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/grobner.ml", lines 552-558, characters 10-25:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_types.ml", lines 796-801, characters 8-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_types.ml", lines 807-810, characters 8-73:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 773, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 774, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 801, characters 12-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 802, characters 12-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 831, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 832, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 860, characters 12-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 861, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", line 149, characters 6-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", lines 1299-1303, characters 4-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", lines 1739-1745, characters 4-70:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 234-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 223-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 212-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 200-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 187-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 284-346, characters 2-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realarith.ml", lines 266-268, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 927-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 916-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 905-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 893-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 880-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 977-1039, characters 2-46:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/iterate.ml", line 2057, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/iterate.ml", line 2905, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/cart.ml", lines 434-439, characters 6-18:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/cart.ml", lines 410-440, characters 2-34:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/define.ml", line 500, characters 8-29:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/define.ml", lines 726-728, characters 8-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+if [ `uname` = "Linux" ] || [ `uname` = "Darwin" ] ; then \
+	if [ `ocamlc -version | cut -c1` = "5" ] || [ `ocamlc -version | cut -c1-4` = "4.14" ] ; then \
+		ocamlfind ocamlmktop -package zarith -o ocaml-hol zarith.cma bignum.cmo hol_loader.cmo ; \
+		sed "s^__DIR__^`pwd`^g; s^__USE_MODULE__^1^g; s^__VERSION__^3.1.0+^g; s^__COMMIT__^commit e5236a5839b4d08dc2536b325cea0af855e6c379^g" hol_4.14.sh > hol.sh ; \
+	else \
+		ocamlmktop -o ocaml-hol nums.cma bignum.cmo hol_loader.cmo ; \
+		sed "s^__DIR__^`pwd`^g; s^__USE_MODULE__^1^g; s^__VERSION__^3.1.0+^g; s^__COMMIT__^commit e5236a5839b4d08dc2536b325cea0af855e6c379^g" hol_4.sh > hol.sh ; \
+	fi ; \
+	chmod +x hol.sh ; \
+else \
+	echo 'FAILURE: hol.sh assumes Linux' ; \
+fi
+\
+        ocamlfind ocamlc -package zarith -linkpkg -a -o hol_lib.cma bignum.cmo hol_loader.cmo hol_lib.cmo
+\
+        ocamlopt -verbose -c hol_loader.ml -o hol_loader.cmx
+File "hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
++ as  -o 'hol_loader.o' '/tmp/camlasmc12a26.s'
+\
+        if test `ocamlc -version | cut -c1-4` = "4.14" -o `ocamlc -version | cut -c1` = "5" ; \
+        then ocamlfind ocamlopt -package zarith -c -o bignum.cmx bignum_zarith.ml ; \
+        else ocamlopt -c -o bignum.cmx bignum_num.ml ; \
+        fi
+\
+        OCAMLRUNPARAM=l=1000000000 ocamlopt.byte -verbose -c \
+              -pp "camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo -I . pa_j.cmo" \
+              hol_lib_inlined.ml hol_loader.cmx bignum.cmx -o hol_lib.cmx
++ camlp5r pa_lexer.cmo pa_extend.cmo q_MLast.cmo -I . pa_j.cmo 'hol_lib_inlined.ml' > /tmp/ocamlpp81df38
+    * HOL-Light syntax in effect *
+
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", line 238, characters 19-71:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Tyapp ("fun", _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 235-239, characters 4-53:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 330-334, characters 4-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", lines 443-456, characters 4-22:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Abs (Var (_, _), _), Abs ((Const (_, _)|Comb (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/fusion.ml", line 594, characters 39-67:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const (_, _)|Comb (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/basics.ml", line 150, characters 18-24:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/basics.ml", lines 172-174, characters 2-29:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+("fun", _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nets.ml", line 93, characters 52-61:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/printer.ml", lines 662-667, characters 6-35:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/printer.ml", lines 669-677, characters 6-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/preterm.ml", lines 390-399, characters 4-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Typing (_, _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/preterm.ml", lines 407-417, characters 4-41:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Typing (_, _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/parser.ml", line 288, characters 15-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Combp (Combp (Varp ("", _), _), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/parser.ml", line 344, characters 10-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Resword _
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 169, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 174, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 186, characters 21-27:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 305, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 310, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 344, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 349, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 387, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/drule.ml", line 392, characters 19-25:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 135, characters 24-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 136, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 178, characters 31-41:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 247, characters 10-54:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 338, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 360, characters 28-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 379-380, characters 14-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 389, characters 14-43:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 438, characters 14-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 443, characters 14-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 449, characters 10-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 455, characters 14-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 463, characters 13-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 469, characters 14-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 490, characters 14-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 503, characters 16-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 509, characters 10-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 533, characters 39-64:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 539, characters 32-66:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 545, characters 34-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 556, characters 16-71:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 560, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 567, characters 25-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 592, characters 29-66:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 722, characters 14-65:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 735, characters 10-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", line 889, characters 16-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 984-985, characters 2-7:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+((_, (_, _, _)), [], _)::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/tactics.ml", lines 992-993, characters 2-16:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+((_, (_, _, _)), (_, _)::_, _)::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/itab.ml", line 21, characters 10-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/simp.ml", lines 95-117, characters 2-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Comb (Const ("", _), _), Comb (Comb (Const ("", _), _), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_defs.ml", lines 86-91, characters 6-22:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_defs.ml", line 341, characters 32-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/canon.ml", line 117, characters 6-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 234, characters 30-36:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 246, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 252, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 269, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 274, characters 23-29:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 304, characters 17-23:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", line 329, characters 31-37:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/meson.ml", lines 431-435, characters 16-76:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 318-321, characters 8-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var_ (_, _)|Const_ (_, _, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 459-460, characters 18-38:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1093, characters 18-34:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1121, characters 18-34:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", line 1602, characters 19-36:
+Warning 52 [fragile-literal-pattern]: Code should not depend on the actual values of
+this constructor's arguments. They are only for information
+and may change in future versions. (See manual section 11.5)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 1755-1756, characters 4-53:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/impconv.ml", lines 1784-1790, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 156, characters 4-39:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 261, characters 8-71:
+Warning 10 [non-unit-statement]: this expression should have type unit.
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/nums.ml", line 286, characters 33-61:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const (_, _)|Comb (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", line 222, characters 6-58:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (_, (Var (_, _)|Const (_, _)|Abs (_, _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 259-262, characters 4-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Const ("", _), _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 280-292, characters 6-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Const ("", _), Const ("", _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 399-401, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 403-405, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 395-405, characters 6-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+4
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 418-420, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 422-424, characters 13-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(Var (_, _)|Const (_, _)|Abs (_, _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 414-424, characters 6-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+4
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 573-581, characters 10-32:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 584-589, characters 12-75:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 592-595, characters 12-76:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 598-601, characters 12-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _)))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 699-700, characters 16-48:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 926-929, characters 20-58:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (_, Comb (_, Comb (_, Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 933-953, characters 14-56:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 977-981, characters 14-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 958-981, characters 14-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Comb
+  (Comb (_, _),
+  Comb
+    (Comb (_, _),
+    Comb (Comb (_, _), Comb ((Var (_, _)|Const (_, _)|Abs (_, _)), _))))
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 895-981, characters 6-60:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+Const ("", _)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_num.ml", lines 1531-1560, characters 2-32:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/normalizer.ml", lines 95-535, characters 4-59:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/grobner.ml", lines 552-558, characters 10-25:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_types.ml", lines 796-801, characters 8-69:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/ind_types.ml", lines 807-810, characters 8-73:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, _::_::_::_)
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 773, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 774, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 801, characters 12-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 802, characters 12-31:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 831, characters 12-28:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 832, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 860, characters 12-33:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/lists.ml", line 861, characters 12-40:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", line 149, characters 6-47:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", lines 1299-1303, characters 4-68:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realax.ml", lines 1739-1745, characters 4-70:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 234-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 223-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 212-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 200-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 187-246, characters 2-52:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/calc_int.ml", lines 284-346, characters 2-51:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/realarith.ml", lines 266-268, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 927-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 916-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 905-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 893-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 880-939, characters 2-37:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/int.ml", lines 977-1039, characters 2-46:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/iterate.ml", line 2057, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/iterate.ml", line 2905, characters 6-27:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/cart.ml", lines 434-439, characters 6-18:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+(_, [])
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/cart.ml", lines 410-440, characters 2-34:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/define.ml", line 500, characters 8-29:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+_::_::_::_::_
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/define.ml", lines 726-728, characters 8-50:
+Warning 8 [partial-match]: this pattern-matching is not exhaustive.
+Here is an example of a case that is not matched:
+[]
++ as  -o 'hol_lib.o' '/tmp/camlasmb9eb87.s'
+\
+        ocamlfind ocamlopt -package zarith -a -o hol_lib.cmxa bignum.cmx hol_loader.cmx hol_lib.cmx
+\
+        ./hol.sh inline-load UnitTests/basic_tests.ml UnitTests/basic_tests_inlined.ml
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+\
+        ./hol.sh compile UnitTests/basic_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh compile-byte UnitTests/basic_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh link-byte UnitTests/basic_tests_inlined.cmo -o UnitTests/basic_tests.byte
+\
+        ./hol.sh inline-load UnitTests/parser_tests.ml UnitTests/parser_tests_inlined.ml
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+\
+        ./hol.sh compile UnitTests/parser_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh compile-byte UnitTests/parser_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh link-byte UnitTests/parser_tests_inlined.cmo -o UnitTests/parser_tests.byte
+\
+        ./hol.sh inline-load UnitTests/printer_tests.ml UnitTests/printer_tests_inlined.ml
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+\
+        ./hol.sh compile UnitTests/printer_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh compile-byte UnitTests/printer_tests_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh link-byte UnitTests/printer_tests_inlined.cmo -o UnitTests/printer_tests.byte
+\
+        ./hol.sh inline-load UnitTests/records.ml UnitTests/records_inlined.ml
+File "<runs>/proof-lab-s2n2-zen3-20261111T060936-223414a3/hol/hol_loader.ml", line 30, characters 41-65:
+30 | let file_loader = ref (fun (s:string) -> failwith "uninitialized"; false);;
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^
+Warning 21 [nonreturning-statement]: this statement never returns (or has an unsound type.)
+\
+        ./hol.sh compile UnitTests/records_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh compile-byte UnitTests/records_inlined.ml
+    * HOL-Light syntax in effect *
+
+\
+        ./hol.sh link-byte UnitTests/records_inlined.cmo -o UnitTests/records.byte
+\
+        ./hol.sh link UnitTests/basic_tests_inlined.cmx -o UnitTests/basic_tests.native
+\
+        ./hol.sh link UnitTests/parser_tests_inlined.cmx -o UnitTests/parser_tests.native
+\
+        ./hol.sh link UnitTests/printer_tests_inlined.cmx -o UnitTests/printer_tests.native
+\
+        ./hol.sh link UnitTests/records_inlined.cmx -o UnitTests/records.native
