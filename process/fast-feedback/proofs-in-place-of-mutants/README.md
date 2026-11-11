@@ -1,6 +1,6 @@
 # Proofs in place of mutants: the experiments' scripts and outputs (BLAKE3-Servil #361)
 
-Sam Shackleton, November 10 and 11, 2026. What was proved is on the BLAKE3 fork
+Sam Shackleton, November 10 and 11, 2026. **`REPORT.md` here is the account of it all**: every tool and technique tried, what each cost, how each stands against the goal, and what is still to trust (written for Sam, the project's lead; published at her word). What was proved is on the BLAKE3 fork
 `samshackleton-tech/BLAKE3`, branch `experiment/sam-machine-code-lean`, directory
 `tools/verify/machine/` (its README lists each folder and its limits). This directory holds the
 job scripts that ran on rented machines (`drivers/`), each job's manifest without host and lock
