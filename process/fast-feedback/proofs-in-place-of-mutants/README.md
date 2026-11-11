@@ -11,7 +11,7 @@ is a gate.
 |---|---|---|
 | How big is the whole problem? (instructions, loops, calls, mnemonics of the core crate) | `size-of-the-problem.sh` (the manifests call it `inventory.sh`), `dump.sh`, `disasm.sh` | `proof-lab-inventory-*`, `proof-lab-dump-*`, `proof-lab-disasm*` |
 | Other tools: Kani, Aeneas, Jasmin, Binsec, Sail's x86 to Lean, s2n-bignum | `kani.sh`, `kani-loop.sh`, `aeneas.sh`, `jasmin.sh`, `binsec.sh`, `binsec-real.sh`, `sail-lean.sh`, `s2n.sh` | by the same names |
-| Do the Lean models agree with processors? | `cross-gpr.sh`, `cross-one.sh`, `cross-eq.sh` (they run the branch's own `cross*.sh`) | `proof-lab-cross-*` |
+| Do the Lean models agree with processors? | `cross-gpr.sh`, `cross-one.sh`, `cross-eq.sh`, `cross-first.sh` (they run the branch's own `cross*.sh`) | `proof-lab-cross-*` |
 | Can a third party check everything from nothing, and how long does it take? | `skeptic-all.sh` | `proof-lab-skeptic-*` (the last are `skeptic-last-*` and `skeptic-head-*`) |
 | What do the compiler flags that keep a loop's shape cost? | `loop-shape-speed.sh` (the manifests call it `flags-speed.sh`) | `proof-lab-flags-*` |
 | How much machine code does another compiler change? | `compilers.sh`, `compilers-analyze.py` | `proof-lab-compilers4-*` (earlier ones compared names LLVM renames; see the analysis script) |
