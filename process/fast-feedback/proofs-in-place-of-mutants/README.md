@@ -19,6 +19,10 @@ is a gate.
 | How much do a user's build settings change? | `builds.sh`, `builds-analyze.py` | `proof-lab-builds-*` |
 | Does the detection proof check on other compilers' and other settings' code? | `detect-compilers.sh`, `detect-builds.sh` | `proof-lab-detect-*` |
 | Do the branch's other-compiler scripts work from nothing? | `other-compilers.sh` | `proof-lab-other-compilers-*` |
+| Is the theorem a judge of source mutants? (cargo-mutants' mutants of the proved functions, each built, lifted and judged by the theorem) | `source-mutants.sh` (detection), `source-mutants-real.sh` (`merge`, `to_hex`) | `proof-lab-source-mutants*` (the last is `source-mutants4-*`) |
+| Do the generated proofs of `gen/` check on other compilers and optimisation levels? (run on the Mac) | `gen-matrix.py` | `drivers/gen-matrix.txt` |
+| How far does the lifter reach, and what would one model for the crate need? (run on the Mac over the crate's disassembly) | `reach-lift.py`, `reach-survey.py` | – |
+| How long does the audit of `merge`'s proof by changed instructions take from nothing? | `merge-mutants.sh` | `proof-lab-merge-mutants-*` |
 
 Failed runs are kept (`runs/FAILED-*`): they are how several faults were found (a SAT time limit on
 slower machines, a full disk, a control that did not build).

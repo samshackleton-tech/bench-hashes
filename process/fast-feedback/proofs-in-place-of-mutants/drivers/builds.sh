@@ -61,6 +61,13 @@ lib opt-level-2 CARGO_PROFILE_RELEASE_OPT_LEVEL=2
 lib panic-abort CARGO_PROFILE_RELEASE_PANIC=abort
 lib target-cpu-native RUSTFLAGS=-Ctarget-cpu=native
 lib debug-assertions CARGO_PROFILE_RELEASE_DEBUG_ASSERTIONS=true
+lib opt-level-s CARGO_PROFILE_RELEASE_OPT_LEVEL=s
+lib opt-level-1 CARGO_PROFILE_RELEASE_OPT_LEVEL=1
+lib target-cpu-x86-64-v3 RUSTFLAGS=-Ctarget-cpu=x86-64-v3
+lib debuginfo CARGO_PROFILE_RELEASE_DEBUG=true
+lib overflow-checks CARGO_PROFILE_RELEASE_OVERFLOW_CHECKS=true
+lib thin-lto CARGO_PROFILE_RELEASE_LTO=thin
+lib no-unroll RUSTFLAGS=-Cllvm-args=-unroll-runtime=false
 NAME=$(grep -m1 '^name' "$R/library/Cargo.toml" | sed 's/.*"\(.*\)".*/\1/'); CRATE=$(echo "$NAME" | tr - _)
 mkdir -p "$R/p/src"; cd "$R/p"
 cat > Cargo.toml <<TOML
