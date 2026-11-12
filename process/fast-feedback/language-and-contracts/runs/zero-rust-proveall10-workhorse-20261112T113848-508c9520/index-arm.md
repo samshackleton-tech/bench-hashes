@@ -1,0 +1,4 @@
+| `hex_neon_meets` | AArch64, Google DeepMind's model | the kernel `hex_neon`, as assembled, writes the hexadecimal of the 32 bytes read and changes nothing else | `Hex.byteContract` (spec/HexContract.lean) | 6,180 in 14 files | 72 (bv_decide) |
+| `hex_neon_quiet` | AArch64, Google DeepMind's model | two machines that differ only in what memory holds and in the vector registers show an observer the same while `hex_neon`'s words run | arm/Observer.lean | 7,677 in 36 files | 0 |
+| `hex_neon_observed` | AArch64, Google DeepMind's model | the observer has an account of every instruction of `hex_neon`, from any state: the theorem above is not about two runs both unobserved | arm/Observer.lean | 7,667 in 36 files | 0 |
+| `push_arm_meets` | AArch64, Google DeepMind's model | `push`, printed for AArch64 from the same source function and assembled, puts a chaining value on the stack | `Push.byteContract` (spec/PushContract.lean) | 6,193 in 16 files | 0 |

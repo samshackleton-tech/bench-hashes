@@ -1,0 +1,24 @@
+control: the unchanged code is accepted
+rejected	the high bits shifted by three	5002E: .psrlw 2 4 -> .psrlw 2 3
+rejected	the high bits masked with nines	50033: .pand 2 (.x 5) -> .pand 2 (.x 6)
+rejected	the low bits masked with 39s	50037: .pand 0 (.x 5) -> .pand 0 (.x 7)
+rejected	the high eight bytes twice	5003F: .punpcklbw 3 (.x 0) -> .punpckhbw 3 (.x 0)
+rejected	one byte's mask is 7	50009: 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F#128 -> 0x0F0F0F0F0F0F0F0F0F0F0F0F0F0F0F07#128
+rejected	one byte's ten is a digit	50011: 0x09090909090909090909090909090909#128 -> 0x0909090909090909090909090909090A#128
+rejected	one byte's letters are capitals	50019: 0x27272727272727272727272727272727#128 -> 0x27272727272727272727272727272707#128
+rejected	one byte's zero is '1'	50021: 0x30303030303030303030303030303030#128 -> 0x30303030303030303030303030303031#128
+rejected	the hash read from its second byte	50000: .movv false 0 (.m .rsi 0x0) -> .movv false 0 (.m .rsi 0x1)
+rejected	the first half twice	50004: .movv false 1 (.m .rsi 0x10) -> .movv false 1 (.m .rsi 0x0)
+10 changed instructions: 10 rejected
+rejected	a byte's low four bits come first	../spec/HexText.lean: [char (b &&& 15#8), char (b >>> 4)]
+rejected	the letters are capitals	../spec/HexText.lean: then n + 0x30#8 else n + 0x37#8
+rejected	ten is written as a digit	../spec/HexText.lean: if n < 11#8 then
+rejected	the hash is written backwards	Spec_hex.lean: (Bytes.layout 64).fills out (Hex.text hash.reverse)
+rejected	only 63 bytes may change	Spec_hex.lean: (Bytes.layout 63).fills out (Hex.text hash)
+rejected	the hash is 31 bytes	Spec_hex.lean: reads := [(Bytes.layout 31).keeps inp hash]
+rejected	the arguments the other way round	Spec_hex.lean: args := [inp, out]
+rejected	it returns zero	Spec_hex.lean: returns := fun r => r = 0#64
+rejected	it is entered at its second instruction	Meets_hex.lean: Abi.MeetsQuietly Code_hex.prog 0x50004
+rejected	the hash's place depends on the hash	Meets_hex.lean: (fun hash : List (BitVec 8) => Hex.contract out (inp + (hash.headD 0#8).zeroExtend 64) hash)
+rejected	bytes are in memory one place later	Spec_bytes.lean: m (a + BitVec.ofNat 64 (i + 1)) = some bs[i]
+11 false statements: 11 rejected

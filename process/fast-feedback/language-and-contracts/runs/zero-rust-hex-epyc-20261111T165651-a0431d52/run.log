@@ -1,0 +1,32 @@
+6 functions: push, merge, to_hex, hash, compress_avx512, hex
+4 prefalign directives rewritten
+platform 5
+way A (Lean, Rust printed, rustc): 20000 random cases agree with the crate's Rust (push, merge, to_hex)
+way B (Lean, assembly printed): 20000 random cases agree with the crate's Rust (push, merge, to_hex)
+the kernel written in the language: 200000 random compressions agree with the crate's assembly
+one compression, ns a call (each feeding the next): the crate's assembly 80.02, written in the language 80.05
+the hexadecimal kernel: 1000000 random hashes and every byte value agree with the crate's to_hex
+to_hex, ns a call: the crate's Rust (a table) 12.75, the kernel written in the language (no table, proved) 1.91
+way A: the whole hash agrees with the crate's hash_serial on 8154 inputs
+way B: the whole hash agrees with the crate's hash_serial on 8154 inputs
+hash of 64 bytes, ns a call: the crate's hash_serial 57.7, way A 57.4 (-0.5%), way B 57.4 (-0.6%)
+hash of 1024 bytes, ns a call: the crate's hash_serial 1230.8, way A 1258.5 (+2.3%), way B 1257.8 (+2.2%)
+hash of 4096 bytes, ns a call: the crate's hash_serial 1444.5, way A 1463.7 (+1.3%), way B 1463.4 (+1.3%)
+hash of 16384 bytes, ns a call: the crate's hash_serial 1794.7, way A 2485.6 (+38.5%), way B 2484.9 (+38.5%)
+hash of 1048576 bytes, ns a call: the crate's hash_serial 75024.7, way A 84995.8 (+13.3%), way B 85973.7 (+14.6%)
+merge 2 to 1, ns a call (the copy of the stack taken off): hand Rust 90.2, way A 63.3, way B 63.4
+merge 11 to 1, ns a call (the copy of the stack taken off): hand Rust 827.3, way A 779.9, way B 780.9
+to_hex, ns a call: hand Rust (table) 12.9, way A 31.3, way B 47.1
+push, ns a call: hand Rust 0.5, way A 1.2, way B 1.4
+way A push: 15 instructions
+way B push: 34 instructions
+way A merge: 92 instructions
+way B merge: 93 instructions
+way A to_hex: 27 instructions
+way B to_hex: 61 instructions
+way A hash: 735 instructions
+way B hash: 817 instructions
+hand Rust <blake3_servil_core::hasher::CvStack>::merge::<blake3_servil_core::has: 111 instructions
+hand Rust blake3_servil_core::labshim::merge: 122 instructions
+hand Rust <blake3_servil_core::Hash>::to_hex: 38 instructions
+three ways compared
