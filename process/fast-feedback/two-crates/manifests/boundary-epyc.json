@@ -1,0 +1,46 @@
+{
+  "name": "two-crates-boundary-epyc",
+  "study": "two-crates-20261110",
+  "host": "epyc-9255-host",
+  "env": {
+    "POINTS": "64 B,1 KiB,16 KiB,1 MiB,turn 256,interleaved 256,turn 1024 x 1 KiB,continuous 64 B,continuous 1 KiB,continuous 1 MiB,continuous batch 1024,collection git objects",
+    "LAYOUTS": "4"
+  },
+  "repos": [
+    {
+      "url": "https://github.com/servil-software-factory/BLAKE3",
+      "commit": "a1366e293c394b75e5f5b911bff5fe55f24122e3",
+      "path": "library"
+    },
+    {
+      "url": "https://github.com/servil-software-factory/BLAKE3",
+      "commit": "86c49732e3432fde71cf97a277b33e2907716079",
+      "path": "baseline"
+    },
+    {
+      "url": "https://github.com/servil-software-factory/bench-hashes",
+      "commit": "c03751a60f6b81ea8835685a98654c33f5795308",
+      "path": "bench"
+    }
+  ],
+  "script": "~/blake3-reports/two-crates-20261110/check-points.sh",
+  "expect": [
+    {
+      "file": "out/identity.txt",
+      "contains": [
+        "library a1366e293c394b75e5f5b911bff5fe55f24122e3",
+        "baseline 86c49732e3432fde71cf97a277b33e2907716079",
+        "bench c03751a60f6b81ea8835685a98654c33f5795308"
+      ]
+    },
+    {
+      "file": "out/status.txt",
+      "contains": [
+        "check exit"
+      ]
+    }
+  ],
+  "forbid": [
+    "was not used in the crate graph"
+  ]
+}

@@ -1,0 +1,100 @@
+diff --git a/tools/mutants/known-x86_64.txt b/tools/mutants/known-x86_64.txt
+index c4b287c..89af148 100644
+--- a/tools/mutants/known-x86_64.txt
++++ b/tools/mutants/known-x86_64.txt
+@@ -57,6 +57,7 @@ src/ffi_output.rs	replace input -> Option<Input<'_>> with None	1	[cpu lacks avx5
+ src/ffi_output.rs	replace | with & in input	3	[cpu lacks avx512f avx512vl] code for another machine: `input` describes a message for the sixteen-lane finish of finalize_each, which only an AVX-512 CPU takes; this CPU never calls it. AVX-512 machines catch it (incremental_roots_batch_all_modes_and_selected_indices)
+ src/ffi_output.rs	replace | with ^ in held_groups	1	equivalent: mode flags (0, 16, 32, 64) and PARENT (4) occupy disjoint bits
+ src/ffi_output.rs	replace | with ^ in input	3	equivalent: mode flags (0, 16, 32, 64), CHUNK_START (1), CHUNK_END (2) and ROOT (8) occupy disjoint bits
++src/ffi_output.rs	replace | with ^ in packed	3	UNCLASSIFIED
+ src/ffi_output.rs	replace | with ^ in self_test_shape	2	equivalent: fixture structural flags (3, 2, 4), mode flags (0, 16, 32, 64) and optional ROOT (8) occupy disjoint bits
+ src/ffi_partial.rs	replace % with + in rotation	1	equivalent: k % 4 becomes k + 4, which adds 16 to each shuffle index; pshufb reads an index's low four bits (and bit 7, clear: the largest is 47), so the shuffle is the same
+ src/ffi_partial.rs	replace | with ^ in rotation	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+@@ -77,7 +78,7 @@ src/incremental.rs	replace + with - in Hasher::update	1	same code: every test bi
+ src/incremental.rs	replace / with * in HasherCore::push_group	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/incremental.rs	replace <impl hasher::Hooks for HasherHooks<'_>>::subtree_cv -> Option<CVBytes> with None	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
+ src/incremental.rs	replace == with != in Hasher::update	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+-src/incremental.rs	replace >= with < in <impl hasher::Hooks for HasherHooks<'_>>::children	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
++src/incremental.rs	replace >= with < in <impl hasher::Hooks for HasherHooks<'_>>::children	2	as on aarch64: survives (known-aarch64.txt): speed: chooses between equally correct paths
+ src/incremental.rs	replace >= with < in HasherCore::update_pooled	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/incremental.rs	replace Hasher::held_group -> Option<(u64, &[u8; STAGE_LEN])> with Some((0, Box::leak(Box::new([0; STAGE_LEN]))))	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/incremental.rs	replace Hasher::held_group -> Option<(u64, &[u8; STAGE_LEN])> with Some((0, Box::leak(Box::new([1; STAGE_LEN]))))	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+@@ -117,6 +118,7 @@ src/lib.rs	replace / with * in compress_parents_parallel	1	same code: every test
+ src/lib.rs	replace / with * in prefetch_kernels	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace / with * in prefetch_update_kernels	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace << with >>	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
++src/lib.rs	replace <= with > in hash_all_at_once	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace == with != in prefetch_kernels	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace > with < in prefetch_update_kernels	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace > with == in prefetch_update_kernels	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+@@ -129,11 +131,12 @@ src/lib.rs	replace hash_one_chunk_root -> Hash with Default::default()	1	same co
+ src/lib.rs	replace prefetch_cold with ()	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
+ src/lib.rs	replace prefetch_kernels with ()	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
+ src/lib.rs	replace prefetch_update_kernels with ()	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
++src/lib.rs	replace | with & in hash_all_at_once	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace | with & in hash_one_chunk_root	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace | with ^ in Output::root_output_block	1	equivalent: | and ^ agree on flag bits that never overlap
+ src/lib.rs	replace | with ^ in OutputReader::fill	1	equivalent: | and ^ agree on flag bits that never overlap
+ src/lib.rs	replace | with ^ in compress_parents_parallel	1	equivalent: | and ^ agree on flag bits that never overlap
+-src/lib.rs	replace | with ^ in hash_all_at_once	1	equivalent: | and ^ agree on flag bits that never overlap
++src/lib.rs	replace | with ^ in hash_all_at_once	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace | with ^ in hash_many_rounded	1	the tests' record of the widths a count rounded to (ROUNDED_WIDTH): `|` and `^` agree unless one width is recorded twice in a reading, which no test's reading holds (three x86-64 machines' whole runs, November 10, 2026)
+ src/lib.rs	replace | with ^ in hash_one_chunk_root	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lib.rs	replace || with && in compress_chunks_parallel	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+@@ -245,8 +248,11 @@ src/platform.rs	replace <impl Drop for Sme2Turn>::drop with ()	1	same code: ever
+ src/platform.rs	replace == with != in sme2_detect_uncached	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/platform.rs	replace == with != in sme2_reported	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/platform.rs	replace >= with < in Platform::xof_many	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
++src/platform.rs	replace Platform::avx512 -> Option<Self> with None	1	UNCLASSIFIED
+ src/platform.rs	replace Platform::name -> &'static str with ""	1	a name for reports and legends, with no reader since the kernel reports went
+ src/platform.rs	replace Platform::name -> &'static str with "xyzzy"	1	a name for the kernel report and legends (no test pins the names)
++src/platform.rs	replace Platform::neon -> Option<Self> with None	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
++src/platform.rs	replace Platform::neon -> Option<Self> with Some(Default::default())	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/platform.rs	replace Platform::sme2 -> Option<Self> with None	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/platform.rs	replace Platform::sme2 -> Option<Self> with Some(Default::default())	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/platform.rs	replace avx2_detected -> bool with true	1	[cpu has avx2] equivalent: this CPU has AVX2, so the forced yes is its own answer
+diff --git a/tools/mutants/threads/known-x86_64.txt b/tools/mutants/threads/known-x86_64.txt
+index ffc86e5..f20a377 100644
+--- a/tools/mutants/threads/known-x86_64.txt
++++ b/tools/mutants/threads/known-x86_64.txt
+@@ -4,6 +4,7 @@
+ # A line: file <TAB> mutant (function and change) <TAB> places <TAB> reason.
+ files: src/finish.rs src/lanes.rs src/park.rs src/stream.rs src/lib.rs
+ model files: src/finish.rs src/park.rs
++src/finish.rs	delete ! in Finish::wait	1	OPEN: the machines differ: on x86_64: survives; on aarch64: times out (timeouts-aarch64.txt): a hang the test stream::frontend::tests::collect_counts_the_completions_it_delivers showed: `if poll()` leaves the polls for the park as soon as a poll did work, and in a pool of one thread the polls are the only work, so nothing wakes the waiter. Before the pipeline's one-thread tests it survived, as a scheduling choice
+ src/lanes.rs	delete ! in initialize	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lanes.rs	delete ! in sources::take_stream_task	1	same code: every test binary hashes as the unmutated build's here (tools/mutants/code_hash.py)
+ src/lanes.rs	replace && with || in initialize	2	compiled out on x86: the SME2 thread (cfg!(blake3_sme2) is false, so the expression is false whatever the comparison)
+@@ -26,4 +27,5 @@ src/lanes.rs	replace prefix_for -> usize with 1	1	speed: how the work is cut amo
+ src/lanes.rs	replace sme2_main with ()	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
+ src/lanes.rs	replace sources::take_stream_task -> Option<Task> with None	1	same code: every test binary of a release build, the mutant's line count kept, hashes as the unmutated build's here (tools/mutants/release_same.py)
+ src/lanes.rs	replace | with ^ in Task::run_equal_members	4	equivalent: | and ^ agree on flag bits that never overlap
++src/lib.rs	replace __all_workers_parked -> bool with true	1	as on aarch64: survives (known-aarch64.txt): a test-only hook (__all_workers_parked, the stream tests' wait for every worker parked): a yes too soon only shortens their wait, and they check what they checked before
+ src/park.rs	replace > with >= in Park::wake_for	1	equivalent: `later >= 0` adds `later` to the owed when it is 0, which is adding nothing; the `if` keeps an atomic add off the path of a job that owes none
+diff --git a/tools/mutants/threads/timeouts-x86_64.txt b/tools/mutants/threads/timeouts-x86_64.txt
+index ad5d3eb..10f1106 100644
+--- a/tools/mutants/threads/timeouts-x86_64.txt
++++ b/tools/mutants/threads/timeouts-x86_64.txt
+@@ -1,18 +1,20 @@
+ # The mutants that time out on x86-64 (an EPYC 9255, AVX-512, October 22): no test fails,
+ # nextest's clock stops one (tools/mutants/check.py, TIMEOUTS). Their own outcome: neither caught nor survived.
+ # A line: file <TAB> mutant (function and change) <TAB> places <TAB> reason. Not yet run on the i7.
+-src/finish.rs	delete ! in Finish::wait	1	as on aarch64: times out (timeouts-aarch64.txt): a hang the test stream::frontend::tests::collect_counts_the_completions_it_delivers showed: `if poll()` leaves the polls for the park as soon as a poll did work, and in a pool of one thread the polls are the only work, so nothing wakes the waiter. Before the pipeline's one-thread tests it survived, as a scheduling choice
+ src/lanes.rs	replace && with || in Pool::serve	1	a worker spins while any stream is open without looking for work: the workers never park, and the tests that wait for every worker parked (test_idle_workers_park_while_a_stream_is_open, a_caller_looping_on_collect_makes_progress_with_sleeping_workers) wait until the clock, as they are written to; the digests stay right (gate16's logs, October 24)
+ src/lanes.rs	replace &= with |= in sources::find	1	[cpu has avx512f avx512vl amd_family_ge_1a] find's own loop never empties `active`: even the single-threaded test_find_reaches_every_registered_source never returns (gate16's logs)
++src/lanes.rs	replace &= with |= in sources::find	1	as on aarch64: times out (timeouts-aarch64.txt): find's own loop never empties `active`: even the single-threaded test_find_reaches_every_registered_source never returns (gate16's logs)
+ src/lanes.rs	replace + with * in sources::Source::publish_job	1	a hang the test lanes::test::test_hash_many_pool_agrees showed: the job's pieces are miscounted; the caller waits for pieces that do not exist
+ src/lanes.rs	replace + with - in sources::Source::publish_job	1	a hang the test lanes::test::test_hash_many_pool_agrees showed: the job's pieces are miscounted; the caller waits for pieces that do not exist
+ src/lanes.rs	replace += with *= in cut_items	1	a hang the test each::test::test_hash_each_multithreaded showed: the cut's byte count stays 0; pieces are cut forever
+ src/lanes.rs	replace - with / in sources::find	1	[cpu has avx512f avx512vl amd_family_ge_1a] find's own loop never empties `active`: even the single-threaded test_find_reaches_every_registered_source never returns (gate16's logs)
++src/lanes.rs	replace - with / in sources::find	1	as on aarch64: times out (timeouts-aarch64.txt): find's own loop never empties `active`: even the single-threaded test_find_reaches_every_registered_source never returns (gate16's logs)
+ src/lanes.rs	replace all_workers_parked -> bool with false	1	a test-only hook (__all_workers_parked): a no that never turns yes, so the stream tests wait for every worker parked, forever
+ src/lanes.rs	replace sources::Source::finished with ()	1	a hang the test each::test::test_hash_each_multithreaded showed: finished pieces are never counted; the caller waits for them
+ src/lanes.rs	replace sources::Source::publish_job -> usize with 1	1	a hang the test lanes::test::test_hash_many_pool_agrees showed: the job's pieces are miscounted; the caller waits for pieces that do not exist
+-src/lanes.rs	replace sources::Source::take -> Option<Item> with None	1	a hang the test lanes::test::test_hash_many_pool_agrees showed: no thread takes a piece; the caller waits for it. On eight cores (a Ryzen 9700X) the clock stops it; with 24 cores and more a test fails first (an EPYC 9255, an EPYC 7443, November 10, 2026)
++src/lanes.rs	replace sources::run_one -> bool with false	1	as on aarch64: times out (timeouts-aarch64.txt): the workers never run a source's item: the pipeline's tests that hold the producer still and wait for a worker's part (stream::receiver's a_part_claimed_is_the_part_run_while_another_message_laps_the_ring and a_later_message_completes_while_an_earlier_one_is_unfinished) wait for ever. Before those tests it survived here, as speed where the SME2 thread serves
+ src/lanes.rs	replace sources::run_one -> bool with true	1	a worker reports an item run when it ran none, and loops: the workers never park, and the tests that wait for every worker parked (test_idle_workers_park_while_a_stream_is_open, a_caller_looping_on_collect_makes_progress_with_sleeping_workers) wait until the clock, as they are written to; the digests stay right (gate16's logs, October 24); the stream tests that need a worker's run wait too. On eight cores (a Ryzen 9700X) the clock stops it; with 24 cores and more a test fails first (an EPYC 9255, an EPYC 7443, November 10, 2026)
++src/lanes.rs	replace sources::run_one_from -> bool with true	1	as on aarch64: times out (timeouts-aarch64.txt): a loop variant broken: a worker counts an item run where it ran none, and never parks or takes the work; the clock stops the pool's tests
+ src/lanes.rs	replace sources::serve with ()	1	as on aarch64: times out (timeouts-aarch64.txt): a loop variant broken: a claimed item is never run, so its job or stream waits for ever; the clock stops every multithreaded test
+ src/lanes.rs	replace worker_main with ()	1	no worker serves: the tests that wait for a worker to run a stream's task or to park wait until the clock; callers' own work stays right (gate16's logs). On eight cores (a Ryzen 9700X) the clock stops it; with 24 cores and more a test fails first (an EPYC 9255, an EPYC 7443, November 10, 2026)
+ src/lib.rs	replace __all_workers_parked -> bool with false	1	a test-only hook (__all_workers_parked): a no that never turns yes, so the stream tests wait for every worker parked, forever
